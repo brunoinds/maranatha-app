@@ -1,0 +1,7 @@
+{
+  "name": "Maranatha Sender",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}

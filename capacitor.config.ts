@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.maranathasender.maranathasender',
-  appName: 'maranatha-sender',
+  appName: 'Maranatha Sender',
   webDir: 'dist',
   server: {
     androidScheme: 'https'

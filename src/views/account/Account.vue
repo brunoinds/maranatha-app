@@ -7,7 +7,6 @@
             </ion-toolbar>
         </ion-header>
         <ion-content>
-            <p>Item new</p>
             <ion-list v-if="!isLoading">
                 <ion-item>
                     <ion-avatar slot="start">

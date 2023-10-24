@@ -25,12 +25,20 @@
                                         <p><b>S./ {{report.invoices.totalAmount}}</b></p>
 
                                     </ion-label>
-                                    <ion-chip color="danger" v-if="report.status == 'Draft'">
+                                    <ion-chip color="warning" v-if="report.status == 'Draft'">
                                         <ion-icon :icon="alertCircleOutline"></ion-icon>
                                         <ion-label>{{report.reportStatus}}</ion-label>
                                     </ion-chip>
-                                    <ion-chip color="success" v-if="report.status == 'Submitted'">
+                                    <ion-chip color="primary" v-if="report.status == 'Submitted'">
+                                        <ion-icon :icon="sendOutline"></ion-icon>
+                                        <ion-label>{{report.reportStatus}}</ion-label>
+                                    </ion-chip>
+                                    <ion-chip color="success" v-if="report.status == 'Approved'">
                                         <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+                                        <ion-label>{{report.reportStatus}}</ion-label>
+                                    </ion-chip>
+                                    <ion-chip color="danger" v-if="report.status == 'Rejected'">
+                                        <ion-icon :icon="closeCircleOutline"></ion-icon>
                                         <ion-label>{{report.reportStatus}}</ion-label>
                                     </ion-chip>
                             </ion-item>
@@ -46,10 +54,11 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent,IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, ref } from 'vue';
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline } from 'ionicons/icons';
+import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, sendOutline, closeCircleOutline } from 'ionicons/icons';
 import { IReport } from '../../interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import { DateTime } from 'luxon';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
@@ -76,7 +85,17 @@ const usersReports = computed(() => {
                 return{
                     ...report,
                     reportType: report.type == 'Bill' ? 'Boletas' : 'Facturas',
-                    reportStatus: report.status == 'Draft' ? 'Pendiente' : 'Enviado',
+                    reportStatus: (() => {
+                        if (report.status == 'Draft'){
+                            return 'Pendiente';
+                        }else if (report.status == 'Submitted'){
+                            return 'Enviado';
+                        }else if (report.status == 'Approved'){
+                            return 'Aprobado';
+                        }else if (report.status == 'Rejected'){
+                            return 'Rechazado';
+                        }
+                    })(),
                     reportDates: `${DateTime.fromISO(report.from_date).toLocaleString(DateTime.DATE_MED)} - ${DateTime.fromISO(report.to_date).toLocaleString(DateTime.DATE_MED)}`,
                     invoices: {
                         total: (report as any).invoices.count,
@@ -99,6 +118,10 @@ const loadAllReports = async () => {
 const openReport = (reportId: number) => {
     router.push(`/reports/${reportId}`);
 }
+
+AppEvents.on('reports:reload', () => {
+    loadAllReports();
+})
 
 loadAllReports();
 </script>

@@ -19,6 +19,7 @@ def capacitor_pods
   pod 'CapacitorPushNotifications', :path => '../../node_modules/@capacitor/push-notifications'
   pod 'CapacitorStatusBar', :path => '../../node_modules/@capacitor/status-bar'
   pod 'CapacitorDocumentScanner', :path => '../../node_modules/capacitor-document-scanner'
+  pod 'CordovaPluginsStatic', :path => '../capacitor-cordova-ios-plugins'
 end
 
 target 'App' do

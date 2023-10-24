@@ -44,6 +44,7 @@
     "lodash": "^4.17.21",
     "luxon": "^3.4.2",
     "maska": "^2.1.10",
+    "onesignal-cordova-plugin": "^5.0.2",
     "v-money3": "^3.24.0",
     "vue": "^3.2.45",
     "vue-currency-input": "^3.0.5",

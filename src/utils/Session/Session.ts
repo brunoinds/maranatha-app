@@ -1,5 +1,6 @@
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { TStorage } from '@/utils/Toolbox/TStorage';
+import { PushNotifications } from '@capacitor/push-notifications';
 
 interface SessionUserData{
     id: number;
@@ -68,6 +69,7 @@ class Session{
                 token: response.token,
                 userData: response.user
             });
+            await (window as any).plugins.OneSignal.login(response.user.id);
 
         } catch (error:any) {
             if (error.code == 401){
@@ -80,11 +82,62 @@ class Session{
     public async logout(){
         const response = await RequestAPI.post('/logout', {});
         await TStorage.clearBucket("session");
+
+        await (window as any).plugins.OneSignal.logout();
+
         Session.session = null;
     }
     public static async getCurrentSession(){
         await Session.init();
         return Session.session;
+    }
+    public static notifications(){
+        return {
+            checkForPermission: () => {
+                return new Promise((resolve, reject) => {
+                    PushNotifications.checkPermissions().then((response) => {
+                        if (response.receive == 'granted'){
+                            resolve('Allowed');
+                        }else if (response.receive == 'denied'){
+                            resolve('Denied');
+                        }else{
+                            resolve('NotAsked');
+                        }
+                    })
+                })
+            },
+            hardAskForPermission: () => {
+                return new Promise((resolve, reject) => {
+                    PushNotifications.requestPermissions().then((response) => {
+                        if (response.receive == 'granted'){
+                            resolve('Allowed');
+                        }else if (response.receive == 'denied'){
+                            resolve('Denied');
+                        }else{
+                            resolve('NotAsked');
+                        }
+                    })
+                })
+            },
+            isAllowed: () => {
+                return new Promise((resolve, reject) => {
+                    PushNotifications.checkPermissions().then((response) => {
+                        if (response.receive == 'granted'){
+                            resolve(true);
+                        }else{
+                            resolve(false);
+                        }
+                    })
+                })
+            },
+            initializeOneSignal: (OneSignal:any) => {
+                OneSignal.initialize("5b414480-2440-4456-b7e1-a6b2564d82d6");
+                Session.waitForLogin().then((session:any) => {
+                    OneSignal.login(Session.session?.id().toString())
+                })
+
+            }
+        }
     }
     public static async init(){
         if (this.isInitialized){
@@ -114,6 +167,16 @@ class Session{
     public static async isLogged(){
         await Session.init();
         return Session.session != null;
+    }
+    public static async waitForLogin(){
+        return new Promise((resolve, reject) => {
+            const interval = setInterval(async () => {
+                if (await Session.isLogged()){
+                    clearInterval(interval);
+                    resolve(Session.getCurrentSession());
+                }
+            }, 100);
+        })
     }
 }
 

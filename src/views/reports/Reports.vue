@@ -14,10 +14,12 @@
             </ion-fab>
 
 
-            <article v-if="reports.drafts.length > 0">
-                <ion-list-header>Pendientes</ion-list-header>
+
+
+            <article v-if="reports.rejected.length > 0">
+                <ion-list-header>Rechazados</ion-list-header>
                 <ion-list>
-                    <ion-item v-for="report in reports.drafts" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                    <ion-item v-for="report in reports.rejected" :key="report.id" button @click="openReport(report.id)" :detail="true">
                         <ion-label>
                                 <h2><b>{{ report.title }}</b></h2>
                                 <p>{{report.reportType}}</p>
@@ -28,8 +30,48 @@
                                 <ion-icon :icon="alertCircleOutline"></ion-icon>
                                 <ion-label>{{report.reportStatus}}</ion-label>
                             </ion-chip>
-                            <ion-chip color="success" v-if="report.status == 'Submitted'">
+                            
+                            <ion-chip color="primary" v-if="report.status == 'Submitted'">
+                                <ion-icon :icon="sendOutline"></ion-icon>
+                                <ion-label>{{report.reportStatus}}</ion-label>
+                            </ion-chip>
+                            <ion-chip color="success" v-if="report.status == 'Approved'">
                                 <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+                                <ion-label>{{report.reportStatus}}</ion-label>
+                            </ion-chip>
+                            <ion-chip color="danger" v-if="report.status == 'Rejected'">
+                                <ion-icon :icon="closeCircleOutline"></ion-icon>
+                                <ion-label>{{report.reportStatus}}</ion-label>
+                            </ion-chip>
+                    </ion-item>
+                </ion-list>
+            </article>
+
+            <article v-if="reports.drafts.length > 0">
+                <ion-list-header>Pendientes</ion-list-header>
+                <ion-list>
+                    <ion-item v-for="report in reports.drafts" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                        <ion-label>
+                                <h2><b>{{ report.title }}</b></h2>
+                                <p>{{report.reportType}}</p>
+                                <p>{{report.reportDates}}</p>
+                                <p><b>S./ {{report.invoices.totalAmount}}</b></p>
+                            </ion-label>
+                            <ion-chip color="warning" v-if="report.status == 'Draft'">
+                                <ion-icon :icon="alertCircleOutline"></ion-icon>
+                                <ion-label>{{report.reportStatus}}</ion-label>
+                            </ion-chip>
+                            
+                            <ion-chip color="primary" v-if="report.status == 'Submitted'">
+                                <ion-icon :icon="sendOutline"></ion-icon>
+                                <ion-label>{{report.reportStatus}}</ion-label>
+                            </ion-chip>
+                            <ion-chip color="success" v-if="report.status == 'Approved'">
+                                <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+                                <ion-label>{{report.reportStatus}}</ion-label>
+                            </ion-chip>
+                            <ion-chip color="danger" v-if="report.status == 'Rejected'">
+                                <ion-icon :icon="closeCircleOutline"></ion-icon>
                                 <ion-label>{{report.reportStatus}}</ion-label>
                             </ion-chip>
                     </ion-item>
@@ -46,12 +88,53 @@
                                 <p>{{report.reportDates}}</p>
                                 <p><b>S./ {{report.invoices.totalAmount}}</b></p>
                             </ion-label>
-                            <ion-chip color="danger" v-if="report.status == 'Draft'">
+                            <ion-chip color="warning" v-if="report.status == 'Draft'">
                                 <ion-icon :icon="alertCircleOutline"></ion-icon>
                                 <ion-label>{{report.reportStatus}}</ion-label>
                             </ion-chip>
-                            <ion-chip color="success" v-if="report.status == 'Submitted'">
+                            
+                            <ion-chip color="primary" v-if="report.status == 'Submitted'">
+                                <ion-icon :icon="sendOutline"></ion-icon>
+                                <ion-label>{{report.reportStatus}}</ion-label>
+                            </ion-chip>
+                            <ion-chip color="success" v-if="report.status == 'Approved'">
                                 <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+                                <ion-label>{{report.reportStatus}}</ion-label>
+                            </ion-chip>
+                            <ion-chip color="danger" v-if="report.status == 'Rejected'">
+                                <ion-icon :icon="closeCircleOutline"></ion-icon>
+                                <ion-label>{{report.reportStatus}}</ion-label>
+                            </ion-chip>
+                    </ion-item>
+                </ion-list>
+            </article>
+
+
+            <article v-if="reports.approved.length > 0">
+                <ion-list-header>Aprobados</ion-list-header>
+                <ion-list>
+                    <ion-item v-for="report in reports.approved" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                        <ion-label>
+                                <h2><b>{{ report.title }}</b></h2>
+                                <p>{{report.reportType}}</p>
+                                <p>{{report.reportDates}}</p>
+                                <p><b>S./ {{report.invoices.totalAmount}}</b></p>
+                            </ion-label>
+                            <ion-chip color="warning" v-if="report.status == 'Draft'">
+                                <ion-icon :icon="alertCircleOutline"></ion-icon>
+                                <ion-label>{{report.reportStatus}}</ion-label>
+                            </ion-chip>
+                            
+                            <ion-chip color="primary" v-if="report.status == 'Submitted'">
+                                <ion-icon :icon="sendOutline"></ion-icon>
+                                <ion-label>{{report.reportStatus}}</ion-label>
+                            </ion-chip>
+                            <ion-chip color="success" v-if="report.status == 'Approved'">
+                                <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+                                <ion-label>{{report.reportStatus}}</ion-label>
+                            </ion-chip>
+                            <ion-chip color="danger" v-if="report.status == 'Rejected'">
+                                <ion-icon :icon="closeCircleOutline"></ion-icon>
                                 <ion-label>{{report.reportStatus}}</ion-label>
                             </ion-chip>
                     </ion-item>
@@ -75,7 +158,7 @@ import { computed, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
 import ReportIcon from '&/assets/icons/report.svg';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline } from 'ionicons/icons';
+import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline,sendOutline, closeCircleOutline  } from 'ionicons/icons';
 import { IReport } from '../../interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import NewReport from '../../dialogs/NewReport/NewReport.vue';
@@ -94,7 +177,17 @@ const reports = computed(() => {
         return {
             ...report,
             reportType: report.type == 'Bill' ? 'Boletas' : 'Facturas',
-            reportStatus: report.status == 'Draft' ? 'Pendiente' : 'Enviado',
+            reportStatus: (() => {
+                if (report.status == 'Draft'){
+                    return 'Pendiente';
+                }else if (report.status == 'Submitted'){
+                    return 'Enviado';
+                }else if (report.status == 'Approved'){
+                    return 'Aprobado';
+                }else if (report.status == 'Rejected'){
+                    return 'Rechazado';
+                }
+            })(),
             reportDates: `${DateTime.fromISO(report.from_date).toLocaleString(DateTime.DATE_MED)} - ${DateTime.fromISO(report.to_date).toLocaleString(DateTime.DATE_MED)}`,
             invoices: {
                 total: (report as any).invoices.count,
@@ -106,7 +199,9 @@ const reports = computed(() => {
 
     return {
         drafts: reportsItems.filter((report) => report.status == 'Draft'),
-        submitted: reportsItems.filter((report) => report.status == 'Submitted')
+        submitted: reportsItems.filter((report) => report.status == 'Submitted'),
+        approved: reportsItems.filter((report) => report.status == 'Approved'),
+        rejected: reportsItems.filter((report) => report.status == 'Rejected'),
     }
 })
 const loadUserReports = async () => {

@@ -24,12 +24,20 @@
                             <p>{{reportType}}s</p>
                             <p>{{report.from_date}} - {{ report.to_date }}</p>
                         </ion-label>
-                        <ion-chip color="danger" v-if="report.status == 'Draft'">
+                        <ion-chip color="warning" v-if="report.status == 'Draft'">
                             <ion-icon :icon="alertCircleOutline"></ion-icon>
                             <ion-label>{{reportStatus}}</ion-label>
                         </ion-chip>
-                        <ion-chip color="success" v-if="report.status == 'Submitted'">
+                        <ion-chip color="primary" v-if="report.status == 'Submitted'">
+                            <ion-icon :icon="sendOutline"></ion-icon>
+                            <ion-label>{{reportStatus}}</ion-label>
+                        </ion-chip>
+                        <ion-chip color="success" v-if="report.status == 'Approved'">
                             <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+                            <ion-label>{{reportStatus}}</ion-label>
+                        </ion-chip>
+                        <ion-chip color="danger" v-if="report.status == 'Rejected'">
+                            <ion-icon :icon="closeCircleOutline"></ion-icon>
                             <ion-label>{{reportStatus}}</ion-label>
                         </ion-chip>
                     </ion-item>
@@ -52,6 +60,63 @@
                         <ion-icon slot="start" :icon="arrowDown"></ion-icon>
                     </ion-button>
                 </article>
+
+                <section v-if="report.status == 'Submitted' && isAdmin">
+                    <ion-card color="light">
+                        <ion-card-header>
+                            <ion-card-title>Esperando aprobación...</ion-card-title>
+                            <ion-card-subtitle>ACCIÓN REQUERIDA</ion-card-subtitle>
+                        </ion-card-header>
+
+                        <ion-card-content>
+                            Este reporte ha sido enviado y está esperando por su aprobación.
+                            <br>
+                            <br>
+
+                            <article v-if="report.status == 'Submitted' && isAdmin">
+                                <section style="display: flex; align-items: center; justify-content: space-between;">
+                                    <ion-button style="width: 100%" color="success" expand="block" @click="acceptReport">
+                                        <ion-label>
+                                            Aceptar reporte
+                                        </ion-label>
+                                        <ion-icon slot="start" :icon="thumbsUpOutline"></ion-icon>
+                                    </ion-button>
+                                    <ion-button  style="width: 100%" color="danger" expand="block" @click="rejectReport">
+                                        <ion-label>
+                                            Rechazar
+                                        </ion-label>
+                                        <ion-icon slot="start" :icon="closeCircleOutline"></ion-icon>
+                                    </ion-button>
+                                </section>
+                            </article>
+                        </ion-card-content>
+                    </ion-card>
+                    
+                </section>
+
+                
+
+                <section v-if="report.status == 'Rejected'">
+                    <ion-card color="danger">
+                        <ion-card-header>
+                            <ion-card-title>Reporte rechazado</ion-card-title>
+                            <ion-card-subtitle>ACCIÓN REQUERIDA</ion-card-subtitle>
+                        </ion-card-header>
+
+                        <ion-card-content>
+                            <b>Este reporte ha sido rechazado por el administrador por el siguiente motivo:</b> <br>
+                            {{ report.rejection_reason }}
+                        </ion-card-content>
+
+                        <ion-button fill="clear" color="light" :disabled="isLoading" @click="undoSendReport">
+                            <ion-label>
+                                Cancelar envío y reaperturar reporte
+                            </ion-label>
+                            <ion-icon slot="end" :icon="lockOpen"></ion-icon>
+                        </ion-button>
+                    </ion-card>
+                    
+                </section>
 
                 <br>
 
@@ -91,10 +156,10 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle,IonChip, IonContent, IonIcon, IonListHeader, IonButton, IonList, IonItem, IonLabel, IonProgressBar, modalController, IonBackButton, IonButtons, actionSheetController, toastController, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar,IonCard, IonCardHeader, IonCardSubtitle, IonCardContent, IonCardTitle, IonTitle,IonChip, IonContent, IonIcon, IonListHeader, IonButton, IonList, IonItem, IonLabel, IonProgressBar, modalController, IonBackButton, IonButtons, actionSheetController, toastController, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, ref } from 'vue';
-import { add, addOutline, pencilOutline, send, trashBinOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline } from 'ionicons/icons';
+import { add, addOutline, pencilOutline, send, trashBinOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline } from 'ionicons/icons';
 import { IReport } from '../../interfaces/ReportInterfaces';
 
 import { useRoute } from 'vue-router';
@@ -122,7 +187,17 @@ const reportType = computed(() => {
     return report.value.type === "Bill" ? "Boleta" : "Factura";
 })
 const reportStatus = computed(() => {
-    return report.value.status === "Draft" ? "Pendiente" : "Enviado";
+    return (() => {
+        if (report.value.status == 'Draft'){
+            return 'Pendiente';
+        }else if (report.value.status == 'Submitted'){
+            return 'Enviado';
+        }else if (report.value.status == 'Approved'){
+            return 'Aprobado';
+        }else if (report.value.status == 'Rejected'){
+            return 'Rechazado';
+        }
+    })();
 })
 const invoices = computed(() => {
     return invoicesData.value.map((invoice) => {
@@ -229,6 +304,62 @@ const loadReportInvoices = async () => {
     isLoading.value = false;
 }
 
+const acceptReport = async () => {
+    isLoading.value = true;
+
+    const pdfResponse = await RequestAPI.patch(`/reports/${reportId.value}`, {
+        status: 'Approved'
+    })
+    isLoading.value = false;
+    toastController.create({
+        message: 'Reporte aprobado con exito!',
+        duration: 2000
+    }).then((toast) => {
+        toast.present();
+    })
+    initialize();
+    AppEvents.emit('reports:reload');
+}
+
+const rejectReport = async () => {
+    const prompt = await alertController.create({
+        header: 'Rechazar reporte',
+        inputs: [
+            {
+                name: 'rejection_reason',
+                type: 'textarea',
+                placeholder: 'Motivo de rechazo'
+            }
+        ],
+        buttons: [
+            {
+                text: 'Cancelar',
+                role: 'cancel'
+            },
+            {
+                text: 'Rechazar',
+                handler: async (data) => {
+                    isLoading.value = true;
+                    const pdfResponse = await RequestAPI.patch(`/reports/${reportId.value}`, {
+                        status: 'Rejected',
+                        rejection_reason: data.rejection_reason
+                    })
+                    isLoading.value = false;
+                    toastController.create({
+                        message: 'Reporte rechazado con exito!',
+                        duration: 2000
+                    }).then((toast) => {
+                        toast.present();
+                    })
+                    initialize();
+                    AppEvents.emit('reports:reload');
+                }
+            }
+        ]
+    })
+
+    prompt.present();
+}
 
 const createExportPDF = async () => {
     const instance = new PDFCreator({
@@ -306,5 +437,16 @@ const initialize = async () => {
     await loadReport();
     await loadReportInvoices();
 }
+const isAdmin = ref(false);
+
+const isAdminCheck = async () => {
+    const currentSession = await Session.getCurrentSession();
+    if (!currentSession){
+        return;
+    };
+
+    isAdmin.value = currentSession.roles().includes("admin");
+}
+isAdminCheck();
 initialize();
 </script>

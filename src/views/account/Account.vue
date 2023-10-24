@@ -27,6 +27,12 @@
                         <h2>Modificar Proyectos</h2>
                     </ion-label>
                 </ion-item>
+
+                <ion-item @click="allowNotifications" button v-if="isNotificationsNotAllowed">
+                    <ion-label color="primary">
+                        <h2>Autorizar notificaciones</h2>
+                    </ion-label>
+                </ion-item>
                 <ion-item @click="doLogout">
                     <ion-icon color="danger" :icon="close" slot="start"></ion-icon>
                     <ion-label color="danger">Terminar sesión</ion-label>
@@ -53,6 +59,7 @@ const isLoading = ref<boolean>(true);
 const router = useRouter();
 const page = ref<HTMLElement|null>(null);
 const isAdmin = ref<boolean>(false);
+const isNotificationsNotAllowed = ref<boolean>(false);
 
 const goToLogin = () => {
     router.replace('/login');
@@ -62,6 +69,20 @@ const goToJobs = () => {
 }
 const goToProjects = () => {
     router.push('/projects');
+}
+const checkForNotificationAllow = () => {
+    Session.notifications().checkForPermission().then((result) => {
+        if (result == "Allowed"){
+            isNotificationsNotAllowed.value = false;
+        }else{
+            isNotificationsNotAllowed.value = true;
+        }
+    })
+}
+
+const allowNotifications = async () => {
+    await Session.notifications().hardAskForPermission();
+    checkForNotificationAllow();
 }
 
 const loadAccount = async () => {
@@ -89,4 +110,5 @@ const doLogout = async () => {
     });
 }
 loadAccount();
+checkForNotificationAllow();
 </script>

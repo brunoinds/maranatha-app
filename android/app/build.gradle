@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.maranathasender.maranathasender"
+    namespace "com.imedicineapp.maranathasender"
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.maranathasender.maranathasender"
+        applicationId "com.imedicineapp.maranathasender"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

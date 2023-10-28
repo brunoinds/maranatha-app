@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1014997533009",
+    "project_id": "maranathasender",
+    "storage_bucket": "maranathasender.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1014997533009:android:74b3d2ad2c017cac2d1370",
+        "android_client_info": {
+          "package_name": "com.imedicineapp.maranathasender"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0tCDjSEIPZbCYk3dWF-mwac_gDPRPOsU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

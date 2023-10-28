@@ -47,11 +47,18 @@ class RequestAPI{
             })
         })
     }
-    public static post(url: string, body: any = {}, ): Promise<any>{
+    public static post(url: string, body: any = {}, options: {onUploadProgress: (percentage: number) => void} = {
+        onUploadProgress: (percentage: number) => {}
+    }): Promise<any>{
         return new Promise(async (resolve, reject) => {
             axios.post(this.variables.rootUrl + url, body, {
                 headers: {
                     'Authorization': await RequestAPI.getAuthHeader()
+                },
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total !== undefined) {
+                        options.onUploadProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
+                    }
                 }
             })
             .then((response) => {

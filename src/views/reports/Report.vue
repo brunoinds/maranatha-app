@@ -2,17 +2,17 @@
     <ion-page ref="page">
         <ion-header>
             <ion-toolbar>
-                <ion-title>{{ report?.title }}</ion-title>
                 <IonButtons slot="start">
                     <IonBackButton :disable="isLoading" defaultHref="/reports"></IonBackButton>
                 </IonButtons>
+                <IonTitleSubtitle  v-show="isLoading == false" :title="report?.title" :subtitle="loadingProcess ? loadingProcess.stage.name : ''"></IonTitleSubtitle>
 
                 <IonButtons slot="end">
                     <ion-button @click="editReport" v-if="report.status == 'Draft'">
                         <ion-icon :icon="ellipsisHorizontal"></ion-icon>
                     </ion-button>
                 </IonButtons>
-                <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
+                <ion-progress-bar v-if="loadingProcess ? true : isLoading" :type="loadingProcess ? (loadingProcess.iddle ? 'indeterminate' : 'determinate') : 'indeterminate'"></ion-progress-bar>
             </ion-toolbar>
         </ion-header>
         <ion-content>
@@ -161,6 +161,7 @@ import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, ref } from 'vue';
 import { add, addOutline, pencilOutline, send, trashBinOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline } from 'ionicons/icons';
 import { IReport } from '../../interfaces/ReportInterfaces';
+import IonTitleSubtitle from '../../components/IonTitleSubtitle/IonTitleSubtitle.vue';
 
 import { useRoute } from 'vue-router';
 import { IInvoice } from '@/interfaces/InvoiceInterfaces';
@@ -181,6 +182,14 @@ const invoicesData = ref<Array<IInvoice>>([]);
 const isLoading = ref<boolean>(true);
 const reportId = ref<string|null>(null);
 const page = ref<HTMLElement|null>(null);
+const loadingProcess = ref<{
+    percentage: number,
+    stage: {
+        name: string,
+        percentage: number
+    },
+    iddle: boolean
+}|null>(null);
 
 
 const reportType = computed(() => {
@@ -368,6 +377,14 @@ const createExportPDF = async () => {
         textContents: {
             submittedBy: (await Session.getCurrentSession())?.name() as unknown as string,
             fromDateToDate: `del ${report.value.from_date}  hasta el ${report.value.to_date}`,
+        },
+        listenTo: {
+            onProgress: (progress) => {
+                loadingProcess.value = {
+                    ...progress,
+                    iddle: false
+                };
+            }
         }
     });
     const base64String = (await instance.create()).split('data:application/pdf;filename=generated.pdf;base64,')[1];
@@ -401,14 +418,42 @@ const sendReport = async () => {
 
     const pdfBase64 = await createExportPDF();
 
+    loadingProcess.value = {
+        percentage: 0,
+        stage: {
+            name: 'Enviando reporte...',
+            percentage: 0
+        },
+        iddle: true
+    }
     const pdfResponse = await RequestAPI.post(`/reports/${reportId.value}/pdf-upload`, {
         pdf: pdfBase64
+    }, {
+        onUploadProgress: (percentage) => {
+            loadingProcess.value = {
+                percentage: percentage,
+                stage: {
+                    name: 'Enviando reporte...',
+                    percentage: percentage
+                },
+                iddle: false
+            }
+        }
     }) as unknown as {message: string, image: {id: string, url: string}};
 
+    loadingProcess.value = {
+        percentage: 0,
+        stage: {
+            name: 'Enviando reporte...',
+            percentage: 0
+        },
+        iddle: true
+    }
     const updateReportResponse = await RequestAPI.patch(`/reports/${reportId.value}`, {
         status: 'Submitted'
     })
     isLoading.value = false;
+    loadingProcess.value = null;
 
     const alert = await alertController.create({
         header: '¡Éxito!',

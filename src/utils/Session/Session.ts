@@ -1,7 +1,11 @@
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { TStorage } from '@/utils/Toolbox/TStorage';
 import { PushNotifications } from '@capacitor/push-notifications';
-
+import {
+    ActionPerformed,
+    PushNotificationSchema,
+    Token,
+} from '@capacitor/push-notifications';
 interface SessionUserData{
     id: number;
     username: string;
@@ -135,6 +139,25 @@ class Session{
                 Session.waitForLogin().then((session:any) => {
                     OneSignal.login(Session.session?.id().toString())
                 })
+
+                PushNotifications.addListener('registration', (token: Token) => {
+                    alert('Push registration success, token: ' + token.value);
+                });
+                PushNotifications.addListener('registrationError', (error: any) => {
+                    alert('Error on registration: ' + JSON.stringify(error));
+                });
+            
+                PushNotifications.addListener('pushNotificationReceived',
+                    (notification: PushNotificationSchema) => {
+                        alert('Push received: ' + JSON.stringify(notification));
+                    },
+                );
+            
+                PushNotifications.addListener('pushNotificationActionPerformed',
+                    (notification: ActionPerformed) => {
+                        alert('Push action performed: ' + JSON.stringify(notification));
+                    },
+                );
 
             }
         }

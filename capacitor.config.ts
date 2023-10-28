@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.maranathasender.maranathasender',
+  appId: 'com.imedicineapp.maranathasender',
   appName: 'Maranatha Sender',
   webDir: 'dist',
   server: {

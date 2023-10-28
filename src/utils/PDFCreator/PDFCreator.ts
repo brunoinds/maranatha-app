@@ -12,6 +12,15 @@ interface PDFCreatorOptions{
     textContents: {
         submittedBy: string,
         fromDateToDate: string,
+    },
+    listenTo: {
+        onProgress: (progress: {
+            percentage: number,
+            stage: {
+                percentage: number,
+                name: string,
+            },
+        }) => void,
     }
 }
 class PDFCreator{
@@ -28,12 +37,22 @@ class PDFCreator{
         fromDateToDate: string,
     }
     private invoices: Array<IInvoice>;
+    private progress: {
+        percentage: number,
+        stage: {
+            percentage: number,
+            name: string,
+        },
+    } | null = null;
+    private options: PDFCreatorOptions;
+    
     constructor(options: PDFCreatorOptions){
         this.doc = new jsPDF();
         this.canvasItems = [];
         this.invoices = options.invoices;
         this.report = options.report;
         this.textContents = options.textContents;
+        this.options = options;
     }
 
 
@@ -49,7 +68,6 @@ class PDFCreator{
 
     private generateTableOnPDF(){
         return new Promise(async (resolve, reject) => {
-
             const pageWidth = this.doc.internal.pageSize.getWidth() as unknown as number;
             this.doc.setFontSize(13).setFont('helvetica', 'bold');
             this.doc.text("MARANATHA", pageWidth / 2, 10, { align: 'center'});
@@ -102,6 +120,7 @@ class PDFCreator{
                                 return {content: item, styles: { valign: 'middle', halign: 'center' }}
                             }));
                         }
+                        this.updateProgress('Generando tabla de ítems', {current: index, total: 28}, 3, 4);
                     })
                     return listRows;
                 })(),
@@ -164,7 +183,8 @@ class PDFCreator{
     private generateImagesPagesOnPDF(){
         return new Promise((resolve, reject) => {
             //Add each image from this.canvasItems.canvasBase64 to a new page on this.doc:
-            this.canvasItems.forEach((canvasItem) => {
+            this.canvasItems.forEach((canvasItem, i) => {
+                const totalInvoices = this.canvasItems.length;
                 this.doc.addPage();
 
 
@@ -200,6 +220,7 @@ class PDFCreator{
                         this.doc.addImage(canvasItem.canvas, 'JPEG', (pageWidth - newCanvasWidth) / 2, 0, newCanvasWidth, pageHeight);
                     }
                 }
+                this.updateProgress('Generando páginas de documentos escaneados', {current: i, total: totalInvoices}, 4, 4);
             })
             resolve(this.doc);
         })
@@ -207,7 +228,8 @@ class PDFCreator{
 
     private async loadImages(){
         return new Promise((resolve, reject) => {
-            const promises = this.invoices.map((invoice) => {
+            const promises = this.invoices.map((invoice, i) => {
+                const totalInvoices = this.invoices.length;
                 return new Promise((resolve, reject) => {
                     RequestAPI.get('/invoices/' + invoice.id + "/image").then((response) => {
                         const imageBase64 = "data:image/png;base64," + response.image;
@@ -226,7 +248,8 @@ class PDFCreator{
                                 canvas: canvas,
                                 canvasBase64: null
                             }
-                            this.canvasItems.push(canvasItem)
+                            this.canvasItems.push(canvasItem);
+                            this.updateProgress('Cargando documentos escaneados', {current: i, total: totalInvoices}, 1, 4);
                             resolve(canvasItem);
                         }
                     })
@@ -240,7 +263,8 @@ class PDFCreator{
     }
     private async writeOnImages(){
         return new Promise((resolve, reject) => {
-            const promises = this.canvasItems.map((canvasItem) => {
+            const promises = this.canvasItems.map((canvasItem, i) => {
+                const totalInvoices = this.canvasItems.length;
                 return new Promise((resolve, reject) => {
                     let context = canvasItem.canvas.getContext('2d') as unknown as CanvasRenderingContext2D;
                     context.fillStyle = 'black';
@@ -270,6 +294,7 @@ class PDFCreator{
                     })
 
                     canvasItem.canvasBase64 = canvasItem.canvas.toDataURL('image/png');
+                    this.updateProgress('Escribiendo en documentos escaneados', {current: i, total: totalInvoices}, 2, 4);
                     resolve(canvasItem);
                 })
             })
@@ -278,6 +303,29 @@ class PDFCreator{
                 resolve(this.canvasItems);
             })
         })
+    }
+
+
+    private updateProgress(stageName: string, stageProgress: {
+        current: number, 
+        total: number
+    }, currentStage: number, numberOfStages: number){
+        if (numberOfStages == 0){
+            throw new Error("numberOfStages can't be 0");
+        }
+
+        const currentStageProgress = (stageProgress.current / stageProgress.total) * 100;
+        const overallProgress = ((currentStage / numberOfStages) * 100) + currentStageProgress / numberOfStages;
+
+        this.progress = {
+            percentage: overallProgress,
+            stage: {
+                percentage: currentStageProgress,
+                name: stageName,
+            }
+        }
+
+        this.options.listenTo.onProgress(this.progress);
     }
 }
 

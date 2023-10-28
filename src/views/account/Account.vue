@@ -80,6 +80,16 @@ const checkForNotificationAllow = () => {
     })
 }
 
+
+let nofiticationsInfo = ref<any>({});
+
+
+setTimeout(async () => {
+    nofiticationsInfo.value = {
+
+    }
+}, 1000);
+
 const allowNotifications = async () => {
     await Session.notifications().hardAskForPermission();
     checkForNotificationAllow();

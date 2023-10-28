@@ -233,12 +233,38 @@ const openQRCodeScanner = async () => {
 const openCamera = async () => {
     const scanDocumentNative = () => {
         return new Promise(async (resolve, reject) => {
-            const { scannedImages } = await DocumentScanner.scanDocument() as unknown as {scannedImages: Array<string>};
-            if (scannedImages.length > 0) {
-                resolve({
-                    path: scannedImages[0],
-                    webPath: Capacitor.convertFileSrc(scannedImages[0])
+            let cameraPermission = await Camera.checkPermissions();
+            if (cameraPermission.camera == 'prompt' || cameraPermission.camera == 'prompt-with-rationale'){
+                const cameraPermissionRequest = await Camera.requestPermissions();
+                if (cameraPermissionRequest.camera == 'denied'){
+                    toastController.create({
+                        message: "El acceso a la cámara está bloqueado por su teléfono",
+                        duration: 2000
+                    }).then((toast) => {
+                        toast.present();
+                    })
+                    return;
+                }
+            }else if (cameraPermission.camera == 'denied'){
+                toastController.create({
+                    message: "El acceso a la cámara está bloqueado por su teléfono",
+                    duration: 2000
+                }).then((toast) => {
+                    toast.present();
                 })
+                return;
+            }
+
+            cameraPermission = await Camera.checkPermissions();
+
+            if (cameraPermission.camera == 'granted' || cameraPermission.camera == 'limited'){
+                const { scannedImages } = await DocumentScanner.scanDocument() as unknown as {scannedImages: Array<string>};
+                if (scannedImages.length > 0) {
+                    resolve({
+                        path: scannedImages[0],
+                        webPath: Capacitor.convertFileSrc(scannedImages[0])
+                    })
+                }
             }
         })
         

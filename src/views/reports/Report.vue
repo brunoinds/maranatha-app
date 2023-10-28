@@ -12,7 +12,7 @@
                         <ion-icon :icon="ellipsisHorizontal"></ion-icon>
                     </ion-button>
                 </IonButtons>
-                <ion-progress-bar v-if="loadingProcess ? true : isLoading" :type="loadingProcess ? (loadingProcess.iddle ? 'indeterminate' : 'determinate') : 'indeterminate'"></ion-progress-bar>
+                <ion-progress-bar v-if="loadingProcess ? true : isLoading" :type="loadingProcess ? (loadingProcess.iddle ? 'indeterminate' : 'determinate') : 'indeterminate'" :value="loadingProcess ? (loadingProcess.iddle ? undefined : loadingProcess.percentage) : undefined"></ion-progress-bar>
             </ion-toolbar>
         </ion-header>
         <ion-content>

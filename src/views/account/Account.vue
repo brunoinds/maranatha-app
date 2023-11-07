@@ -27,8 +27,13 @@
                         <h2>Modificar Proyectos</h2>
                     </ion-label>
                 </ion-item>
+                <ion-item @click="goToAccounts" button v-if="isAdmin">
+                    <ion-label color="primary">
+                        <h2>Modificar Cuentas</h2>
+                    </ion-label>
+                </ion-item>
 
-                <ion-item @click="allowNotifications" button v-if="isNotificationsNotAllowed">
+                <ion-item @click="allowNotifications" button>
                     <ion-label color="primary">
                         <h2>Autorizar notificaciones</h2>
                     </ion-label>
@@ -53,6 +58,7 @@ import { IReport } from '../../interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import { Session } from '@/utils/Session/Session';
 import { JobsList, ProjectsList } from '@/utils/JobsAndProjects/JobsAndProjects';
+import { Capacitor } from '@capacitor/core';
 
 const accountData = ref<any>(null);
 const isLoading = ref<boolean>(true);
@@ -67,10 +73,18 @@ const goToLogin = () => {
 const goToJobs = () => {
     router.push('/jobs');
 }
+const goToAccounts = () => {
+    router.push('/accounts');
+}
 const goToProjects = () => {
     router.push('/projects');
 }
 const checkForNotificationAllow = () => {
+    if (!Capacitor.isNativePlatform()){
+        isNotificationsNotAllowed.value = false;
+        return;
+    }
+
     Session.notifications().checkForPermission().then((result) => {
         if (result == "Allowed"){
             isNotificationsNotAllowed.value = false;
@@ -86,7 +100,6 @@ let nofiticationsInfo = ref<any>({});
 
 setTimeout(async () => {
     nofiticationsInfo.value = {
-
     }
 }, 1000);
 

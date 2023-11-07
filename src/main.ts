@@ -24,13 +24,15 @@ import '@ionic/vue/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 import { Session } from '@/utils/Session/Session';
+import { Capacitor } from '@capacitor/core';
 defineCustomElements(window);
 SslRedirect.listen();
 
 
 document.addEventListener("deviceready", () => {
-  console.log("Device Ready", (window as any).plugins.OneSignal)
-  Session.notifications().initializeOneSignal((window as any).plugins.OneSignal)
+  if (Capacitor.isNativePlatform()){
+    Session.notifications().initializeOneSignal((window as any).plugins.OneSignal);
+  }
 }, false);
 
 

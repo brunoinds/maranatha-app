@@ -1,5 +1,5 @@
 <template>
-    <ion-page>
+    <ion-page ref="page">
         <ion-header>
         </ion-header>
         <ion-content class="ion-padding" :scrollX="false" :scrollY="false">
@@ -11,10 +11,10 @@
                     <main>
                         <ion-list>
                             <ion-item>
-                                <ion-input label="Usuário" label-placement="stacked" v-model="loginData.username" placeholder="Nombre de usuário"></ion-input>
+                                <ion-input label="Usuário" ref="usernameInput" label-placement="stacked" v-model="loginData.username" autocapitalize="off" placeholder="Nombre de usuário" ></ion-input>
                             </ion-item>
                             <ion-item>
-                                <ion-input label="Contraseña" label-placement="stacked" v-model="loginData.password" placeholder="Ingresa su clave"></ion-input>
+                                <ion-input ref="passwordInput" label="Contraseña" type="password" label-placement="stacked" v-model="loginData.password" placeholder="Ingresa su clave" @keyup.enter="doLogin"></ion-input>
                             </ion-item>
                         </ion-list>
                     </main>
@@ -32,11 +32,17 @@
 
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonImg, IonList, IonInput, IonItem, IonButton, IonProgressBar, alertController } from '@ionic/vue';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import MaranathaLogo from '&/assets/images/maranatha-logo.svg';
 import { Session } from '@/utils/Session/Session';
 import { useRouter } from 'vue-router';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import CreateUser from '@/dialogs/CreateUser/CreateUser.vue';
+const page = ref<HTMLElement|null>(null);
+
+const passwordInput = ref(null)
+const usernameInput = ref(null)
 
 const router = useRouter();
 const loginData = ref({
@@ -77,80 +83,19 @@ const doLogin = () => {
 }
 
 const addUser = async (prefiled:any = null) => {
-    const alert = await alertController.create({
-        header: 'Nuevo usuário',
-        inputs: [
-        {
-                type: 'text',
-                placeholder: 'Nombres y apellidos',
-                value: prefiled ? prefiled.name : null
-            },
-            {
-                type: 'email',
-                placeholder: 'Correo electrónico',
-                value: prefiled ? prefiled.email : null
-            },
-            {
-                type: 'text',
-                placeholder: 'Nombre de usuario',
-                value: prefiled ? prefiled.username : null
-            },
-            {
-                type: 'password',
-                placeholder: 'Contraseña',
-                value: prefiled ? prefiled.password : null
-            }
-        ],
-        buttons: [
-            {
-                text: 'Cancelar',
-                role: 'cancel',
-                handler: () => {
-                    
-                },
-            },
-            {
-                text: 'Crear Usuário',
-                role: 'confirm'
-            }
-        ]
-    });
-
-    await alert.present();
-    const { role, data } = await alert.onDidDismiss();
-
-    if (role == "confirm"){
-        const dataParsed = {
-            name: data.values[0],
-            username: data.values[2],
-            email: data.values[1],
-            password: data.values[3]
-        }
-
-        RequestAPI.post('/users', dataParsed).then((response) => {
-            alertController.create({
-                header: '¡Éxito!',
-                message: 'Usuário creado exitosamente',
-                buttons: ['OK']
-            }).then(async (alert) => {
-                await alert.present();
-                await alert.onDidDismiss();
-                loginData.value.username = dataParsed.username;
-                loginData.value.password = dataParsed.password;
+    Dialog.show(CreateUser, {
+        onLoaded($this) {
+            $this.on('created', (event:any) => {
+                loginData.value.username = event.data.username;
+                loginData.value.password = event.data.password;
                 doLogin();
-            });
-        }).catch((error) => {
-            alertController.create({
-                header: 'Oops...',
-                message: error.response.message,
-                buttons: ['OK']
-            }).then(async (alert) => {
-                await alert.present();
-                await alert.onDidDismiss();
-                addUser(dataParsed);
-            });
-        });
-    }
+            })
+        },
+        modalControllerOptions: {
+            presentingElement: page,
+            showBackdrop: true,
+        }
+    })
 }
 
 const preventLoginIfHasSession = async () => {
@@ -159,6 +104,15 @@ const preventLoginIfHasSession = async () => {
     }
 }
 preventLoginIfHasSession();
+
+onMounted(() => {
+    usernameInput.value.$el.addEventListener('keyup', event => {
+        if (event.key == 'Enter') {
+            passwordInput.value.$el.setFocus()
+        }
+    })
+})
+
 </script>
 
 

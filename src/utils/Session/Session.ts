@@ -1,5 +1,6 @@
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { TStorage } from '@/utils/Toolbox/TStorage';
+import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import {
     ActionPerformed,
@@ -73,7 +74,10 @@ class Session{
                 token: response.token,
                 userData: response.user
             });
-            await (window as any).plugins.OneSignal.login(response.user.id);
+
+            if (Capacitor.isNativePlatform()){
+                await (window as any).plugins.OneSignal.login(response.user.id);
+            }
 
         } catch (error:any) {
             if (error.code == 401){
@@ -87,7 +91,9 @@ class Session{
         const response = await RequestAPI.post('/logout', {});
         await TStorage.clearBucket("session");
 
-        await (window as any).plugins.OneSignal.logout();
+        if (Capacitor.isNativePlatform()){
+            await (window as any).plugins.OneSignal.logout();
+        }
 
         Session.session = null;
     }

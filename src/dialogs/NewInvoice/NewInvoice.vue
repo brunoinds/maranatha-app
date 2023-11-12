@@ -126,6 +126,8 @@ import CurrencyInput from '@/components/CurrencyInput/CurrencyInput.vue';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { DialogEventEmitter } from '@/utils/Dialog/Dialog';
+import { TStorage } from '@/utils/Toolbox/TStorage';
+
 import { BarcodeDetect }  from '@/utils/BarcodeDetect/BarcodeDetect';
 import {
     BarcodeScanner,
@@ -137,6 +139,7 @@ import imageCompression from 'browser-image-compression';
 
 import { DocumentScanner } from 'capacitor-document-scanner'
 import { Capacitor } from '@capacitor/core';
+import { Session } from '@/utils/Session/Session';
 
 
 const currencyInput = ref<CurrencyInput|null>(null);
@@ -435,6 +438,11 @@ const createNewInvoice = async () => {
         const newInvoiceId = invoiceResponse.invoice.id;
 
 
+        addToPendingUploadInvoices(newInvoiceId);
+
+        props.emitter.fire("pre-created");
+        props.emitter.fire("close");
+
         dynamicData.value.status = "uploading-image";
 
         try {
@@ -446,6 +454,8 @@ const createNewInvoice = async () => {
                 image: imageResponse.image.id
             }) as unknown as {invoice: IInvoice, message: string};
 
+            removeFromPendingUploadInvoices(newInvoiceId);
+
             toastController.create({
                 message: "La " + invoiceType.value + " se ha creado con éxito",
                 duration: 2000
@@ -454,21 +464,61 @@ const createNewInvoice = async () => {
             })
             isLoading.value = false;
             props.emitter.fire("created");
-            props.emitter.fire("close");
         } catch (error) {
             alertController.create({
                 header: "Error",
-                message: "No se pudo subir la imagen de la " + invoiceType.value + ". Intente nuevamente...",
+                message: "No se pudo subir la imagen de la " + invoiceType.value + "...",
             }).then((alert) => {
                 alert.present();
             })
             isLoading.value = false;
-            await RequestAPI.delete(`/invoices/${newInvoiceId}`);
+            props.emitter.fire("error-upload-image");
+            updatePendingUploadInvoice(newInvoiceId, 'ErrorOnUploadImage');
         }
+    }
 
-        
+
+    function addToPendingUploadInvoices(invoiceId:any){
+        TStorage.load('PendingUploadInvoices', {
+            invoices: []
+        }).then(async (storage:TStorage) => {
+            storage.data.invoices.push({
+                ...invoice.value,
+                id: invoiceId,
+                date: DateTime.fromFormat(invoice.value.date, "dd/MM/yyyy").toISO(),
+                user_id: (await Session.getCurrentSession())?.id,
+                image_base64: dynamicData.value.uploadedImageBase64,
+                uploadStatus: 'UploadingImage',
+                startedOn: DateTime.now().toISO()
+            });
+            storage.save();
+        })
+    }
+    function removeFromPendingUploadInvoices(invoiceId:any){
+        TStorage.load('PendingUploadInvoices', {
+            invoices: []
+        }).then(async (storage:TStorage) => {
+            storage.data.invoices = storage.data.invoices.filter((invoice:any) => invoice.id != invoiceId);
+            storage.save();
+        })
+    }
+    function updatePendingUploadInvoice(invoiceId:any, status: string){
+        TStorage.load('PendingUploadInvoices', {
+            invoices: []
+        }).then(async (storage:TStorage) => {
+            storage.data.invoices = storage.data.invoices.map((invoice:any) => {
+                if (invoice.id == invoiceId){
+                    invoice.uploadStatus = status;
+                }
+                return invoice;
+            });
+            storage.save();
+        })
     }
 }
+
+
+
 const loadJobsAndProjects = async () => {
     const jobs = await RequestAPI.get("/jobers") as unknown as Array<IJob>;
     jobsAndProjects.value.jobs = jobs;

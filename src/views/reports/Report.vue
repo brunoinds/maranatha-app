@@ -44,12 +44,17 @@
                 </ion-list>
 
                 <article class="ion-padding"  v-if="report.status == 'Draft'" >
-                    <ion-button color="success" expand="block" @click="sendReport" :disabled="invoices.length == 0 || isLoading">
+                    <ion-button color="success" expand="block" @click="sendReport" :disabled="invoices.length == 0 || isLoading || invoicesDataWithPendingImageUpload.length > 0">
                         <ion-label>
                             Cerrar y enviar reporte
                         </ion-label>
                         <ion-icon slot="start" :icon="send"></ion-icon>
                     </ion-button>
+                    <ion-label v-if="invoicesDataWithPendingImageUpload.length > 0">
+                        <p style="font-size: 9px; text-align: center;">
+                            Hay {{ invoicesDataWithPendingImageUpload.length }} {{ reportType.toLowerCase() }}s que aún no ha sido subida al servidor. Por favor, espere a que se suban todas las imágenes para poder enviar el reporte.
+                        </p>
+                    </ion-label>
                 </article>
 
                 <article class="ion-padding" v-if="report.status == 'Submitted'">
@@ -138,6 +143,15 @@
                         <ion-label slot="end">
                             <h3>S./ {{ invoice.amount }}</h3>
                         </ion-label>
+
+                        <ion-chip  slot="end" color="warning" v-if="invoice.pending && invoice.pending.uploadStatus == 'UploadingImage'">
+                            <ion-icon :icon="cloudUploadOutline"></ion-icon>
+                            <ion-label>Subiendo</ion-label>
+                        </ion-chip>
+                        <ion-chip  slot="end" color="danger" v-if="invoice.pending && invoice.pending.uploadStatus == 'ErrorOnUploadImage'">
+                            <ion-icon :icon="alertCircleOutline"></ion-icon>
+                            <ion-label>Error</ion-label>
+                        </ion-chip>
                     </ion-item>
                 </ion-list>
 
@@ -159,7 +173,7 @@
 import { IonPage, IonHeader, IonToolbar,IonCard, IonCardHeader, IonCardSubtitle, IonCardContent, IonCardTitle, IonTitle,IonChip, IonContent, IonIcon, IonListHeader, IonButton, IonList, IonItem, IonLabel, IonProgressBar, modalController, IonBackButton, IonButtons, actionSheetController, toastController, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, ref } from 'vue';
-import { add, addOutline, pencilOutline, send, trashBinOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline } from 'ionicons/icons';
+import { add, addOutline, pencilOutline, send, trashBinOutline, cloudUploadOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline } from 'ionicons/icons';
 import { IReport } from '../../interfaces/ReportInterfaces';
 import IonTitleSubtitle from '../../components/IonTitleSubtitle/IonTitleSubtitle.vue';
 
@@ -175,10 +189,13 @@ import router from '@/router';
 import NewInvoice from '@/dialogs/NewInvoice/NewInvoice.vue';
 import { Session } from '@/utils/Session/Session';
 import {AppEvents} from '../../utils/AppEvents/AppEvents';
+import { TStorage } from '@/utils/Toolbox/TStorage';
+import { sign } from 'crypto';
 
 
 const reportData = ref<IReport|null>(null);
 const invoicesData = ref<Array<IInvoice>>([]);
+const invoicesDataWithPendingImageUpload = ref<Array<IInvoice>>([]);
 const isLoading = ref<boolean>(true);
 const reportId = ref<string|null>(null);
 const page = ref<HTMLElement|null>(null);
@@ -190,6 +207,7 @@ const loadingProcess = ref<{
     },
     iddle: boolean
 }|null>(null);
+const signal = ref("");
 
 
 const reportType = computed(() => {
@@ -209,7 +227,22 @@ const reportStatus = computed(() => {
     })();
 })
 const invoices = computed(() => {
-    return invoicesData.value.map((invoice) => {
+    let invoicesFetched = invoicesData.value;
+
+    invoicesFetched = invoicesFetched.map((item:any) => {
+        const invoiceWithPendingImageUpload = invoicesDataWithPendingImageUpload.value.find((invoice:any) => invoice.id == item.id);
+        if (invoiceWithPendingImageUpload){
+            return {
+                ...item,
+                pending: invoiceWithPendingImageUpload
+            };
+        }
+
+        return item;
+    })
+
+
+    return invoicesFetched.map((invoice) => {
         return {
             ...invoice,
             date: DateTime.fromISO(invoice.date).toLocaleString(DateTime.DATE_MED),
@@ -236,7 +269,19 @@ const addInvoice = async () => {
         },
         onLoaded($this) {
             $this.on('created', (event:any) => {
-                loadReportInvoices();
+                loadReportInvoices().then(() => {
+                    loadReportInvoicesWithPendingImageUpload();
+                });
+            })
+            $this.on('pre-created', (event:any) => {
+                loadReportInvoices().then(() => {
+                    loadReportInvoicesWithPendingImageUpload();
+                });
+            })
+            $this.on('error-upload-image', (event:any) => {
+                loadReportInvoices().then(() => {
+                    loadReportInvoicesWithPendingImageUpload();
+                });
             })
         },
         modalControllerOptions: {
@@ -245,7 +290,6 @@ const addInvoice = async () => {
         }
     })
 }
-
 const editReport = async () => {
     Dialog.show(EditReport, {
         props: {
@@ -276,9 +320,18 @@ const deleteInvoice = async (invoice:IInvoice) => {
     })
 }
 const openInvoice = async (invoice:IInvoice) => {
-    await actionSheetController.create({
-        header: 'Opciones',
-        buttons: [
+    let buttons = [
+        {
+            text: 'Cancelar',
+            role: 'cancel',
+            handler: () => {
+                
+            }
+        }
+    ]
+    if (!invoice.pending || invoice.pending.uploadStatus != 'UploadingImage'){
+        //Prepend button to retry upload image:
+        buttons = [
             {
                 text: 'Eliminar ' + reportType.value,
                 role: 'destructive',
@@ -286,14 +339,27 @@ const openInvoice = async (invoice:IInvoice) => {
                     deleteInvoice(invoice)
                 }
             },
-            {
-                text: 'Cancelar',
-                role: 'cancel',
-                handler: () => {
-                    console.log('Cancel clicked');
-                }
-            }
+            ...buttons
         ]
+    }
+
+    if (invoice.pending && invoice.pending.uploadStatus == 'ErrorOnUploadImage'){
+        //Prepend button to retry upload image:
+        buttons = [
+            {
+                text: 'Reintentar subir imagen',
+                handler: () => {
+                    retryUploadInvoiceImage(invoice);
+                }
+            },
+            ...buttons
+        ]
+    }
+
+
+    await actionSheetController.create({
+        header: 'Opciones',
+        buttons: buttons
     }).then((actionSheet) => {
         actionSheet.present();
     })
@@ -305,13 +371,160 @@ const loadReport = async () => {
     }
     const reportFetched = await RequestAPI.get(`/reports/${reportId.value}`);
 
+
+
     reportData.value = reportFetched;
 };
 const loadReportInvoices = async () => {
-    const invoicesFetched = await RequestAPI.get(`/reports/${reportId.value}/invoices`);
-    invoicesData.value = invoicesFetched;
-    isLoading.value = false;
+    return new Promise(async (resolve, reject) => {
+        let invoicesFetched = await RequestAPI.get(`/reports/${reportId.value}/invoices`);
+        invoicesData.value = invoicesFetched;
+        isLoading.value = false;
+        resolve({})
+    })
+    
 }
+const loadReportInvoicesWithPendingImageUpload = async () => {
+    const fetchedInvoices = invoicesData.value;
+
+    return new Promise((resolve, reject) => {
+        TStorage.load('PendingUploadInvoices', {
+            invoices: []
+        }).then(async (storage:TStorage) => {
+            let listInvoices = (storage.data.invoices as Array<any>).filter((invoice) => invoice.report_id == reportId.value);
+
+            listInvoices = listInvoices.map((invoice:any) => {
+                const timeElapsed = DateTime.now().toUnixInteger() - DateTime.fromISO(invoice.startedOn).toUnixInteger();
+                //If timeElpased is greater than 5 minutes, then we can assume that the upload failed:
+                if (timeElapsed > 0.3 * 60){
+                    return {
+                        ...invoice,
+                        uploadStatus: 'ErrorOnUploadImage'
+                    }
+                }
+                return invoice;
+            })
+
+            
+            const invoicesOutOfDateOnDevice = listInvoices.filter((invoice:any) => {
+                const invoiceFetched = fetchedInvoices.find((fetchedInvoice) => fetchedInvoice.id == invoice.id);
+                if (!invoiceFetched){
+                    return true;
+                }
+                if (invoiceFetched.image){
+                    return true;
+                }
+                return false;
+            })
+
+            invoicesOutOfDateOnDevice.forEach((invoice:any) => {
+                storage.data.invoices = (storage.data.invoices as Array<any>).filter((invoice) => invoice.id != invoice.id);
+            })
+
+            //Remove out of date invoices from listInvoices:
+            listInvoices = listInvoices.filter((invoice:any) => {
+                return !invoicesOutOfDateOnDevice.find((invoiceOutOfDate) => invoiceOutOfDate.id == invoice.id);
+            })
+
+            //Remove invoices that is not in the list of fetched invoices:
+            listInvoices = listInvoices.filter((invoice:any) => {
+                return fetchedInvoices.find((fetchedInvoice) => fetchedInvoice.id == invoice.id);
+            })
+
+            storage.save().then(() => {
+                invoicesDataWithPendingImageUpload.value = listInvoices;
+                resolve(listInvoices);
+            })
+        })
+    });
+}
+const retryUploadInvoiceImage = async (invoice: IInvoice) => {
+    return new Promise((resolve, reject) => {
+        TStorage.load('PendingUploadInvoices', {
+            invoices: []
+        }).then(async (storage:TStorage) => {
+            let invoiceItem = (storage.data.invoices as Array<any>).find((invoicItem) => invoicItem.id == invoice.id);
+            if (!invoiceItem){
+                return;
+            }
+
+            //Change in storage.data.invoices the invoice.pending:
+            storage.data.invoices = (storage.data.invoices as Array<any>).map((invoiceItem) => {
+                if (invoiceItem.id == invoice.id){
+                    return {
+                        ...invoiceItem,
+                        uploadStatus: 'UploadingImage',
+                        startedOn: DateTime.now().toISO()
+                    };
+                }
+                return invoiceItem;
+            })
+
+            storage.save().then(() => {
+                loadReportInvoicesWithPendingImageUpload().then(() => {
+                    uploadImage(invoiceItem);
+                    resolve({});
+                })
+            })
+        })
+
+
+        async function uploadImage(invoice:any){
+            try {
+                const imageResponse = await RequestAPI.post(`/invoices/${invoice.id}/image-upload`, {
+                    image: invoice.image_base64
+                }) as unknown as {message: string, image: {id: string, url: string}};
+
+                const invoiceUpdateResponse = await RequestAPI.patch(`/invoices/${invoice.id}`, {
+                    image: imageResponse.image.id
+                }) as unknown as {invoice: IInvoice, message: string};
+
+                removeFromPendingUploadInvoices(invoice.id)
+
+                toastController.create({
+                    message: "La imagen ha sido cargada con éxito",
+                    duration: 2000
+                }).then((toast) => {
+                    toast.present();
+                })
+            } catch (error) {
+                updatePendingUploadInvoice(invoice.id, 'ErrorOnUploadImage');
+            }
+        }
+        function removeFromPendingUploadInvoices(invoiceId:any){
+            return new Promise(() => {
+                TStorage.load('PendingUploadInvoices', {
+                    invoices: []
+                }).then(async (storage:TStorage) => {
+                    storage.data.invoices = storage.data.invoices.filter((invoice:any) => invoice.id != invoiceId);
+                    storage.save().then(() => {
+                        loadReportInvoicesWithPendingImageUpload();
+                        resolve({});
+                    })
+                })
+            })
+        }
+        function updatePendingUploadInvoice(invoiceId:any, status: string, startedOn?:string){
+            TStorage.load('PendingUploadInvoices', {
+                invoices: []
+            }).then(async (storage:TStorage) => {
+                storage.data.invoices = storage.data.invoices.map((invoice:any) => {
+                    if (invoice.id == invoiceId){
+                        invoice.uploadStatus = status;
+                    }
+                    return invoice;
+                });
+                storage.save().then(() => {
+                    loadReportInvoicesWithPendingImageUpload()
+                })
+            })
+        }
+    });
+}
+
+
+
+
 
 const acceptReport = async () => {
     isLoading.value = true;
@@ -329,7 +542,6 @@ const acceptReport = async () => {
     initialize();
     AppEvents.emit('reports:reload');
 }
-
 const rejectReport = async () => {
     const prompt = await alertController.create({
         header: 'Rechazar reporte',
@@ -369,7 +581,6 @@ const rejectReport = async () => {
 
     prompt.present();
 }
-
 const createExportPDF = async () => {
     const instance = new PDFCreator({
         report: reportData.value as IReport,
@@ -477,13 +688,12 @@ const downloadPdfAndExcelFiles = async () => {
     window.open(pdfDownloadUrl);
     window.open(excelDownloadUrl);
 }
-
 const initialize = async () => {
     await loadReport();
     await loadReportInvoices();
+    await loadReportInvoicesWithPendingImageUpload();
 }
 const isAdmin = ref(false);
-
 const isAdminCheck = async () => {
     const currentSession = await Session.getCurrentSession();
     if (!currentSession){

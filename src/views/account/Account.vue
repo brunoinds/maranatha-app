@@ -33,7 +33,7 @@
                     </ion-label>
                 </ion-item>
 
-                <ion-item @click="allowNotifications" button>
+                <ion-item @click="allowNotifications" button v-if="isNotificationsNotAllowed">
                     <ion-label color="primary">
                         <h2>Autorizar notificaciones</h2>
                     </ion-label>
@@ -93,15 +93,6 @@ const checkForNotificationAllow = () => {
         }
     })
 }
-
-
-let nofiticationsInfo = ref<any>({});
-
-
-setTimeout(async () => {
-    nofiticationsInfo.value = {
-    }
-}, 1000);
 
 const allowNotifications = async () => {
     await Session.notifications().hardAskForPermission();

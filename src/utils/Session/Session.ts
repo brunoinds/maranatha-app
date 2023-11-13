@@ -141,9 +141,11 @@ class Session{
                 })
             },
             initializeOneSignal: (OneSignal:any) => {
-                OneSignal.initialize("5b414480-2440-4456-b7e1-a6b2564d82d6");
                 Session.waitForLogin().then((session:any) => {
-                    OneSignal.login(Session.session?.id().toString())
+                    OneSignal.initialize("5b414480-2440-4456-b7e1-a6b2564d82d6");
+                    setTimeout(() => {
+                        OneSignal.login("user-id-" + String(Session.session?.id()))
+                    }, 3000)
                 })
 
                 PushNotifications.addListener('registration', (token: Token) => {

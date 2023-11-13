@@ -3,12 +3,12 @@
         <ion-header>
             <ion-toolbar>
                 <IonButtons slot="start">
-                    <IonBackButton :disable="isLoading" defaultHref="/reports"></IonBackButton>
+                    <IonBackButton :disable="isLoading || loadingProcess" defaultHref="/reports"></IonBackButton>
                 </IonButtons>
                 <IonTitleSubtitle  v-show="isLoading == false" :title="report?.title" :subtitle="loadingProcess ? loadingProcess.stage.name : ''"></IonTitleSubtitle>
 
                 <IonButtons slot="end">
-                    <ion-button @click="editReport" v-if="report.status == 'Draft'">
+                    <ion-button @click="editReport" v-if="report.status == 'Draft'" :disabled="loadingProcess">
                         <ion-icon :icon="ellipsisHorizontal"></ion-icon>
                     </ion-button>
                 </IonButtons>
@@ -632,7 +632,7 @@ const sendReport = async () => {
     loadingProcess.value = {
         percentage: 0,
         stage: {
-            name: 'Enviando reporte...',
+            name: 'Enviando reporte (eso puede demorar)...',
             percentage: 0
         },
         iddle: true
@@ -644,7 +644,7 @@ const sendReport = async () => {
             loadingProcess.value = {
                 percentage: percentage,
                 stage: {
-                    name: 'Enviando reporte...',
+                    name: 'Enviando reporte (eso puede demorar)...',
                     percentage: percentage
                 },
                 iddle: false
@@ -655,7 +655,7 @@ const sendReport = async () => {
     loadingProcess.value = {
         percentage: 0,
         stage: {
-            name: 'Enviando reporte...',
+            name: 'Enviando reporte (eso puede demorar)...',
             percentage: 0
         },
         iddle: true

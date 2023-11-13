@@ -76,7 +76,8 @@ class Session{
             });
 
             if (Capacitor.isNativePlatform()){
-                await (window as any).plugins.OneSignal.login(response.user.id);
+                (window as any).plugins.OneSignal.initialize("5b414480-2440-4456-b7e1-a6b2564d82d6");
+                await (window as any).plugins.OneSignal.login("user-id-" + String(response.user.id));
             }
 
         } catch (error:any) {

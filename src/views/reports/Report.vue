@@ -60,7 +60,7 @@
                 <article class="ion-padding" v-if="report.status == 'Submitted'">
                     <ion-button color="primary" expand="block" @click="downloadPdfAndExcelFiles">
                         <ion-label>
-                            Descargar PDF y Excel
+                            Descargar PDF
                         </ion-label>
                         <ion-icon slot="start" :icon="arrowDown"></ion-icon>
                     </ion-button>
@@ -192,9 +192,9 @@ import {AppEvents} from '../../utils/AppEvents/AppEvents';
 import { TStorage } from '@/utils/Toolbox/TStorage';
 import { StoredReports } from '@/utils/Stored/StoredReports';
 import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
-import { resolve } from 'path';
-import { reject } from 'lodash';
-
+import { Directory, Filesystem } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
 
 const reportData = ref<IReport|null>(null);
 const invoicesData = ref<Array<IInvoice>>([]);
@@ -517,7 +517,7 @@ const sendReport = async () => {
 
 
 const downloadPdfAndExcelFiles = async () => {
-    const generatePDFDocumentUrl = async () => {
+    const generatePDFDocument = async () => {
         toastController.create({
             message: 'Generando PDF... Esto puede tardar unos minutos...',
             duration: 5000
@@ -546,19 +546,27 @@ const downloadPdfAndExcelFiles = async () => {
         const byteArray = new Uint8Array(byteNumbers);
         const blob = new Blob([byteArray], {type: 'application/pdf'});
         const blobUrl = URL.createObjectURL(blob);
-        return (blobUrl);
+        return {
+            blobUrl,
+            base64: pdfBase64
+        };
     }
     const excelDownloadUrl = `${RequestAPI.variables.rootUrl}/reports/${reportId.value}/excel-download`;
-    const pdfDownloadUrl = await generatePDFDocumentUrl();
+    const pdfDocument = await generatePDFDocument();
 
-    window.open(pdfDownloadUrl);
-    window.open(excelDownloadUrl);
+    //window.open(pdfDownloadUrl);
+
+    if (Capacitor.isNativePlatform()){
+        share(reportData.value?.title + '.pdf', pdfDocument.base64);
+    }else{
+        window.open(pdfDocument.blobUrl);
+    }
 
     loadingProcess.value = null;
     isLoading.value = false;
 
     toastController.create({
-        message: 'Archivos generados con exito!',
+        message: '✅ PDF generado con éxito!',
         duration: 1500
     }).then((toast) => {
         toast.present();
@@ -579,4 +587,26 @@ const isAdminCheck = async () => {
 }
 isAdminCheck();
 initialize();
+
+
+function share(fileName: string, base64Data: string) {
+    return Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.Cache
+    })
+    .then(() => {
+        return Filesystem.getUri({
+            directory: Directory.Cache,
+            path: fileName
+        });
+    })
+    .then((uriResult) => {
+        return Share.share({
+            title: fileName,
+            text: fileName,
+            url: uriResult.uri,
+        });
+    });
+}
 </script>

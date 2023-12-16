@@ -205,6 +205,7 @@ const reports = computed(() => {
 })
 const loadUserReports = async () => {
     const reportsFetched = await StoredReports.getReports();
+    console.log(reportsFetched);
     isLoading.value = false;
     reportsData.value = reportsFetched;
 };

@@ -200,16 +200,32 @@ const jobsAndExpensesSelector = computed(() => {
 const invoice = ref<INewInvoice>({
     report_id: props.reportId,
     type: props.type as unknown as EInvoiceType,
-    description: "Test", //!!
-    ticket_number: "123", //!!
-    commerce_number: "123", //!!
+    description: "",
+    ticket_number: "",
+    commerce_number: "",
     date: DateTime.now().toFormat("dd/MM/yyyy").toString(),
-    job_code: "708", //!!
-    expense_code: "1008", //!!
-    amount: 10 as unknown as number,//!!
+    job_code: "",
+    expense_code: "",
+    amount: 0 as unknown as number,
     qrcode_data: "",
     image: null
 });
+
+/* For tests porpuses
+const invoice = ref<INewInvoice>({
+    report_id: props.reportId,
+    type: props.type as unknown as EInvoiceType,
+    description: "Test", 
+    ticket_number: "123", 
+    commerce_number: "123", 
+    date: DateTime.now().toFormat("dd/MM/yyyy").toString(),
+    job_code: "708", 
+    expense_code: "1008", 
+    amount: 10 as unknown as number,
+    qrcode_data: "",
+    image: null
+});
+*/
 const invoiceType = computed(() => {
     return invoice.value.type === "Bill" ? "Boleta" : "Factura";
 })

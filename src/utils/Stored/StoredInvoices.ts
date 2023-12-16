@@ -1,4 +1,6 @@
+import SyncingChanges from "@/dialogs/SyncingChanges/SyncingChanges.vue";
 import { EInvoiceType } from "@/interfaces/InvoiceInterfaces";
+import { Dialog } from "@/utils/Dialog/Dialog";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { StoredReports } from "@/utils/Stored/StoredReports";
 import { TStorage } from "@/utils/Toolbox/TStorage";
@@ -21,6 +23,7 @@ interface IInvoiceResponse{
 }
 
 class StoredInvoices{
+    private static isUpdatingPending: boolean = false;
     public static getInvoices(reportId: number): Promise<IInvoiceResponse[]>{
         return new Promise((resolve, reject) => {
             if (StoredInvoices.isOnline()){
@@ -157,14 +160,18 @@ class StoredInvoices{
     }
     private static uploadPending(): Promise<Array<{previousId: number, updatedInvoiceData: IInvoiceResponse}>>{
         return new Promise(async (resolve, reject) => {
+            await StoredInvoices.waitUpdatePending();
             const reportsUpdates = await StoredReports.uploadPending();
             
             TStorage.load('StoredInvoices', {
                 invoices: []
             }).then((bucket) => {
-                const listInvoicesToUpdate = bucket.data.invoices.filter((invoice:IInvoiceResponse) => {
+                let dialog: Dialog|null = null;
+                let completed = 0;
+                let invoicesCandidates = bucket.data.invoices.filter((invoice:IInvoiceResponse) => {
                     return invoice.id >= 10000;
-                }).map((invoice:IInvoiceResponse) => {
+                });
+                const listInvoicesToUpdate = invoicesCandidates.map((invoice:IInvoiceResponse) => {
                     return new Promise(async (resolve, reject) => {
                         const invoiceResponse = await RequestAPI.post("/invoices", {
                             ...invoice,
@@ -178,34 +185,66 @@ class StoredInvoices{
                                 return invoice.report_id;
                             })()
                         }) as unknown as {invoice: IInvoiceResponse, message: string};
+                        completed++;
+
+                        //Get progress:
+                        const total = invoicesCandidates.length;
+                        const progressInPercentage = Math.round((completed * 100) / total);
+                        if (dialog){
+                            dialog.emit('progress', progressInPercentage);
+                        }
                         resolve({
                             previousId: invoice.id,
                             updatedInvoiceData: invoiceResponse
                         });
                     })
                 })
-                let listOfUpdates:Array<{previousId: number, updatedInvoiceData: IInvoiceResponse}> = [];
                 
-                Promise.all(listInvoicesToUpdate).then((listInvoicesToUpdate) => {
-                    listInvoicesToUpdate.forEach((invoiceToUpdate) => {
-                        listOfUpdates.push({
-                            previousId: invoiceToUpdate.previousId,
-                            updatedInvoiceData: invoiceToUpdate.updatedInvoiceData
+                if (listInvoicesToUpdate.length === 0){
+                    resolve([]);
+                    return;
+                }
+                Dialog.show(SyncingChanges, {
+                    onLoaded($this) {
+                        dialog = $this;
+                    
+                        let listOfUpdates:Array<{previousId: number, updatedInvoiceData: IInvoiceResponse}> = [];
+                        Promise.all(listInvoicesToUpdate).then((listInvoicesToUpdate) => {
+                            listInvoicesToUpdate.forEach((invoiceToUpdate) => {
+                                listOfUpdates.push({
+                                    previousId: invoiceToUpdate.previousId,
+                                    updatedInvoiceData: invoiceToUpdate.updatedInvoiceData
+                                })
+                                bucket.data.invoices = bucket.data.invoices.map((invoice:IInvoiceResponse) => {
+                                    if(invoice.id == invoiceToUpdate.previousId){
+                                        return invoiceToUpdate.updatedInvoiceData;
+                                    }
+                                    return invoice;
+                                })
+                            })
+                            bucket.save().then(() => {
+                                dialog?.close();
+                                resolve(listOfUpdates);
+                            }).catch(() => {
+                                reject();
+                            })
                         })
-                        bucket.data.invoices = bucket.data.invoices.map((invoice:IInvoiceResponse) => {
-                            if(invoice.id == invoiceToUpdate.previousId){
-                                return invoiceToUpdate.updatedInvoiceData;
-                            }
-                            return invoice;
-                        })
-                    })
-                    bucket.save().then(() => {
-                        resolve(listOfUpdates);
-                    }).catch(() => {
-                        reject();
-                    })
+                    }
                 })
             })
+        })
+    }
+    private static waitUpdatePending():Promise<void>{
+        return new Promise((resolve, reject) => {
+            if (StoredInvoices.isUpdatingPending){
+                setTimeout(() => {
+                    StoredInvoices.waitUpdatePending().then(() => {
+                        resolve();
+                    })
+                }, 1000);
+            }else{
+                resolve();
+            }
         })
     }
     private static isOnline(): boolean{

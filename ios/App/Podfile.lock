@@ -8,6 +8,8 @@ PODS:
   - CapacitorCordova (5.4.1)
   - CapacitorDocumentScanner (2.0.0):
     - Capacitor
+  - CapacitorFilesystem (5.2.0):
+    - Capacitor
   - CapacitorHaptics (5.0.6):
     - Capacitor
   - CapacitorKeyboard (5.0.6):
@@ -16,6 +18,8 @@ PODS:
     - Capacitor
     - GoogleMLKit/BarcodeScanning (= 4.0.0)
   - CapacitorPushNotifications (5.1.0):
+    - Capacitor
+  - CapacitorShare (5.0.6):
     - Capacitor
   - CapacitorStatusBar (5.0.6):
     - Capacitor
@@ -124,10 +128,12 @@ DEPENDENCIES:
   - "CapacitorCamera (from `../../node_modules/@capacitor/camera`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - CapacitorDocumentScanner (from `../../node_modules/capacitor-document-scanner`)
+  - "CapacitorFilesystem (from `../../node_modules/@capacitor/filesystem`)"
   - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
   - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
   - "CapacitorMlkitBarcodeScanning (from `../../node_modules/@capacitor-mlkit/barcode-scanning`)"
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
+  - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - CordovaPluginsStatic (from `../capacitor-cordova-ios-plugins`)
 
@@ -158,6 +164,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorDocumentScanner:
     :path: "../../node_modules/capacitor-document-scanner"
+  CapacitorFilesystem:
+    :path: "../../node_modules/@capacitor/filesystem"
   CapacitorHaptics:
     :path: "../../node_modules/@capacitor/haptics"
   CapacitorKeyboard:
@@ -166,6 +174,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor-mlkit/barcode-scanning"
   CapacitorPushNotifications:
     :path: "../../node_modules/@capacitor/push-notifications"
+  CapacitorShare:
+    :path: "../../node_modules/@capacitor/share"
   CapacitorStatusBar:
     :path: "../../node_modules/@capacitor/status-bar"
   CordovaPluginsStatic:
@@ -177,10 +187,12 @@ SPEC CHECKSUMS:
   CapacitorCamera: 084b0b228bba7d00587910337b1c89e93b1d32ab
   CapacitorCordova: 1222fdd78bfd0d323cc22bf254eed1484fe6c92a
   CapacitorDocumentScanner: 91258121abad1becc90936f85ad0fff4146e50b1
+  CapacitorFilesystem: 02f9a9053b96e1881ba1fc98d846869413c195c2
   CapacitorHaptics: 1fffc1217c7e64a472d7845be50fb0c2f7d4204c
   CapacitorKeyboard: b978154b024a5f65e044908e37d15b7de58b9d12
   CapacitorMlkitBarcodeScanning: ea08ef246e5d3511d5a231a59fae36b16ad9acb3
   CapacitorPushNotifications: b31e326c6e4eb216a622041d6ca21a973f34943f
+  CapacitorShare: cd41743331cb71d217c029de54b681cbd91e0fcc
   CapacitorStatusBar: 565c0a1ebd79bb40d797606a8992b4a105885309
   CordovaPluginsStatic: b6450ec1d4e288212d11eb43fba5b2613a9f1903
   GoogleDataTransport: 54dee9d48d14580407f8f5fbf2f496e92437a2f2
@@ -197,6 +209,6 @@ SPEC CHECKSUMS:
   OneSignalXCFramework: d47a350b15e106a5dc310e3f97867e28dad6589e
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
 
-PODFILE CHECKSUM: f5fbdcc15705503f44f122214eb465ea7893c378
+PODFILE CHECKSUM: d7e3ba0648eed977313dce021c7b20901bb60bfc
 
 COCOAPODS: 1.12.1

@@ -26,6 +26,7 @@ interface IReportResponse{
 }
 
 class StoredReports{
+    private static isUpdatingPending: boolean = false;
     public static getReports(): Promise<Array<IReportResponse>>{
         return new Promise((resolve, reject) => {
             if (StoredReports.isOnline()){
@@ -128,7 +129,7 @@ class StoredReports{
     }
     private static fetchReport(id: number): Promise<IReportResponse>{
         return new Promise(async (resolve, reject) => {
-            const reportFetched = await RequestAPI.get('/reports/' + id);
+            const reportFetched = {...await RequestAPI.get('/reports/' + id), invoices:{count: 0, total_amount: 0}};
             TStorage.load('StoredReports', {
                 reports: []
             }).then((bucket) => {
@@ -170,7 +171,8 @@ class StoredReports{
         })
     }
     public static uploadPending():Promise<Array<{previousId: number, updatedReportData: IReportResponse}>>{
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
+            await StoredReports.waitUpdatePending();
             TStorage.load('StoredReports', {
                 reports: []
             }).then((bucket) => {
@@ -236,6 +238,20 @@ class StoredReports{
                     })
                 })
             })
+        })
+    }
+
+    private static waitUpdatePending():Promise<void>{
+        return new Promise((resolve, reject) => {
+            if (StoredReports.isUpdatingPending){
+                setTimeout(() => {
+                    StoredReports.waitUpdatePending().then(() => {
+                        resolve();
+                    })
+                }, 1000);
+            }else{
+                resolve();
+            }
         })
     }
 

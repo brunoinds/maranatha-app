@@ -43,10 +43,11 @@ import { defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { vMaska } from "maska";
-import { EReportType } from '@/interfaces/ReportInterfaces';
+import { EReportStatus, EReportType, IReport } from '@/interfaces/ReportInterfaces';
 import { DateTime } from 'luxon';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
+import { IReportResponse, StoredReports } from '@/utils/Stored/StoredReports';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -84,6 +85,51 @@ const createNewReport = async () => {
 
     isLoading.value = true;
 
+    const reportData:IReportResponse = {
+        id: 0,
+        title: dynamicData.value.title,
+        type: dynamicData.value.type,
+        from_date: DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").toISO() as string,
+        to_date: DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy").toISO() as string,
+        status: EReportStatus.Draft,
+        user_id: (await Session.getCurrentSession())?.id() as unknown as number,
+        created_at: DateTime.now().toISO() as string,
+        updated_at: DateTime.now().toISO() as string,
+        exported_pdf: null,
+        rejection_reason: null,
+        rejected_at: null,
+        approved_at: null,
+        submitted_at: null,
+        invoices: {
+            count: 0,
+            total_amount: 0,
+        }
+    }
+    StoredReports.addReport(reportData).then((report:IReportResponse) => {
+        props.emitter.fire('created', {
+            ...report
+        });
+        toastController.create({
+            message: 'Reporte creado con exito!',
+            duration: 2000
+        }).then((toast) => {
+            toast.present();
+        })
+        props.emitter.fire('close');
+    }).catch((e) => {
+        alertController.create({
+            header: 'Oops...',
+            message: e.getMessage(),
+            buttons: ['OK']
+        }).then((alert) => {
+            alert.present();
+        });
+    }).finally(() => {
+        isLoading.value = false;
+    });
+
+
+    return;
     RequestAPI.post('/reports', {
         user_id: (await Session.getCurrentSession())?.id(),
         title: dynamicData.value.title,
@@ -112,7 +158,6 @@ const createNewReport = async () => {
         });
     }).finally(() => {
         isLoading.value = false;
-        
     });
 }
 

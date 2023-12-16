@@ -4,6 +4,7 @@ import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { Session } from "@/utils/Session/Session";
 import { jsPDF } from "jspdf";
 import 'jspdf-autotable';
+import { DateTime } from "luxon";
 
 
 interface PDFCreatorOptions{
@@ -108,7 +109,8 @@ class PDFCreator{
                     Array.from(Array(28).keys()).forEach((index) => {
                         if (this.canvasItems[index]){
                             const invoice = this.canvasItems[index].invoice;
-                            listRows.push([invoice.date,invoice.ticket_number, invoice.description, invoice.job_code, invoice.expense_code, index + 1, "S/ " + invoice.amount.toFixed(2)].map((item, i) => {
+                            const date = DateTime.fromISO(invoice.date).toFormat('dd/MM/yyyy');
+                            listRows.push([date,invoice.ticket_number, invoice.description, invoice.job_code, invoice.expense_code, index + 1, "S/ " + invoice.amount.toFixed(2)].map((item, i) => {
                                 if (i == 2){
                                     return {content: item, styles: { valign: 'middle', halign: 'left' }}
                                 }else{
@@ -272,8 +274,7 @@ class PDFCreator{
 
                     const textsToWrite: Array<string> = [
                         `${canvasItem.invoice.description}`,
-                        `Job: ${canvasItem.invoice.job_code} | Expense: ${canvasItem.invoice.expense_code}`,
-                        `Date: ${canvasItem.invoice.date} | Ticket: ${canvasItem.invoice.ticket_number}`
+                        `Job: ${canvasItem.invoice.job_code}-${canvasItem.invoice.expense_code}`,
                     ];
 
 

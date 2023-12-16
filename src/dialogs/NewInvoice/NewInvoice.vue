@@ -140,6 +140,8 @@ import imageCompression from 'browser-image-compression';
 import { DocumentScanner } from 'capacitor-document-scanner'
 import { Capacitor } from '@capacitor/core';
 import { Session } from '@/utils/Session/Session';
+import { JobersAndProjects } from '@/utils/Stored/JobersAndProjects';
+import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
 
 
 const currencyInput = ref<CurrencyInput|null>(null);
@@ -150,7 +152,7 @@ const dynamicData = ref<{
     formErrors: Array<{field: string, message: string}>,
     status: "idle" | "uploading-image" | "creating-invoice" | "success" | "error"
 }>({
-    uploadedImageBase64: null,
+    uploadedImageBase64: "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVEiJtZZPbBtFFMZ/M7ubXdtdb1xSFyeilBapySVU8h8OoFaooFSqiihIVIpQBKci6KEg9Q6H9kovIHoCIVQJJCKE1ENFjnAgcaSGC6rEnxBwA04Tx43t2FnvDAfjkNibxgHxnWb2e/u992bee7tCa00YFsffekFY+nUzFtjW0LrvjRXrCDIAaPLlW0nHL0SsZtVoaF98mLrx3pdhOqLtYPHChahZcYYO7KvPFxvRl5XPp1sN3adWiD1ZAqD6XYK1b/dvE5IWryTt2udLFedwc1+9kLp+vbbpoDh+6TklxBeAi9TL0taeWpdmZzQDry0AcO+jQ12RyohqqoYoo8RDwJrU+qXkjWtfi8Xxt58BdQuwQs9qC/afLwCw8tnQbqYAPsgxE1S6F3EAIXux2oQFKm0ihMsOF71dHYx+f3NND68ghCu1YIoePPQN1pGRABkJ6Bus96CutRZMydTl+TvuiRW1m3n0eDl0vRPcEysqdXn+jsQPsrHMquGeXEaY4Yk4wxWcY5V/9scqOMOVUFthatyTy8QyqwZ+kDURKoMWxNKr2EeqVKcTNOajqKoBgOE28U4tdQl5p5bwCw7BWquaZSzAPlwjlithJtp3pTImSqQRrb2Z8PHGigD4RZuNX6JYj6wj7O4TFLbCO/Mn/m8R+h6rYSUb3ekokRY6f/YukArN979jcW+V/S8g0eT/N3VN3kTqWbQ428m9/8k0P/1aIhF36PccEl6EhOcAUCrXKZXXWS3XKd2vc/TRBG9O5ELC17MmWubD2nKhUKZa26Ba2+D3P+4/MNCFwg59oWVeYhkzgN/JDR8deKBoD7Y+ljEjGZ0sosXVTvbc6RHirr2reNy1OXd6pJsQ+gqjk8VWFYmHrwBzW/n+uMPFiRwHB2I7ih8ciHFxIkd/3Omk5tCDV1t+2nNu5sxxpDFNx+huNhVT3/zMDz8usXC3ddaHBj1GHj/As08fwTS7Kt1HBTmyN29vdwAw+/wbwLVOJ3uAD1wi/dUH7Qei66PfyuRj4Ik9is+hglfbkbfR3cnZm7chlUWLdwmprtCohX4HUtlOcQjLYCu+fzGJH2QRKvP3UNz8bWk1qMxjGTOMThZ3kvgLI5AzFfo379UAAAAASUVORK5CYII=", //!!
     formErrors: [],
     status: "idle"
 })
@@ -181,13 +183,13 @@ const jobsAndProjects = ref<{jobs: Array<IJob>, projects: Array<IProject>}>({
 const invoice = ref<INewInvoice>({
     report_id: props.reportId,
     type: props.type as unknown as EInvoiceType,
-    description: "",
-    ticket_number: "",
-    commerce_number: "",
+    description: "Test", //!!
+    ticket_number: "123", //!!
+    commerce_number: "123", //!!
     date: DateTime.now().toFormat("dd/MM/yyyy").toString(),
-    job_code: "",
-    expense_code: "",
-    amount: 0 as unknown as number,
+    job_code: "708", //!!
+    expense_code: "1008", //!!
+    amount: 10 as unknown as number,//!!
     qrcode_data: "",
     image: null
 });
@@ -431,30 +433,18 @@ const createNewInvoice = async () => {
     }else{
         isLoading.value = true;
         dynamicData.value.status = "creating-invoice";
-        const invoiceResponse = await RequestAPI.post("/invoices", {
+
+        const invoiceDocument = {
             ...invoice.value,
-            date: DateTime.fromFormat(invoice.value.date, "dd/MM/yyyy").toISO()
-        }) as unknown as {invoice: IInvoice, message: string};
-        const newInvoiceId = invoiceResponse.invoice.id;
-
-
-        addToPendingUploadInvoices(newInvoiceId);
-
-        props.emitter.fire("pre-created");
-        props.emitter.fire("close");
-
-        dynamicData.value.status = "uploading-image";
+            id: 0,
+            date: DateTime.fromFormat(invoice.value.date, "dd/MM/yyyy").toISO(),
+            image: dynamicData.value.uploadedImageBase64,
+            report_id: parseInt(props.reportId.toString())
+        } as unknown as IInvoice;
 
         try {
-            const imageResponse = await RequestAPI.post(`/invoices/${newInvoiceId}/image-upload`, {
-                image: dynamicData.value.uploadedImageBase64
-            }) as unknown as {message: string, image: {id: string, url: string}};
-
-            const invoiceUpdateResponse = await RequestAPI.patch(`/invoices/${newInvoiceId}`, {
-                image: imageResponse.image.id
-            }) as unknown as {invoice: IInvoice, message: string};
-
-            removeFromPendingUploadInvoices(newInvoiceId);
+            const invoiceCreated = await StoredInvoices.addInvoice(invoiceDocument);
+            const newInvoiceId = invoiceCreated.id;
 
             toastController.create({
                 message: "La " + invoiceType.value + " se ha creado con éxito",
@@ -464,66 +454,27 @@ const createNewInvoice = async () => {
             })
             isLoading.value = false;
             props.emitter.fire("created");
+            props.emitter.fire("close");
         } catch (error) {
             alertController.create({
                 header: "Error",
-                message: "No se pudo subir la imagen de la " + invoiceType.value + "...",
+                message: "No se pudo crear el documento",
             }).then((alert) => {
                 alert.present();
             })
             isLoading.value = false;
-            props.emitter.fire("error-upload-image");
-            updatePendingUploadInvoice(newInvoiceId, 'ErrorOnUploadImage');
         }
     }
 
-
-    function addToPendingUploadInvoices(invoiceId:any){
-        TStorage.load('PendingUploadInvoices', {
-            invoices: []
-        }).then(async (storage:TStorage) => {
-            storage.data.invoices.push({
-                ...invoice.value,
-                id: invoiceId,
-                date: DateTime.fromFormat(invoice.value.date, "dd/MM/yyyy").toISO(),
-                user_id: (await Session.getCurrentSession())?.id,
-                image_base64: dynamicData.value.uploadedImageBase64,
-                uploadStatus: 'UploadingImage',
-                startedOn: DateTime.now().toISO()
-            });
-            storage.save();
-        })
-    }
-    function removeFromPendingUploadInvoices(invoiceId:any){
-        TStorage.load('PendingUploadInvoices', {
-            invoices: []
-        }).then(async (storage:TStorage) => {
-            storage.data.invoices = storage.data.invoices.filter((invoice:any) => invoice.id != invoiceId);
-            storage.save();
-        })
-    }
-    function updatePendingUploadInvoice(invoiceId:any, status: string){
-        TStorage.load('PendingUploadInvoices', {
-            invoices: []
-        }).then(async (storage:TStorage) => {
-            storage.data.invoices = storage.data.invoices.map((invoice:any) => {
-                if (invoice.id == invoiceId){
-                    invoice.uploadStatus = status;
-                }
-                return invoice;
-            });
-            storage.save();
-        })
-    }
 }
 
 
 
 const loadJobsAndProjects = async () => {
-    const jobs = await RequestAPI.get("/jobers") as unknown as Array<IJob>;
+    const jobs =  await JobersAndProjects.getJobers() as unknown as Array<IJob>;
     jobsAndProjects.value.jobs = jobs;
 
-    const projects = await RequestAPI.get("/projects") as unknown as Array<IProject>;
+    const projects = await JobersAndProjects.getProjects() as unknown as Array<IProject>;
     jobsAndProjects.value.projects = projects;
 }
 onMounted(async () => {

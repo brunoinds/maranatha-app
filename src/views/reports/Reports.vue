@@ -14,8 +14,6 @@
             </ion-fab>
 
 
-
-
             <article v-if="reports.rejected.length > 0">
                 <ion-list-header>Rechazados</ion-list-header>
                 <ion-list>
@@ -24,7 +22,7 @@
                                 <h2><b>{{ report.title }}</b></h2>
                                 <p>{{report.reportType}}</p>
                                 <p>{{report.reportDates}}</p>
-                                <p><b>S./ {{report.invoices.totalAmount}}</b></p>
+                                <p><b>S./ {{report.invoices.totalAmount.toFixed(2)}}</b></p>
                             </ion-label>
                             <ion-chip color="danger" v-if="report.status == 'Draft'">
                                 <ion-icon :icon="alertCircleOutline"></ion-icon>
@@ -55,7 +53,7 @@
                                 <h2><b>{{ report.title }}</b></h2>
                                 <p>{{report.reportType}}</p>
                                 <p>{{report.reportDates}}</p>
-                                <p><b>S./ {{report.invoices.totalAmount}}</b></p>
+                                <p><b>S./ {{report.invoices.totalAmount.toFixed(2)}}</b></p>
                             </ion-label>
                             <ion-chip color="warning" v-if="report.status == 'Draft'">
                                 <ion-icon :icon="alertCircleOutline"></ion-icon>
@@ -86,7 +84,7 @@
                                 <h2><b>{{ report.title }}</b></h2>
                                 <p>{{report.reportType}}</p>
                                 <p>{{report.reportDates}}</p>
-                                <p><b>S./ {{report.invoices.totalAmount}}</b></p>
+                                <p><b>S./ {{report.invoices.totalAmount.toFixed(2)}}</b></p>
                             </ion-label>
                             <ion-chip color="warning" v-if="report.status == 'Draft'">
                                 <ion-icon :icon="alertCircleOutline"></ion-icon>
@@ -118,7 +116,7 @@
                                 <h2><b>{{ report.title }}</b></h2>
                                 <p>{{report.reportType}}</p>
                                 <p>{{report.reportDates}}</p>
-                                <p><b>S./ {{report.invoices.totalAmount}}</b></p>
+                                <p><b>S./ {{report.invoices.totalAmount.toFixed(2)}}</b></p>
                             </ion-label>
                             <ion-chip color="warning" v-if="report.status == 'Draft'">
                                 <ion-icon :icon="alertCircleOutline"></ion-icon>
@@ -164,6 +162,7 @@ import { useRouter } from 'vue-router';
 import NewReport from '../../dialogs/NewReport/NewReport.vue';
 import { DateTime } from 'luxon';
 import {AppEvents} from '../../utils/AppEvents/AppEvents';
+import { StoredReports } from '@/utils/Stored/StoredReports';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
@@ -205,8 +204,7 @@ const reports = computed(() => {
     }
 })
 const loadUserReports = async () => {
-    const reportsFetched = await RequestAPI.get('/me/reports');
-
+    const reportsFetched = await StoredReports.getReports();
     isLoading.value = false;
     reportsData.value = reportsFetched;
 };

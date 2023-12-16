@@ -57,7 +57,6 @@ import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, 
 import { IReport } from '../../interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import { Session } from '@/utils/Session/Session';
-import { JobsList, ProjectsList } from '@/utils/JobsAndProjects/JobsAndProjects';
 import { Capacitor } from '@capacitor/core';
 
 const accountData = ref<any>(null);

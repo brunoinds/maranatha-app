@@ -16,7 +16,6 @@ interface IReport{
     title: string;
     from_date: string;
     to_date: string;
-    project_code: string;
     status: EReportStatus;
     exported_pdf: string|null;
     type: EReportType;

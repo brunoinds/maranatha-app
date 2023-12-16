@@ -112,14 +112,15 @@
                             <b>Este reporte ha sido rechazado por el administrador por el siguiente motivo:</b> <br>
                             {{ report.rejection_reason }}
                         </ion-card-content>
-
-                        <ion-button fill="clear" color="light" :disabled="isLoading" @click="undoSendReport">
+                    </ion-card>
+                    <section class="ion-padding" style="padding-top: 0px">
+                        <ion-button color="danger" expand="block" fill="outline" :disabled="isLoading" @click="undoSendReport">
                             <ion-label>
                                 Cancelar envío y reaperturar reporte
                             </ion-label>
-                            <ion-icon slot="end" :icon="lockOpen"></ion-icon>
+                            <ion-icon slot="start" :icon="lockOpen"></ion-icon>
                         </ion-button>
-                    </ion-card>
+                    </section>
                     
                 </section>
 

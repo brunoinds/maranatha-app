@@ -87,12 +87,12 @@
                             <ion-list>
                                 <ion-item>
                                     <ion-select label="Job" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Job"  v-model="invoice.job_code">
-                                        <ion-select-option v-for="job in jobsAndExpenses.jobs" :value="job.code">{{ job.name }}</ion-select-option>
+                                        <ion-select-option v-for="job in jobsAndExpensesSelector.jobs" :value="job.code">{{ job.name }}</ion-select-option>
                                     </ion-select>                    
                                 </ion-item>
                                 <ion-item>
                                     <ion-select label="Expense" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Expense"  v-model="invoice.expense_code">
-                                        <ion-select-option v-for="expense in jobsAndExpenses.expenses" :value="expense.code">{{ expense.name }}</ion-select-option>
+                                        <ion-select-option v-for="expense in jobsAndExpensesSelector.expenses" :value="expense.code">{{ expense.name }}</ion-select-option>
                                     </ion-select>                  
                                 </ion-item>
                             </ion-list>
@@ -179,6 +179,23 @@ const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
     jobs: [],
     expenses: []
 });
+const jobsAndExpensesSelector = computed(() => {
+    return {
+        jobs: jobsAndExpenses.value.jobs,
+        expenses: (() => {
+            if (invoice.value.job_code == "0000"){
+                return jobsAndExpenses.value.expenses.filter((expense) => {
+                    return (parseInt(expense.code) >= 700 && parseInt(expense.code) <= 799)
+                })
+            }else{
+                return jobsAndExpenses.value.expenses.filter((expense) => {
+                    return !(parseInt(expense.code) >= 700 && parseInt(expense.code) <= 799)
+                })
+            }
+        })()
+    }
+})
+
 
 const invoice = ref<INewInvoice>({
     report_id: props.reportId,

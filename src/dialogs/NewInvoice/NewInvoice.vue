@@ -80,19 +80,19 @@
                     </ion-accordion>
                     <ion-accordion value="third">
                         <ion-item slot="header" color="light">
-                            <ion-label>3. Datos del Proyecto</ion-label>
+                            <ion-label>3. Datos del Expense</ion-label>
                             <ion-icon slot="end" :icon="checkmarkCircleOutline" color="success" v-show="stepsChecks.third"></ion-icon>
                         </ion-item>
                         <section slot="content">
                             <ion-list>
                                 <ion-item>
                                     <ion-select label="Job" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Job"  v-model="invoice.job_code">
-                                        <ion-select-option v-for="job in jobsAndProjects.jobs" :value="job.code">{{ job.name }}</ion-select-option>
+                                        <ion-select-option v-for="job in jobsAndExpenses.jobs" :value="job.code">{{ job.name }}</ion-select-option>
                                     </ion-select>                    
                                 </ion-item>
                                 <ion-item>
-                                    <ion-select label="Proyecto" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Proyecto"  v-model="invoice.expense_code">
-                                        <ion-select-option v-for="project in jobsAndProjects.projects" :value="project.code">{{ project.name }}</ion-select-option>
+                                    <ion-select label="Expense" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Expense"  v-model="invoice.expense_code">
+                                        <ion-select-option v-for="expense in jobsAndExpenses.expenses" :value="expense.code">{{ expense.name }}</ion-select-option>
                                     </ion-select>                  
                                 </ion-item>
                             </ion-list>
@@ -114,7 +114,7 @@
 import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle,IonButtons, IonThumbnail, IonAccordion, IonAccordionGroup, IonContent, IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController } from '@ionic/vue';
 import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { EInvoiceType, IInvoice, INewInvoice } from '../../interfaces/InvoiceInterfaces';
-import { IJob, IProject } from '../../interfaces/JobsAndProjectsInterfaces';
+import { IJob, IExpense } from '../../interfaces/JobsAndExpensesInterfaces';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, arrowForward, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
 
 import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
@@ -140,7 +140,7 @@ import imageCompression from 'browser-image-compression';
 import { DocumentScanner } from 'capacitor-document-scanner'
 import { Capacitor } from '@capacitor/core';
 import { Session } from '@/utils/Session/Session';
-import { JobersAndProjects } from '@/utils/Stored/JobersAndProjects';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
 
 
@@ -175,9 +175,9 @@ const props = defineProps({
         default: false
     }
 });
-const jobsAndProjects = ref<{jobs: Array<IJob>, projects: Array<IProject>}>({
+const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
     jobs: [],
-    projects: []
+    expenses: []
 });
 
 const invoice = ref<INewInvoice>({
@@ -396,7 +396,7 @@ const validateData = async () => {
     if (!invoice.value.expense_code){
         formErrors.push({
             field: "expense_code",
-            message: "El Proyecto es requerido"
+            message: "El Expense es requerido"
         })
     }
     if (!invoice.value.description || invoice.value.description.trim().length == 0){
@@ -470,12 +470,12 @@ const createNewInvoice = async () => {
 
 
 
-const loadJobsAndProjects = async () => {
-    const jobs =  await JobersAndProjects.getJobers() as unknown as Array<IJob>;
-    jobsAndProjects.value.jobs = jobs;
+const loadJobsAndExpenses = async () => {
+    const jobs =  await JobsAndExpenses.getJobs() as unknown as Array<IJob>;
+    jobsAndExpenses.value.jobs = jobs;
 
-    const projects = await JobersAndProjects.getProjects() as unknown as Array<IProject>;
-    jobsAndProjects.value.projects = projects;
+    const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
+    jobsAndExpenses.value.expenses = expenses;
 }
 onMounted(async () => {
     isLoading.value = false;
@@ -486,7 +486,7 @@ onMounted(async () => {
     if (props.autoShowCamera){
         openCamera();
     }
-    loadJobsAndProjects();
+    loadJobsAndExpenses();
 })
 </script>
 
@@ -496,4 +496,4 @@ onMounted(async () => {
     align-items: center;
     justify-content: center;
 }
-</style>
+</style>@/utils/Stored/JobsAndExpenses

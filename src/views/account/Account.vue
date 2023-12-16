@@ -22,9 +22,9 @@
                         <h2>Modificar Jobs</h2>
                     </ion-label>
                 </ion-item>
-                <ion-item @click="goToProjects" button v-if="isAdmin">
+                <ion-item @click="goToExpenses" button v-if="isAdmin">
                     <ion-label color="primary">
-                        <h2>Modificar Proyectos</h2>
+                        <h2>Modificar Expenses</h2>
                     </ion-label>
                 </ion-item>
                 <ion-item @click="goToAccounts" button v-if="isAdmin">
@@ -75,8 +75,8 @@ const goToJobs = () => {
 const goToAccounts = () => {
     router.push('/accounts');
 }
-const goToProjects = () => {
-    router.push('/projects');
+const goToExpenses = () => {
+    router.push('/expenses');
 }
 const checkForNotificationAllow = () => {
     if (!Capacitor.isNativePlatform()){

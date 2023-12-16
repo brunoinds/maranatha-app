@@ -46,7 +46,7 @@ const page = ref<HTMLElement|null>(null);
 
 const loadJobs = async () => {
     isLoading.value = true;
-    jobsData.value = await RequestAPI.get('/jobers');
+    jobsData.value = await RequestAPI.get('/jobs');
     isLoading.value = false;
 }
 
@@ -89,7 +89,7 @@ const addJob = async (prefiled:any = null) => {
             code: data.values[1],
         }
 
-        RequestAPI.post('/jobers', dataParsed).then((response) => {
+        RequestAPI.post('/jobs', dataParsed).then((response) => {
             alertController.create({
                 header: '¡Éxito!',
                 message: 'Job creado exitosamente',
@@ -113,7 +113,7 @@ const addJob = async (prefiled:any = null) => {
     }
 }
 const deleteJob = async (job:any) => {
-    await RequestAPI.delete(`/jobers/${job.id}`);
+    await RequestAPI.delete(`/jobs/${job.id}`);
     loadJobs();
     toastController.create({
         message: 'Job eliminado con exito!',
@@ -192,7 +192,7 @@ const editJob = async (job:any) => {
         }
 
 
-        RequestAPI.patch('/jobers/' + job.id, dataParsed).then((response) => {
+        RequestAPI.patch('/jobs/' + job.id, dataParsed).then((response) => {
             alertController.create({
                 header: '¡Éxito!',
                 message: 'Job guardado exitosamente',

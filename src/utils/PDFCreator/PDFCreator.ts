@@ -2,6 +2,7 @@ import { IInvoice } from "@/interfaces/InvoiceInterfaces";
 import { IReport } from "@/interfaces/ReportInterfaces";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { Session } from "@/utils/Session/Session";
+import { JobsAndExpenses } from "@/utils/Stored/JobsAndExpenses";
 import { jsPDF } from "jspdf";
 import 'jspdf-autotable';
 import { DateTime } from "luxon";
@@ -264,7 +265,8 @@ class PDFCreator{
         })
     }
     private async writeOnImages(){
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
+            const jobs = await JobsAndExpenses.getJobs();
             const promises = this.canvasItems.map((canvasItem, i) => {
                 const totalInvoices = this.canvasItems.length;
                 return new Promise((resolve, reject) => {
@@ -274,7 +276,7 @@ class PDFCreator{
 
                     const textsToWrite: Array<string> = [
                         `${canvasItem.invoice.description}`,
-                        `Job: ${canvasItem.invoice.job_code}-${canvasItem.invoice.expense_code}`,
+                        `${jobs.find((item) => item.code == canvasItem.invoice.job_code) ? jobs.find((item) => item.code == canvasItem.invoice.job_code)?.name : ""} ${canvasItem.invoice.job_code}-${canvasItem.invoice.expense_code}`,
                     ];
 
 

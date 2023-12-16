@@ -3,7 +3,7 @@
         <ion-header>
             <ion-toolbar>
                 <IonButtons slot="start">
-                    <IonBackButton :disable="isLoading || loadingProcess" defaultHref="/reports"></IonBackButton>
+                    <IonBackButton :disable="isLoading || loadingProcess" defaultHref="/my-reports"></IonBackButton>
                 </IonButtons>
                 <IonTitleSubtitle  v-show="isLoading == false" :title="report?.title" :subtitle="loadingProcess ? loadingProcess.stage.name : ''"></IonTitleSubtitle>
 
@@ -191,6 +191,8 @@ import {AppEvents} from '../../utils/AppEvents/AppEvents';
 import { TStorage } from '@/utils/Toolbox/TStorage';
 import { StoredReports } from '@/utils/Stored/StoredReports';
 import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
+import { resolve } from 'path';
+import { reject } from 'lodash';
 
 
 const reportData = ref<IReport|null>(null);
@@ -484,46 +486,13 @@ const undoSendReport = async () => {
 }
 const sendReport = async () => {
     toastController.create({
-        message: 'Enviando... Esto puede tardar unos minutos...',
-        duration: 5000
+        message: 'Enviando...',
+        duration: 2000
     }).then((toast) => {
         toast.present();
     })
     isLoading.value = true;
 
-    const pdfBase64 = await createExportPDF();
-
-    loadingProcess.value = {
-        percentage: 0,
-        stage: {
-            name: 'Enviando reporte (eso puede demorar)...',
-            percentage: 0
-        },
-        iddle: true
-    }
-    const pdfResponse = await RequestAPI.post(`/reports/${reportId.value}/pdf-upload`, {
-        pdf: pdfBase64
-    }, {
-        onUploadProgress: (percentage) => {
-            loadingProcess.value = {
-                percentage: percentage,
-                stage: {
-                    name: 'Enviando reporte (eso puede demorar)...',
-                    percentage: percentage
-                },
-                iddle: false
-            }
-        }
-    }) as unknown as {message: string, image: {id: string, url: string}};
-
-    loadingProcess.value = {
-        percentage: 0,
-        stage: {
-            name: 'Enviando reporte (eso puede demorar)...',
-            percentage: 0
-        },
-        iddle: true
-    }
     const updateReportResponse = await RequestAPI.patch(`/reports/${reportId.value}`, {
         status: 'Submitted'
     })
@@ -545,12 +514,54 @@ const sendReport = async () => {
     AppEvents.emit('reports:reload');
 }
 
+
 const downloadPdfAndExcelFiles = async () => {
-    const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/reports/${reportId.value}/pdf-download`;
+    const generatePDFDocumentUrl = async () => {
+        toastController.create({
+            message: 'Generando PDF... Esto puede tardar unos minutos...',
+            duration: 5000
+        }).then((toast) => {
+            toast.present();
+        })
+        isLoading.value = true;
+
+        const pdfBase64 = await createExportPDF();
+
+        loadingProcess.value = {
+            iddle: true,
+            percentage: 0,
+            stage: {
+                name: 'Descargando PDF...',
+                percentage: 0
+            }
+        }
+
+        //Generate blob from base64 string and download it:
+        const byteCharacters = atob(pdfBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], {type: 'application/pdf'});
+        const blobUrl = URL.createObjectURL(blob);
+        return (blobUrl);
+    }
     const excelDownloadUrl = `${RequestAPI.variables.rootUrl}/reports/${reportId.value}/excel-download`;
+    const pdfDownloadUrl = await generatePDFDocumentUrl();
 
     window.open(pdfDownloadUrl);
     window.open(excelDownloadUrl);
+
+    loadingProcess.value = null;
+    isLoading.value = false;
+
+    toastController.create({
+        message: 'Archivos generados con exito!',
+        duration: 1500
+    }).then((toast) => {
+        toast.present();
+    })
 }
 const initialize = async () => {
     await loadReport();

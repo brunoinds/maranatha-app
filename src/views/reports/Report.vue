@@ -57,8 +57,8 @@
                     </ion-label>
                 </article>
 
-                <article class="ion-padding" v-if="report.status == 'Submitted'">
-                    <ion-button color="primary" expand="block" @click="downloadPdfAndExcelFiles">
+                <article class="ion-padding" v-if="report.status != 'Draft'">
+                    <ion-button color="primary" expand="block" @click="downloadPdfAndExcelFiles" :disabled="isLoading">
                         <ion-label>
                             Descargar PDF y Excel
                         </ion-label>

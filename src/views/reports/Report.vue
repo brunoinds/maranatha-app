@@ -60,7 +60,7 @@
                 <article class="ion-padding" v-if="report.status == 'Submitted'">
                     <ion-button color="primary" expand="block" @click="downloadPdfAndExcelFiles">
                         <ion-label>
-                            Descargar PDF
+                            Descargar PDF y Excel
                         </ion-label>
                         <ion-icon slot="start" :icon="arrowDown"></ion-icon>
                     </ion-button>
@@ -195,6 +195,7 @@ import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
+import JSZip from 'jszip';
 
 const reportData = ref<IReport|null>(null);
 const invoicesData = ref<Array<IInvoice>>([]);
@@ -551,22 +552,77 @@ const downloadPdfAndExcelFiles = async () => {
             base64: pdfBase64
         };
     }
-    const excelDownloadUrl = `${RequestAPI.variables.rootUrl}/reports/${reportId.value}/excel-download`;
+    const generateExcelDocument = async () => {
+        return new Promise(async (resolve, reject) => {
+            const excelDownloadUrl = `${RequestAPI.variables.rootUrl}/reports/${reportId.value}/excel-download`;
+            const excelDocument = await fetch(excelDownloadUrl).then((response) => {
+                return response.blob();
+            }).then((blob) => {
+                const reader = new FileReader()
+                reader.onload = () => {
+                    resolve({
+                        blobUrl: URL.createObjectURL(blob),
+                        base64: reader.result?.split('data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,')[1] as unknown as string
+                    })
+                }
+                reader.onerror = () => {                
+                    console.log('error')
+                }
+                reader.readAsDataURL(blob);
+            })
+        })
+        
+    }
+    const compressIntoZipFile = async (pdfDocument:any, excelDocument:any) => {
+        return new Promise(async (resolve, reject) => {
+            const zip = new JSZip();
+            zip.file(reportData.value?.title + '.pdf', pdfDocument.base64, {base64: true});
+            zip.file(reportData.value?.title + '.xlsx', excelDocument.base64, {base64: true});
+            const zipFile = await zip.generateAsync({type:"blob"});
+
+            //Convert zipFile to base64:
+            const reader = new FileReader()
+            reader.onload = () => {
+                resolve({
+                    base64: reader.result?.split('data:application/zip;base64,')[1],
+                    blobUrl: URL.createObjectURL(zipFile)
+                })
+            }
+            reader.onerror = () => {                
+                console.log('error')
+            }
+            reader.readAsDataURL(zipFile);
+        })
+    }
     const pdfDocument = await generatePDFDocument();
+    const excelDocument = await generateExcelDocument();
 
-    //window.open(pdfDownloadUrl);
+    const zipFile = await compressIntoZipFile(pdfDocument, excelDocument) as unknown as {
+        base64: string,
+        blobUrl: string
+    };
 
+    const invoicesTotalAmount = invoicesData.value.reduce((total, invoice) => {
+        return total + invoice.amount;
+    }, 0);
+
+    const filename = `${reportData.value?.title} ($${invoicesTotalAmount.toFixed(2)}).zip`;
     if (Capacitor.isNativePlatform()){
-        share(reportData.value?.title + '.pdf', pdfDocument.base64);
+        share(filename, zipFile.base64);
     }else{
-        window.open(pdfDocument.blobUrl);
+        let link = document.createElement('a');
+        link.href = zipFile.blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     loadingProcess.value = null;
     isLoading.value = false;
 
     toastController.create({
-        message: '✅ PDF generado con éxito!',
+        message: '✅ Reporte generado con éxito!',
         duration: 1500
     }).then((toast) => {
         toast.present();

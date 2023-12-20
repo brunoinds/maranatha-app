@@ -272,7 +272,7 @@ class PDFCreator{
                 return new Promise((resolve, reject) => {
                     let context = canvasItem.canvas.getContext('2d') as unknown as CanvasRenderingContext2D;
                     context.fillStyle = 'black';
-                    context.font = 'bold 20px Arial';
+                    context.font = 'bold 60px Arial';
 
                     const textsToWrite: Array<string> = [
                         `${canvasItem.invoice.description}`,
@@ -292,8 +292,7 @@ class PDFCreator{
                         }
                         
                         
-                        drawStroked(text, 10, canvasHeight - (index * 20));
-                        //context.fillText(text, 10, canvasHeight - (index * 20));
+                        drawStroked(text, 10, canvasHeight - (index * 60));
                     })
 
                     canvasItem.canvasBase64 = canvasItem.canvas.toDataURL('image/png');

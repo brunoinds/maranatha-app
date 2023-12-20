@@ -157,7 +157,7 @@
                 </ion-list>
 
                 <br>
-                <article class="ion-padding" v-if="report.status != 'Draft'">
+                <article class="ion-padding" v-if="(report.status == 'Submitted') || (isAdmin && report.status != 'Draft')">
                     <ion-button color="danger" expand="block" fill="outline" :disabled="isLoading" @click="undoSendReport">
                         <ion-label>
                             Cancelar envío y reaperturar reporte
@@ -518,6 +518,12 @@ const sendReport = async () => {
 
 
 const downloadPdfAndExcelFiles = async () => {
+
+    const invoicesTotalAmount = invoicesData.value.reduce((total, invoice) => {
+        return total + invoice.amount;
+    }, 0);
+
+    const filename = `${reportData.value?.title} (S. ${invoicesTotalAmount.toFixed(2)})`;
     const generatePDFDocument = async () => {
         toastController.create({
             message: 'Generando PDF... Esto puede tardar unos minutos...',
@@ -554,6 +560,15 @@ const downloadPdfAndExcelFiles = async () => {
     }
     const generateExcelDocument = async () => {
         return new Promise(async (resolve, reject) => {
+            loadingProcess.value = {
+                iddle: true,
+                percentage: 0,
+                stage: {
+                    name: 'Descargando Excel...',
+                    percentage: 0
+                }
+            }
+
             const excelDownloadUrl = `${RequestAPI.variables.rootUrl}/reports/${reportId.value}/excel-download`;
             const excelDocument = await fetch(excelDownloadUrl).then((response) => {
                 return response.blob();
@@ -576,8 +591,8 @@ const downloadPdfAndExcelFiles = async () => {
     const compressIntoZipFile = async (pdfDocument:any, excelDocument:any) => {
         return new Promise(async (resolve, reject) => {
             const zip = new JSZip();
-            zip.file(reportData.value?.title + '.pdf', pdfDocument.base64, {base64: true});
-            zip.file(reportData.value?.title + '.xlsx', excelDocument.base64, {base64: true});
+            zip.file(filename + '.pdf', pdfDocument.base64, {base64: true});
+            zip.file(filename + '.xlsx', excelDocument.base64, {base64: true});
             const zipFile = await zip.generateAsync({type:"blob"});
 
             //Convert zipFile to base64:
@@ -594,38 +609,72 @@ const downloadPdfAndExcelFiles = async () => {
             reader.readAsDataURL(zipFile);
         })
     }
-    const pdfDocument = await generatePDFDocument();
-    const excelDocument = await generateExcelDocument();
+    
 
-    const zipFile = await compressIntoZipFile(pdfDocument, excelDocument) as unknown as {
-        base64: string,
-        blobUrl: string
-    };
+    const shareDocument = (file:any, extention:string = ".zip") => {
+        loadingProcess.value = null;
+        isLoading.value = false;
 
-    const invoicesTotalAmount = invoicesData.value.reduce((total, invoice) => {
-        return total + invoice.amount;
-    }, 0);
-
-    const filename = `${reportData.value?.title} ($${invoicesTotalAmount.toFixed(2)}).zip`;
-    if (Capacitor.isNativePlatform()){
-        share(filename, zipFile.base64);
-    }else{
-        let link = document.createElement('a');
-        link.href = zipFile.blobUrl;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        toastController.create({
+            message: '✅ Reporte generado con éxito!',
+            duration: 1500
+        }).then((toast) => {
+            toast.present();
+        })
+        if (Capacitor.isNativePlatform()){
+            share(filename + extention, file.base64);
+        }else{
+            let link = document.createElement('a');
+            link.href = file.blobUrl;
+            link.download = filename + extention;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     }
 
-    loadingProcess.value = null;
-    isLoading.value = false;
 
-    toastController.create({
-        message: '✅ Reporte generado con éxito!',
-        duration: 1500
-    }).then((toast) => {
-        toast.present();
+    await actionSheetController.create({
+        header: 'Elige una opción',
+        buttons: [
+            {
+                text: 'PDF',
+                handler: () => {
+                    generatePDFDocument().then((pdfDocument) => {
+                        shareDocument(pdfDocument, '.pdf');
+                    })
+                }
+            },
+            {
+                text: 'Excel',
+                handler: () => {
+                    generateExcelDocument().then((excelDocument) => {
+                        shareDocument(excelDocument, '.xlsx');
+                    })
+                }
+            },
+            {
+                text: 'Zip',
+                handler: () => {
+                    generatePDFDocument().then((pdfDocument) => {
+                        generateExcelDocument().then((excelDocument) => {
+                            compressIntoZipFile(pdfDocument, excelDocument).then((zipFile) => {
+                                shareDocument(zipFile, '.zip');
+                            })
+                        })
+                    });
+                }
+            },
+            {
+                text: 'Cancelar',
+                role: 'cancel',
+                handler: () => {
+                    
+                }
+            }
+        ]
+    }).then((actionSheet) => {
+        actionSheet.present();
     })
 }
 const initialize = async () => {

@@ -24,6 +24,8 @@ interface IInvoiceResponse{
 
 class StoredInvoices{
     private static isUpdatingPending: boolean = false;
+    private static disableShowUpdatingDialog = false;
+    private static disableShowUpdatingDialogTimeout: any = null;
     public static getInvoices(reportId: number): Promise<IInvoiceResponse[]>{
         return new Promise((resolve, reject) => {
             if (StoredInvoices.isOnline()){
@@ -63,7 +65,7 @@ class StoredInvoices{
             }
         })
     }
-    public static addInvoice(invoice: IInvoiceResponse): Promise<IInvoiceResponse>{
+    public static addInvoice(invoice: IInvoiceResponse, options: {asAsync: boolean} = {asAsync: true}): Promise<IInvoiceResponse>{
         return new Promise((resolve, reject) => {
             TStorage.load('StoredInvoices', {
                 invoices: []
@@ -71,9 +73,21 @@ class StoredInvoices{
                 if (invoice.id < 10000){
                     invoice.id = Math.floor(Math.random() * 1000000);
                 }
-                console.log(typeof invoice.report_id);
                 bucket.data.invoices.push(invoice);
                 bucket.save().then(() => {
+                    if (options.asAsync){
+                        resolve(invoice);
+
+                        if (StoredInvoices.disableShowUpdatingDialogTimeout){
+                            clearTimeout(StoredInvoices.disableShowUpdatingDialogTimeout);
+                        }
+                        StoredInvoices.disableShowUpdatingDialog = true;
+                        StoredInvoices.disableShowUpdatingDialogTimeout = setTimeout(() => {
+                            StoredInvoices.disableShowUpdatingDialog = false;
+                        }, 50 * 1000); // 50 seconds
+
+                        return;
+                    }
                     if (StoredInvoices.isOnline()){
                         StoredInvoices.uploadPending().then((updates) => {
                             const invoiceUpdated = updates.find((update) => {
@@ -204,10 +218,9 @@ class StoredInvoices{
                     resolve([]);
                     return;
                 }
-                Dialog.show(SyncingChanges, {
-                    onLoaded($this) {
-                        dialog = $this;
-                    
+
+                const performPromises = (dialog:any) => {
+                    return new Promise((resolve, reject) => {
                         let listOfUpdates:Array<{previousId: number, updatedInvoiceData: IInvoiceResponse}> = [];
                         Promise.all(listInvoicesToUpdate).then((listInvoicesToUpdate) => {
                             listInvoicesToUpdate.forEach((invoiceToUpdate) => {
@@ -223,11 +236,33 @@ class StoredInvoices{
                                 })
                             })
                             bucket.save().then(() => {
-                                dialog?.close();
+                                if (dialog){
+                                    dialog?.close();
+                                }
                                 resolve(listOfUpdates);
                             }).catch(() => {
                                 reject();
                             })
+                        })
+                    })
+                    
+                }
+
+                if (StoredInvoices.disableShowUpdatingDialog){
+                    performPromises(null).then((listOfUpdates:any) => {
+                        resolve(listOfUpdates);
+                    }).catch((err) => {
+                        reject(err);
+                    })
+                    return;
+                }
+                Dialog.show(SyncingChanges, {
+                    onLoaded($this) {
+                        dialog = $this;
+                        performPromises(dialog).then((listOfUpdates:any) => {
+                            resolve(listOfUpdates);
+                        }).catch((err) => {
+                            reject(err);
                         })
                     }
                 })

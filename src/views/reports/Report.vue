@@ -60,7 +60,7 @@
                 <article class="ion-padding" v-if="report.status != 'Draft'">
                     <ion-button color="primary" expand="block" @click="downloadPdfAndExcelFiles" :disabled="isLoading">
                         <ion-label>
-                            Descargar PDF y Excel
+                            Descargar Reporte
                         </ion-label>
                         <ion-icon slot="start" :icon="arrowDown"></ion-icon>
                     </ion-button>
@@ -635,7 +635,7 @@ const downloadPdfAndExcelFiles = async () => {
 
 
     await actionSheetController.create({
-        header: 'Elige una opción',
+        header: 'Elige un formato para descargar:',
         buttons: [
             {
                 text: 'PDF',

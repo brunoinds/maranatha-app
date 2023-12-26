@@ -460,6 +460,9 @@ const createExportPDF = async () => {
                     return `del ${DateTime.fromISO(invoicesData.value[0].date).toLocaleString(DateTime.DATE_MED)}  hasta el ${DateTime.fromISO(invoicesData.value[invoicesData.value.length - 1].date).toLocaleString(DateTime.DATE_MED)}`;
                 }
             })(),
+            currency: (() => {
+                return report.value.money_type == EMoneyType.PEN ? 'Peruvian Soles (PEN)' : 'US Dollars (USD)';
+            })()
         },
         listenTo: {
             onProgress: (progress) => {
@@ -526,7 +529,7 @@ const downloadPdfAndExcelFiles = async () => {
         return total + invoice.amount;
     }, 0);
 
-    const filename = `${reportData.value?.title} (S. ${invoicesTotalAmount.toFixed(2)})`;
+    const filename = `${reportData.value?.title} (${Toolbox.moneyPrefix(reportData.value?.money_type as unknown as EMoneyType).replace('/', '')} ${invoicesTotalAmount.toFixed(2)})`;
     const generatePDFDocument = async () => {
         toastController.create({
             message: 'Generando PDF... Esto puede tardar unos minutos...',

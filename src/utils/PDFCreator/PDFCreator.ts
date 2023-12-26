@@ -3,6 +3,7 @@ import { IReport } from "@/interfaces/ReportInterfaces";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { Session } from "@/utils/Session/Session";
 import { JobsAndExpenses } from "@/utils/Stored/JobsAndExpenses";
+import { Toolbox } from "@/utils/Toolbox/Toolbox";
 import { jsPDF } from "jspdf";
 import 'jspdf-autotable';
 import { DateTime } from "luxon";
@@ -14,6 +15,7 @@ interface PDFCreatorOptions{
     textContents: {
         submittedBy: string,
         fromDateToDate: string,
+        currency: string
     },
     listenTo: {
         onProgress: (progress: {
@@ -37,6 +39,7 @@ class PDFCreator{
     private textContents: {
         submittedBy: string,
         fromDateToDate: string,
+        currency: string,
     }
     private invoices: Array<IInvoice>;
     private progress: {
@@ -81,12 +84,12 @@ class PDFCreator{
             this.doc.setFontSize(8).setFont('helvetica', 'normal');
             this.doc.text("Report Dates: ", (pageWidth / 2) - 22, 29, { align: 'center' });
             this.doc.text("Submitted by: ", (pageWidth / 2) - 22.05, 34, { align: 'center' });
-            this.doc.text("Job: ", (pageWidth / 2) - 16, 39, { align: 'center' });
+            this.doc.text("Currency: ", (pageWidth / 2) - 19, 39, { align: 'center' });
 
 
             this.doc.text(this.textContents.fromDateToDate, (pageWidth / 2) - 12, 29, { align: 'left' });
             this.doc.text(this.textContents.submittedBy, (pageWidth / 2) - 12, 34, { align: 'left' });
-            this.doc.text("", (pageWidth / 2) - 12, 39, { align: 'left' });
+            this.doc.text((this.textContents.currency), (pageWidth / 2) - 12, 39, { align: 'left' });
 
 
             (this.doc as any).autoTable({
@@ -111,7 +114,7 @@ class PDFCreator{
                         if (this.canvasItems[index]){
                             const invoice = this.canvasItems[index].invoice;
                             const date = DateTime.fromISO(invoice.date).toFormat('dd/MM/yyyy');
-                            listRows.push([date,invoice.ticket_number, invoice.description, invoice.job_code, invoice.expense_code, index + 1, "S/ " + invoice.amount.toFixed(2)].map((item, i) => {
+                            listRows.push([date,invoice.ticket_number, invoice.description, invoice.job_code, invoice.expense_code, index + 1, Toolbox.moneyPrefix(this.report.money_type) + " " + invoice.amount.toFixed(2)].map((item, i) => {
                                 if (i == 2){
                                     return {content: item, styles: { valign: 'middle', halign: 'left' }}
                                 }else{
@@ -143,7 +146,7 @@ class PDFCreator{
                             },
                         },
                         {
-                            content: 'S/ ' + (() => {
+                            content: Toolbox.moneyPrefix(this.report.money_type) + " " + (() => {
                                 let accumulator = 0;
                                 this.invoices.forEach((invoice) => {
                                     accumulator += invoice.amount;
@@ -163,20 +166,7 @@ class PDFCreator{
                     ],
                 ],
                 tableLineColor: [0, 0, 0],
-                tableLineWidth: 0.5,
-                didDrawPage: (data: any) => {
-                    return;
-                    setTimeout(() => {
-                        const tableHeight = data.table.finalY;
-                        //this.doc draw a rectangle below the table:
-                        this.doc.setDrawColor(0, 0, 0);
-                        this.doc.setFillColor(235, 235, 235);
-                        console.log(tableHeight)
-                        this.doc.rect(this.doc.internal.pageSize.getWidth() - 50, tableHeight + 5, pageWidth, 10, "F");
-                        //this.doc draw a rectangle above the table:
-
-                    }, 500)
-                }
+                tableLineWidth: 0.5
             })
             resolve(this.doc);
 

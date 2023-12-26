@@ -191,7 +191,8 @@ class StoredReports{
                             type: report.type,
                             from_date: report.from_date,
                             to_date:report.to_date,
-                            status: report.status
+                            status: report.status,
+                            money_type: report.money_type,
                         }).then((response) => {
                             resolve({
                                 previousId: report.id,

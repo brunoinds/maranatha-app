@@ -8,6 +8,10 @@ enum EReportType {
     Bill = 'Bill',
     Facture = 'Facture'
 }
+enum EMoneyType{
+    USD = 'USD',
+    PEN = 'PEN'
+}
 interface IReport{
     id: number;
     created_at: string;
@@ -19,12 +23,13 @@ interface IReport{
     status: EReportStatus;
     exported_pdf: string|null;
     type: EReportType;
+    money_type: EMoneyType;
     rejection_reason: string|null;
     rejected_at: string|null;
     approved_at: string|null;
     submitted_at: string|null;
 }
 
-export { EReportStatus, EReportType };
+export { EReportStatus, EReportType, EMoneyType };
 export type { IReport };
 

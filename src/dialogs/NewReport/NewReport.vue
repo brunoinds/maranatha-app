@@ -43,7 +43,7 @@ import { defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { vMaska } from "maska";
-import { EReportStatus, EReportType, IReport } from '@/interfaces/ReportInterfaces';
+import { EMoneyType, EReportStatus, EReportType, IReport } from '@/interfaces/ReportInterfaces';
 import { DateTime } from 'luxon';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
@@ -60,10 +60,12 @@ const dynamicData = ref<{
     title: string,
     type: EReportType,
     startDate: string,
-    endDate: string
+    endDate: string,
+    moneyType: EMoneyType
 }>({
     title: '',
     type: EReportType.Bill,
+    moneyType: EMoneyType.PEN,
     startDate: (DateTime.now().set({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString(),
     endDate: (DateTime.now().set({ day: 1}).plus({ month: 1}).minus({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString()
 });
@@ -89,6 +91,7 @@ const createNewReport = async () => {
         id: 0,
         title: dynamicData.value.title,
         type: dynamicData.value.type,
+        money_type: dynamicData.value.moneyType,
         from_date: DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").toISO() as string,
         to_date: DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy").toISO() as string,
         status: EReportStatus.Draft,

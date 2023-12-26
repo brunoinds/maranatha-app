@@ -1,4 +1,4 @@
-import { EReportStatus, EReportType } from "@/interfaces/ReportInterfaces";
+import { EMoneyType, EReportStatus, EReportType } from "@/interfaces/ReportInterfaces";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { Session } from "@/utils/Session/Session";
 import { TStorage } from "@/utils/Toolbox/TStorage";
@@ -15,6 +15,7 @@ interface IReportResponse{
     status: EReportStatus;
     exported_pdf: string|null;
     type: EReportType;
+    money_type: EMoneyType;
     rejection_reason: string|null;
     rejected_at: string|null;
     approved_at: string|null;

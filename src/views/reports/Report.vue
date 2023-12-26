@@ -142,7 +142,7 @@
                             <p>{{ invoice.jobName }}</p>
                         </ion-label>
                         <ion-label slot="end">
-                            <h3>S./ {{ invoice.amount }}</h3>
+                            <h3>{{report.moneyPrefix}} {{ invoice.amount }}</h3>
                         </ion-label>
 
                         <ion-chip  slot="end" color="warning" v-if="invoice.pending && invoice.pending.uploadStatus == 'UploadingImage'">
@@ -175,7 +175,7 @@ import { IonPage, IonHeader, IonToolbar,IonCard, IonCardHeader, IonCardSubtitle,
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, ref } from 'vue';
 import { add, addOutline, pencilOutline, send, trashBinOutline, cloudUploadOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline } from 'ionicons/icons';
-import { IReport } from '../../interfaces/ReportInterfaces';
+import { EMoneyType, IReport } from '../../interfaces/ReportInterfaces';
 import IonTitleSubtitle from '../../components/IonTitleSubtitle/IonTitleSubtitle.vue';
 
 import { useRoute } from 'vue-router';
@@ -196,6 +196,7 @@ import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
 import JSZip from 'jszip';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
 
 const reportData = ref<IReport|null>(null);
 const invoicesData = ref<Array<IInvoice>>([]);
@@ -263,7 +264,10 @@ const report = computed(() => {
         from_date: DateTime.fromISO(reportData.value?.from_date as unknown as string).toLocaleString(DateTime.DATE_MED),
         to_date: DateTime.fromISO(reportData.value?.to_date as unknown as string).toLocaleString(DateTime.DATE_MED),
         type: reportData.value?.type,
-        status: reportData.value?.status
+        status: reportData.value?.status,
+        moneyPrefix: (() => {
+            return Toolbox.moneyPrefix(reportData.value?.money_type as unknown as EMoneyType)
+        })()
     }
 });
 
@@ -518,7 +522,6 @@ const sendReport = async () => {
 
 
 const downloadPdfAndExcelFiles = async () => {
-
     const invoicesTotalAmount = invoicesData.value.reduce((total, invoice) => {
         return total + invoice.amount;
     }, 0);

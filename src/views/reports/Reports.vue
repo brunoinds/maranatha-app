@@ -22,7 +22,7 @@
                                 <h2><b>{{ report.title }}</b></h2>
                                 <p>{{report.reportType}}</p>
                                 <p>{{report.reportDates}}</p>
-                                <p><b>S./ {{report.invoices.totalAmount.toFixed(2)}}</b></p>
+                                <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount.toFixed(2)}}</b></p>
                             </ion-label>
                             <ion-chip color="danger" v-if="report.status == 'Draft'">
                                 <ion-icon :icon="alertCircleOutline"></ion-icon>
@@ -53,7 +53,7 @@
                                 <h2><b>{{ report.title }}</b></h2>
                                 <p>{{report.reportType}}</p>
                                 <p>{{report.reportDates}}</p>
-                                <p><b>S./ {{report.invoices.totalAmount.toFixed(2)}}</b></p>
+                                <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount.toFixed(2)}}</b></p>
                             </ion-label>
                             <ion-chip color="warning" v-if="report.status == 'Draft'">
                                 <ion-icon :icon="alertCircleOutline"></ion-icon>
@@ -84,7 +84,7 @@
                                 <h2><b>{{ report.title }}</b></h2>
                                 <p>{{report.reportType}}</p>
                                 <p>{{report.reportDates}}</p>
-                                <p><b>S./ {{report.invoices.totalAmount.toFixed(2)}}</b></p>
+                                <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount.toFixed(2)}}</b></p>
                             </ion-label>
                             <ion-chip color="warning" v-if="report.status == 'Draft'">
                                 <ion-icon :icon="alertCircleOutline"></ion-icon>
@@ -107,7 +107,6 @@
                 </ion-list>
             </article>
 
-
             <article v-if="reports.approved.length > 0">
                 <ion-list-header>Aprobados</ion-list-header>
                 <ion-list>
@@ -116,7 +115,7 @@
                                 <h2><b>{{ report.title }}</b></h2>
                                 <p>{{report.reportType}}</p>
                                 <p>{{report.reportDates}}</p>
-                                <p><b>S./ {{report.invoices.totalAmount.toFixed(2)}}</b></p>
+                                <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount.toFixed(2)}}</b></p>
                             </ion-label>
                             <ion-chip color="warning" v-if="report.status == 'Draft'">
                                 <ion-icon :icon="alertCircleOutline"></ion-icon>
@@ -163,6 +162,7 @@ import NewReport from '../../dialogs/NewReport/NewReport.vue';
 import { DateTime } from 'luxon';
 import {AppEvents} from '../../utils/AppEvents/AppEvents';
 import { StoredReports } from '@/utils/Stored/StoredReports';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
@@ -191,7 +191,10 @@ const reports = computed(() => {
             invoices: {
                 total: (report as any).invoices.count,
                 totalAmount: (report as any).invoices.total_amount
-            }
+            },
+            moneyPrefix: (() => {
+                return Toolbox.moneyPrefix(report.money_type)
+            })()
         }
     })
 

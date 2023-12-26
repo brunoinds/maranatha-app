@@ -17,7 +17,7 @@
 
                                 <p>{{report.reportType}}</p>
                                 <p>{{report.reportDates}}</p>
-                                <p><b>S./ {{report.invoices.totalAmount}}</b></p>
+                                <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount}}</b></p>
 
                             </ion-label>
                             <ion-chip color="medium" v-if="report.status == 'Draft'">
@@ -57,7 +57,7 @@
                                         <h2><b>{{ report.title }}</b></h2>
                                         <p>{{report.reportType}}</p>
                                         <p>{{report.reportDates}}</p>
-                                        <p><b>S./ {{report.invoices.totalAmount}}</b></p>
+                                        <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount}}</b></p>
 
                                     </ion-label>
                                     <ion-chip color="medium" v-if="report.status == 'Draft'">
@@ -94,6 +94,7 @@ import { IReport } from '../../interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import { DateTime } from 'luxon';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
@@ -119,7 +120,10 @@ const parseReport = (report:IReport) => {
         invoices: {
             total: (report as any).invoices.count,
             totalAmount: (report as any).invoices.total_amount
-        }
+        },
+        moneyPrefix: (() => {
+            return Toolbox.moneyPrefix(report.money_type)
+        })()
     }
 }
 

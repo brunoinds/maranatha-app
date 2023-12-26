@@ -25,6 +25,12 @@
                     </ion-select>
                 </ion-item>
                 <ion-item>
+                    <ion-select label="Tipo de moneda" label-placement="stacked" interface="action-sheet" v-model="dynamicData.moneyType" :disabled="isLoading">
+                        <ion-select-option value="PEN">Soles</ion-select-option>
+                        <ion-select-option value="USD">Dólares</ion-select-option>
+                    </ion-select>
+                </ion-item>
+                <ion-item>
                     <ion-label position="stacked">Fecha de Inicio</ion-label>
                     <input class="native-input sc-ion-input-ios" v-maska data-maska="##/##/####" v-model="dynamicData.startDate" :disabled="isLoading">
                 </ion-item>
@@ -49,7 +55,7 @@ import { defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { vMaska } from "maska";
-import { EReportType } from '@/interfaces/ReportInterfaces';
+import { EMoneyType, EReportType } from '@/interfaces/ReportInterfaces';
 import { DateTime } from 'luxon';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
@@ -70,10 +76,12 @@ const dynamicData = ref<{
     title: string,
     type: EReportType,
     startDate: string,
-    endDate: string
+    endDate: string,
+    moneyType: EMoneyType
 }>({
     title: '',
     type: EReportType.Bill,
+    moneyType: EMoneyType.PEN,
     startDate: (DateTime.now().set({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString(),
     endDate: (DateTime.now().set({ day: 1}).plus({ month: 1}).minus({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString()
 });
@@ -142,6 +150,7 @@ const saveReport = async () => {
         user_id: (await Session.getCurrentSession())?.id(),
         title: dynamicData.value.title,
         type: dynamicData.value.type,
+        money_type: dynamicData.value.moneyType,
         from_date: DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").toISO(),
         to_date: DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy").toISO(),
     }).then((response) => {
@@ -206,6 +215,7 @@ const loadReport = () => {
         dynamicData.value = {
             title: response.title,
             type: response.type,
+            moneyType: response.money_type,
             startDate: DateTime.fromISO(response.from_date).toFormat("dd/MM/yyyy"),
             endDate: DateTime.fromISO(response.to_date).toFormat("dd/MM/yyyy")
         }

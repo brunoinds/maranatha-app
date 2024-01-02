@@ -120,7 +120,7 @@ const createNewReport = async () => {
             ...report
         });
         toastController.create({
-            message: 'Reporte creado con exito!',
+            message: 'Reporte creado con éxito',
             duration: 2000
         }).then((toast) => {
             toast.present();
@@ -152,7 +152,7 @@ const createNewReport = async () => {
             ...response.report
         });
         toastController.create({
-            message: 'Reporte creado con exito!',
+            message: 'Reporte creado con éxito',
             duration: 2000
         }).then((toast) => {
             toast.present();

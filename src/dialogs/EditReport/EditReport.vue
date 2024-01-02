@@ -105,7 +105,7 @@ const deleteReport = async () => {
                             ...response.report
                         });
                         toastController.create({
-                            message: 'Reporte borrado con exito!',
+                            message: 'Reporte borrado con éxito',
                             duration: 2000
                         }).then((toast) => {
                             toast.present();
@@ -158,7 +158,7 @@ const saveReport = async () => {
             ...response.report
         });
         toastController.create({
-            message: 'Reporte guardado con exito!',
+            message: 'Reporte guardado con éxito',
             duration: 2000
         }).then((toast) => {
             toast.present();

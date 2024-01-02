@@ -12,8 +12,16 @@ const routes: Array<RouteRecordRaw> = [
         redirect: '/login'
       },
       {
+        path: 'wallet',
+        component: () => import('@/views/wallet/Wallet.vue')
+      },
+      {
         path: 'my-reports',
         component: () => import('@/views/reports/Reports.vue')
+      },
+      {
+        path: 'my-attendances',
+        component: () => import('@/views/attendances/Attendances.vue')
       },
       {
         path: 'all-reports',
@@ -36,6 +44,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/reports/:id',
     component: () => import('@/views/reports/Report.vue')
+  },
+  {
+    path: '/attendances/:id',
+    component: () => import('@/views/attendances/Attendance.vue')
   },
   {
     path: '/users',

@@ -323,7 +323,7 @@ const deleteInvoice = async (invoice:IInvoice) => {
     }
     loadReportInvoices();
     toastController.create({
-        message: reportType.value + ' eliminada con exito!',
+        message: reportType.value + ' eliminada con éxito',
         duration: 2000
     }).then((toast) => {
         toast.present();
@@ -392,7 +392,7 @@ const acceptReport = async () => {
     })
     isLoading.value = false;
     toastController.create({
-        message: 'Reporte aprobado con exito!',
+        message: 'Reporte aprobado con éxito',
         duration: 2000
     }).then((toast) => {
         toast.present();
@@ -425,7 +425,7 @@ const rejectReport = async () => {
                     })
                     isLoading.value = false;
                     toastController.create({
-                        message: 'Reporte rechazado con exito!',
+                        message: 'Reporte rechazado con éxito',
                         duration: 2000
                     }).then((toast) => {
                         toast.present();
@@ -485,7 +485,7 @@ const undoSendReport = async () => {
     })
     isLoading.value = false;
     toastController.create({
-        message: 'Reporte reaperturado con exito!',
+        message: 'Reporte reaperturado con éxito',
         duration: 2000
     }).then((toast) => {
         toast.present();

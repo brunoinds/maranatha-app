@@ -163,6 +163,7 @@ import { DateTime } from 'luxon';
 import {AppEvents} from '../../utils/AppEvents/AppEvents';
 import { StoredReports } from '@/utils/Stored/StoredReports';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import NewAttendance from '../../dialogs/NewAttendance/NewAttendance.vue';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
@@ -231,7 +232,6 @@ const createNewReport = async () => {
         }
     })
 }
-
 AppEvents.on('reports:reload', () => {
     loadUserReports();
 })

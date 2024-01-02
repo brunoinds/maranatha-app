@@ -116,7 +116,7 @@ const deleteJob = async (job:any) => {
     await RequestAPI.delete(`/jobs/${job.id}`);
     loadJobs();
     toastController.create({
-        message: 'Job eliminado con exito!',
+        message: 'Job eliminado con éxito',
         duration: 2000
     }).then((toast) => {
         toast.present();

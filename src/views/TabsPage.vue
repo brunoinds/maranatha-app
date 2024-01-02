@@ -3,9 +3,18 @@
     <ion-tabs>
       <ion-router-outlet></ion-router-outlet>
       <ion-tab-bar slot="bottom">
+        <ion-tab-button tab="tab0" href="/wallet">
+          <ion-icon aria-hidden="true" :icon="walletOutline" />
+          <ion-label>Billetera</ion-label>
+        </ion-tab-button>
         <ion-tab-button tab="tab1" href="/my-reports">
           <ion-icon aria-hidden="true" :icon="fileTrayFullOutline" />
           <ion-label>Mis Reportes</ion-label>
+        </ion-tab-button>
+
+        <ion-tab-button tab="tab4" href="/my-attendances">
+          <ion-icon aria-hidden="true" :icon="checkmarkDoneOutline" />
+          <ion-label>Mis Asistencias</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="tab2" href="/all-reports" v-if="isAdmin">
@@ -25,7 +34,7 @@
 <script setup lang="ts">
 import { Session } from '@/utils/Session/Session';
 import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
-import { albumsOutline, fileTrayFullOutline, personCircleOutline } from 'ionicons/icons';
+import { albumsOutline, checkmarkDoneOutline, fileTrayFullOutline, personCircleOutline, walletOutline } from 'ionicons/icons';
 import { computed, ref } from 'vue';
 
 

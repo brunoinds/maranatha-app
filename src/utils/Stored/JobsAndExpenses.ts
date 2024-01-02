@@ -103,6 +103,36 @@ class JobsAndExpenses{
             })
         })
     }
+
+
+    public static getJob(code: string): Promise<IJob>{
+        return new Promise((resolve, reject) => {
+            JobsAndExpenses.getJobs().then((jobs) => {
+                const job = jobs.find((job) => job.code === code);
+                if (job){
+                    resolve(job);
+                }else{
+                    reject();
+                }
+            }).catch(() => {
+                reject();
+            })
+        })
+    }
+    public static getExpense(code: string): Promise<IExpense>{
+        return new Promise((resolve, reject) => {
+            JobsAndExpenses.getExpenses().then((expenses) => {
+                const expense = expenses.find((expense) => expense.code === code);
+                if (expense){
+                    resolve(expense);
+                }else{
+                    reject();
+                }
+            }).catch(() => {
+                reject();
+            })
+        })
+    }
 }
 
 

@@ -20,22 +20,25 @@
                                 <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount}}</b></p>
 
                             </ion-label>
-                            <ion-chip color="medium" v-if="report.status == 'Draft'">
-                                <ion-icon :icon="pencilOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            <ion-chip color="warning" v-if="report.status == 'Submitted'">
-                                <ion-icon :icon="alertCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            <ion-chip color="success" v-if="report.status == 'Approved'">
-                                <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            <ion-chip color="danger" v-if="report.status == 'Rejected'">
-                                <ion-icon :icon="closeCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
+                            <ReportStatusChip :report="report"></ReportStatusChip>
+                    </ion-item>
+                </ion-list>
+            </section>
+
+            <section v-if="pendingRestitutionReports.length > 0">
+                <ion-list-header>Esperando restitución</ion-list-header>
+                <ion-list style="margin-top:10px">
+                    <ion-item v-for="report in pendingRestitutionReports" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                        <ion-label>
+                                <h2><b>{{ report.title }}</b></h2>
+                                <h3>{{ report.user.name }}</h3>
+
+                                <p>{{report.reportType}}</p>
+                                <p>{{report.reportDates}}</p>
+                                <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
+
+                            </ion-label>
+                            <ReportStatusChip :report="report"></ReportStatusChip>
                     </ion-item>
                 </ion-list>
             </section>
@@ -57,25 +60,10 @@
                                         <h2><b>{{ report.title }}</b></h2>
                                         <p>{{report.reportType}}</p>
                                         <p>{{report.reportDates}}</p>
-                                        <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount}}</b></p>
+                                        <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
 
                                     </ion-label>
-                                    <ion-chip color="medium" v-if="report.status == 'Draft'">
-                                        <ion-icon :icon="pencilOutline"></ion-icon>
-                                        <ion-label>{{report.reportStatus}}</ion-label>
-                                    </ion-chip>
-                                    <ion-chip color="warning" v-if="report.status == 'Submitted'">
-                                        <ion-icon :icon="alertCircleOutline"></ion-icon>
-                                        <ion-label>{{report.reportStatus}}</ion-label>
-                                    </ion-chip>
-                                    <ion-chip color="success" v-if="report.status == 'Approved'">
-                                        <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
-                                        <ion-label>{{report.reportStatus}}</ion-label>
-                                    </ion-chip>
-                                    <ion-chip color="danger" v-if="report.status == 'Rejected'">
-                                        <ion-icon :icon="closeCircleOutline"></ion-icon>
-                                        <ion-label>{{report.reportStatus}}</ion-label>
-                                    </ion-chip>
+                                    <ReportStatusChip :report="report"></ReportStatusChip>
                             </ion-item>
                         </ion-list>
                     </section>
@@ -90,11 +78,12 @@ import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent,IonAccordion, IonA
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, ref } from 'vue';
 import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, sendOutline, closeCircleOutline, pencilOutline } from 'ionicons/icons';
-import { IReport } from '../../interfaces/ReportInterfaces';
+import { EReportStatus, IReport } from '../../interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import { DateTime } from 'luxon';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
@@ -105,17 +94,6 @@ const parseReport = (report:IReport) => {
     return{
         ...report,
         reportType: report.type == 'Bill' ? 'Boletas' : 'Facturas',
-        reportStatus: (() => {
-            if (report.status == 'Draft'){
-                return 'Borrador';
-            }else if (report.status == 'Submitted'){
-                return 'Pend. Aprob.';
-            }else if (report.status == 'Approved'){
-                return 'Aprobado';
-            }else if (report.status == 'Rejected'){
-                return 'Rechazado';
-            }
-        })(),
         reportDates: `${DateTime.fromISO(report.from_date).toLocaleString(DateTime.DATE_MED)} - ${DateTime.fromISO(report.to_date).toLocaleString(DateTime.DATE_MED)}`,
         invoices: {
             total: (report as any).invoices.count,
@@ -150,7 +128,12 @@ const usersReports = computed(() => {
     return reportsGroupedByUserArray;
 })
 const pendingReports = computed(() => {
-    return reportsData.value.filter((report) => report.status == 'Submitted').map((report) => {
+    return reportsData.value.filter((report) => report.status == EReportStatus.Submitted).map((report) => {
+        return parseReport(report);
+    });
+});
+const pendingRestitutionReports = computed(() => {
+    return reportsData.value.filter((report) => report.status == EReportStatus.Approved).map((report) => {
         return parseReport(report);
     });
 });

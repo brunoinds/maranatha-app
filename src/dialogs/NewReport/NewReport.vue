@@ -15,10 +15,6 @@
         <ion-content>
             <ion-list :inset="true">
                 <ion-item>
-                    <ion-input label="Nombre del reporte" label-placement="stacked" placeholder="Nombre del reporte"  v-model="dynamicData.title" :disabled="isLoading"></ion-input>
-                </ion-item>
-
-                <ion-item>
                     <ion-select label="Tipo de documento" label-placement="stacked" interface="action-sheet" v-model="dynamicData.type" :disabled="isLoading">
                         <ion-select-option value="Bill">Boletas</ion-select-option>
                         <ion-select-option value="Facture">Facturas</ion-select-option>
@@ -39,6 +35,10 @@
                     <ion-label position="stacked">Fecha de Término</ion-label>
                     <input class="native-input sc-ion-input-ios" v-maska data-maska="##/##/####" v-model="dynamicData.endDate" :disabled="isLoading">
                 </ion-item>
+
+                <ion-item>
+                    <ion-input label="Nombre del reporte" label-placement="stacked" placeholder="Nombre del reporte"  v-model="dynamicTitle" :disabled="isLoading"></ion-input>
+                </ion-item>
             </ion-list>
         </ion-content>
     </ion-page>
@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController } from '@ionic/vue';
-import { defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
+import { defineComponent, nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { vMaska } from "maska";
@@ -64,18 +64,18 @@ const props = defineProps({
     }
 });
 const dynamicData = ref<{
-    title: string,
     type: EReportType,
     startDate: string,
     endDate: string,
     moneyType: EMoneyType
 }>({
-    title: '',
     type: EReportType.Bill,
     moneyType: EMoneyType.PEN,
     startDate: (DateTime.now().set({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString(),
     endDate: (DateTime.now().set({ day: 1}).plus({ month: 1}).minus({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString()
 });
+const dynamicTitle = ref('');
+
 
 const createNewReport = async () => {
     const validationResponse = validateCamps();
@@ -96,7 +96,7 @@ const createNewReport = async () => {
 
     const reportData:IReportResponse = {
         id: 0,
-        title: dynamicData.value.title,
+        title: dynamicTitle.value,
         type: dynamicData.value.type,
         money_type: dynamicData.value.moneyType,
         from_date: DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").toISO() as string,
@@ -137,44 +137,12 @@ const createNewReport = async () => {
     }).finally(() => {
         isLoading.value = false;
     });
-
-
-    return;
-    RequestAPI.post('/reports', {
-        user_id: (await Session.getCurrentSession())?.id(),
-        title: dynamicData.value.title,
-        type: dynamicData.value.type,
-        from_date: DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").toISO(),
-        to_date: DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy").toISO(),
-        status: 'Draft'
-    }).then((response) => {
-        props.emitter.fire('created', {
-            ...response.report
-        });
-        toastController.create({
-            message: 'Reporte creado con éxito',
-            duration: 2000
-        }).then((toast) => {
-            toast.present();
-        })
-        props.emitter.fire('close');
-    }).catch((error) => {
-        alertController.create({
-            header: 'Oops...',
-            message: error.response.message,
-            buttons: ['OK']
-        }).then((alert) => {
-            alert.present();
-        });
-    }).finally(() => {
-        isLoading.value = false;
-    });
 }
 
 const validateCamps = () => {
     let errors = [];
 
-    if (dynamicData.value.title.trim().length == 0){
+    if (dynamicTitle.value.trim().length == 0){
         errors.push("El nombre del reporte no puede estar vacío");
     }
 
@@ -202,6 +170,27 @@ const validateCamps = () => {
         errors: errors
     }
 }
+
+watch(dynamicData, (newValue) => {
+    dynamicTitle.value = generateDefaultTitle();
+}, { deep: true });
+
+const generateDefaultTitle = () => {
+    return (() => {
+        try {
+            const startDate = DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy");
+            //Use Intl and get the month name in es-PE:
+            const monthName = new Intl.DateTimeFormat('es-PE', { month: 'long'}).formatToParts(startDate.toJSDate())[0].value;
+            const moneyName = dynamicData.value.moneyType == EMoneyType.PEN ? 'Soles' : 'Dólares';
+            //The report title will be: "Boletas Enero 2021":
+            return `${monthName} - ${dynamicData.value.type == EReportType.Bill ? 'Boletas' : 'Facturas'} en ${moneyName.toLowerCase()}`;
+        } catch (error) {
+            return dynamicTitle.value;
+        }
+    })();
+}
+
+dynamicTitle.value = generateDefaultTitle();
 </script>
 
 <style scoped lang="scss">

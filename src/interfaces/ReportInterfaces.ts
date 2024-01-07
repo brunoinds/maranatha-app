@@ -3,6 +3,7 @@ enum EReportStatus {
     Submitted = 'Submitted',
     Approved = 'Approved',
     Rejected = 'Rejected',
+    Restituted = 'Restituted'
 }
 enum EReportType {
     Bill = 'Bill',

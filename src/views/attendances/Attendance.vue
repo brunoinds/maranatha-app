@@ -70,6 +70,14 @@
                 </table>
             </article>
             <br>
+            <br>
+            <br>
+            <footer v-if="attendance" class="ion-padding">
+            <ion-button color="success" @click="downloadExcel" fill="outline" size="small" expand="block" style="max-width: 200px; margin: 0 auto; width: 100%;">
+                <ion-icon slot="start" :icon="cloudDownloadOutline"></ion-icon>
+                Descargar Excel
+            </ion-button>
+        </footer>
         </ion-content>
     </ion-page>
 </template>
@@ -80,7 +88,7 @@ import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkDone, ellipsisHorizontal, checkmarkCircleOutline,sendOutline, closeCircleOutline  } from 'ionicons/icons';
+import { addOutline, albumsOutline, alertCircleOutline, checkmarkDone, ellipsisHorizontal, checkmarkCircleOutline,sendOutline, closeCircleOutline, cloudDownloadOutline  } from 'ionicons/icons';
 import { IAttendance, EAttendanceStatus } from '../../interfaces/AttendanceInterfaces';
 import { useRoute, useRouter } from 'vue-router';
 import NewReport from '../../dialogs/NewReport/NewReport.vue';
@@ -88,6 +96,8 @@ import { DateTime } from 'luxon';
 import {AppEvents} from '../../utils/AppEvents/AppEvents';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import EditAttendance from '../../dialogs/EditAttendance/EditAttendance.vue';
+import { ExcelGenerator } from '@/utils/Attendances/ExcelGenerator';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
 
 const attendanceId = ref<string|null>(null);
 const attendancesData = ref<IAttendance|null>(null);
@@ -307,6 +317,81 @@ const editAttendance = () => {
         }
     })
 }
+
+const downloadExcel = async () => {
+    ExcelGenerator.generateExcelFrom({
+        filters: [
+            {
+                id: 'start_date',
+                name: 'Desde',
+                value: DateTime.fromISO(attendance.value.from_date).toISO(),
+                isRequired: true,
+                type: 'date',
+                options: [],
+            },
+            {
+                id: 'end_date',
+                name: 'Hasta',
+                value: DateTime.fromISO(attendance.value.to_date).toISO(),
+                isRequired: true,
+                type: 'date',
+                options: [],
+            },
+            {
+                id: 'job_code',
+                name: 'Job',
+                value: attendance.value.job_code,
+                isRequired: true,
+                type: 'select',
+                options:[],
+            },
+            {
+                id: 'expense_code',
+                name: 'Expense',
+                value: attendance.value.expense_code,
+                isRequired: true,
+                type: 'select',
+                options: [],
+            }
+        ],
+        data: {
+            headers: [
+                {
+                    title: 'Trabajador',
+                    key: 'worker_name'
+                },
+                {
+                    title: 'DNI',
+                    key: 'worker_dni'
+                },
+                ...workersAttendances.value.items[0].days.map((day) => {
+                    const dateParsed = DateTime.fromISO(day.date).toFormat("dd/MM") as string;
+                    return {
+                        title: dateParsed,
+                        key: dateParsed
+                    }
+                })
+            ],
+            body: workersAttendances.value.items.map((worker) => {
+
+                let item = {
+                    worker_name: worker.name,
+                    worker_dni: worker.dni
+                }
+                worker.days.forEach((day) => {
+                    const dateParsed = DateTime.fromISO(day.date).toFormat("dd/MM") as string;
+                    item[dateParsed] = day.status  == 'Present' ? '✅' : '❌';
+                })
+                return item;
+            })
+        },
+        title: 'Asistencia ' + `${DateTime.fromISO(attendance.value.from_date).toFormat('dd/MM/yyyy')} hasta ${ DateTime.fromISO(attendance.value.to_date).toFormat('dd/MM/yyyy')}`,
+    }).then((result) => {
+        const fileTitle = 'Asistencia ' + `${DateTime.fromISO(attendance.value.from_date).toFormat('dd/MM/yyyy')} hasta ${ DateTime.fromISO(attendance.value.to_date).toFormat('dd/MM/yyyy')}`
+        Toolbox.share(fileTitle + '.xlsx', result as unknown as string)
+    })
+}
+
 loadAttendance();
 </script>
 

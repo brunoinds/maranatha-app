@@ -313,7 +313,7 @@ const openCamera = async () => {
                 quality: 90,
                 allowEditing: true,
                 resultType: CameraResultType.Uri,
-                source: CameraSource.Camera
+                source: CameraSource.Prompt
             });
             resolve({
                 path: image.path as unknown as string,

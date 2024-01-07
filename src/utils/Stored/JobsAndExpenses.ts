@@ -77,8 +77,23 @@ class JobsAndExpenses{
                 jobs: [],
                 expenses: []
             }).then((bucket) => {
-                JobsAndExpenses.jobs = bucket.data.jobs;
-                JobsAndExpenses.expenses = bucket.data.expenses;
+                JobsAndExpenses.jobs = bucket.data.jobs.sort((a, b) => {
+                    //Rules, in first place, all the jobs with code 0000, then the codes that starts with 2 (desc) and then all the others in desc order:
+                    if (a.code === "0000"){
+                        return -1;
+                    }else if (b.code === "0000"){
+                        return 1;
+                    }
+                    if (a.code[0] === "2" && b.code[0] !== "2"){
+                        return -1;
+                    }else if (a.code[0] !== "2" && b.code[0] === "2"){
+                        return 1;
+                    }
+                    return a.code < b.code ? 1 : -1;
+                });;
+                JobsAndExpenses.expenses = bucket.data.expenses.sort((a, b) => {
+                    return a.code < b.code ? -1 : 1;
+                });
                 resolve();
             })
         })

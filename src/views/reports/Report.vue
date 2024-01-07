@@ -23,148 +23,218 @@
                             <h1><b>{{ report.title }}</b></h1>
                             <p>{{reportType}}s</p>
                             <p>{{report.from_date}} - {{ report.to_date }}</p>
+                            <p><b>{{report.moneyPrefix}}{{ report.amount.text }}</b></p>
                         </ion-label>
-                        <ion-chip color="warning" v-if="report.status == 'Draft'">
-                            <ion-icon :icon="alertCircleOutline"></ion-icon>
-                            <ion-label>{{reportStatus}}</ion-label>
-                        </ion-chip>
-                        <ion-chip color="primary" v-if="report.status == 'Submitted'">
-                            <ion-icon :icon="sendOutline"></ion-icon>
-                            <ion-label>{{reportStatus}}</ion-label>
-                        </ion-chip>
-                        <ion-chip color="success" v-if="report.status == 'Approved'">
-                            <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
-                            <ion-label>{{reportStatus}}</ion-label>
-                        </ion-chip>
-                        <ion-chip color="danger" v-if="report.status == 'Rejected'">
-                            <ion-icon :icon="closeCircleOutline"></ion-icon>
-                            <ion-label>{{reportStatus}}</ion-label>
-                        </ion-chip>
+                        <ReportStatusChip :report="reportData"></ReportStatusChip>
                     </ion-item>
                 </ion-list>
 
-                <article class="ion-padding"  v-if="report.status == 'Draft' && !isOfflineReport" >
-                    <ion-button color="success" expand="block" @click="sendReport" :disabled="invoices.length == 0 || isLoading || invoicesDataWithPendingImageUpload.length > 0">
-                        <ion-label>
-                            Cerrar y enviar reporte
+                <main class="content">
+                    <article class="ion-padding"  v-if="report.status == 'Draft' && !isOfflineReport" >
+                        <ion-button color="success" expand="block" @click="sendReport" :disabled="invoices.length == 0 || isLoading || invoicesDataWithPendingImageUpload.length > 0">
+                            <ion-label>
+                                Cerrar y enviar reporte
+                            </ion-label>
+                            <ion-icon slot="start" :icon="send"></ion-icon>
+                        </ion-button>
+                        <ion-label v-if="invoicesDataWithPendingImageUpload.length > 0">
+                            <p style="font-size: 9px; text-align: center;">
+                                Hay {{ invoicesDataWithPendingImageUpload.length }} {{ reportType.toLowerCase() }}s que aún no ha sido subida al servidor. Por favor, espere a que se suban todas las imágenes para poder enviar el reporte.
+                            </p>
                         </ion-label>
-                        <ion-icon slot="start" :icon="send"></ion-icon>
-                    </ion-button>
-                    <ion-label v-if="invoicesDataWithPendingImageUpload.length > 0">
-                        <p style="font-size: 9px; text-align: center;">
-                            Hay {{ invoicesDataWithPendingImageUpload.length }} {{ reportType.toLowerCase() }}s que aún no ha sido subida al servidor. Por favor, espere a que se suban todas las imágenes para poder enviar el reporte.
-                        </p>
-                    </ion-label>
-                </article>
+                    </article>
 
-                <article class="ion-padding" v-if="report.status != 'Draft'">
-                    <ion-button color="primary" expand="block" @click="downloadPdfAndExcelFiles" :disabled="isLoading">
-                        <ion-label>
-                            Descargar Reporte
-                        </ion-label>
-                        <ion-icon slot="start" :icon="arrowDown"></ion-icon>
-                    </ion-button>
-                </article>
+                    <article class="ion-padding" v-if="report.status != 'Draft'">
+                        <ion-button color="primary" expand="block" @click="downloadPdfAndExcelFiles" :disabled="isLoading">
+                            <ion-label>
+                                Descargar Reporte
+                            </ion-label>
+                            <ion-icon slot="start" :icon="arrowDown"></ion-icon>
+                        </ion-button>
+                    </article>
 
-                <section v-if="report.status == 'Submitted' && isAdmin">
-                    <ion-card color="light">
-                        <ion-card-header>
-                            <ion-card-title>Esperando aprobación...</ion-card-title>
-                            <ion-card-subtitle>ACCIÓN REQUERIDA</ion-card-subtitle>
-                        </ion-card-header>
+                    <section v-if="report.status == EReportStatus.Submitted && isAdmin">
+                        <ion-card color="light">
+                            <ion-card-header>
+                                <ion-card-title>Esperando aprobación...</ion-card-title>
+                                <ion-card-subtitle>ACCIÓN REQUERIDA</ion-card-subtitle>
+                            </ion-card-header>
 
-                        <ion-card-content>
-                            Este reporte ha sido enviado y está esperando por su aprobación.
-                            <br>
-                            <br>
+                            <ion-card-content>
+                                Este reporte ha sido enviado y está esperando por su aprobación.
+                                <br>
+                                <br>
 
-                            <article v-if="report.status == 'Submitted' && isAdmin">
-                                <section style="display: flex; align-items: center; justify-content: space-between;">
-                                    <ion-button style="width: 100%" color="success" expand="block" @click="acceptReport">
-                                        <ion-label>
-                                            Aceptar reporte
-                                        </ion-label>
-                                        <ion-icon slot="start" :icon="thumbsUpOutline"></ion-icon>
-                                    </ion-button>
-                                    <ion-button  style="width: 100%" color="danger" expand="block" @click="rejectReport">
-                                        <ion-label>
-                                            Rechazar
-                                        </ion-label>
-                                        <ion-icon slot="start" :icon="closeCircleOutline"></ion-icon>
-                                    </ion-button>
-                                </section>
-                            </article>
-                        </ion-card-content>
-                    </ion-card>
+                                <article v-if="report.status == EReportStatus.Submitted && isAdmin">
+                                    <section style="display: flex; align-items: center; justify-content: space-between;">
+                                        <ion-button style="width: 100%" color="success" expand="block" @click="acceptReport">
+                                            <ion-label>
+                                                Aceptar reporte
+                                            </ion-label>
+                                            <ion-icon slot="start" :icon="thumbsUpOutline"></ion-icon>
+                                        </ion-button>
+                                        <ion-button  style="width: 100%" color="danger" expand="block" @click="rejectReport">
+                                            <ion-label>
+                                                Rechazar
+                                            </ion-label>
+                                            <ion-icon slot="start" :icon="closeCircleOutline"></ion-icon>
+                                        </ion-button>
+                                    </section>
+                                </article>
+                            </ion-card-content>
+                        </ion-card>
+                    </section>
+
+                    <section v-if="report.status == EReportStatus.Approved && isAdmin">
+                        <ion-card color="light">
+                            <ion-card-header>
+                                <ion-card-title>Esperando reembolso...</ion-card-title>
+                                <ion-card-subtitle>ACCIÓN REQUERIDA</ion-card-subtitle>
+                            </ion-card-header>
+
+                            <ion-card-content>
+                                Este reporte ha sido aprobado y está esperando por la restitución de <b>{{report.moneyPrefix}}{{ report.amount.text }}</b> a la cuenta bancária.
+                                <br>
+                                <br>
+
+                                <article v-if="report.status == EReportStatus.Approved && isAdmin">
+                                    <section style="display: flex; align-items: center; justify-content: space-between;">
+                                        <ion-button style="width: 100%" color="warning" expand="block" @click="depositRestitution">
+                                            <ion-label>
+                                                Realizar reposición de fondos
+                                            </ion-label>
+                                            <ion-icon slot="start" :icon="cashOutline"></ion-icon>
+                                        </ion-button>
+                                    </section>
+                                </article>
+                            </ion-card-content>
+                        </ion-card>
+                    </section>
+
                     
-                </section>
 
-                
+                    <section v-if="report.status == EReportStatus.Rejected">
+                        <ion-card color="danger">
+                            <ion-card-header>
+                                <ion-card-title>Reporte rechazado</ion-card-title>
+                                <ion-card-subtitle>ACCIÓN REQUERIDA</ion-card-subtitle>
+                            </ion-card-header>
 
-                <section v-if="report.status == 'Rejected'">
-                    <ion-card color="danger">
-                        <ion-card-header>
-                            <ion-card-title>Reporte rechazado</ion-card-title>
-                            <ion-card-subtitle>ACCIÓN REQUERIDA</ion-card-subtitle>
-                        </ion-card-header>
+                            <ion-card-content>
+                                <b>Este reporte ha sido rechazado por el administrador por el siguiente motivo:</b> <br><br>
+                                {{ report.rejection_reason }}
 
-                        <ion-card-content>
-                            <b>Este reporte ha sido rechazado por el administrador por el siguiente motivo:</b> <br>
-                            {{ report.rejection_reason }}
-                        </ion-card-content>
-                    </ion-card>
-                    <section class="ion-padding" style="padding-top: 0px">
+
+                                <br><br>
+                                <ion-button expand="block" color="light" @click="undoSendReport">
+                                    <ion-icon slot="start" :icon="closeCircleOutline"></ion-icon>
+                                    Cancelar envío y reaperturar reporte
+                                </ion-button>
+                            </ion-card-content>
+
+
+                        </ion-card>
+                    </section>
+
+                    <section v-if="report.status == EReportStatus.Approved && !isAdmin">
+                        <ion-card color="tertiary">
+                            <ion-card-header>
+                                <ion-card-title>Esperando reembolso...</ion-card-title>
+                                <ion-card-subtitle style="font-size: 30px">
+                                    <ion-icon :icon="cashOutline"></ion-icon>
+                                </ion-card-subtitle>
+                            </ion-card-header>
+
+                            <ion-card-content>
+                                <b>Reporte aprobado</b>
+                                <br>
+                                Este reporte ha sido aprobado por el administrador. El depósito de <b>{{report.moneyPrefix}}{{ report.amount.text }}</b> será realizado a su cuenta lo antes posible.
+                            </ion-card-content>
+                        </ion-card>
+                    </section>
+
+                    <section v-if="report.status == EReportStatus.Restituted">
+                        <ion-card color="success">
+                            <ion-card-header>
+                                <ion-card-title>Reporte pagado</ion-card-title>
+                                <ion-card-subtitle style="font-size: 30px">
+                                    <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+                                </ion-card-subtitle>
+                            </ion-card-header>
+
+                            <ion-card-content>
+                                <b>Reporte aprobado y restituido.</b>
+                                <br>
+                                Este reporte ha sido aprobado por el administrador y ya se reembolsó el valor de <b>{{report.moneyPrefix}}{{ report.amount.text }}</b> a su cuenta.
+
+
+                                <br><br>
+                                <ion-button expand="block" color="light" @click="downloadBalanceReceiptImage">
+                                    <ion-icon slot="start" :icon="documentTextOutline"></ion-icon>
+                                    Ver comprobante de depósito
+                                </ion-button>
+                            </ion-card-content>
+                        </ion-card>
+                    </section>
+
+
+                    <section v-if="report.status == EReportStatus.Submitted && !isAdmin">
+                        <ion-card color="warning">
+                            <ion-card-header>
+                                <ion-card-title>Esperando aprobación...</ion-card-title>
+                                <ion-card-subtitle style="font-size: 30px">
+                                    <ion-icon :icon="timeOutline"></ion-icon>
+                                </ion-card-subtitle>
+                            </ion-card-header>
+
+                            <ion-card-content>
+                                <b>Reporte enviado.</b>
+                                <br>
+                                Este reporte ha sido enviado al administrador. El lo revisará y lo aprobará lo antes posible.
+
+
+                                <br><br>
+                                <ion-button expand="block" color="light" @click="undoSendReport">
+                                    <ion-icon slot="start" :icon="closeCircleOutline"></ion-icon>
+                                    Cancelar envío y reaperturar reporte
+                                </ion-button>
+                            </ion-card-content>
+                        </ion-card>
+                    </section>
+
+                    <br>
+
+                    <ion-list-header style="font-size: 15px">{{ reportType }}s del reporte ({{ invoices.length }} / 28)</ion-list-header>
+                    
+                    <section class="ion-padding">
+                        <ion-button expand="block" fill="outline" @click="addInvoice" :disabled="invoices.length == 28 || isLoading" v-if="report.status == 'Draft'"> 
+                            <ion-icon slot="start" :icon="add"></ion-icon>
+                            Añadir {{ reportType }}
+                        </ion-button>
+                    </section>
+                    <ion-list>
+                        <ion-item v-for="invoice in invoices" :key="invoice.id" @click="openInvoice(invoice)" button :detail="true" :disabled="report.status != 'Draft'">
+                            <ion-label>
+                                <h2><b>{{ invoice.description }}</b></h2>
+                                <h3>{{ invoice.date }}</h3>
+                                <p>{{ invoice.jobName }}</p>
+                            </ion-label>
+                            <ion-label slot="end">
+                                <h3>{{report.moneyPrefix}} {{ Toolbox.moneyFormat(invoice.amount) }}</h3>
+                            </ion-label>
+                        </ion-item>
+                    </ion-list>
+
+                    <br>
+                    <article class="ion-padding" v-if="(report.status == 'Submitted') || (isAdmin && report.status != 'Draft')">
                         <ion-button color="danger" expand="block" fill="outline" :disabled="isLoading" @click="undoSendReport">
                             <ion-label>
                                 Cancelar envío y reaperturar reporte
                             </ion-label>
-                            <ion-icon slot="start" :icon="lockOpen"></ion-icon>
+                            <ion-icon slot="start" :icon="closeCircleOutline"></ion-icon>
                         </ion-button>
-                    </section>
-                    
-                </section>
-
-                <br>
-
-                <ion-list-header style="font-size: 15px">{{ reportType }}s del reporte ({{ invoices.length }} / 28)</ion-list-header>
-                
-                <section class="ion-padding">
-                    <ion-button expand="block" fill="outline" @click="addInvoice" :disabled="invoices.length == 28 || isLoading" v-if="report.status == 'Draft'"> 
-                        <ion-icon slot="start" :icon="add"></ion-icon>
-                        Añadir {{ reportType }}
-                    </ion-button>
-                </section>
-                <ion-list>
-                    <ion-item v-for="invoice in invoices" :key="invoice.id" @click="openInvoice(invoice)" button :detail="true" :disabled="report.status != 'Draft'">
-                        <ion-label>
-                            <h2><b>{{ invoice.description }}</b></h2>
-                            <h3>{{ invoice.date }}</h3>
-                            <p>{{ invoice.jobName }}</p>
-                        </ion-label>
-                        <ion-label slot="end">
-                            <h3>{{report.moneyPrefix}} {{ invoice.amount }}</h3>
-                        </ion-label>
-
-                        <ion-chip  slot="end" color="warning" v-if="invoice.pending && invoice.pending.uploadStatus == 'UploadingImage'">
-                            <ion-icon :icon="cloudUploadOutline"></ion-icon>
-                            <ion-label>Subiendo</ion-label>
-                        </ion-chip>
-                        <ion-chip  slot="end" color="danger" v-if="invoice.pending && invoice.pending.uploadStatus == 'ErrorOnUploadImage'">
-                            <ion-icon :icon="alertCircleOutline"></ion-icon>
-                            <ion-label>Error</ion-label>
-                        </ion-chip>
-                    </ion-item>
-                </ion-list>
-
-                <br>
-                <article class="ion-padding" v-if="(report.status == 'Submitted') || (isAdmin && report.status != 'Draft')">
-                    <ion-button color="danger" expand="block" fill="outline" :disabled="isLoading" @click="undoSendReport">
-                        <ion-label>
-                            Cancelar envío y reaperturar reporte
-                        </ion-label>
-                        <ion-icon slot="start" :icon="lockOpen"></ion-icon>
-                    </ion-button>
-                </article>
+                    </article>
+                </main>
             </article>
         </ion-content>
     </ion-page>
@@ -174,8 +244,8 @@
 import { IonPage, IonHeader, IonToolbar,IonCard, IonCardHeader, IonCardSubtitle, IonCardContent, IonCardTitle, IonTitle,IonChip, IonContent, IonIcon, IonListHeader, IonButton, IonList, IonItem, IonLabel, IonProgressBar, modalController, IonBackButton, IonButtons, actionSheetController, toastController, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, ref } from 'vue';
-import { add, addOutline, pencilOutline, send, trashBinOutline, cloudUploadOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline } from 'ionicons/icons';
-import { EMoneyType, IReport } from '../../interfaces/ReportInterfaces';
+import { add, addOutline, pencilOutline, send, trashBinOutline, cashOutline, cloudUploadOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline, checkmark, checkmarkDoneOutline, timeOutline, lockOpenOutline, documentTextOutline } from 'ionicons/icons';
+import { EMoneyType, EReportStatus, IReport } from '../../interfaces/ReportInterfaces';
 import IonTitleSubtitle from '../../components/IonTitleSubtitle/IonTitleSubtitle.vue';
 
 import { useRoute } from 'vue-router';
@@ -197,6 +267,9 @@ import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
 import JSZip from 'jszip';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
+import Numeral from 'numeral';
+import AddRepositionPettyCash from '@/dialogs/AddRepositionPettyCash/AddRepositionPettyCash.vue';
 
 const reportData = ref<IReport|null>(null);
 const invoicesData = ref<Array<IInvoice>>([]);
@@ -220,19 +293,6 @@ const isOfflineReport = computed(() => {
 })
 const reportType = computed(() => {
     return report.value.type === "Bill" ? "Boleta" : "Factura";
-})
-const reportStatus = computed(() => {
-    return (() => {
-        if (report.value.status == 'Draft'){
-            return 'Pendiente';
-        }else if (report.value.status == 'Submitted'){
-            return 'Enviado';
-        }else if (report.value.status == 'Approved'){
-            return 'Aprobado';
-        }else if (report.value.status == 'Rejected'){
-            return 'Rechazado';
-        }
-    })();
 })
 const invoices = computed(() => {
     let invoicesFetched = invoicesData.value;
@@ -259,6 +319,10 @@ const invoices = computed(() => {
     })
 });
 const report = computed(() => {
+    const amount = invoicesData.value.reduce((total, invoice) => {
+        return total + invoice.amount;
+    }, 0);
+
     return {
         ...reportData.value,
         from_date: DateTime.fromISO(reportData.value?.from_date as unknown as string).toLocaleString(DateTime.DATE_MED),
@@ -267,7 +331,11 @@ const report = computed(() => {
         status: reportData.value?.status,
         moneyPrefix: (() => {
             return Toolbox.moneyPrefix(reportData.value?.money_type as unknown as EMoneyType)
-        })()
+        })(),
+        amount: {
+            value: amount,
+            text: Numeral(amount).format('0,0.00')
+        }
     }
 });
 
@@ -387,12 +455,12 @@ const loadReportInvoices = async () => {
 const acceptReport = async () => {
     isLoading.value = true;
 
-    const pdfResponse = await RequestAPI.patch(`/reports/${reportId.value}`, {
-        status: 'Approved'
+    const response = await RequestAPI.patch(`/reports/${reportId.value}`, {
+        status: EReportStatus.Approved
     })
     isLoading.value = false;
     toastController.create({
-        message: 'Reporte aprobado con éxito',
+        message: '✅ Reporte aprobado con éxito!',
         duration: 2000
     }).then((toast) => {
         toast.present();
@@ -523,6 +591,26 @@ const sendReport = async () => {
     AppEvents.emit('reports:reload');
 }
 
+const depositRestitution = async () => {
+    Dialog.show(AddRepositionPettyCash, {
+        onLoaded($this) {
+            $this.on('created', (event:any) => {
+                initialize();
+                AppEvents.emit('reports:reload');
+            })
+        },
+        modalControllerOptions: {
+            presentingElement: page,
+            showBackdrop: true,
+        },
+        props: {
+            userId: reportData.value?.user_id,
+            report: reportData.value,
+            totalAmount: report.value.amount.value,
+            moneyType: report.value.money_type
+        }
+    })
+}
 
 const downloadPdfAndExcelFiles = async () => {
     const invoicesTotalAmount = invoicesData.value.reduce((total, invoice) => {
@@ -628,7 +716,7 @@ const downloadPdfAndExcelFiles = async () => {
             toast.present();
         })
         if (Capacitor.isNativePlatform()){
-            share(filename + extention, file.base64);
+            Toolbox.shareNative(filename + extention, file.base64);
         }else{
             let link = document.createElement('a');
             link.href = file.blobUrl;
@@ -683,6 +771,80 @@ const downloadPdfAndExcelFiles = async () => {
         actionSheet.present();
     })
 }
+
+const downloadBalanceReceiptImage = async () => {
+    isLoading.value = true;
+
+    const response = await RequestAPI.get('/balance/reports/' + report.value.id + '/balances');
+
+    const restitutionBalance = response.find((balance:any) => balance.model == 'Restitution');
+
+    if (!restitutionBalance){
+        isLoading.value = false;
+        alertController.create({
+            header: 'No hay comprobante de depósito',
+            message: '',
+            buttons: [
+                {
+                    text: 'OK',
+                    role: 'cancel'
+                }
+            ]
+        }).then((alert) => {
+            alert.present();
+        })
+        return;
+    }
+
+    await showBalanceReceiptImage(restitutionBalance);
+
+    isLoading.value = false;
+    async function showBalanceReceiptImage(balance: any){
+        const response = await RequestAPI.get('/balances/' + balance.id + "/receipt-image");
+
+        if (!response.image){
+            alertController.create({
+                header: 'Número de Transacción',
+                message: restitutionBalance.ticket_number,
+                buttons: [
+                    {
+                        text: 'OK',
+                        role: 'cancel'
+                    }
+                ]
+            }).then((alert) => {
+                alert.present();
+            })
+            return;
+        }
+
+
+        const imageBase64 = "data:image/png;base64," + response.image;
+
+        const filename = `Voucher ${balance.description}.png`;
+
+        if (Capacitor.isNativePlatform()){
+            Toolbox.shareNative(filename, response.image);
+        }else{
+            //Create blob file from base64 image:
+            const byteString = atob(imageBase64.split(',')[1]);
+            const mimeString = imageBase64.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const dw = new DataView(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                dw.setUint8(i, byteString.charCodeAt(i));
+            }
+            const blob = new Blob([ab], { type: mimeString });
+            
+            let link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+}
 const initialize = async () => {
     await loadReport();
     await loadReportInvoices();
@@ -698,26 +860,14 @@ const isAdminCheck = async () => {
 }
 isAdminCheck();
 initialize();
-
-
-function share(fileName: string, base64Data: string) {
-    return Filesystem.writeFile({
-        path: fileName,
-        data: base64Data,
-        directory: Directory.Cache
-    })
-    .then(() => {
-        return Filesystem.getUri({
-            directory: Directory.Cache,
-            path: fileName
-        });
-    })
-    .then((uriResult) => {
-        return Share.share({
-            title: fileName,
-            text: fileName,
-            url: uriResult.uri,
-        });
-    });
-}
 </script>
+
+
+<styles lang="scss" scoped>
+.content{
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+</styles>
+

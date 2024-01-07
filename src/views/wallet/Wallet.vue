@@ -2,10 +2,14 @@
     <ion-page ref="page">
         <ion-header>
             <ion-toolbar>
-                <ion-title>Saldo</ion-title>
+                <ion-title v-if="walletType == 'my-wallet'">Mi Billetera</ion-title>
+                <ion-title v-if="walletType == 'management'">Billetera de {{userBalance?.user.name}}</ion-title>
+                <ion-buttons>
+                    <ion-back-button v-if="walletType == 'management'" defaultHref="/management/wallets"></ion-back-button>
+                </ion-buttons>
             </ion-toolbar>
             <ion-toolbar>
-                <header class="header">
+                <header class="header" style="max-width: 600px;margin: 0 auto;width: 100%;">
                     <button @click="goPreviousYear">
                         <ion-icon :icon="chevronBackCircleOutline"></ion-icon>
                     </button>
@@ -18,119 +22,118 @@
             </ion-toolbar>
         </ion-header>
         <ion-content>
-            <button @click="addCredit">Add Credit</button>
-            <article class="ion-padding wallet">
-                <ion-label>{{userBalance?.user.name}}</ion-label>
-                <ion-img :src="CreditCard" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
-            </article>
-            <article>
-                <ion-grid class="ion-padding">
-                    <ion-row>
-                        <ion-col>
-                            <ion-card style="margin: 0; padding: 0; width: 100%;">
-                                <ion-card-header>
-                                    <ion-card-title :color="userBalance?.totals.balance.color" style="text-wrap: nowrap; font-size: 38px;">S/. {{ userBalance?.totals.balance.amount }}</ion-card-title>
-                                    <ion-card-subtitle>Saldo total</ion-card-subtitle>
-                                </ion-card-header>
-                            </ion-card>
-                        </ion-col>
-                    </ion-row>
-                    <ion-row>
-                        <ion-col>
-                            <ion-row>
+            <section class="content">
+                <br>
+                <article class="ion-padding wallet">
+                    <ion-label>{{userBalance?.user.name}}</ion-label>
+                    <ion-img :src="CreditCard" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
+                </article>
+                <article>
+                    <ion-grid class="ion-padding">
+                        <ion-row>
+                            <ion-col>
                                 <ion-card style="margin: 0; padding: 0; width: 100%;">
                                     <ion-card-header>
-                                        <ion-card-title  color="warning" style="text-wrap: nowrap; font-size: 22px;">S/. {{ userBalance?.petty_cash.reports.pending_reposition.amount.value}}</ion-card-title>
-                                        <ion-card-subtitle>PEND. REPOSICIÓN</ion-card-subtitle>
+                                        <ion-card-title :color="userBalance?.totals.balance.color" style="text-wrap: nowrap; font-size: 38px;">S/. {{ userBalance?.totals.balance.amount }}</ion-card-title>
+                                        <ion-card-subtitle>Saldo total</ion-card-subtitle>
                                     </ion-card-header>
                                 </ion-card>
-                            </ion-row>
-                            <br>
-                            <ion-row>
-                                <ion-card style="margin: 0; padding: 0; width: 100%">
-                                    <ion-card-content>
-                                        <line-chart :height="200" :chart-data="chartData" :options="chartOptions"></line-chart>
-                                    </ion-card-content>
-                                </ion-card>
-                            </ion-row>
-                        </ion-col>
-                        <ion-col>
-                            <ion-card style="margin: 0; padding: 0;">
-                                <ion-card-header>
-                                    <ion-card-title color="medium" style="text-wrap: nowrap; font-size: 22px;">S/. {{userBalance?.petty_cash.reports.not_approved.amount.value}}</ion-card-title>
-                                    <ion-card-subtitle>Gastos Aún No Aprob.</ion-card-subtitle>
-                                    <br>
-                                    <ion-card-title color="primary" style="text-wrap: nowrap; font-size: 22px;">S/. {{userBalance?.petty_cash.given_amount}}</ion-card-title>
-                                    <ion-card-subtitle>Caja Chica</ion-card-subtitle>
-                                </ion-card-header>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-card style="margin: 5px; padding: 0; width: 100%">
                                 <ion-card-content>
-                                    <table style="font-size: 11px; width: 100%;">
-                                        <tbody>
-                                            <tr>
-                                                <td>Dólares</td>
-                                                <td>$  {{ userBalance?.petty_cash.reports.not_approved.currencies.dollars.amount }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Soles</td>
-                                                <td>S/. {{ userBalance?.petty_cash.reports.not_approved.currencies.soles.amount }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    <line-chart :height="200" :chart-data="chartData" :options="chartOptions"></line-chart>
                                 </ion-card-content>
                             </ion-card>
-                        </ion-col>
-                    </ion-row>
-                </ion-grid>
-            </article>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <ion-card style="margin: 0; padding: 0; width: 100%;">
+                                    <ion-card-header>
+                                        <ion-card-title color="warning" style="text-wrap: nowrap; font-size: 22px;">S/. {{ userBalance?.petty_cash.reports.pending_reposition.amount.value}}</ion-card-title>
+                                        <ion-card-subtitle>PEND. REPOSICIÓN</ion-card-subtitle>
+                                    </ion-card-header>
+                                    <ion-card-content>
+                                        <table style="font-size: 11px; width: 100%;">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Reportes</td>
+                                                    <td>{{ userBalance?.petty_cash.reports.pending_reposition.items.length }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Dólares</td>
+                                                    <td>$  {{ userBalance?.petty_cash.reports.pending_reposition.currencies.dollars.amount }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Soles</td>
+                                                    <td>S/. {{ userBalance?.petty_cash.reports.pending_reposition.currencies.soles.amount }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </ion-card-content>
+                                </ion-card>
+                            </ion-col>
+                            <ion-col>
+                                <ion-card style="margin: 0; padding: 0;">
+                                    <ion-card-header>
+                                        <ion-card-title color="medium" style="text-wrap: nowrap; font-size: 22px;">S/. {{userBalance?.petty_cash.reports.not_approved.amount.value}}</ion-card-title>
+                                        <ion-card-subtitle>Gastos Aún No Aprob.</ion-card-subtitle>
+                                        <br>
+                                        <ion-card-title color="primary" style="text-wrap: nowrap; font-size: 22px;">S/. {{userBalance?.petty_cash.given_amount}}</ion-card-title>
+                                        <ion-card-subtitle>Caja Chica</ion-card-subtitle>
+                                    </ion-card-header>
+                                    <ion-card-content>
+                                        <table style="font-size: 11px; width: 100%;">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Dólares</td>
+                                                    <td>$  {{ userBalance?.petty_cash.reports.not_approved.currencies.dollars.amount }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Soles</td>
+                                                    <td>S/. {{ userBalance?.petty_cash.reports.not_approved.currencies.soles.amount }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </ion-card-content>
+                                </ion-card>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </article>
 
-            
 
-            <ion-list :inset="true" v-if="userBalance && userBalance.petty_cash.reports.pending_reposition.items.length > 0">
-                <ion-item :detail="true" button>
-                    <ion-icon color="warning" slot="start" :icon="alertCircle"></ion-icon>
-                    <ion-label>
-                        <h2>{{userBalance.petty_cash.reports.pending_reposition.items.length}} reposiciones pendientes</h2>
-                        <p>Valor pendiente: S/. {{ userBalance?.petty_cash.reports.pending_reposition.amount.value}}</p>
-                    </ion-label>
-                </ion-item>
-            </ion-list>
+                <ion-list-header style="font-size: 15px">Opciones del Administrador</ion-list-header>
 
+                <ion-list :inset="true">
+                    <ion-item button  @click="addCredit">
+                        <ion-icon color="success" slot="start" :icon="addCircleOutline"></ion-icon>
+                        <ion-label>
+                            <h2>Agregar valor a la caja chica</h2>
+                        </ion-label>
+                    </ion-item>
+                </ion-list>
 
-            <ion-list-header style="font-size: 15px">Opciones del Administrador</ion-list-header>
-
-            <ion-list :inset="true">
-                <ion-item button>
-                    <ion-icon color="success" slot="start" :icon="addCircleOutline"></ion-icon>
-                    <ion-label>
-                        <h2>Agregar valor a la caja chica</h2>
-                    </ion-label>
-                </ion-item>
-                <ion-item button>
-                    <ion-icon color="danger" slot="start" :icon="removeCircleOutline"></ion-icon>
-                    <ion-label>
-                        <h2>Retirar valor de la caja chica</h2>
-                    </ion-label>
-                </ion-item>
-            </ion-list>
-
-            <ion-list-header style="font-size: 15px">Historial de Movimientos</ion-list-header>
-            <ion-list :inset="true">
-                <ion-item v-for="item in userBalance?.items" :key="item.id">
-                    <ion-icon slot="start" :icon="item.icon"></ion-icon>
-                    <ion-label>
-                        <h2><b>{{item.description}}</b></h2>
-                        <p><b>Fecha:</b> {{ item.date }}</p>
-                        <p>Saldo: S/. {{ item.balance_here.value }}</p>
-                    </ion-label>
-                    <ion-note slot="end" :color="item.color">{{item.amount.signal}}S/. {{ item.amount.value }}</ion-note>
-                </ion-item>
-            </ion-list>
+                <ion-list-header style="font-size: 15px">Historial de Movimientos</ion-list-header>
+                <ion-list :inset="true">
+                    <ion-item v-for="item in userBalance?.items" :key="item.id" @click="openBalance(item)" button>
+                        <ion-icon slot="start" :icon="item.icon"></ion-icon>
+                        <ion-label>
+                            <h2><b>{{item.description}}</b></h2>
+                            <p><b>Fecha:</b> {{ item.date }}</p>
+                            <p>Saldo: S/. {{ item.balance_here.value }}</p>
+                        </ion-label>
+                        <ion-note slot="end" :color="item.color">{{item.amount.signal}}S/. {{ item.amount.value }}</ion-note>
+                    </ion-item>
+                </ion-list>
+            </section>
         </ion-content>
     </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonGrid, IonCard, IonListHeader, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonNote, IonRow, IonCol, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonIcon, IonList, IonItem, IonLabel } from '@ionic/vue';
+import { IonPage, IonHeader, IonGrid, IonCard, IonListHeader, IonButtons, IonBackButton, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonNote, IonRow, IonCol, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonIcon, IonList, IonItem, IonLabel, actionSheetController, alertController, toastController } from '@ionic/vue';
 import { computed, ref } from 'vue';
 
 import { addCircleOutline, alertCircle, cashOutline, chevronBackCircleOutline, chevronForwardCircleOutline, downloadOutline, gitCompareOutline, removeCircleOutline, shareOutline } from 'ionicons/icons';
@@ -145,12 +148,20 @@ Chart.register(...registerables);
 import { LineChart } from 'vue-chart-3';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import AddCreditPettyCash from '@/dialogs/AddCreditPettyCash/AddCreditPettyCash.vue';
-
+import { Session } from '@/utils/Session/Session';
+import { Capacitor } from '@capacitor/core';
+import { Directory, Filesystem } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import { useRoute } from 'vue-router';
 const isLoading = ref<boolean>(true);
 const router = useRouter();
 const page = ref<HTMLElement|null>(null);
 const userBalanceData = ref<UserBalance|null>(null);
 const selectedYear = ref<number>(DateTime.now().year);
+const route = useRoute();
+
+const userId = ref(route.params.id);
 
 const userBalance = computed<UserBalanceComputed|null>(() => {
     let userBalance:any|UserBalanceComputed = JSON.parse(JSON.stringify(userBalanceData.value)) as unknown as UserBalance;
@@ -194,6 +205,10 @@ const userBalance = computed<UserBalanceComputed|null>(() => {
             color: item.balance_here > 0 ? 'success' : 'danger',
         }
         return item;
+    })
+    
+    userBalance.items.sort((a:any, b:any) => {
+        return DateTime.fromISO(b.date).toUnixInteger() - DateTime.fromISO(a.date).toUnixInteger();
     });
 
     userBalance.totals = {
@@ -228,6 +243,8 @@ const userBalance = computed<UserBalanceComputed|null>(() => {
     userBalance.petty_cash.reports.not_approved.currencies.dollars.amount = Numeral(userBalance.petty_cash.reports.not_approved.currencies.dollars.amount).format('0,0.00');
     userBalance.petty_cash.reports.not_approved.currencies.soles.amount = Numeral(userBalance.petty_cash.reports.not_approved.currencies.soles.amount).format('0,0.00');
 
+    userBalance.petty_cash.reports.pending_reposition.currencies.dollars.amount = Numeral(userBalance.petty_cash.reports.pending_reposition.currencies.dollars.amount).format('0,0.00');
+    userBalance.petty_cash.reports.pending_reposition.currencies.soles.amount = Numeral(userBalance.petty_cash.reports.pending_reposition.currencies.soles.amount).format('0,0.00');
 
     if (userBalanceData.value){
         chartData.value.labels = userBalanceData.value.items.map((item) => {
@@ -239,6 +256,8 @@ const userBalance = computed<UserBalanceComputed|null>(() => {
     return userBalance;
 });
 
+const walletType = ref(route.path.includes('my-wallet') ? 'my-wallet' : 'management')
+
 const chartData = ref<any>({
     type: 'line',
     labels: [],
@@ -249,40 +268,21 @@ const chartData = ref<any>({
             data: [],
             borderColor: '#4bc0c0',
             backgroundColor: '#98eaea',
-            tension: 0.5
+            tension: 0.2
         }
     ]
 })
 
 const chartOptions = ref({
-    scales: {
-        x: {
-            type: 'linear',
-            grid: {
-                display: false,
-                lineWidth: 0,
-                drawBorder: false,
-                zeroLineColor:'transparent'
-            },
-            ticks: {
-                display: false
-            }
-        },
-        y: {
-            beginAtZero: true,
-            grid: {
-                lineWidth: 0,
-                color: '#FF7376',
-                drawBorder: false
-            },
-            ticks: {
-                display: false
-            }
-        }
-    },
+    responsive: true,
     plugins: {
         legend: {
-            display: false
+            display: false,
+            position: 'top',
+        },
+        title: {
+            display: false,
+            text: 'Chart.js Doughnut Chart'
         },
         tooltip: {
             callbacks: {
@@ -290,9 +290,47 @@ const chartOptions = ref({
                     const time = parseInt(context[0].label.replace(/,/g, ''));
                     return DateTime.fromSeconds(time).toFormat('dd/MM/yyyy HH:mm');
                 },
+                label: function(context:any) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                        label += ': ';
+                    }
+                    if (context.parsed.y !== null) {
+                        label += '$' + Toolbox.moneyFormat(context.raw);
+                    }
+                    return label;
+                }
             }
         }
-    }
+    },
+    scales: {
+        x: {
+            type: 'linear',
+            grid: {
+                display: true,
+                lineWidth: 1,
+                drawBorder: false,
+                zeroLineColor:'transparent'
+            },
+            ticks: {
+                display: true,
+                callback: function(value: any, index: any, values: any) {
+                    return DateTime.fromSeconds(value).toFormat('dd/MM');
+                }
+            },
+            
+        },
+        y: {
+            beginAtZero: true,
+            grid: {
+                lineWidth: 1,
+                drawBorder: false
+            },
+            ticks: {
+                display: true
+            }
+        }
+    },
 })
 
 
@@ -318,6 +356,7 @@ interface UserBalance{
         model: string;
         amount: number;
         balance_here: number;
+        receipt_image_url: string|null;
     }>;
     petty_cash: {
         given_amount: number;
@@ -345,7 +384,23 @@ interface UserBalance{
                 amount: number;
             };
             pending_reposition: {
-                items: Array<any>;
+                currencies: {
+                    dollars: {
+                        amount: number;
+                        count: number;
+                    };
+                    soles: {
+                        amount: number;
+                        count: number;
+                    };
+                };
+                items: Array<{
+                    id: number;
+                    title: string;
+                    date: string;
+                    amount: number;
+                    money_type: string;
+                }>;
                 amount: number;
             };
         };
@@ -394,6 +449,7 @@ interface UserBalanceComputed{
         };
         icon: any;
         color: string;
+        receipt_image_url: string|null;
     }>;
     petty_cash: {
         given_amount: string;
@@ -425,6 +481,16 @@ interface UserBalanceComputed{
                 };
             };
             pending_reposition: {
+                currencies: {
+                    dollars: {
+                        amount: string;
+                        count: number;
+                    };
+                    soles: {
+                        amount: string;
+                        count: number;
+                    };
+                };
                 items: Array<{
                     id: number;
                     title: string;
@@ -441,9 +507,18 @@ interface UserBalanceComputed{
         };
     };
 }
-AppEvents.on('balances:reload', () => {
+AppEvents.on('reports:reload', () => {
+    loadUserBalanceYear();
 })
+const isAdmin = ref(false);
+const isAdminCheck = async () => {
+    const currentSession = await Session.getCurrentSession();
+    if (!currentSession){
+        return;
+    };
 
+    isAdmin.value = currentSession.roles().includes("admin");
+}
 
 const addCredit = () => {
     Dialog.show(AddCreditPettyCash, {
@@ -471,14 +546,134 @@ const goNextYear = () => {
     loadUserBalanceYear();
 }
 
+
 const loadUserBalanceYear = async () => {
     isLoading.value = true;
-    const response = await RequestAPI.get('/balance/me/years/' + selectedYear.value);
-    userBalanceData.value = response;
-    isLoading.value = false;
+    if (walletType.value == 'my-wallet'){
+        const response = await RequestAPI.get('/balance/me/years/' + selectedYear.value);
+        userBalanceData.value = response;
+        isLoading.value = false;
+        return;
+    }else{
+        const response = await RequestAPI.get('/management/balances/users/' + userId.value + '/years/' + selectedYear.value);
+        userBalanceData.value = response;
+        isLoading.value = false;
+        return;
+    }
+}
+
+const showBalanceReceiptImage = async (balance: UserBalanceComputed['items'][0]) => {
+    RequestAPI.get('/balances/' + balance.id + "/receipt-image").then((response) => {
+        const imageBase64 = "data:image/png;base64," + response.image;
+
+        const filename = `Voucher ${balance.description}.png`;
+
+        if (Capacitor.isNativePlatform()){
+            Toolbox.shareNative(filename, response.image);
+        }else{
+            //Create blob file from base64 image:
+            const byteString = atob(imageBase64.split(',')[1]);
+            const mimeString = imageBase64.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const dw = new DataView(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                dw.setUint8(i, byteString.charCodeAt(i));
+            }
+            const blob = new Blob([ab], { type: mimeString });
+            
+            let link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+    })
+}
+
+const openBalance = async (balance: UserBalanceComputed['items'][0]) => {
+    let buttons = [
+        {
+            text: 'Cancelar',
+            role: 'cancel',
+            handler: () => {
+                
+            }
+        }
+    ]
+
+    if (balance.receipt_image_url){
+        buttons = [
+            {
+                text: 'Ver voucher de depósito',
+                role: 'ok',
+                handler: () => {
+                    showBalanceReceiptImage(balance)
+                }
+            },
+            ...buttons
+        ]
+    }
+
+    if (balance.report_id){
+        buttons = [
+            {
+                text: 'Abrir reporte',
+                role: 'ok',
+                handler: () => {
+                    router.push(`/reports/${balance.report_id}`);
+                }
+            },
+            ...buttons
+        ]
+    }
+
+    if (balance.model == 'Direct' && isAdmin){
+        buttons = [            
+            ...buttons,
+            {
+                text: 'Eliminar depósito',
+                role: 'destructive',
+                handler: () => {
+                    isLoading.value = true;
+                    RequestAPI.delete('/balances/' + balance.id).then((response) => {
+                        loadUserBalanceYear();
+                        toastController.create({
+                            message: '✅ Depósito eliminado con éxito',
+                            duration: 2000
+                        }).then((toast) => {
+                            toast.present();
+                        })
+                    }).catch((error) => {
+                        alertController.create({
+                            header: 'Oops...',
+                            message: error.response.message,
+                            buttons: ['OK']
+                        }).then((alert) => {
+                            alert.present();
+                        });
+                    }).finally(() => {
+                        isLoading.value = false;
+                    })
+                }
+            },
+        ]
+    }
+
+
+    await actionSheetController.create({
+        header: 'Opciones',
+        buttons: buttons
+    }).then((actionSheet) => {
+        actionSheet.present();
+    })
 }
 
 loadUserBalanceYear();
+
+
+isAdminCheck();
 </script>
 
 <style scoped lang="scss">
@@ -487,8 +682,16 @@ ion-content {
     --background: #f2f3f7;
 }
 
+
+.content{
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
 .wallet{
     position: relative;
+    max-width: 400px;
+    margin: 0 auto;
     > ion-label{
         position: absolute;
         z-index: 1000;

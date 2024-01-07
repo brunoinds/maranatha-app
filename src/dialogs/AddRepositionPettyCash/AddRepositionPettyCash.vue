@@ -5,7 +5,7 @@
                 <ion-buttons slot="start">
                     <ion-button @click="props.emitter.fire('close')">Cancelar</ion-button>
                 </ion-buttons>
-                <ion-title>Depósito Caja Chica</ion-title>
+                <ion-title>Depósito de Reposición</ion-title>
                 <ion-buttons slot="end">    
                     <ion-button @click="createDeposit">Depositar</ion-button>
                 </ion-buttons>
@@ -15,7 +15,7 @@
         <ion-content>
             <section class="ion-padding">
                 <section class="ion-padding deposit-camp">
-                    <CurrencyInput ref="currencyInput" class="native-input sc-ion-input-ios" style="text-align: center; font-size: 48px;" v-model="dynamicData.amount" :options="{ currency: 'PEN', autoDecimalDigits: true, currencyDisplay: 'narrowSymbol', locale: 'es-PE', hideCurrencySymbolOnFocus: false }"></CurrencyInput>
+                    <CurrencyInput ref="currencyInput" class="native-input sc-ion-input-ios" style="text-align: center; font-size: 48px;" :disabled="true" v-model="dynamicData.amount" :options="{ currency: moneyType, autoDecimalDigits: true, currencyDisplay: 'narrowSymbol', locale: 'es-PE', hideCurrencySymbolOnFocus: false }"></CurrencyInput>
                 </section>
             </section>
             
@@ -74,6 +74,9 @@ import { IReportResponse, StoredReports } from '@/utils/Stored/StoredReports';
 import CurrencyInput from '@/components/CurrencyInput/CurrencyInput.vue';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import imageCompression from 'browser-image-compression';
+import { EReportStatus, IReport } from '@/interfaces/ReportInterfaces';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -84,6 +87,18 @@ const props = defineProps({
     userId: {
         type: Number,
         required: true
+    },
+    report: {
+        type: Object as () => IReport,
+        required: true
+    },
+    totalAmount: {
+        type: Number,
+        required: true
+    },
+    moneyType: {
+        type: String,
+        required: true
     }
 });
 const dynamicData = ref<{
@@ -93,8 +108,8 @@ const dynamicData = ref<{
     ticketNumber: string,
     receiptBase64: string|null
 }>({
-    description: 'Caja chica: valor inicial',
-    amount: 0,
+    description: 'Reembolso de reporte "' + props.report.title + '"',
+    amount: props.totalAmount,
     date: (DateTime.now().toFormat("dd/MM/yyyy") as unknown as string).toString(),
     ticketNumber: '',
     receiptBase64: null
@@ -114,17 +129,28 @@ const createDeposit = async () => {
         return;
     }
     isLoading.value = true;
-    RequestAPI.post('/balance/users/' + props.userId + '/credits', {
-        amount: dynamicData.value.amount,
-        description: dynamicData.value.description.trim(),
+
+    const responseEditReport = await RequestAPI.patch(`/reports/${props.report.id}`, {
+        status: EReportStatus.Restituted
+    })
+
+    const responseBalances = await RequestAPI.get('/balance/reports/' + props.report.id + '/balances')
+    
+    const responseBalance = responseBalances.find((balance: any) => {
+        return balance.model == 'Restitution'
+    });
+
+    RequestAPI.patch('/balances/' + responseBalance.id, {
+        description: dynamicData.value.description,
+        ticket_number: dynamicData.value.ticketNumber,
         date: DateTime.fromFormat(dynamicData.value.date, "dd/MM/yyyy").set({
             hour: DateTime.now().hour,
             minute: DateTime.now().minute,
-            second: DateTime.now().second,
+            second: DateTime.now().plus({ second: 1}).second,
         }).toISO(),
-        ticket_number: dynamicData.value.ticketNumber.trim().length == 0 ? null : dynamicData.value.ticketNumber.trim(),
         receipt_base64: dynamicData.value.receiptBase64
     }).then((response) => {
+        console.log(response)
         props.emitter.fire('created', {
             ...response.balance
         });
@@ -189,7 +215,6 @@ const loadReceiptImage = async () => {
     }
 
     const image = await getCameraImage();
-    console.log(image)
     const response = await fetch(image.webPath as unknown as string);
     const blob = await response.blob();
     const file = new File([blob], "image.jpg", {type: blob.type});

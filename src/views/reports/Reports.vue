@@ -24,120 +24,72 @@
                                 <p>{{report.reportDates}}</p>
                                 <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount.toFixed(2)}}</b></p>
                             </ion-label>
-                            <ion-chip color="danger" v-if="report.status == 'Draft'">
-                                <ion-icon :icon="alertCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            
-                            <ion-chip color="primary" v-if="report.status == 'Submitted'">
-                                <ion-icon :icon="sendOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            <ion-chip color="success" v-if="report.status == 'Approved'">
-                                <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            <ion-chip color="danger" v-if="report.status == 'Rejected'">
-                                <ion-icon :icon="closeCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
+                            <ReportStatusChip :report="report"></ReportStatusChip>
                     </ion-item>
                 </ion-list>
             </article>
 
             <article v-if="reports.drafts.length > 0">
-                <ion-list-header>Pendientes</ion-list-header>
+                <ion-list-header>No enviados</ion-list-header>
                 <ion-list>
                     <ion-item v-for="report in reports.drafts" :key="report.id" button @click="openReport(report.id)" :detail="true">
                         <ion-label>
                                 <h2><b>{{ report.title }}</b></h2>
                                 <p>{{report.reportType}}</p>
                                 <p>{{report.reportDates}}</p>
-                                <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount.toFixed(2)}}</b></p>
+                                <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
                             </ion-label>
-                            <ion-chip color="warning" v-if="report.status == 'Draft'">
-                                <ion-icon :icon="alertCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            
-                            <ion-chip color="primary" v-if="report.status == 'Submitted'">
-                                <ion-icon :icon="sendOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            <ion-chip color="success" v-if="report.status == 'Approved'">
-                                <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            <ion-chip color="danger" v-if="report.status == 'Rejected'">
-                                <ion-icon :icon="closeCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
+                            <ReportStatusChip :report="report"></ReportStatusChip>
                     </ion-item>
                 </ion-list>
             </article>
 
             <article v-if="reports.submitted.length > 0">
-                <ion-list-header>Enviados</ion-list-header>
+                <ion-list-header>Pendiente Aprobación</ion-list-header>
                 <ion-list>
                     <ion-item v-for="report in reports.submitted" :key="report.id" button @click="openReport(report.id)" :detail="true">
                         <ion-label>
                                 <h2><b>{{ report.title }}</b></h2>
                                 <p>{{report.reportType}}</p>
                                 <p>{{report.reportDates}}</p>
-                                <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount.toFixed(2)}}</b></p>
+                                <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
                             </ion-label>
-                            <ion-chip color="warning" v-if="report.status == 'Draft'">
-                                <ion-icon :icon="alertCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            
-                            <ion-chip color="primary" v-if="report.status == 'Submitted'">
-                                <ion-icon :icon="sendOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            <ion-chip color="success" v-if="report.status == 'Approved'">
-                                <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            <ion-chip color="danger" v-if="report.status == 'Rejected'">
-                                <ion-icon :icon="closeCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
+                            <ReportStatusChip :report="report"></ReportStatusChip>
                     </ion-item>
                 </ion-list>
             </article>
 
+
             <article v-if="reports.approved.length > 0">
-                <ion-list-header>Aprobados</ion-list-header>
+                <ion-list-header>Pendiente Reembolso</ion-list-header>
                 <ion-list>
                     <ion-item v-for="report in reports.approved" :key="report.id" button @click="openReport(report.id)" :detail="true">
                         <ion-label>
                                 <h2><b>{{ report.title }}</b></h2>
                                 <p>{{report.reportType}}</p>
                                 <p>{{report.reportDates}}</p>
-                                <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount.toFixed(2)}}</b></p>
+                                <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
                             </ion-label>
-                            <ion-chip color="warning" v-if="report.status == 'Draft'">
-                                <ion-icon :icon="alertCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            
-                            <ion-chip color="primary" v-if="report.status == 'Submitted'">
-                                <ion-icon :icon="sendOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            <ion-chip color="success" v-if="report.status == 'Approved'">
-                                <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
-                            <ion-chip color="danger" v-if="report.status == 'Rejected'">
-                                <ion-icon :icon="closeCircleOutline"></ion-icon>
-                                <ion-label>{{report.reportStatus}}</ion-label>
-                            </ion-chip>
+                            <ReportStatusChip :report="report"></ReportStatusChip>
                     </ion-item>
                 </ion-list>
             </article>
 
+
+            <article v-if="reports.restituted.length > 0">
+                <ion-list-header>Pagados</ion-list-header>
+                <ion-list>
+                    <ion-item v-for="report in reports.restituted" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                        <ion-label>
+                                <h2><b>{{ report.title }}</b></h2>
+                                <p>{{report.reportType}}</p>
+                                <p>{{report.reportDates}}</p>
+                                <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
+                            </ion-label>
+                            <ReportStatusChip :report="report"></ReportStatusChip>
+                    </ion-item>
+                </ion-list>
+            </article>
 
             <article v-if="!isLoading && reportsData.length == 0" class="ion-padding" style="display: flex;flex-direction: column; align-items: center; justify-content: center; height: 100%;">
                 <ion-img :src="ReportIcon" style="width: 90%;margin: 0 auto;"></ion-img>
@@ -156,7 +108,7 @@ import { Dialog } from '../../utils/Dialog/Dialog';
 import ReportIcon from '&/assets/icons/report.svg';
 
 import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline,sendOutline, closeCircleOutline  } from 'ionicons/icons';
-import { IReport } from '../../interfaces/ReportInterfaces';
+import { EReportStatus, IReport } from '../../interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import NewReport from '../../dialogs/NewReport/NewReport.vue';
 import { DateTime } from 'luxon';
@@ -164,6 +116,7 @@ import {AppEvents} from '../../utils/AppEvents/AppEvents';
 import { StoredReports } from '@/utils/Stored/StoredReports';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import NewAttendance from '../../dialogs/NewAttendance/NewAttendance.vue';
+import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
@@ -177,17 +130,6 @@ const reports = computed(() => {
         return {
             ...report,
             reportType: report.type == 'Bill' ? 'Boletas' : 'Facturas',
-            reportStatus: (() => {
-                if (report.status == 'Draft'){
-                    return 'Pendiente';
-                }else if (report.status == 'Submitted'){
-                    return 'Enviado';
-                }else if (report.status == 'Approved'){
-                    return 'Aprobado';
-                }else if (report.status == 'Rejected'){
-                    return 'Rechazado';
-                }
-            })(),
             reportDates: `${DateTime.fromISO(report.from_date).toLocaleString(DateTime.DATE_MED)} - ${DateTime.fromISO(report.to_date).toLocaleString(DateTime.DATE_MED)}`,
             invoices: {
                 total: (report as any).invoices.count,
@@ -201,10 +143,11 @@ const reports = computed(() => {
 
 
     return {
-        drafts: reportsItems.filter((report) => report.status == 'Draft'),
-        submitted: reportsItems.filter((report) => report.status == 'Submitted'),
-        approved: reportsItems.filter((report) => report.status == 'Approved'),
-        rejected: reportsItems.filter((report) => report.status == 'Rejected'),
+        drafts: reportsItems.filter((report) => report.status == EReportStatus.Draft),
+        submitted: reportsItems.filter((report) => report.status == EReportStatus.Submitted),
+        approved: reportsItems.filter((report) => report.status == EReportStatus.Approved),
+        rejected: reportsItems.filter((report) => report.status == EReportStatus.Rejected),
+        restituted: reportsItems.filter((report) => report.status == EReportStatus.Restituted),
     }
 })
 const loadUserReports = async () => {

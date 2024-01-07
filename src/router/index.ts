@@ -12,7 +12,7 @@ const routes: Array<RouteRecordRaw> = [
         redirect: '/login'
       },
       {
-        path: 'wallet',
+        path: 'my-wallet',
         component: () => import('@/views/wallet/Wallet.vue')
       },
       {
@@ -24,8 +24,12 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/attendances/Attendances.vue')
       },
       {
-        path: 'all-reports',
-        component: () => import('@/views/reports/AllReports.vue')
+        path: 'management',
+        component: () => import('@/views/management/Home.vue')
+      },
+      {
+        path: 'management/:catchAll(.*)',
+        component: () => import('@/views/management/Home.vue')
       },
       {
         path: 'account',
@@ -60,6 +64,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/expenses',
     component: () => import('@/views/expenses/Expenses.vue')
+  },
+  {
+    path: '/wallets/users/:id',
+    component: () => import('@/views/wallet/Wallet.vue')
   },
 ]
 

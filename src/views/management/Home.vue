@@ -93,17 +93,6 @@ const page = ref<HTMLElement|null>(null);
 const segmentValue = ref('home');
 
 
-watch(segmentValue, (newValue) => {
-    const currentRoute = route.fullPath;
-    const splitting = currentRoute.split('management/');
-    if (splitting.length > 1) {
-        const newUrl = splitting[0] + `management/${newValue.toLowerCase()}`;
-        window.history.pushState(newValue, newValue, newUrl);
-    }else{
-        window.history.pushState(newValue, newValue, currentRoute + `/${newValue.toLowerCase()}`);
-    }
-})
-
 const segments = [
     {
         id: 'home',
@@ -113,8 +102,8 @@ const segments = [
     },
     {
         id: 'informs',
-        title: '📊 Analisis',
-        name: 'Analisis',
+        title: '📊 Analytics',
+        name: 'Analytics',
         icon: '📊'
     },
     {
@@ -158,16 +147,4 @@ const segments = [
 const currentSegment = computed(() => {
     return segments.find((s) => {return s.id == segmentValue.value});
 })
-
-const resolveRoute = () => {
-    const currentRoute = route.fullPath;
-    const splitting = currentRoute.split('management/');
-    if (splitting.length > 1) {
-        const lastRoute = splitting[1].split('/')[0];
-        segmentValue.value = lastRoute;
-    }else{
-        segmentValue.value = 'home';
-    }
-}
-resolveRoute();
 </script>

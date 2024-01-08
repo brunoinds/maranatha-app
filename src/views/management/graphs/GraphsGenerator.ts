@@ -126,7 +126,9 @@ class AccountantPeriodGraph{
             })
             
             response.data.body.forEach((worker:any) => {
-                this.indicators.workers.count.workers += 1;
+                if (worker.attendances > 0 || worker.absences > 0){
+                    this.indicators.workers.count.workers += 1;
+                }
                 this.indicators.workers.count.attendances += worker.attendances;
                 this.indicators.workers.count.absences += worker.absences;
             })

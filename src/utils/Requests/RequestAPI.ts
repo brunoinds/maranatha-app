@@ -4,39 +4,39 @@ import { TStorage } from '@/utils/Toolbox/TStorage';
 import { Session } from '@/utils/Session/Session';
 
 import { Capacitor } from '@capacitor/core';
+import { useRouter } from 'vue-router';
 
 class RequestAPI{
+    private static domainUrl: string = (() => {
+        if (Capacitor.isNativePlatform()) {
+            return "https://maranatha.imedicineapp.com";
+        }
+        const currentUrl = new URL(window.location.href);
+        if (currentUrl.port != ''){
+            return "http://localhost:8000";
+        }else{
+            return "https://" + currentUrl.hostname;
+        }
+    })();
     public static variables = {
+        domainUrl: (() => {
+            return RequestAPI.domainUrl;
+        })(),
         rootUrl: (() => {
-            if (Capacitor.isNativePlatform()) {
-                return "https://maranatha.imedicineapp.com/api";
-            }
-            const currentUrl = new URL(window.location.href);
-            if (currentUrl.port != ''){
-                return "http://localhost:8000/api";
-            }else{
-                return "https://" + currentUrl.hostname + '/api';
-            }
+            return RequestAPI.domainUrl + '/api';
         })(),
         rootStorageUrl: (() => {
-            if (Capacitor.isNativePlatform()) {
-                return "https://maranatha.imedicineapp.com/storage";
-            }
-            const currentUrl = new URL(window.location.href);
-            if (currentUrl.port != ''){
-                return "http://localhost:8000/storage";
-            }else{
-                return "https://" + currentUrl.hostname + '/storage';
-            }
+            return RequestAPI.domainUrl + '/storage';
         })()
     }
     public static get(url: string, parameters: any = {}): Promise<any>{
         return new Promise(async (resolve, reject) => {
-            axios.get(this.variables.rootUrl + url, { params: parameters, 
+            RequestAPI.proxyResponse(axios.get(this.variables.rootUrl + url, { params: parameters, 
                 headers: {
                     'Authorization': await RequestAPI.getAuthHeader()
                 }
-            }).then((response) => {
+            }))
+            .then((response) => {
                 resolve(response.data);
             })
             .catch((error) => {
@@ -51,7 +51,7 @@ class RequestAPI{
         onUploadProgress: (percentage: number) => {}
     }): Promise<any>{
         return new Promise(async (resolve, reject) => {
-            axios.post(this.variables.rootUrl + url, body, {
+            RequestAPI.proxyResponse(axios.post(this.variables.rootUrl + url, body, {
                 headers: {
                     'Authorization': await RequestAPI.getAuthHeader()
                 },
@@ -60,7 +60,7 @@ class RequestAPI{
                         options.onUploadProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
                     }
                 }
-            })
+            }))
             .then((response) => {
                 resolve(response.data);
             })
@@ -75,11 +75,11 @@ class RequestAPI{
     }
     public static patch(url: string, body: any = {}): Promise<any>{
         return new Promise(async (resolve, reject) => {
-            axios.patch(this.variables.rootUrl + url, body, {
+            RequestAPI.proxyResponse(axios.patch(this.variables.rootUrl + url, body, {
                 headers: {
                     'Authorization': await RequestAPI.getAuthHeader()
                 }
-            })
+            }))
             .then((response) => {
                 resolve(response.data);
             })
@@ -93,11 +93,11 @@ class RequestAPI{
     }
     public static put(url: string, parameters: any = {}): Promise<any>{
         return new Promise(async (resolve, reject) => {
-            axios.put(this.variables.rootUrl + url, parameters, {
+            RequestAPI.proxyResponse(axios.put(this.variables.rootUrl + url, parameters, {
                 headers: {
                     'Authorization': await RequestAPI.getAuthHeader()
                 }
-            })
+            }))
             .then((response) => {
                 resolve(response.data);
             })
@@ -111,10 +111,10 @@ class RequestAPI{
     }
     public static delete(url: string, parameters: any = {}): Promise<any>{
         return new Promise(async (resolve, reject) => {
-            axios.delete(this.variables.rootUrl + url, { params: parameters,
-            headers: {
-                'Authorization': await RequestAPI.getAuthHeader()
-            }})
+            RequestAPI.proxyResponse(axios.delete(this.variables.rootUrl + url, { params: parameters,
+                headers: {
+                    'Authorization': await RequestAPI.getAuthHeader()
+            }}))
             .then((response) => {
                 resolve(response.data);
             })
@@ -145,11 +145,12 @@ class RequestAPI{
 
     public static fetchGet(url: string, parameters: any = {} = {}): Promise<any>{
         return new Promise(async (resolve, reject) => {
-            axios.get(this.variables.rootUrl + url, { params: parameters, 
+            RequestAPI.proxyResponse(axios.get(this.variables.rootUrl + url, { params: parameters, 
                 headers: {
                     'Authorization': await RequestAPI.getAuthHeader()
                 }
-            }).then((response) => {
+            }))
+            .then((response) => {
                 resolve(response)
             })
             .catch((error) => {
@@ -168,6 +169,31 @@ class RequestAPI{
             }else{
                 resolve(undefined);
             }
+        })
+    }
+
+
+    private static async proxyResponse(response: Promise<any>): Promise<any>{
+        const reactions = {
+            onAunauthenticated: async () => {
+                const session = await Session.getCurrentSession();
+                if (session){
+                    await session.logout();
+                }
+                Session.router?.replace('/login');
+            }
+        }
+
+        return new Promise(async (resolve, reject) => {
+            response
+            .then((response) => {
+                resolve(response)
+            }).catch((error) => {
+                if (error.response.data.message == 'Unauthenticated.'){
+                    reactions.onAunauthenticated();
+                }
+                reject(error)
+            })
         })
     }
 }

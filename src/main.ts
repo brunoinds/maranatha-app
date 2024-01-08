@@ -8,6 +8,7 @@ import SslRedirect from '@/utils/SslRedirect/SslRedirect';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
 import OneSignal from 'onesignal-cordova-plugin';
+import OneSignalVuePlugin from '@onesignal/onesignal-vue3'
 
 
 /* Basic CSS for apps built with Ionic */
@@ -28,6 +29,8 @@ import '@mdi/font/css/materialdesignicons.css';
 /* Theme variables */
 import './theme/variables.css';
 import { Session } from '@/utils/Session/Session';
+import { Notifications } from '@/utils/Notifications/Notifications';
+
 import { Capacitor } from '@capacitor/core';
 
 import '@/main.scss';
@@ -56,7 +59,7 @@ SslRedirect.listen();
 
 document.addEventListener("deviceready", () => {
   if (Capacitor.isNativePlatform()){
-    Session.notifications().initializeOneSignal((window as any).plugins.OneSignal);
+    Notifications.initializeOneSignal((window as any).plugins.OneSignal);
   }
 }, false);
 
@@ -68,6 +71,12 @@ const app = createApp(App)
   .use(vuetify)
   .use(router);
 
+
+if (!Capacitor.isNativePlatform()){
+  app.use(OneSignalVuePlugin, {
+    appId: Notifications.oneSignalAppId,
+  })
+}
 
 router.isReady().then(() => {
   app.mount('#app');

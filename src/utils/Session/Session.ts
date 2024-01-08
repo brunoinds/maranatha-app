@@ -7,6 +7,7 @@ import {
     PushNotificationSchema,
     Token,
 } from '@capacitor/push-notifications';
+import { useRouter, Router } from 'vue-router';
 interface SessionUserData{
     id: number;
     username: string;
@@ -20,6 +21,7 @@ class Session{
     private static session: Session|null = null;
     private static isInitialized: boolean = false;
 
+    public static router: Router|null = null;
     private sessionUserData: SessionUserData;
 
     constructor(sessionUserData: SessionUserData){
@@ -106,6 +108,10 @@ class Session{
         return {
             checkForPermission: () => {
                 return new Promise((resolve, reject) => {
+
+
+
+                    
                     PushNotifications.checkPermissions().then((response) => {
                         if (response.receive == 'granted'){
                             resolve('Allowed');
@@ -147,6 +153,26 @@ class Session{
                     setTimeout(() => {
                         OneSignal.login("user-id-" + String(Session.session?.id()))
                     }, 3000)
+
+
+
+                    OneSignal.isPushNotificationsEnabled().then((response:any) => {
+                        if (response){
+                            console.log(response)
+                        }else{
+                            OneSignal.getNotificationPermission().then((response:any) => {
+                                console.log(response)
+                                if (response == 'default'){
+                                    
+                                }else if (response == 'denied'){
+                                    
+                                }else if (response == 'granted'){
+                                    
+                                }
+                            })
+                        }
+                    })
+
                 })
 
                 PushNotifications.addListener('registration', (token: Token) => {

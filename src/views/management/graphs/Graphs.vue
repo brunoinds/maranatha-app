@@ -234,71 +234,13 @@
                         </ion-card>
                     </ion-col>
                 </ion-row>
-                
             </ion-grid>
             <br>
             <br>
-
             <br>
-
         </main>
     </article>
 </template>
-
-<style lang="scss" scoped>
-.card-amount{
-    :deep(ion-card-content){
-        height: 70%;
-            display: flex;
-            align-items: center;
-    }
-    :deep(*){
-        [name="content"]{
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            row-gap: 4px;
-        }
-        [name="amount-area"] {
-            position: relative;
-        }
-        [name="amount"] {
-            font-size: 35px;
-            &[value]{
-                padding-left: 14px;
-            }
-            &::before {
-                content: attr(value);
-                position: absolute;
-                top: -2px;
-                left: 0;
-                font-size: 23px;
-                color: #a6a6a6;
-            }
-        }
-        [name="note"] {
-            font-size: 12px;
-        }
-        
-        [name="chip"] {
-            font-size: 12px;
-            padding: 10px;
-            margin: 0px;
-            height: 24px;
-
-            [iname="icon"] {
-                font-size: 14px;
-                margin: 0px;
-                padding: 0px;
-            }
-            [name="percentage"] {
-                margin-left: 4px;
-            }
-        }
-    }
-}
-</style>
-
 <script setup lang="ts">
 import { IonPage, IonHeader, IonGrid, IonRow, IonCol, IonNote, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonToolbar, IonTitle, IonSelect, IonSelectOption, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
@@ -1014,3 +956,58 @@ onMounted(() => {
     comparisonDropdownChosen.value = comparisonOptions.value[1].value;
 })
 </script>
+
+
+<style lang="scss" scoped>
+.card-amount{
+    :deep(ion-card-content){
+        height: 70%;
+            display: flex;
+            align-items: center;
+    }
+    :deep(*){
+        [name="content"]{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            row-gap: 4px;
+        }
+        [name="amount-area"] {
+            position: relative;
+        }
+        [name="amount"] {
+            font-size: 35px;
+            &[value]{
+                padding-left: 14px;
+            }
+            &::before {
+                content: attr(value);
+                position: absolute;
+                top: -2px;
+                left: 0;
+                font-size: 23px;
+                color: #a6a6a6;
+            }
+        }
+        [name="note"] {
+            font-size: 12px;
+        }
+        
+        [name="chip"] {
+            font-size: 12px;
+            padding: 10px;
+            margin: 0px;
+            height: 24px;
+
+            [iname="icon"] {
+                font-size: 14px;
+                margin: 0px;
+                padding: 0px;
+            }
+            [name="percentage"] {
+                margin-left: 4px;
+            }
+        }
+    }
+}
+</style>

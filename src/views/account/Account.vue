@@ -46,6 +46,7 @@ import { useRouter } from 'vue-router';
 import { Session } from '@/utils/Session/Session';
 import { Capacitor } from '@capacitor/core';
 import { Viewport } from '@/utils/Viewport/Viewport';
+import { Notifications } from '@/utils/Notifications/Notifications';
 
 const accountData = ref<any>(null);
 const isLoading = ref<boolean>(true);
@@ -67,12 +68,15 @@ const goToExpenses = () => {
     router.push('/expenses');
 }
 const checkForNotificationAllow = () => {
-    if (!Capacitor.isNativePlatform()){
+    /*if (!Capacitor.isNativePlatform()){
         isNotificationsNotAllowed.value = false;
         return;
-    }
+    }*/
 
-    Session.notifications().checkForPermission().then((result) => {
+
+    
+
+    Notifications.checkForPermission().then((result) => {
         if (result == "Allowed"){
             isNotificationsNotAllowed.value = false;
         }else{
@@ -82,7 +86,7 @@ const checkForNotificationAllow = () => {
 }
 
 const allowNotifications = async () => {
-    await Session.notifications().hardAskForPermission();
+    await Notifications.hardAskForPermission();
     checkForNotificationAllow();
 }
 

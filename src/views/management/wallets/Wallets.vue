@@ -11,7 +11,7 @@
                 <section class="notes">
                     <div>
                         <span>Saldo</span>
-                        <ion-label :color="moneyColor(wallet.balance.petty_cash.balance)">{{moneySignal(wallet.balance.petty_cash.balance)}}{{ Toolbox.moneyFormat(wallet.balance.petty_cash.balance, EMoneyType.PEN) }}</ion-label>
+                        <ion-label :color="moneyColor(wallet.balance.petty_cash.balance)">{{ Toolbox.moneyFormat(wallet.balance.petty_cash.balance, EMoneyType.PEN) }}</ion-label>
                     </div>
                     <div v-if="wallet.balance.petty_cash.reports.pending_reposition.amount > 0">
                         <span>Pend. Repo.</span>

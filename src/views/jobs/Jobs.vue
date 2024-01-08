@@ -16,10 +16,11 @@
         </ion-header>
         <ion-content>
             <ion-list v-if="!isLoading">
-                <ion-item v-for="job in jobsData" :key="job.id" @click="clickJob(job)" button>
+                <ion-item v-for="job in jobs" :key="job.id" @click="clickJob(job)" button>
                     <ion-label>
                         <h2><b>{{ job.name }}</b></h2>
-                        <p>{{job.code}}</p>
+                        <p><b>Código: </b>{{job.code}}</p>
+                        <p><b>Zona: </b>{{job.zone}}</p>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -38,7 +39,8 @@ import { useRouter } from 'vue-router';
 const jobsData = ref<Array<{
     id: number;
     name: string;
-    code: string
+    code: string;
+    zone: string;
 }>>([]);
 const isLoading = ref<boolean>(true);
 const router = useRouter();
@@ -50,11 +52,31 @@ const loadJobs = async () => {
     isLoading.value = false;
 }
 
+const jobs = computed(() => {
+    const data = jobsData.value.map((job) => {
+        if (job.zone == 'NoZone'){
+            job.zone = 'Sin zona';
+        }else if (job.zone == 'North'){
+            job.zone = 'Norte';
+        }else if (job.zone == 'South'){
+            job.zone = 'Sur';
+        }
+
+        return {
+            id: job.id,
+            name: job.name,
+            code: job.code,
+            zone: job.zone
+        }
+    });
+    return data;
+});
+
 const addJob = async (prefiled:any = null) => {
     const alert = await alertController.create({
         header: 'Nuevo Job',
         inputs: [
-        {
+            {
                 type: 'text',
                 placeholder: 'Name',
                 value: prefiled ? prefiled.name : null
@@ -63,7 +85,50 @@ const addJob = async (prefiled:any = null) => {
                 type: 'text',
                 placeholder: 'Code',
                 value: prefiled ? prefiled.code : null
+            }
+        ],
+        buttons: [
+            {
+                text: 'Cancelar',
+                role: 'cancel',
+                handler: () => {
+                    
+                },
             },
+            {
+                text: 'Siguiente',
+                role: 'confirm'
+            }
+        ]
+    });
+
+    await alert.present();
+
+    const { role, data } = await alert.onDidDismiss();
+
+    if (role != "confirm"){
+        return;
+    }
+
+
+    const alertZone = await alertController.create({
+        header: 'Elegir Zona del Job',
+        inputs: [
+            {
+                label: 'Norte',
+                type: 'radio',
+                value: 'North',
+            },
+            {
+                label: 'Sur',
+                type: 'radio',
+                value: 'South',
+            },
+            {
+                label: 'Sin Zona',
+                type: 'radio',
+                value: 'NoZone',
+            }
         ],
         buttons: [
             {
@@ -80,15 +145,19 @@ const addJob = async (prefiled:any = null) => {
         ]
     });
 
-    await alert.present();
-    const { role, data } = await alert.onDidDismiss();
+    await alertZone.present();
+    const { role: roleZone, data: dataZone } = await alertZone.onDidDismiss();
 
-    if (role == "confirm"){
+    if (roleZone == "confirm"){
         const dataParsed = {
             name: data.values[0],
             code: data.values[1],
+            zone: 'NoZone'
         }
+        const chosenZone = dataZone.values;
 
+        dataParsed.zone = chosenZone;
+        
         RequestAPI.post('/jobs', dataParsed).then((response) => {
             alertController.create({
                 header: '¡Éxito!',
@@ -175,7 +244,7 @@ const editJob = async (job:any) => {
                 },
             },
             {
-                text: 'Guardar Job',
+                text: 'Siguiente',
                 role: 'confirm'
             }
         ]
@@ -184,13 +253,58 @@ const editJob = async (job:any) => {
     await alert.present();
     const { role, data } = await alert.onDidDismiss();
 
+    if (role != "confirm"){
+        return;
+    }
+
+    const alertZone = await alertController.create({
+        header: 'Elegir Zona del Job',
+        inputs: [
+            {
+                label: 'Norte',
+                type: 'radio',
+                value: 'North',
+            },
+            {
+                label: 'Sur',
+                type: 'radio',
+                value: 'South',
+            },
+            {
+                label: 'Sin Zona',
+                type: 'radio',
+                value: 'NoZone',
+            }
+        ],
+        buttons: [
+            {
+                text: 'Cancelar',
+                role: 'cancel',
+                handler: () => {
+                    
+                },
+            },
+            {
+                text: 'Guardar Job',
+                role: 'confirm'
+            }
+        ]
+    });
+
+    await alertZone.present();
+    const { role: roleZone, data: dataZone } = await alertZone.onDidDismiss();
+
+
     if (role == "confirm"){
         const dataParsed = {
             id: job.id,
             name: data.values[0],
-            code: data.values[1]
+            code: data.values[1],
+            zone: 'NoZone'
         }
 
+        const chosenZone = dataZone.values;
+        dataParsed.zone = chosenZone;
 
         RequestAPI.patch('/jobs/' + job.id, dataParsed).then((response) => {
             alertController.create({

@@ -1,6 +1,7 @@
 interface IJob{
     name: string;
     code: string;
+    zone: 'North' | 'South' | 'NoZone';
 }
 interface IExpense{
     name: string;

@@ -40,6 +40,7 @@
     "b64-to-blob": "^1.2.19",
     "browser-image-compression": "^2.0.2",
     "capacitor-document-scanner": "^2.0.0",
+    "capacitor-set-version": "^2.2.0",
     "chart.js": "^3.9.1",
     "dotenv": "^16.3.1",
     "email-validator": "^2.0.4",

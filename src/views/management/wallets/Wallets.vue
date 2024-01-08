@@ -1,9 +1,8 @@
 <template>
-    <article>
+    <article class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         
-
-        <ion-list>
+        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
             <ion-item v-for="wallet in balancesData?.balances" :key="wallet.id" button @click="openWallet(wallet.user.id)">
                 <ion-label>
                     <h2><b>{{ wallet.user.name  }}</b></h2>
@@ -63,7 +62,7 @@ import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { computed, ref } from 'vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import EditUser from '@/dialogs/EditUser/EditUser.vue';
-
+import { Viewport } from '@/utils/Viewport/Viewport';
 import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn } from 'ionicons/icons';
 import { EMoneyType, IReport } from '@/interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
@@ -103,3 +102,13 @@ const openWallet = (userId: string) => {
     router.push(`/wallets/users/${userId}`);
 }
 </script>
+
+<style scoped lang="scss">
+
+.content{
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+</style>

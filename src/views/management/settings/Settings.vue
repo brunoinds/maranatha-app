@@ -1,5 +1,5 @@
 <template>
-    <article>
+    <article class="content">
         <ion-list :inset="true">
             <ion-item @click="goToJobs" button>
                 <ion-label color="primary">
@@ -42,3 +42,13 @@ const goToExpenses = () => {
 }
 
 </script>
+
+<style scoped lang="scss">
+
+.content{
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+</style>

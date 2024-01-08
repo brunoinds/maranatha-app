@@ -13,89 +13,89 @@
                 </ion-fab-button>
             </ion-fab>
 
+            <section class="content">
+                <article v-if="reports.rejected.length > 0">
+                    <ion-list-header>Rechazados</ion-list-header>
+                    <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                        <ion-item v-for="report in reports.rejected" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                            <ion-label>
+                                    <h2><b>{{ report.title }}</b></h2>
+                                    <p>{{report.reportType}}</p>
+                                    <p>{{report.reportDates}}</p>
+                                    <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount.toFixed(2)}}</b></p>
+                                </ion-label>
+                                <ReportStatusChip :report="report"></ReportStatusChip>
+                        </ion-item>
+                    </ion-list>
+                </article>
 
-            <article v-if="reports.rejected.length > 0">
-                <ion-list-header>Rechazados</ion-list-header>
-                <ion-list>
-                    <ion-item v-for="report in reports.rejected" :key="report.id" button @click="openReport(report.id)" :detail="true">
-                        <ion-label>
-                                <h2><b>{{ report.title }}</b></h2>
-                                <p>{{report.reportType}}</p>
-                                <p>{{report.reportDates}}</p>
-                                <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount.toFixed(2)}}</b></p>
-                            </ion-label>
-                            <ReportStatusChip :report="report"></ReportStatusChip>
-                    </ion-item>
-                </ion-list>
-            </article>
+                <article v-if="reports.drafts.length > 0">
+                    <ion-list-header>No enviados</ion-list-header>
+                    <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                        <ion-item v-for="report in reports.drafts" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                            <ion-label>
+                                    <h2><b>{{ report.title }}</b></h2>
+                                    <p>{{report.reportType}}</p>
+                                    <p>{{report.reportDates}}</p>
+                                    <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
+                                </ion-label>
+                                <ReportStatusChip :report="report"></ReportStatusChip>
+                        </ion-item>
+                    </ion-list>
+                </article>
 
-            <article v-if="reports.drafts.length > 0">
-                <ion-list-header>No enviados</ion-list-header>
-                <ion-list>
-                    <ion-item v-for="report in reports.drafts" :key="report.id" button @click="openReport(report.id)" :detail="true">
-                        <ion-label>
-                                <h2><b>{{ report.title }}</b></h2>
-                                <p>{{report.reportType}}</p>
-                                <p>{{report.reportDates}}</p>
-                                <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
-                            </ion-label>
-                            <ReportStatusChip :report="report"></ReportStatusChip>
-                    </ion-item>
-                </ion-list>
-            </article>
-
-            <article v-if="reports.submitted.length > 0">
-                <ion-list-header>Pendiente Aprobación</ion-list-header>
-                <ion-list>
-                    <ion-item v-for="report in reports.submitted" :key="report.id" button @click="openReport(report.id)" :detail="true">
-                        <ion-label>
-                                <h2><b>{{ report.title }}</b></h2>
-                                <p>{{report.reportType}}</p>
-                                <p>{{report.reportDates}}</p>
-                                <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
-                            </ion-label>
-                            <ReportStatusChip :report="report"></ReportStatusChip>
-                    </ion-item>
-                </ion-list>
-            </article>
-
-
-            <article v-if="reports.approved.length > 0">
-                <ion-list-header>Pendiente Reembolso</ion-list-header>
-                <ion-list>
-                    <ion-item v-for="report in reports.approved" :key="report.id" button @click="openReport(report.id)" :detail="true">
-                        <ion-label>
-                                <h2><b>{{ report.title }}</b></h2>
-                                <p>{{report.reportType}}</p>
-                                <p>{{report.reportDates}}</p>
-                                <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
-                            </ion-label>
-                            <ReportStatusChip :report="report"></ReportStatusChip>
-                    </ion-item>
-                </ion-list>
-            </article>
+                <article v-if="reports.submitted.length > 0">
+                    <ion-list-header>Pendiente Aprobación</ion-list-header>
+                    <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                        <ion-item v-for="report in reports.submitted" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                            <ion-label>
+                                    <h2><b>{{ report.title }}</b></h2>
+                                    <p>{{report.reportType}}</p>
+                                    <p>{{report.reportDates}}</p>
+                                    <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
+                                </ion-label>
+                                <ReportStatusChip :report="report"></ReportStatusChip>
+                        </ion-item>
+                    </ion-list>
+                </article>
 
 
-            <article v-if="reports.restituted.length > 0">
-                <ion-list-header>Pagados</ion-list-header>
-                <ion-list>
-                    <ion-item v-for="report in reports.restituted" :key="report.id" button @click="openReport(report.id)" :detail="true">
-                        <ion-label>
-                                <h2><b>{{ report.title }}</b></h2>
-                                <p>{{report.reportType}}</p>
-                                <p>{{report.reportDates}}</p>
-                                <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
-                            </ion-label>
-                            <ReportStatusChip :report="report"></ReportStatusChip>
-                    </ion-item>
-                </ion-list>
-            </article>
+                <article v-if="reports.approved.length > 0">
+                    <ion-list-header>Pendiente Reembolso</ion-list-header>
+                    <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                        <ion-item v-for="report in reports.approved" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                            <ion-label>
+                                    <h2><b>{{ report.title }}</b></h2>
+                                    <p>{{report.reportType}}</p>
+                                    <p>{{report.reportDates}}</p>
+                                    <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
+                                </ion-label>
+                                <ReportStatusChip :report="report"></ReportStatusChip>
+                        </ion-item>
+                    </ion-list>
+                </article>
 
-            <article v-if="!isLoading && reportsData.length == 0" class="ion-padding" style="display: flex;flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                <ion-img :src="ReportIcon" style="width: 90%;margin: 0 auto;"></ion-img>
-                <h2>Aún no tienes reportes</h2>
-                <p class="ion-text-center">Crea tu primer reporte haciendo click en el botón "+" abajo</p>
-            </article>
+                <article v-if="reports.restituted.length > 0">
+                    <ion-list-header>Pagados</ion-list-header>
+                    <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                        <ion-item v-for="report in reports.restituted" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                            <ion-label>
+                                    <h2><b>{{ report.title }}</b></h2>
+                                    <p>{{report.reportType}}</p>
+                                    <p>{{report.reportDates}}</p>
+                                    <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
+                                </ion-label>
+                                <ReportStatusChip :report="report"></ReportStatusChip>
+                        </ion-item>
+                    </ion-list>
+                </article>
+
+                <article v-if="!isLoading && reportsData.length == 0" class="ion-padding" style="display: flex;flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                    <ion-img :src="ReportIcon" style="width: 90%;margin: 0 auto;"></ion-img>
+                    <h2>Aún no tienes reportes</h2>
+                    <p class="ion-text-center">Crea tu primer reporte haciendo click en el botón "+" abajo</p>
+                </article>
+            </section>
         </ion-content>
     </ion-page>
 </template>
@@ -117,6 +117,7 @@ import { StoredReports } from '@/utils/Stored/StoredReports';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import NewAttendance from '../../dialogs/NewAttendance/NewAttendance.vue';
 import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
+import { Viewport } from '@/utils/Viewport/Viewport';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
@@ -182,3 +183,12 @@ AppEvents.on('reports:reload', () => {
 
 loadUserReports();
 </script>
+
+
+<style scoped lang="scss">
+.content{
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+</style>

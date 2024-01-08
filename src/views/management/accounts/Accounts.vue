@@ -1,8 +1,8 @@
 <template>
-    <article>
+    <article class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
 
-        <ion-list v-if="!isLoading">
+        <ion-list v-if="!isLoading"  :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
             <ion-item v-for="account in accountsData" :key="account.id" button @click="updateUser(account)">
                 <ion-label>
                     <h2><b>{{ account.name  }}</b></h2>
@@ -20,7 +20,7 @@ import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { computed, ref } from 'vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import EditUser from '@/dialogs/EditUser/EditUser.vue';
-
+import { Viewport } from '@/utils/Viewport/Viewport';
 import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn } from 'ionicons/icons';
 import { IReport } from '@/interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
@@ -57,3 +57,13 @@ const updateUser = (account) => {
 
 loadAccounts()
 </script>
+
+<style scoped lang="scss">
+
+.content{
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+</style>

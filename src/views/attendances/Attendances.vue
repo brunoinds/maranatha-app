@@ -13,24 +13,26 @@
                 </ion-fab-button>
             </ion-fab>
 
-            <article>
-                <ion-list>
-                    <ion-item v-for="attendance in attendances" :key="attendance.id" button @click="openAttendance(attendance.id)" :detail="true">
-                        <ion-label>
-                            <h2><b>{{attendance.from_date }} - {{ attendance.to_date }}</b></h2>
-                            <p><b>Job:</b> {{ attendance.job_name }} ({{ attendance.job_code }})</p>
-                            <p><b>Expense: </b>{{ attendance.expense_name }} ({{ attendance.expense_code }})</p>
-                            <p><b>Reportado en:</b> {{ attendance.created_at }}</p>
-                        </ion-label>
-                    </ion-item>
-                </ion-list>
-            </article>
+            <section class="content">
+                <article>
+                    <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                        <ion-item v-for="attendance in attendances" :key="attendance.id" button @click="openAttendance(attendance.id)" :detail="true">
+                            <ion-label>
+                                <h2><b>{{attendance.from_date }} - {{ attendance.to_date }}</b></h2>
+                                <p><b>Job:</b> {{ attendance.job_name }} ({{ attendance.job_code }})</p>
+                                <p><b>Expense: </b>{{ attendance.expense_name }} ({{ attendance.expense_code }})</p>
+                                <p><b>Reportado en:</b> {{ attendance.created_at }}</p>
+                            </ion-label>
+                        </ion-item>
+                    </ion-list>
+                </article>
 
-            <article v-if="!isLoading && attendances.length == 0" class="ion-padding" style="display: flex;flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                <ion-img :src="AttendanceIcon" style="width: 90%;margin: 0 auto;"></ion-img>
-                <h2>Aún no tienes asistencias</h2>
-                <p class="ion-text-center">Crea tu primer listado de asistenciahaciendo click en el botón "+" abajo</p>
-            </article>
+                <article v-if="!isLoading && attendances.length == 0" class="ion-padding" style="display: flex;flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                    <ion-img :src="AttendanceIcon" style="width: 90%;margin: 0 auto;"></ion-img>
+                    <h2>Aún no tienes asistencias</h2>
+                    <p class="ion-text-center">Crea tu primer listado de asistenciahaciendo click en el botón "+" abajo</p>
+                </article>
+            </section>
         </ion-content>
     </ion-page>
 </template>
@@ -52,6 +54,7 @@ import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import NewAttendance from '../../dialogs/NewAttendance/NewAttendance.vue';
 import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import { Viewport } from '@/utils/Viewport/Viewport';
 
 const attendancesData = ref<Array<IAttendance>>([]);
 const isLoading = ref<boolean>(true);
@@ -120,3 +123,13 @@ AppEvents.on('attendances:reload', () => {
 
 loadUserAttendances();
 </script>
+
+<style scoped lang="scss">
+
+.content{
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+</style>

@@ -3,6 +3,7 @@ enum EInvoiceType {
     Facture = 'Facture'
 }
 interface IInvoice{
+value: any;
     id: number;
     created_at: string,
     updated_at: string,

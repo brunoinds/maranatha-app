@@ -257,6 +257,7 @@ import EditReport from '@/dialogs/EditReport/EditReport.vue';
 import router from '@/router';
 
 import NewInvoice from '@/dialogs/NewInvoice/NewInvoice.vue';
+import EditInvoice from '@/dialogs/EditInvoice/EditInvoice.vue';
 import { Session } from '@/utils/Session/Session';
 import {AppEvents} from '../../utils/AppEvents/AppEvents';
 import { TStorage } from '@/utils/Toolbox/TStorage';
@@ -314,7 +315,8 @@ const invoices = computed(() => {
         return {
             ...invoice,
             date: DateTime.fromISO(invoice.date).toLocaleString(DateTime.DATE_MED),
-            jobName: "" //JobsList.find((job) => job.code === invoice.job_code)?.name
+            jobName: "",
+            original: invoice //JobsList.find((job) => job.code === invoice.job_code)?.name
         }
     })
 });
@@ -348,12 +350,6 @@ const addInvoice = async () => {
         },
         onLoaded($this) {
             $this.on('created', (event:any) => {
-                loadReportInvoices();
-            })
-            $this.on('pre-created', (event:any) => {
-                loadReportInvoices();
-            })
-            $this.on('error-upload-image', (event:any) => {
                 loadReportInvoices();
             })
         },
@@ -397,6 +393,24 @@ const deleteInvoice = async (invoice:IInvoice) => {
         toast.present();
     })
 }
+const editInvoice = async (invoice:IInvoice) => {
+    Dialog.show(EditInvoice, {
+        props:{
+            invoice: invoice,
+            type: report.value.type,
+            autoShowCamera: false
+        },
+        onLoaded($this) {
+            $this.on('updated', (event:any) => {
+                loadReportInvoices();
+            })
+        },
+        modalControllerOptions: {
+            presentingElement: page,
+            showBackdrop: true,
+        }
+    })
+}
 const openInvoice = async (invoice:IInvoice) => {
     let buttons = [
         {
@@ -407,17 +421,31 @@ const openInvoice = async (invoice:IInvoice) => {
             }
         }
     ]
+
+    if ((invoice.id < 10000) && !isOfflineReport.value){
+        //Prepend button to retry upload image:
+        buttons = [            
+            {
+                text: 'Editar ' + reportType.value,
+                role: 'ok',
+                handler: () => {
+                    editInvoice(invoice.original)
+                }
+            },
+            ...buttons
+        ]
+    }
     if ((isOfflineReport.value && invoice.id >= 10000) || !isOfflineReport.value){
         //Prepend button to retry upload image:
         buttons = [
+            ...buttons,
             {
                 text: 'Eliminar ' + reportType.value,
                 role: 'destructive',
                 handler: () => {
                     deleteInvoice(invoice)
                 }
-            },
-            ...buttons
+            }
         ]
     }
 

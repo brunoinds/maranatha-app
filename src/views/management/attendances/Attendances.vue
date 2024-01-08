@@ -1,5 +1,5 @@
 <template>
-    <article>
+    <article class="content">
         <header>
             <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </header>
@@ -7,14 +7,14 @@
             <article>
                 <ion-accordion-group style="margin-top:10px">
                     <ion-accordion v-for="userAttendances in usersAttendances" :key="userAttendances.user.id">
-                        <ion-item slot="header" color="light">
+                        <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                             <ion-label>
                                 <h2>{{ userAttendances.user.name }}</h2>
                                 <p>@{{ userAttendances.user.username }}</p>
                             </ion-label>
                         </ion-item>
                         <section slot="content">
-                            <ion-list>
+                            <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                                 <ion-item v-for="attendance in userAttendances.attendances" :key="attendance.id" button @click="openAttendance(attendance.id)" :detail="true">
                                     <ion-label>
                                         <h2><b>{{attendance.from_date }} - {{ attendance.to_date }}</b></h2>
@@ -51,6 +51,7 @@ import NewAttendance from '@/dialogs/NewAttendance/NewAttendance.vue';
 import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 import { userInfo } from 'os';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import { Viewport } from '@/utils/Viewport/Viewport';
 
 const attendancesData = ref<Array<IAttendance>>([]);
 const isLoading = ref<boolean>(true);
@@ -124,3 +125,13 @@ AppEvents.on('attendances:reload', () => {
 
 loadUsersAttendances();
 </script>
+
+<style scoped lang="scss">
+
+.content{
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+</style>

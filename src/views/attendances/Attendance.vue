@@ -15,69 +15,71 @@
             </ion-toolbar>
         </ion-header>
         <ion-content>
-            <article class="skeleton ion-padding"  v-if="!attendance">
-                <ion-skeleton-text animated style="height: 30px"></ion-skeleton-text>
-                <ion-skeleton-text animated style="height: 15px; width: 80%;"></ion-skeleton-text>
-                <ion-skeleton-text animated style="height: 15px; width: 60%;"></ion-skeleton-text>
-                <ion-skeleton-text animated style="height: 15px; width: 40%;"></ion-skeleton-text>
-                <br>
-                <ion-skeleton-text animated style="height: 15px; width: 40%;"></ion-skeleton-text>
-                <br><br>
-                <ion-skeleton-text v-for="i in 6" :key="i" animated style="height: 40px"></ion-skeleton-text>
-            </article>
-            <article v-if="attendance">
-                <ion-list>
-                    <ion-item>
-                        <ion-label>
-                            <h1><b>{{DateTime.fromISO(attendance.from_date).toFormat('dd/MM/yyyy')}} hasta {{ DateTime.fromISO(attendance.to_date).toFormat('dd/MM/yyyy') }}</b></h1>
-                            <p><b>{{workersAttendances?.days.length}} dias, {{ workersAttendances?.items.length }} trabajadores, {{ attendingsStatuses.attendingsPercentage }}% asistencias y {{ attendingsStatuses.unattendingsPercentage }}% inasistencias</b></p>
-                            <p><b>Job:</b> {{ jobAndExpense.job?.name }} ({{ jobAndExpense.job?.code }})</p>
-                            <p><b>Expense:</b> {{ jobAndExpense.expense?.name }} ({{ jobAndExpense.expense?.code }})</p>
-                            <p v-if="attendance.description"><b>Observaciones:</b> {{ attendance.description }}</p>
-                        </ion-label>
-                    </ion-item>
-                </ion-list>
-            </article>
-            <section class="ion-padding" v-if="attendance">
-                <ion-button :disabled="isLoading || !hasPendingChangesToSave" expand="block" @click="saveWorkersAttendances">
-                    <ion-icon shape="round" size="default" :icon="checkmarkDone" slot="start"></ion-icon>
-                    Guardar Asistencia
-                </ion-button>
+            <section class="content">
+                <article class="skeleton ion-padding"  v-if="!attendance">
+                        <ion-skeleton-text animated style="height: 30px"></ion-skeleton-text>
+                        <ion-skeleton-text animated style="height: 15px; width: 80%;"></ion-skeleton-text>
+                        <ion-skeleton-text animated style="height: 15px; width: 60%;"></ion-skeleton-text>
+                        <ion-skeleton-text animated style="height: 15px; width: 40%;"></ion-skeleton-text>
+                        <br>
+                        <ion-skeleton-text animated style="height: 15px; width: 40%;"></ion-skeleton-text>
+                        <br><br>
+                        <ion-skeleton-text v-for="i in 6" :key="i" animated style="height: 40px"></ion-skeleton-text>
+                    </article>
+                    <article v-if="attendance">
+                        <ion-list>
+                            <ion-item>
+                                <ion-label>
+                                    <h1><b>{{DateTime.fromISO(attendance.from_date).toFormat('dd/MM/yyyy')}} hasta {{ DateTime.fromISO(attendance.to_date).toFormat('dd/MM/yyyy') }}</b></h1>
+                                    <p><b>{{workersAttendances?.days.length}} dias, {{ workersAttendances?.items.length }} trabajadores, {{ attendingsStatuses.attendingsPercentage }}% asistencias y {{ attendingsStatuses.unattendingsPercentage }}% inasistencias</b></p>
+                                    <p><b>Job:</b> {{ jobAndExpense.job?.name }} ({{ jobAndExpense.job?.code }})</p>
+                                    <p><b>Expense:</b> {{ jobAndExpense.expense?.name }} ({{ jobAndExpense.expense?.code }})</p>
+                                    <p v-if="attendance.description"><b>Observaciones:</b> {{ attendance.description }}</p>
+                                </ion-label>
+                            </ion-item>
+                        </ion-list>
+                    </article>
+                    <section class="ion-padding" v-if="attendance">
+                        <ion-button :disabled="isLoading || !hasPendingChangesToSave" expand="block" @click="saveWorkersAttendances">
+                            <ion-icon shape="round" size="default" :icon="checkmarkDone" slot="start"></ion-icon>
+                            Guardar Asistencia
+                        </ion-button>
+                    </section>
+
+                    <ion-list-header v-if="attendance" style="font-size: 15px">Listado de Asistencias</ion-list-header>
+                    <br>
+
+
+                    <article  v-if="attendance" class="attendance-table-holder">
+                        <table class="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th>Trabajador</th>
+                                    <th v-for="day in workersAttendances.days" :key="day.date">
+                                        {{ day.date }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="worker in workersAttendances.items" :key="worker.dni">
+                                    <td>{{ worker.name }}</td>
+                                    <td v-for="day in worker.days" :key="day.date">
+                                        <ion-checkbox @ionChange="(e) => updatePresentCheck(e, day.id)" :checked="day.status == 'Present'"></ion-checkbox>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </article>
+                    <br>
+                    <br>
+                    <br>
+                    <footer v-if="attendance" class="ion-padding">
+                    <ion-button color="success" @click="downloadExcel" fill="outline" size="small" expand="block" style="max-width: 200px; margin: 0 auto; width: 100%;">
+                        <ion-icon slot="start" :icon="cloudDownloadOutline"></ion-icon>
+                        Descargar Excel
+                    </ion-button>
+                </footer>
             </section>
-
-            <ion-list-header v-if="attendance" style="font-size: 15px">Listado de Asistencias</ion-list-header>
-            <br>
-
-
-            <article  v-if="attendance" class="attendance-table-holder">
-                <table class="attendance-table">
-                    <thead>
-                        <tr>
-                            <th>Trabajador</th>
-                            <th v-for="day in workersAttendances.days" :key="day.date">
-                                {{ day.date }}
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="worker in workersAttendances.items" :key="worker.dni">
-                            <td>{{ worker.name }}</td>
-                            <td v-for="day in worker.days" :key="day.date">
-                                <ion-checkbox @ionChange="(e) => updatePresentCheck(e, day.id)" :checked="day.status == 'Present'"></ion-checkbox>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </article>
-            <br>
-            <br>
-            <br>
-            <footer v-if="attendance" class="ion-padding">
-            <ion-button color="success" @click="downloadExcel" fill="outline" size="small" expand="block" style="max-width: 200px; margin: 0 auto; width: 100%;">
-                <ion-icon slot="start" :icon="cloudDownloadOutline"></ion-icon>
-                Descargar Excel
-            </ion-button>
-        </footer>
         </ion-content>
     </ion-page>
 </template>
@@ -452,6 +454,17 @@ $background-color_2: #ffffff;
 
 .attendance-table-holder{
     overflow-x: auto;
+}
+
+</style>
+
+
+<style scoped lang="scss">
+
+.content{
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 </style>

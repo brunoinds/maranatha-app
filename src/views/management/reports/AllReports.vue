@@ -1,10 +1,10 @@
 <template>
-    <article>
+    <article class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
 
         <section v-if="pendingReports.length > 0">
             <ion-list-header>Esperando aprobación</ion-list-header>
-            <ion-list style="margin-top:10px">
+            <ion-list style="margin-top:10px"  :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                 <ion-item v-for="report in pendingReports" :key="report.id" button @click="openReport(report.id)" :detail="true">
                     <ion-label>
                             <h2><b>{{ report.title }}</b></h2>
@@ -22,7 +22,7 @@
 
         <section v-if="pendingRestitutionReports.length > 0">
             <ion-list-header>Esperando restitución</ion-list-header>
-            <ion-list style="margin-top:10px">
+            <ion-list style="margin-top:10px" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                 <ion-item v-for="report in pendingRestitutionReports" :key="report.id" button @click="openReport(report.id)" :detail="true">
                     <ion-label>
                             <h2><b>{{ report.title }}</b></h2>
@@ -40,7 +40,7 @@
 
         <ion-list-header>Todos usuarios</ion-list-header>
 
-        <ion-accordion-group style="margin-top:10px">
+        <ion-accordion-group style="margin-top:10px"  :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
             <ion-accordion v-for="userReports in usersReports" :key="userReports.user.id">
                 <ion-item slot="header" color="light">
                     <ion-label>
@@ -49,7 +49,7 @@
                     </ion-label>
                 </ion-item>
                 <section slot="content">
-                    <ion-list>
+                    <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                         <ion-item v-for="report in userReports.reports" :key="report.id" button @click="openReport(report.id)" :detail="true">
                             <ion-label>
                                     <h2><b>{{ report.title }}</b></h2>
@@ -78,6 +78,7 @@ import { DateTime } from 'luxon';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
+import { Viewport } from '@/utils/Viewport/Viewport';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
@@ -148,3 +149,12 @@ AppEvents.on('reports:reload', () => {
 
 loadAllReports();
 </script>
+
+
+<style scoped lang="scss">
+.content{
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+</style>

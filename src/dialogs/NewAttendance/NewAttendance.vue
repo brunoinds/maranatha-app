@@ -93,7 +93,7 @@ const dynamicData = ref<{
 });
 
 const workersTeamsList = ref<Array<{team: string, workers: [{dni: string, name: string, isSelected: boolean}]}>>([]);
-    const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
+const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
     jobs: [],
     expenses: []
 });
@@ -199,7 +199,9 @@ const validateCamps = () => {
 
 const loadWorkersTeamsList = async () => {
     const workersTeamsListFetched = await RequestAPI.get('/workers-list');
-    const workersTeamsListGrouped = workersTeamsListFetched.reduce((acc, worker) => {
+    const workersTeamsListGrouped = workersTeamsListFetched.filter((worker) => {
+        return worker.is_active
+    }).reduce((acc, worker) => {
         const team = worker.team;
         const workerData = {
             dni: worker.dni,

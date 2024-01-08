@@ -104,9 +104,9 @@
                 </article>
 
 
-                <ion-list-header style="font-size: 15px">Opciones del Administrador</ion-list-header>
+                <ion-list-header  v-if="isAdmin" style="font-size: 15px">Opciones del Administrador</ion-list-header>
 
-                <ion-list :inset="true">
+                <ion-list :inset="true" v-if="isAdmin">
                     <ion-item button  @click="addCredit">
                         <ion-icon color="success" slot="start" :icon="addCircleOutline"></ion-icon>
                         <ion-label>

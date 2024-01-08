@@ -7,27 +7,29 @@
             </ion-toolbar>
         </ion-header>
         <ion-content>
-            <ion-list v-if="!isLoading">
-                <ion-item>
-                    <ion-avatar slot="start">
-                        <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
-                    </ion-avatar>
-                    <ion-label>
-                        <h2>{{ accountData.name }}</h2>
-                        <p>{{ accountData.email }}</p>
-                    </ion-label>
-                </ion-item>
+            <section class="content">
+                <ion-list v-if="!isLoading" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                    <ion-item>
+                        <ion-avatar slot="start">
+                            <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+                        </ion-avatar>
+                        <ion-label>
+                            <h2>{{ accountData.name }}</h2>
+                            <p>{{ accountData.email }}</p>
+                        </ion-label>
+                    </ion-item>
 
-                <ion-item @click="allowNotifications" button v-if="isNotificationsNotAllowed">
-                    <ion-label color="primary">
-                        <h2>Autorizar notificaciones</h2>
-                    </ion-label>
-                </ion-item>
-                <ion-item @click="doLogout">
-                    <ion-icon color="danger" :icon="close" slot="start"></ion-icon>
-                    <ion-label color="danger">Terminar sesión</ion-label>
-                </ion-item>
-            </ion-list>
+                    <ion-item @click="allowNotifications" button v-if="isNotificationsNotAllowed">
+                        <ion-label color="primary">
+                            <h2>Autorizar notificaciones</h2>
+                        </ion-label>
+                    </ion-item>
+                    <ion-item @click="doLogout" button>
+                        <ion-icon color="danger" :icon="close" slot="start"></ion-icon>
+                        <ion-label color="danger">Terminar sesión</ion-label>
+                    </ion-item>
+                </ion-list>
+            </section>
         </ion-content>
     </ion-page>
 </template>
@@ -43,6 +45,7 @@ import { IReport } from '../../interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import { Session } from '@/utils/Session/Session';
 import { Capacitor } from '@capacitor/core';
+import { Viewport } from '@/utils/Viewport/Viewport';
 
 const accountData = ref<any>(null);
 const isLoading = ref<boolean>(true);
@@ -110,3 +113,14 @@ const doLogout = async () => {
 loadAccount();
 checkForNotificationAllow();
 </script>
+
+
+<style scoped lang="scss">
+
+.content{
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+</style>

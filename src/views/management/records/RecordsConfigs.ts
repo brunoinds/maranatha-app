@@ -74,7 +74,7 @@ const RecordsConfigs = {
                         name: 'Fecha de Início',
                         isRequired: true,
                         type: 'date',
-                        value: DateTime.now().minus({years: 2}).toISO()
+                        value: DateTime.now().startOf('month').toISO()
                     },
                     {
                         id: 'end_date',
@@ -138,7 +138,7 @@ const RecordsConfigs = {
                         name: 'Fecha de Início',
                         isRequired: true,
                         type: 'date',
-                        value: DateTime.now().minus({years: 2}).toISO()
+                        value: DateTime.now().startOf('month').toISO()
                     },
                     {
                         id: 'end_date',
@@ -201,7 +201,7 @@ const RecordsConfigs = {
                         name: 'Fecha de Início',
                         isRequired: true,
                         type: 'date',
-                        value: DateTime.now().minus({years: 2}).toISO()
+                        value: DateTime.now().startOf('month').toISO()
                     },
                     {
                         id: 'end_date',
@@ -260,7 +260,7 @@ const RecordsConfigs = {
                         name: 'Fecha de Início',
                         isRequired: true,
                         type: 'date',
-                        value: DateTime.now().minus({years: 2}).toISO()
+                        value: DateTime.now().startOf('month').toISO()
                     },
                     {
                         id: 'end_date',

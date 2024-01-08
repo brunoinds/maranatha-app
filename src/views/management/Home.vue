@@ -92,9 +92,6 @@ const route = useRoute();
 const page = ref<HTMLElement|null>(null);
 const segmentValue = ref('home');
 
-Viewport.onChange((content) => {
-})
-
 
 watch(segmentValue, (newValue) => {
     const currentRoute = route.fullPath;

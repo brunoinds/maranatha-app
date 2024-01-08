@@ -1,15 +1,17 @@
 <template>
     <article>
         <header class="ion-padding">
-            <ion-segment :scrollable="true" :value="segmentValue" v-model="segmentValue">
-                <ion-segment-button v-for="itemRecord in RecordsConfigs" :value="itemRecord.id" :key="itemRecord.id">
+            <ion-segment v-if="configurationsData" :scrollable="true" :value="segmentValue" v-model="segmentValue">
+                <ion-segment-button v-for="itemRecord in configurationsData" :value="itemRecord.id" :key="itemRecord.id">
                     <ion-label>{{ itemRecord.title}}</ion-label>
                 </ion-segment-button>
             </ion-segment>
         </header>
 
-        <main>
-            <Record v-for="itemRecord in RecordsConfigs" :type="itemRecord.id" :key="itemRecord.title" v-show="itemRecord.id == segmentValue"></Record>
+        <ion-progress-bar v-if="!configurationsData" type="indeterminate"></ion-progress-bar>
+
+        <main v-if="configurationsData">
+            <Record v-for="itemRecord in configurationsData" :type="itemRecord.id" :key="itemRecord.title" v-show="itemRecord.id == segmentValue"></Record>
         </main>
     </article>
 </template>
@@ -32,7 +34,15 @@ const router = useRouter();
 const page = ref<HTMLElement|null>(null);
 const route = useRoute();
 import RecordsConfigs from '@/views/management/records/RecordsConfigs';
+import { onMounted } from 'vue';
 
 const segmentValue = ref('jobs-by-costs');
 
+const configurationsData = ref<any>(null);
+
+
+
+onMounted(async () => {
+    configurationsData.value = await RecordsConfigs.getConfigurations();
+})
 </script>

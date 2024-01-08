@@ -9,6 +9,7 @@ import { useRouter } from 'vue-router';
 class RequestAPI{
     private static domainUrl: string = (() => {
         if (Capacitor.isNativePlatform()) {
+            //return 'https://2024-190-238-182-115.ngrok-free.app';
             return "https://maranatha.imedicineapp.com";
         }
         const currentUrl = new URL(window.location.href);
@@ -33,7 +34,8 @@ class RequestAPI{
         return new Promise(async (resolve, reject) => {
             RequestAPI.proxyResponse(axios.get(this.variables.rootUrl + url, { params: parameters, 
                 headers: {
-                    'Authorization': await RequestAPI.getAuthHeader()
+                    'Authorization': await RequestAPI.getAuthHeader(),
+                    'ngrok-skip-browser-warning': true
                 }
             }))
             .then((response) => {
@@ -53,7 +55,8 @@ class RequestAPI{
         return new Promise(async (resolve, reject) => {
             RequestAPI.proxyResponse(axios.post(this.variables.rootUrl + url, body, {
                 headers: {
-                    'Authorization': await RequestAPI.getAuthHeader()
+                    'Authorization': await RequestAPI.getAuthHeader(),
+                    'ngrok-skip-browser-warning': true
                 },
                 onUploadProgress: (progressEvent) => {
                     if (progressEvent.total !== undefined) {
@@ -77,7 +80,8 @@ class RequestAPI{
         return new Promise(async (resolve, reject) => {
             RequestAPI.proxyResponse(axios.patch(this.variables.rootUrl + url, body, {
                 headers: {
-                    'Authorization': await RequestAPI.getAuthHeader()
+                    'Authorization': await RequestAPI.getAuthHeader(),
+                    'ngrok-skip-browser-warning': true
                 }
             }))
             .then((response) => {
@@ -95,7 +99,8 @@ class RequestAPI{
         return new Promise(async (resolve, reject) => {
             RequestAPI.proxyResponse(axios.put(this.variables.rootUrl + url, parameters, {
                 headers: {
-                    'Authorization': await RequestAPI.getAuthHeader()
+                    'Authorization': await RequestAPI.getAuthHeader(),
+                    'ngrok-skip-browser-warning': true
                 }
             }))
             .then((response) => {
@@ -113,7 +118,8 @@ class RequestAPI{
         return new Promise(async (resolve, reject) => {
             RequestAPI.proxyResponse(axios.delete(this.variables.rootUrl + url, { params: parameters,
                 headers: {
-                    'Authorization': await RequestAPI.getAuthHeader()
+                    'Authorization': await RequestAPI.getAuthHeader(),
+                    'ngrok-skip-browser-warning': true
             }}))
             .then((response) => {
                 resolve(response.data);
@@ -147,7 +153,8 @@ class RequestAPI{
         return new Promise(async (resolve, reject) => {
             RequestAPI.proxyResponse(axios.get(this.variables.rootUrl + url, { params: parameters, 
                 headers: {
-                    'Authorization': await RequestAPI.getAuthHeader()
+                    'Authorization': await RequestAPI.getAuthHeader(),
+                    'ngrok-skip-browser-warning': true
                 }
             }))
             .then((response) => {

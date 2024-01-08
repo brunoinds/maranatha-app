@@ -569,7 +569,7 @@ const showBalanceReceiptImage = async (balance: UserBalanceComputed['items'][0])
         const filename = `Voucher ${balance.description}.png`;
 
         if (Capacitor.isNativePlatform()){
-            Toolbox.shareNative(filename, response.image);
+            Toolbox.openNative(filename, response.image);
         }else{
             //Create blob file from base64 image:
             const byteString = atob(imageBase64.split(',')[1]);

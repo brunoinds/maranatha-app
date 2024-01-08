@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@billjs/event-emitter": "^1.0.3",
+    "@capacitor-community/file-opener": "^1.0.5",
     "@capacitor-mlkit/barcode-scanning": "^5.3.0",
     "@capacitor/android": "5.4.1",
     "@capacitor/app": "5.0.6",
@@ -54,6 +55,7 @@
     "numeral": "^2.0.6",
     "onesignal-cordova-plugin": "^5.0.2",
     "register-service-worker": "^1.7.2",
+    "sanitize-filename": "^1.6.3",
     "ssf": "^0.11.2",
     "v-money3": "^3.24.0",
     "vue": "^3.2.45",

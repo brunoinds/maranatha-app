@@ -3,6 +3,8 @@ import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 import Numeral  from "numeral";
+import sanitize from 'sanitize-filename';
+import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
 
 class Toolbox{
     public static generateId(): string{
@@ -24,6 +26,8 @@ class Toolbox{
     }
 
     public static shareNative(fileName: string, base64Data: string){
+        fileName = sanitize(fileName, {replacement: '_'})
+
         return Filesystem.writeFile({
             path: fileName,
             data: base64Data,
@@ -44,9 +48,31 @@ class Toolbox{
         });
     }
 
+    public static openNative(fileName: string, base64Data: string){
+        fileName = sanitize(fileName, {replacement: '_'})
+
+        return Filesystem.writeFile({
+            path: fileName,
+            data: base64Data,
+            directory: Directory.Cache
+        })
+        .then(() => {
+            return Filesystem.getUri({
+                directory: Directory.Cache,
+                path: fileName
+            });
+        })
+        .then((uriResult) => {
+            return FileOpener.open({
+                filePath: uriResult.uri,
+            })
+        });
+    }
+
     public static share(fileNameWithExtention: string, base64Data: string){
         if (Capacitor.isNativePlatform()){
-            this.shareNative(fileNameWithExtention, base64Data);
+            this.openNative(fileNameWithExtention, base64Data);
+            //this.shareNative(fileNameWithExtention, base64Data);
         }else{
             const byteString = atob(base64Data);
             const ab = new ArrayBuffer(byteString.length);

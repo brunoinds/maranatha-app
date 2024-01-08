@@ -744,7 +744,7 @@ const downloadPdfAndExcelFiles = async () => {
             toast.present();
         })
         if (Capacitor.isNativePlatform()){
-            Toolbox.shareNative(filename + extention, file.base64);
+            Toolbox.openNative(filename + extention, file.base64);
         }else{
             let link = document.createElement('a');
             link.href = file.blobUrl;
@@ -852,7 +852,7 @@ const downloadBalanceReceiptImage = async () => {
         const filename = `Voucher ${balance.description}.png`;
 
         if (Capacitor.isNativePlatform()){
-            Toolbox.shareNative(filename, response.image);
+            Toolbox.openNative(filename, response.image);
         }else{
             //Create blob file from base64 image:
             const byteString = atob(imageBase64.split(',')[1]);

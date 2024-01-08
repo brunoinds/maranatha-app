@@ -152,8 +152,9 @@ const currentRecord = ref<{
 })
 
 
-function loadConfigurationById(id: string){
-    const configuration = RecordsConfigs.find((config) => config.id == id);
+async function loadConfigurationById(id: string){
+    const configs = await RecordsConfigs.getConfigurations();
+    const configuration = configs.find((config) => config.id == id);
     if (configuration){
         currentRecord.value.configuration = configuration;
         currentRecord.value.filters = generateFiltersData(configuration.filters);
@@ -179,7 +180,7 @@ function generateFiltersData(filtersData:any){
     return filtersData;
 }
 
-onMounted(() => {
-    loadConfigurationById(props.type);
+onMounted(async () => {
+    await loadConfigurationById(props.type);
 })
 </script>

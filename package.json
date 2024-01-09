@@ -61,6 +61,7 @@
     "register-service-worker": "^1.7.2",
     "sanitize-filename": "^1.6.3",
     "ssf": "^0.11.2",
+    "ts-morph": "^21.0.1",
     "v-money3": "^3.24.0",
     "vue": "^3.2.45",
     "vue-chart-3": "^3.1.8",

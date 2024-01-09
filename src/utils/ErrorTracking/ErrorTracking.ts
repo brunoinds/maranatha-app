@@ -1,3 +1,4 @@
+import { Environment } from '@/utils/Environment/Environment';
 import { Session } from '@/utils/Session/Session';
 import { Capacitor } from '@capacitor/core';
 import * as Sentry from '@sentry/capacitor';
@@ -12,8 +13,11 @@ class ErrorTracking{
         Sentry.init(
             {
                 app,
-                dsn: "https://8f4fa12843c8c5cf1d27227e91d0cf0d@o4506538720100352.ingest.sentry.io/4506538726326272",
+                dsn: Environment.variable('SENTRY_DSN'),
                 integrations: [],
+                release: 'maranathasender@' + Environment.version(),
+                dist: Environment.version(),
+                environment: Environment.environment()
             },
             SentryVue.init
         );

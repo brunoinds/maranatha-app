@@ -1,3 +1,4 @@
+import { Environment } from "@/utils/Environment/Environment";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { Session } from "@/utils/Session/Session";
 import { Capacitor } from "@capacitor/core";
@@ -7,7 +8,7 @@ import OneSignalVuePlugin from '@onesignal/onesignal-vue3'
 import { register } from 'register-service-worker'
 
 class Notifications{
-    public static oneSignalAppId: string = '5b414480-2440-4456-b7e1-a6b2564d82d6';
+    public static oneSignalAppId: string = Environment.variable('ONESIGNAL_APP_ID');
     private static oneSignal: any = null;
     public static checkForPermission(){
         return new Promise((resolve, reject) => {

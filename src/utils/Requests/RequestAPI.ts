@@ -5,16 +5,16 @@ import { Session } from '@/utils/Session/Session';
 
 import { Capacitor } from '@capacitor/core';
 import { useRouter } from 'vue-router';
+import { Environment } from '@/utils/Environment/Environment';
 
 class RequestAPI{
     private static domainUrl: string = (() => {
-        if (Capacitor.isNativePlatform()) {
-            //return 'https://2024-190-238-182-115.ngrok-free.app';
-            return "https://maranatha.imedicineapp.com";
+        if (Environment.platform() == 'Native'){
+            return Environment.variable('API_DOMAIN_URL');
         }
         const currentUrl = new URL(window.location.href);
         if (currentUrl.port != ''){
-            return "http://localhost:8000";
+            return Environment.variable('API_DOMAIN_URL');
         }else{
             return "https://" + currentUrl.hostname;
         }

@@ -65,7 +65,7 @@
                             <ion-card-content >
                                 <ion-grid name="content">
                                     <ion-row name="amount-area">
-                                        <ion-card-title name="amount" value="$" color="success" style="font-size: 50px">{{ Toolbox.moneyFormat(indicators.wallets.pettyCash.balance.average) }}</ion-card-title>
+                                        <ion-card-title name="amount" value="S/." color="success" style="font-size: 50px">{{ Toolbox.moneyFormat(indicators.wallets.pettyCash.balance.average) }}</ion-card-title>
                                     </ion-row>
                                 </ion-grid>
                             </ion-card-content>
@@ -107,7 +107,7 @@
                             <ion-card-content >
                                 <ion-grid name="content">
                                     <ion-row name="amount-area">
-                                        <ion-card-title name="amount" value="$" style="font-size: 50px">{{ Toolbox.moneyFormat(indicators.wallets.pettyCash.givenAmount.average) }}</ion-card-title>
+                                        <ion-card-title name="amount" value="S/" style="font-size: 50px">{{ Toolbox.moneyFormat(indicators.wallets.pettyCash.givenAmount.sum) }}</ion-card-title>
                                     </ion-row>
                                 </ion-grid>
                             </ion-card-content>

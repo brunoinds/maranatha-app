@@ -394,6 +394,7 @@ interface AccountantCurrentYearIndicators{
         pettyCash: {
             givenAmount: {
                 average: number,
+                sum: number,
                 lowest: {
                     user: {
                         id: number,
@@ -507,6 +508,7 @@ class AccountantCurrentYearState{
             pettyCash: {
                 givenAmount: {
                     average: 0,
+                    sum: 0,
                     lowest: {
                         user: {
                             id: 0,
@@ -755,6 +757,7 @@ class AccountantCurrentYearState{
                 pettyCash: {
                     givenAmount: {
                         average: 0,
+                        sum: 0,
                     },
                     usagePercentage: {
                         average: 0,
@@ -784,6 +787,7 @@ class AccountantCurrentYearState{
 
 
                 calculatorAverage.pettyCash.givenAmount.average += wallet.petty_cash.given_amount;
+                calculatorAverage.pettyCash.givenAmount.sum += wallet.petty_cash.given_amount;
                 calculatorAverage.pettyCash.usagePercentage.average += wallet.petty_cash.usage_percentage;
                 calculatorAverage.pettyCash.balance.average += wallet.petty_cash.balance;
 
@@ -816,6 +820,7 @@ class AccountantCurrentYearState{
                 return;
             }
             this.indicators.wallets.pettyCash.givenAmount.average = calculatorAverage.pettyCash.givenAmount.average / usersBalances.balances.length;
+            this.indicators.wallets.pettyCash.givenAmount.sum = calculatorAverage.pettyCash.givenAmount.sum;
             this.indicators.wallets.pettyCash.usagePercentage.average = calculatorAverage.pettyCash.usagePercentage.average / usersBalances.balances.length;
             this.indicators.wallets.pettyCash.balance.average = calculatorAverage.pettyCash.balance.average / usersBalances.balances.length;
         })();

@@ -76,7 +76,7 @@
                             <ion-card-header>
                                 <ion-card-subtitle>Promédio Uso Caja Chica</ion-card-subtitle>
                             </ion-card-header>
-                            <ion-card-content >
+                            <ion-card-content>
                                 <ion-grid name="content">
                                     <ion-row name="amount-area">
                                         <ion-card-title name="amount" color="secondary" style="font-size: 60px;">{{ indicators.wallets.pettyCash.usagePercentage.average.toFixed(1) }}%</ion-card-title>

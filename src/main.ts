@@ -38,6 +38,7 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
+import { ErrorTracking } from '@/utils/ErrorTracking/ErrorTracking';
 
 
 
@@ -77,6 +78,8 @@ if (!Capacitor.isNativePlatform()){
     appId: Notifications.oneSignalAppId,
   })
 }
+
+ErrorTracking.initialize(app, router);
 
 router.isReady().then(() => {
   app.mount('#app');

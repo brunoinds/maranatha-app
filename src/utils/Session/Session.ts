@@ -1,3 +1,4 @@
+import { ErrorTracking } from '@/utils/ErrorTracking/ErrorTracking';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { TStorage } from '@/utils/Toolbox/TStorage';
 import { Capacitor } from '@capacitor/core';
@@ -82,6 +83,8 @@ class Session{
                 await (window as any).plugins.OneSignal.login("user-id-" + String(response.user.id));
             }
 
+            await ErrorTracking.linkToSession();
+
         } catch (error:any) {
             if (error.code == 401){
                 throw new Error("Invalid credentials");
@@ -98,6 +101,8 @@ class Session{
             await (window as any).plugins.OneSignal.logout();
         }
 
+        await ErrorTracking.unlinkSession();
+
         Session.session = null;
     }
     public static async getCurrentSession(){
@@ -111,7 +116,7 @@ class Session{
 
 
 
-                    
+
                     PushNotifications.checkPermissions().then((response) => {
                         if (response.receive == 'granted'){
                             resolve('Allowed');

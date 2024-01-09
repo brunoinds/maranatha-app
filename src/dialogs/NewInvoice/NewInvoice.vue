@@ -35,10 +35,13 @@
                                     </ion-button>
                                 </ion-item>
                             </ion-list>
-                            <section class="ion-padding" v-if="!dynamicData.uploadedImageBase64">
-                                <ion-button expand="block" fill="outline" @click="openCamera"> 
+                            <section class="ion-padding" v-if="!dynamicData.uploadedImageBase64" style="display: flex; align-content: center; justify-content: space-between;">
+                                <ion-button expand="block" fill="outline" @click="openCamera()" style="width: 100%;"> 
                                     <ion-icon slot="start" :icon="camera"></ion-icon>
                                     Tomar Foto de la {{invoiceType}}
+                                </ion-button>
+                                <ion-button fill="outline" @click="openCamera(true)"> 
+                                    <ion-icon :icon="attachOutline"></ion-icon>
                                 </ion-button>
                             </section>
                         </section>
@@ -115,7 +118,7 @@ import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle,IonButtons, IonThumbna
 import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { EInvoiceType, IInvoice, INewInvoice } from '../../interfaces/InvoiceInterfaces';
 import { IJob, IExpense } from '../../interfaces/JobsAndExpensesInterfaces';
-import { briefcaseOutline, trashBinOutline, camera, cameraOutline, arrowForward, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
+import { briefcaseOutline, trashBinOutline, camera, cameraOutline, arrowForward, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash, attachOutline } from 'ionicons/icons';
 
 import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
 //import { Money3Component } from 'v-money3';
@@ -268,7 +271,7 @@ const openQRCodeScanner = async () => {
         setBarcodeData(content);
     })
 }
-const openCamera = async () => {
+const openCamera = async (forceFromGallery: boolean = false) => {
     const scanDocumentNative = () => {
         return new Promise(async (resolve, reject) => {
             let cameraPermission = await Camera.checkPermissions();
@@ -313,7 +316,13 @@ const openCamera = async () => {
                 quality: 90,
                 allowEditing: true,
                 resultType: CameraResultType.Uri,
-                source: CameraSource.Prompt
+                source: (() => {
+                    if (forceFromGallery){
+                        return CameraSource.Photos;
+                    }else{
+                        return CameraSource.Prompt;
+                    }
+                })()
             });
             resolve({
                 path: image.path as unknown as string,
@@ -365,12 +374,12 @@ const openCamera = async () => {
         })
     }
 
-    if (Capacitor.isNativePlatform()){
-        scanDocumentNative().then(async (image) => {
+    if (forceFromGallery || !Capacitor.isNativePlatform()){
+        scanDocumentWeb().then(async (image) => {
             await loadImageFrom(image as unknown as {path: string, webPath: string});
         })
-    }else{
-        scanDocumentWeb().then(async (image) => {
+    }else if(Capacitor.isNativePlatform()){
+        scanDocumentNative().then(async (image) => {
             await loadImageFrom(image as unknown as {path: string, webPath: string});
         })
     }

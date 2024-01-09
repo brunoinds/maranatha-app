@@ -34,12 +34,14 @@ class Viewport{
     }
 
     public static isLandscape(): boolean{
-        let orientation = screen.orientation || screen.mozOrientation || screen.msOrientation;
-        return orientation.type.includes('landscape');
+        if (screen && screen.orientation){
+            return screen.orientation.type.includes('landscape');
+        }else{
+            return window.innerWidth > window.innerHeight;
+        }
     }
     public static isPortrait(): boolean{
-        let orientation = screen.orientation || screen.mozOrientation || screen.msOrientation;
-        return orientation.type.includes('portrait');
+        return !this.isLandscape();
     }
 
     public static deviceSetting(): 'DesktopLandscape' | 'DesktopPortrait' | 'MobileLandscape' | 'MobilePortrait' {

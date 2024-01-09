@@ -30,7 +30,7 @@
                 <article v-if="!isLoading && attendances.length == 0" class="ion-padding" style="display: flex;flex-direction: column; align-items: center; justify-content: center; height: 100%;">
                     <ion-img :src="AttendanceIcon" style="width: 90%;margin: 0 auto;"></ion-img>
                     <h2>Aún no tienes asistencias</h2>
-                    <p class="ion-text-center">Crea tu primer listado de asistenciahaciendo click en el botón "+" abajo</p>
+                    <p class="ion-text-center">Crea tu primer listado de asistencia haciendo click en el botón "+" abajo</p>
                 </article>
             </section>
         </ion-content>

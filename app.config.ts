@@ -1,6 +1,8 @@
+import configJson from './app.config.json';
+
 interface ApplicationConfig{
     version: string,
-    build: string,
+    build: number,
     environment: 'prod' | 'dev'
 }
 
@@ -8,11 +10,10 @@ interface ApplicationConfig{
 
 
 const config: ApplicationConfig = {
-    version: '1.0.0',
-    build: '1.0.0.1',
-    environment: 'prod'
+    version: configJson.versioning.version,
+    build: configJson.versioning.build,
+    environment: configJson.environment as 'prod' | 'dev'
 }
-
 
 
 

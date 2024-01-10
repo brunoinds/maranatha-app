@@ -41,7 +41,6 @@ const emit = defineEmits(['change', 'update:modelValue']);
 const filtersData = ref(props.filters);
 
 watch(filtersData, (newValue) => {
-    console.log(newValue)
     emit('change', newValue);
     emit('update:modelValue', newValue);
 })

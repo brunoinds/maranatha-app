@@ -300,6 +300,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
 
 
     const loadImageFrom = async (image: {path: string, webPath: string}, origin: "Web" | "Native" = "Native") => {
+        isLoadingImage.value = true;
         const response = await fetch(image.webPath as unknown as string);
         const blob = await response.blob();
         const blobUrl = URL.createObjectURL(blob);
@@ -319,6 +320,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 dynamicData.value.uploadedImageBase64 = base64Image;
 
                 accordionGroup.value.$el.value = "second";
+                isLoadingImage.value = false;
             })
         })
 

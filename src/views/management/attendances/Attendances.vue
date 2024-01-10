@@ -52,6 +52,8 @@ import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 import { userInfo } from 'os';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { Viewport } from '@/utils/Viewport/Viewport';
+import { onMounted } from 'vue';
+import { onUnmounted } from 'vue';
 
 const attendancesData = ref<Array<IAttendance>>([]);
 const isLoading = ref<boolean>(true);
@@ -118,12 +120,18 @@ const openAttendance = (attendanceId: number) => {
     router.push(`/attendances/${attendanceId}`);
 }
 
-AppEvents.on('attendances:reload', () => {
-    loadUsersAttendances();
-})
-
 
 loadUsersAttendances();
+
+onMounted(() => {
+    const callbackId = AppEvents.on('all:reload', () => {
+        loadUsersAttendances();
+    })
+
+    onUnmounted(() => {
+        AppEvents.off('all:reload', callbackId);
+    })
+})
 </script>
 
 <style scoped lang="scss">

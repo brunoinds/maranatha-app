@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonAccordion, IonAccordionGroup, IonContent, IonButton, IonImg, IonAvatar,IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import EditUser from '@/dialogs/EditUser/EditUser.vue';
 
@@ -56,6 +56,7 @@ import { onMounted } from 'vue';
 import RecordsConfigs from '@/views/management/records/RecordsConfigs';
 import {ExcelGenerator} from '@/utils/Records/ExcelGenerator';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
 
 const isLoading = ref<boolean>(true);
 const router = useRouter();
@@ -182,5 +183,14 @@ function generateFiltersData(filtersData:any){
 
 onMounted(async () => {
     await loadConfigurationById(props.type);
+});
+
+onMounted(() => {
+    const callbackId = AppEvents.on('all:reload', () => {
+        currentRecord.value.doSearch();
+    })
+    onUnmounted(() => {
+        AppEvents.off('all:reload', callbackId);
+    })
 })
 </script>

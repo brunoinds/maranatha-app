@@ -1,6 +1,8 @@
+import { Environment } from '@/utils/Environment/Environment';
 import { ErrorTracking } from '@/utils/ErrorTracking/ErrorTracking';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { TStorage } from '@/utils/Toolbox/TStorage';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import {
@@ -79,8 +81,8 @@ class Session{
             });
 
             if (Capacitor.isNativePlatform()){
-                (window as any).plugins.OneSignal.initialize("5b414480-2440-4456-b7e1-a6b2564d82d6");
-                await (window as any).plugins.OneSignal.login("user-id-" + String(response.user.id));
+                (window as any).plugins.OneSignal.initialize(Environment.variable('ONESIGNAL_APP_ID'));
+                await (window as any).plugins.OneSignal.login(Toolbox.getOneSignalUserId(Session.session?.id()));
             }
 
             await ErrorTracking.linkToSession();
@@ -94,7 +96,14 @@ class Session{
         }
     }
     public async logout(){
-        const response = await RequestAPI.post('/logout', {});
+        try {
+            const response = await RequestAPI.post('/logout', {});
+        } catch (error:any) {
+            if (error.code != 401){
+                throw new Error(error.response.message);
+            }
+        }
+
         await TStorage.clearBucket("session");
 
         if (Capacitor.isNativePlatform()){
@@ -108,99 +117,6 @@ class Session{
     public static async getCurrentSession(){
         await Session.init();
         return Session.session;
-    }
-    public static notifications(){
-        return {
-            checkForPermission: () => {
-                return new Promise((resolve, reject) => {
-
-
-
-
-                    PushNotifications.checkPermissions().then((response) => {
-                        if (response.receive == 'granted'){
-                            resolve('Allowed');
-                        }else if (response.receive == 'denied'){
-                            resolve('Denied');
-                        }else{
-                            resolve('NotAsked');
-                        }
-                    })
-                })
-            },
-            hardAskForPermission: () => {
-                return new Promise((resolve, reject) => {
-                    PushNotifications.requestPermissions().then((response) => {
-                        if (response.receive == 'granted'){
-                            resolve('Allowed');
-                        }else if (response.receive == 'denied'){
-                            resolve('Denied');
-                        }else{
-                            resolve('NotAsked');
-                        }
-                    })
-                })
-            },
-            isAllowed: () => {
-                return new Promise((resolve, reject) => {
-                    PushNotifications.checkPermissions().then((response) => {
-                        if (response.receive == 'granted'){
-                            resolve(true);
-                        }else{
-                            resolve(false);
-                        }
-                    })
-                })
-            },
-            initializeOneSignal: (OneSignal:any) => {
-                Session.waitForLogin().then((session:any) => {
-                    OneSignal.initialize("5b414480-2440-4456-b7e1-a6b2564d82d6");
-                    setTimeout(() => {
-                        OneSignal.login("user-id-" + String(Session.session?.id()))
-                    }, 3000)
-
-
-
-                    OneSignal.isPushNotificationsEnabled().then((response:any) => {
-                        if (response){
-                            console.log(response)
-                        }else{
-                            OneSignal.getNotificationPermission().then((response:any) => {
-                                console.log(response)
-                                if (response == 'default'){
-                                    
-                                }else if (response == 'denied'){
-                                    
-                                }else if (response == 'granted'){
-                                    
-                                }
-                            })
-                        }
-                    })
-
-                })
-
-                PushNotifications.addListener('registration', (token: Token) => {
-                    //alert('Push registration success, token: ' + token.value);
-                });
-                PushNotifications.addListener('registrationError', (error: any) => {
-                    //alert('Error on registration: ' + JSON.stringify(error));
-                });
-            
-                PushNotifications.addListener('pushNotificationReceived',
-                    (notification: PushNotificationSchema) => {
-                        //alert('Push received: ' + JSON.stringify(notification));
-                    },
-                );
-            
-                PushNotifications.addListener('pushNotificationActionPerformed',
-                    (notification: ActionPerformed) => {
-                        //alert('Push action performed: ' + JSON.stringify(notification));
-                    },
-                );
-
-            }
-        }
     }
     public static async init(){
         if (this.isInitialized){
@@ -236,7 +152,7 @@ class Session{
             const interval = setInterval(async () => {
                 if (await Session.isLogged()){
                     clearInterval(interval);
-                    resolve(Session.getCurrentSession());
+                    resolve(await Session.getCurrentSession());
                 }
             }, 100);
         })

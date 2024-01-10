@@ -268,6 +268,7 @@ import { watch } from 'vue';
 import { onMounted } from 'vue';
 
 import { Viewport } from '@/utils/Viewport/Viewport';
+import { onUnmounted } from 'vue';
 
 
 const isLoading = ref<boolean>(true);
@@ -275,8 +276,7 @@ const router = useRouter();
 const page = ref<HTMLElement|null>(null);
 const comparisonDropdownChosen = ref<string|null>(null);
 const indicatorsData = ref<AccountantPeriodComparisonIndicators|null>(null);
-AppEvents.on('attendances:reload', () => {
-})
+
 
 interface AccountantPeriodComparisonIndicatorsComputed{
     spendings: {
@@ -934,26 +934,37 @@ watch(comparisonDropdownChosen, (value) => {
     if (value == null){
         return;
     }
+    loadData();
+})
+
+function loadData(){
     isLoading.value = true;
     indicatorsData.value = null;
 
-    if (value.includes('-')){
-        AccountantPeriodComparison.compareYearMonth(parseInt(value.split('-')[0]), parseInt(value.split('-')[1])).then((data) => {
+    if (comparisonDropdownChosen.value?.includes('-')){
+        AccountantPeriodComparison.compareYearMonth(parseInt(comparisonDropdownChosen.value.split('-')[0]), parseInt(comparisonDropdownChosen.value.split('-')[1])).then((data) => {
             indicatorsData.value = data;
             isLoading.value = false;
         })
     }else{
-        AccountantPeriodComparison.compareYear(parseInt(value)).then((data) => {
+        AccountantPeriodComparison.compareYear(parseInt(comparisonDropdownChosen.value)).then((data) => {
             indicatorsData.value = data;
             isLoading.value = false;
         })
     }
-    
-})
+}
 
 
 onMounted(() => {
     comparisonDropdownChosen.value = comparisonOptions.value[1].value;
+
+    const callbackId = AppEvents.on('all:reload', () => {
+        loadData()
+    })
+
+    onUnmounted(() => {
+        AppEvents.off('all:reload', callbackId);
+    })
 })
 </script>
 

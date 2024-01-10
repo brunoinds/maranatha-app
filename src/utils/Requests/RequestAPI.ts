@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import { TStorage } from '@/utils/Toolbox/TStorage';
 import { Session } from '@/utils/Session/Session';
@@ -182,10 +182,12 @@ class RequestAPI{
 
     private static async proxyResponse(response: Promise<any>): Promise<any>{
         const reactions = {
-            onAunauthenticated: async () => {
+            onAunauthenticated: async (request:XMLHttpRequest, response:AxiosResponse) => {
                 const session = await Session.getCurrentSession();
                 if (session){
-                    await session.logout();
+                    if (!request.responseURL.includes('api/logout')){
+                        await session.logout();
+                    }
                 }
                 Session.router?.replace('/login');
             }
@@ -197,7 +199,7 @@ class RequestAPI{
                 resolve(response)
             }).catch((error) => {
                 if (error.response.data.message == 'Unauthenticated.'){
-                    reactions.onAunauthenticated();
+                    reactions.onAunauthenticated(error.request, error.response);
                 }
                 reject(error)
             })

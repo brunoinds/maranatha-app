@@ -145,7 +145,7 @@ const clickExpense = async(expense:any) => {
                 text: 'Cancelar',
                 role: 'cancel',
                 handler: () => {
-                    console.log('Cancel clicked');
+                    
                 }
             }
         ]

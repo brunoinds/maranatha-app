@@ -5,6 +5,7 @@ import { Share } from "@capacitor/share";
 import Numeral  from "numeral";
 import sanitize from 'sanitize-filename';
 import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
+import { Environment } from "@/utils/Environment/Environment";
 
 class Toolbox{
     public static generateId(): string{
@@ -89,8 +90,14 @@ class Toolbox{
             document.body.removeChild(link);
         }
     }
-}
 
-//https://api.apis.net.pe/v1/tipo-cambio-sunat?fecha=2023-12-01
+    public static getOneSignalUserId(userId: number): string{
+        if (Environment.environment() == "dev"){
+            return "dev-user-id-" + userId;
+        }else{
+            return "user-id-" + userId;
+        }
+    }
+}
 
 export {Toolbox}

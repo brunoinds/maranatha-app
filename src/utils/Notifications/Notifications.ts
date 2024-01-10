@@ -1,6 +1,7 @@
 import { Environment } from "@/utils/Environment/Environment";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { Session } from "@/utils/Session/Session";
+import { Toolbox } from "@/utils/Toolbox/Toolbox";
 import { Capacitor } from "@capacitor/core";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { alertController } from "@ionic/vue";
@@ -24,9 +25,6 @@ class Notifications{
                 })
             }else{
                 Notifications.waitOneSignalLogin().then(async () => {
-                    const response = Notifications.oneSignal.Slidedown.promptPush({force: true});
-
-                
                     const isSupported = Notifications.oneSignal.Notifications.isPushSupported();
                     if (!isSupported){
                         resolve('Denied');
@@ -63,15 +61,18 @@ class Notifications{
                 })
             }else{
                 Notifications.waitOneSignalLogin().then(async () => {
-                    const response = Notifications.oneSignal.Notifications.requestPermission();
-                    console.log(response);
+                    const response = await Notifications.oneSignal.Notifications.requestPermission();
                 })
             }
         })
     }
     public static softAskForPermission(){
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             if (Capacitor.isNativePlatform()){
+                const wasBlocked = await Notifications.isBlocked();
+                if (wasBlocked){
+                    console.warn('The user already Denied the notification service');
+                }
                 alertController.create({
                     header: 'Notificaciones',
                     message: 'Receba notificaciones de reportes aprobados, rechazados y otras más...',
@@ -95,14 +96,30 @@ class Notifications{
                     alert.present();
                 })
             }else{
-
+                const wasBlocked = await Notifications.isBlocked();
+                if (wasBlocked){
+                    console.warn('The user already Denied the notification service');
+                }
+                const response = await Notifications.oneSignal.Slidedown.promptPush({force: true});
+                resolve(null)
             }
         })
     }
     public static isAllowed(){
         return new Promise((resolve, reject) => {
-            PushNotifications.checkPermissions().then((response) => {
-                if (response.receive == 'granted'){
+            Notifications.checkForPermission().then((response) => {
+                if (response == 'Allowed'){
+                    resolve(true);
+                }else{
+                    resolve(false);
+                }
+            })
+        })
+    }
+    public static isBlocked(){
+        return new Promise((resolve, reject) => {
+            Notifications.checkForPermission().then((response) => {
+                if (response == 'Denied'){
                     resolve(true);
                 }else{
                     resolve(false);
@@ -115,38 +132,42 @@ class Notifications{
             if (Capacitor.isNativePlatform()){
                 OneSignal.initialize(Notifications.oneSignalAppId);
                 setTimeout(() => {
-                    OneSignal.login("user-id-" + String(Session.session?.id()));
+                    OneSignal.login(Toolbox.getOneSignalUserId(Session.session?.id()));
                     Notifications.oneSignal = OneSignal;
                 }, 3000)
             }else{
-                return;
-                register(`/public/assets/service-workers/OneSignalSDKWorker.js`,{
+                if (window.location.port != ''){
+                    console.warn('OneSignal is not allowed in development mode');
+                    return;
+                }
+
+                register(`/resources/service-workers/one-signal-sw.js`,{
                     registrationOptions: { scope: './' },
                     ready (registration) {
-                        console.log('Service worker is active.')
+                        
                     },
                     registered (registration) {
-                        console.log('Service worker has been registered.')
+                        
                     },
                     cached (registration) {
-                        console.log('Content has been cached for offline use.')
+                        
                     },
                     updatefound (registration) {
-                        console.log('New content is downloading.')
+                        
                     },
                     updated (registration) {
-                        console.log('New content is available; please refresh.')
+                        
                     },
                     offline () {
-                        console.log('No internet connection found. App is running in offline mode.')
+                        
                     },
                     error (error) {
-                        console.error('Error during service worker registration:', error)
+                        
                     }
                 })
 
                 setTimeout(() => {
-                    OneSignal.login("user-id-" + String(Session.session?.id()));
+                    OneSignal.login(Toolbox.getOneSignalUserId(Session.session?.id()));
                     Notifications.oneSignal = OneSignal;
                 }, 1000)
             }

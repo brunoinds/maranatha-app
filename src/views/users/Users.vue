@@ -44,7 +44,7 @@ const loadUsersList = async () => {
     RequestAPI.get('/users').then((response) => {
         usersData.value = response;
     }).catch((error) => {
-        console.log(error);
+        
     }).finally(() => {
         isLoading.value = false;
     });
@@ -80,7 +80,6 @@ const showUserOptions = async (user: IUser) => {
     })
     await actionSheet.present();
     const { role, data } = await actionSheet.onDidDismiss();
-    console.log(role, data);
 
     if (data.action == "changePassword"){
         changeUserPassword(user);

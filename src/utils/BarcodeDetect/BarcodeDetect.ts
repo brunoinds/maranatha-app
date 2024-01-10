@@ -19,7 +19,6 @@ class BarcodeDetect{
     public async detectFromBase64(base64: string): Promise<Barcode[]>{
         //Convert base64 to ImageBitmap
         const blob = b64toBlob(base64, 'image/png');
-        console.log(blob)
         const image = await createImageBitmap(blob);
         const barcodes = await this.detect(image);
         return barcodes;

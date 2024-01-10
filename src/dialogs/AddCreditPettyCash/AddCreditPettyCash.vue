@@ -49,10 +49,11 @@
                         </ion-item>
                     </ion-list>
                     <section class="ion-padding" v-if="!dynamicData.receiptBase64">
-                        <ion-button expand="block" fill="outline" @click="loadReceiptImage"> 
+                        <ion-button expand="block" fill="outline" @click="loadReceiptImage" v-if="!isLoadingImageCompression"> 
                             <ion-icon slot="start" :icon="camera"></ion-icon>
                             Cargar Foto del Voucher
                         </ion-button>
+                        <ion-progress-bar v-if="isLoadingImageCompression" type="indeterminate"></ion-progress-bar>
                     </section>
                 </section>
 
@@ -75,6 +76,7 @@ import CurrencyInput from '@/components/CurrencyInput/CurrencyInput.vue';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import imageCompression from 'browser-image-compression';
 
+const isLoadingImageCompression = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 const props = defineProps({
     emitter: {
@@ -189,7 +191,7 @@ const loadReceiptImage = async () => {
     }
 
     const image = await getCameraImage();
-    console.log(image)
+    isLoadingImageCompression.value = true;
     const response = await fetch(image.webPath as unknown as string);
     const blob = await response.blob();
     const file = new File([blob], "image.jpg", {type: blob.type});
@@ -206,6 +208,7 @@ const loadReceiptImage = async () => {
         }).then((base64ImagePre) => {
             const base64Image = (base64ImagePre as string).split(";base64,")[1];
             dynamicData.value.receiptBase64 = base64Image;
+            isLoadingImageCompression.value = false;
         })
     })
 }

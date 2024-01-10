@@ -305,11 +305,11 @@ const editAttendance = () => {
         },
         onLoaded($this) {
             $this.on('updated', (event:any) => {
-                AppEvents.emit('attendances:reload');
+                AppEvents.emit('all:reload');
                 loadAttendance();
             })
             $this.on('deleted', (event:any) => {
-                AppEvents.emit('attendances:reload');
+                AppEvents.emit('all:reload');
                 router.replace('/my-attendances');
             })
         },

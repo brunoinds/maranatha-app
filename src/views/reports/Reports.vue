@@ -103,7 +103,7 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
 import ReportIcon from '&/assets/icons/report.svg';
 
@@ -118,6 +118,7 @@ import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import NewAttendance from '../../dialogs/NewAttendance/NewAttendance.vue';
 import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
 import { Viewport } from '@/utils/Viewport/Viewport';
+import { onMounted } from 'vue';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
@@ -176,12 +177,18 @@ const createNewReport = async () => {
         }
     })
 }
-AppEvents.on('reports:reload', () => {
-    loadUserReports();
-})
-
 
 loadUserReports();
+
+onMounted(() => {
+    const callbackId = AppEvents.on('all:reload', () => {
+        loadUserReports();
+    })
+    onUnmounted(() => {
+        AppEvents.off('all:reload', callbackId);
+    })
+})
+
 </script>
 
 

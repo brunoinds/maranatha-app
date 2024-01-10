@@ -59,7 +59,7 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonImg, IonAvatar,IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { computed, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import EditUser from '@/dialogs/EditUser/EditUser.vue';
 import { Viewport } from '@/utils/Viewport/Viewport';
@@ -67,6 +67,7 @@ import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, 
 import { EMoneyType, IReport } from '@/interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
 const balancesData = ref<any>(null);
 const isLoading = ref<boolean>(true);
 const router = useRouter();
@@ -101,6 +102,16 @@ const pittyCashColor = (percentage: number) => {
 const openWallet = (userId: string) => {
     router.push(`/wallets/users/${userId}`);
 }
+
+onMounted(() => {
+    const callbackId = AppEvents.on('all:reload', () => {
+        loadBalances();
+    })
+    onUnmounted(() => {
+        AppEvents.off('all:reload', callbackId);
+    })
+})
+
 </script>
 
 <style scoped lang="scss">

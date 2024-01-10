@@ -111,7 +111,7 @@ const deleteReport = async () => {
                             toast.present();
                         })
                         props.emitter.fire('close');
-                        AppEvents.emit('reports:reload');
+                        AppEvents.emit('all:reload');
                     }).catch((error) => {
                         alertController.create({
                             header: 'Oops...',

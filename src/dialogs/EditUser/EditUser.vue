@@ -152,7 +152,7 @@ const updateAccount = async () => {
         }).then(async (alert) => {
             await alert.present();
             await alert.onDidDismiss();
-            AppEvents.emit('reports:reload');
+            AppEvents.emit('all:reload');
 
             props.emitter.fire('updated', {
                 
@@ -226,7 +226,7 @@ const deleteUser = async () => {
                             toast.present();
                         })
                         props.emitter.fire('close');
-                        AppEvents.emit('reports:reload');
+                        AppEvents.emit('all:reload');
                     }).catch((error) => {
                         alertController.create({
                             header: 'Oops...',

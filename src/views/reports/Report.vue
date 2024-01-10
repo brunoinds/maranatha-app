@@ -494,7 +494,7 @@ const acceptReport = async () => {
         toast.present();
     })
     initialize();
-    AppEvents.emit('reports:reload');
+    AppEvents.emit('all:reload');
 }
 const rejectReport = async () => {
     const prompt = await alertController.create({
@@ -527,7 +527,7 @@ const rejectReport = async () => {
                         toast.present();
                     })
                     initialize();
-                    AppEvents.emit('reports:reload');
+                    AppEvents.emit('all:reload');
                 }
             }
         ]
@@ -587,7 +587,7 @@ const undoSendReport = async () => {
         toast.present();
     })
     initialize();
-    AppEvents.emit('reports:reload');
+    AppEvents.emit('all:reload');
 }
 const sendReport = async () => {
     toastController.create({
@@ -616,7 +616,7 @@ const sendReport = async () => {
     })
     alert.present();
     initialize();
-    AppEvents.emit('reports:reload');
+    AppEvents.emit('all:reload');
 }
 
 const depositRestitution = async () => {
@@ -624,7 +624,7 @@ const depositRestitution = async () => {
         onLoaded($this) {
             $this.on('created', (event:any) => {
                 initialize();
-                AppEvents.emit('reports:reload');
+                AppEvents.emit('all:reload');
             })
         },
         modalControllerOptions: {
@@ -703,7 +703,7 @@ const downloadPdfAndExcelFiles = async () => {
                     })
                 }
                 reader.onerror = () => {                
-                    console.log('error')
+                    
                 }
                 reader.readAsDataURL(blob);
             })
@@ -726,7 +726,7 @@ const downloadPdfAndExcelFiles = async () => {
                 })
             }
             reader.onerror = () => {                
-                console.log('error')
+                
             }
             reader.readAsDataURL(zipFile);
         })

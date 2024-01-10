@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
-import { computed, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
 import AttendanceIcon from '&/assets/icons/attendance.svg';
 
@@ -55,6 +55,7 @@ import NewAttendance from '../../dialogs/NewAttendance/NewAttendance.vue';
 import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { Viewport } from '@/utils/Viewport/Viewport';
+import { on } from 'events';
 
 const attendancesData = ref<Array<IAttendance>>([]);
 const isLoading = ref<boolean>(true);
@@ -116,12 +117,20 @@ const createNewAttendance = async () => {
     })
 }
 
-AppEvents.on('attendances:reload', () => {
-    loadUserAttendances();
-})
 
 
 loadUserAttendances();
+
+onMounted(() => {
+    const callbackId = AppEvents.on('all:reload', () => {
+        loadUserAttendances();
+    })
+
+    onUnmounted(() => {
+        AppEvents.off('all:reload', callbackId);
+    })
+})
+
 </script>
 
 <style scoped lang="scss">

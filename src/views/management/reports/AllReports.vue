@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent,IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref } from 'vue';
 import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, sendOutline, closeCircleOutline, pencilOutline } from 'ionicons/icons';
 import { EReportStatus, IReport } from '@/interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
@@ -79,6 +79,7 @@ import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
 import { Viewport } from '@/utils/Viewport/Viewport';
+import { onMounted } from 'vue';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
@@ -143,11 +144,19 @@ const openReport = (reportId: number) => {
     router.push(`/reports/${reportId}`);
 }
 
-AppEvents.on('reports:reload', () => {
-    loadAllReports();
-})
 
 loadAllReports();
+
+
+onMounted(() => {
+    const callbackId = AppEvents.on('all:reload', () => {
+        loadAllReports();
+    })
+
+    onUnmounted(() => {
+        AppEvents.off('all:reload', callbackId);
+    })
+})
 </script>
 
 

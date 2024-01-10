@@ -49,10 +49,11 @@
                         </ion-item>
                     </ion-list>
                     <section class="ion-padding" v-if="!dynamicData.receiptBase64">
-                        <ion-button expand="block" fill="outline" @click="loadReceiptImage"> 
+                        <ion-button expand="block" fill="outline" @click="loadReceiptImage" v-if="!isLoadingImageCompression"> 
                             <ion-icon slot="start" :icon="camera"></ion-icon>
                             Cargar Foto del Voucher
                         </ion-button>
+                        <ion-progress-bar v-if="isLoadingImageCompression" type="indeterminate"></ion-progress-bar>
                     </section>
                 </section>
 
@@ -77,7 +78,7 @@ import imageCompression from 'browser-image-compression';
 import { EReportStatus, IReport } from '@/interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 const router = useRouter();
-
+const isLoadingImageCompression = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 const props = defineProps({
     emitter: {
@@ -150,7 +151,6 @@ const createDeposit = async () => {
         }).toISO(),
         receipt_base64: dynamicData.value.receiptBase64
     }).then((response) => {
-        console.log(response)
         props.emitter.fire('created', {
             ...response.balance
         });
@@ -215,6 +215,8 @@ const loadReceiptImage = async () => {
     }
 
     const image = await getCameraImage();
+
+    isLoadingImageCompression.value = true;
     const response = await fetch(image.webPath as unknown as string);
     const blob = await response.blob();
     const file = new File([blob], "image.jpg", {type: blob.type});
@@ -231,6 +233,7 @@ const loadReceiptImage = async () => {
         }).then((base64ImagePre) => {
             const base64Image = (base64ImagePre as string).split(";base64,")[1];
             dynamicData.value.receiptBase64 = base64Image;
+            isLoadingImageCompression.value = false;
         })
     })
 }

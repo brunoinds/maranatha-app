@@ -36,13 +36,14 @@
                                 </ion-item>
                             </ion-list>
                             <section class="ion-padding" v-if="!dynamicData.uploadedImageBase64" style="display: flex; align-content: center; justify-content: space-between;">
-                                <ion-button expand="block" fill="outline" @click="openCamera()" style="width: 100%;"> 
+                                <ion-button expand="block" fill="outline" @click="openCamera()" style="width: 100%;" v-if="!isLoadingImageCompression"> 
                                     <ion-icon slot="start" :icon="camera"></ion-icon>
                                     Tomar Foto de la {{invoiceType}}
                                 </ion-button>
-                                <ion-button fill="outline" @click="openCamera(true)"> 
+                                <ion-button fill="outline" @click="openCamera(true)" v-if="!isLoadingImageCompression"> 
                                     <ion-icon :icon="attachOutline"></ion-icon>
                                 </ion-button>
+                                <ion-progress-bar v-if="isLoadingImageCompression" type="indeterminate"></ion-progress-bar>
                             </section>
                         </section>
                     </ion-accordion>
@@ -150,6 +151,7 @@ import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
 const currencyInput = ref<CurrencyInput|null>(null);
 const accordionGroup = ref<any>(null);
 const isLoading = ref<boolean>(true);
+const isLoadingImageCompression = ref<boolean>(false);
 const dynamicData = ref<{
     uploadedImageBase64: null | string,
     formErrors: Array<{field: string, message: string}>,
@@ -333,6 +335,8 @@ const openCamera = async (forceFromGallery: boolean = false) => {
 
 
     const loadImageFrom = async (image: {path: string, webPath: string}, origin: "Web" | "Native" = "Native") => {
+
+        isLoadingImageCompression.value = true;
         const response = await fetch(image.webPath as unknown as string);
         const blob = await response.blob();
         const blobUrl = URL.createObjectURL(blob);
@@ -350,8 +354,8 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 const base64Image = (base64ImagePre as string).split(";base64,")[1];
                 dynamicData.value.uploadedImageBase64 = base64Image;
                 dynamicData.value.uploadedImageBase64 = base64Image;
-
                 accordionGroup.value.$el.value = "second";
+                isLoadingImageCompression.value = false;
             })
         })
 

@@ -134,7 +134,7 @@
 
 <script setup lang="ts">
 import { IonPage, IonHeader, IonGrid, IonCard, IonListHeader, IonButtons, IonBackButton, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonNote, IonRow, IonCol, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonIcon, IonList, IonItem, IonLabel, actionSheetController, alertController, toastController } from '@ionic/vue';
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref } from 'vue';
 
 import { addCircleOutline, alertCircle, cashOutline, chevronBackCircleOutline, chevronForwardCircleOutline, downloadOutline, gitCompareOutline, removeCircleOutline, shareOutline } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
@@ -154,6 +154,7 @@ import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { useRoute } from 'vue-router';
+import { onMounted } from 'vue';
 const isLoading = ref<boolean>(true);
 const router = useRouter();
 const page = ref<HTMLElement|null>(null);
@@ -507,9 +508,6 @@ interface UserBalanceComputed{
         };
     };
 }
-AppEvents.on('reports:reload', () => {
-    loadUserBalanceYear();
-})
 const isAdmin = ref(false);
 const isAdminCheck = async () => {
     const currentSession = await Session.getCurrentSession();
@@ -524,7 +522,8 @@ const addCredit = () => {
     Dialog.show(AddCreditPettyCash, {
         onLoaded($this) {
             $this.on('created', (event:any) => {
-                loadUserBalanceYear()
+                loadUserBalanceYear();
+                AppEvents.emit('all:reload');
             })
         },
         modalControllerOptions: {
@@ -639,6 +638,7 @@ const openBalance = async (balance: UserBalanceComputed['items'][0]) => {
                     isLoading.value = true;
                     RequestAPI.delete('/balances/' + balance.id).then((response) => {
                         loadUserBalanceYear();
+                        AppEvents.emit('all:reload');
                         toastController.create({
                             message: '✅ Depósito eliminado con éxito',
                             duration: 2000
@@ -674,6 +674,17 @@ loadUserBalanceYear();
 
 
 isAdminCheck();
+
+onMounted(() => {
+    const callbackId = AppEvents.on('all:reload', () => {
+        loadUserBalanceYear();
+    })
+
+    onUnmounted(() => {
+        AppEvents.off('all:reload', callbackId);
+    })
+})
+
 </script>
 
 <style scoped lang="scss">

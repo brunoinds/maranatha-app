@@ -20,6 +20,7 @@
                     </ion-item>
 
                     <ion-item @click="allowNotifications" button v-if="isNotificationsNotAllowed">
+                        <ion-icon slot="start" color="primary" :icon="notificationsCircle"></ion-icon>
                         <ion-label color="primary">
                             <h2>Autorizar notificaciones</h2>
                         </ion-label>
@@ -37,16 +38,18 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonImg, IonAvatar, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn } from 'ionicons/icons';
+import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn, notificationsCircle } from 'ionicons/icons';
 import { IReport } from '../../interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import { Session } from '@/utils/Session/Session';
 import { Capacitor } from '@capacitor/core';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { Notifications } from '@/utils/Notifications/Notifications';
+import { onMounted } from 'vue';
+import { on } from 'events';
 
 const accountData = ref<any>(null);
 const isLoading = ref<boolean>(true);
@@ -67,26 +70,19 @@ const goToAccounts = () => {
 const goToExpenses = () => {
     router.push('/expenses');
 }
-const checkForNotificationAllow = () => {
-    /*if (!Capacitor.isNativePlatform()){
+const checkForNotificationAllow = async () => {
+    const result = await Notifications.checkForPermission();
+    if (result == "NotAsked"){
+        isNotificationsNotAllowed.value = true;
+    }else{
         isNotificationsNotAllowed.value = false;
-        return;
-    }*/
+    }
 
-
-    
-
-    Notifications.checkForPermission().then((result) => {
-        if (result == "Allowed"){
-            isNotificationsNotAllowed.value = false;
-        }else{
-            isNotificationsNotAllowed.value = true;
-        }
-    })
+    return result;
 }
 
 const allowNotifications = async () => {
-    await Notifications.hardAskForPermission();
+    await Notifications.softAskForPermission();
     checkForNotificationAllow();
 }
 
@@ -116,6 +112,21 @@ const doLogout = async () => {
 }
 loadAccount();
 checkForNotificationAllow();
+
+
+let notificationAllowanceChecker:any = null;
+onMounted(() => {
+    notificationAllowanceChecker = setInterval(async () => {
+       const response = await checkForNotificationAllow();
+        if (response != "NotAsked"){
+            clearInterval(notificationAllowanceChecker);
+        }
+    }, 600);
+
+    onUnmounted(() => {
+        clearInterval(notificationAllowanceChecker);
+    })
+})
 </script>
 
 

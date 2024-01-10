@@ -10,7 +10,6 @@ import '@ionic/vue/css/core.css';
 import OneSignal from 'onesignal-cordova-plugin';
 import OneSignalVuePlugin from '@onesignal/onesignal-vue3'
 
-
 /* Basic CSS for apps built with Ionic */
 import '@ionic/vue/css/normalize.css';
 import '@ionic/vue/css/structure.css';
@@ -64,6 +63,20 @@ document.addEventListener("deviceready", () => {
   }
 }, false);
 
+document.addEventListener('DOMContentLoaded', async () => {
+  Session.waitForLogin().then(() => {
+    Notifications.waitOneSignalLogin().then(() => {
+      setTimeout(async () => {
+        const isAllowed = await Notifications.isAllowed();
+        if (isAllowed){
+          return;
+        }
+        Notifications.softAskForPermission();
+      }, 60 * 1000);
+    })
+  })
+})
+
 
 const app = createApp(App)
   .use(IonicVue, {
@@ -76,6 +89,15 @@ const app = createApp(App)
 if (!Capacitor.isNativePlatform()){
   app.use(OneSignalVuePlugin, {
     appId: Notifications.oneSignalAppId,
+    promptOptions: {
+      prompts: [
+        {
+          type: 'push',
+          autoPrompt: false,
+          force: true,
+        },
+      ]
+    }
   })
 }
 

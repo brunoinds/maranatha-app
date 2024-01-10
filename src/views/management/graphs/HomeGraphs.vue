@@ -102,12 +102,12 @@
                     <ion-col>
                         <ion-card class="card-amount" style="height: 180px;">
                             <ion-card-header>
-                                <ion-card-subtitle>Promédio Distribución en Caja Chica</ion-card-subtitle>
+                                <ion-card-subtitle>Distribución en Caja Chica</ion-card-subtitle>
                             </ion-card-header>
                             <ion-card-content >
                                 <ion-grid name="content">
                                     <ion-row name="amount-area">
-                                        <ion-card-title name="amount" value="S/" style="font-size: 50px">{{ Toolbox.moneyFormat(indicators.wallets.pettyCash.givenAmount.sum) }}</ion-card-title>
+                                        <ion-card-title name="amount" value="S/." style="font-size: 50px">{{ Toolbox.moneyFormat(indicators.wallets.pettyCash.givenAmount.sum) }}</ion-card-title>
                                     </ion-row>
                                 </ion-grid>
                             </ion-card-content>
@@ -135,7 +135,7 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonGrid, IonRow, IonCol, IonNote, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonToolbar, IonTitle, IonSelect, IonSelectOption, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import AttendanceIcon from '&/assets/icons/attendance.svg';
 
@@ -165,8 +165,6 @@ const isLoading = ref<boolean>(true);
 const router = useRouter();
 const page = ref<HTMLElement|null>(null);
 const indicatorsData = ref<AccountantCurrentYearIndicators|null>(null);
-AppEvents.on('attendances:reload', () => {
-})
 
 const indicators = computed<AccountantCurrentYearIndicators|null>(() => {
     if (indicatorsData.value == null){
@@ -240,6 +238,17 @@ const loadData = async () => {
 }
 
 loadData();
+
+onMounted(()=>{
+    const callbackId = AppEvents.on('all:reload', () => {
+        loadData();
+    })
+
+    onUnmounted(() => {
+        AppEvents.off('all:reload', callbackId);
+    })
+})
+
 </script>
 
 
@@ -264,6 +273,9 @@ loadData();
             font-size: 35px;
             &[value]{
                 padding-left: 14px;
+            }
+            &[value="S/."]{
+                padding-left: 28px;
             }
             &::before {
                 content: attr(value);

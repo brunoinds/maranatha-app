@@ -40,7 +40,6 @@ class StoredInvoices{
                 })
             }else{
                 StoredInvoices.getInvoicesFromStorage(reportId).then((invoices) => {
-                    console.log(invoices)
                     resolve(invoices);
                 })
             }

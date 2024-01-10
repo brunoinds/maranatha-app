@@ -75,8 +75,12 @@ function buildIOS(){
 }
 
 function buildNative(){
-    buildIOS();
-    buildAndroid();
+    return new Promise(async (resolve, reject) => {
+        await buildIOS();
+        await buildAndroid();
+        resolve()
+    })
+    
 }
 
 const commands = {

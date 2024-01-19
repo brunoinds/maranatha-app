@@ -3,7 +3,7 @@
     <ion-tabs>
       <ion-router-outlet></ion-router-outlet>
       <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="tab2" href="/management" v-if="isAdmin">
+        <ion-tab-button tab="tab2" href="/management" v-if="isAdmin && !isAndroid">
           <ion-icon aria-hidden="true" :icon="speedometerOutline" />
           <ion-label>Dashboard</ion-label>
         </ion-tab-button>
@@ -34,12 +34,14 @@
 
 <script setup lang="ts">
 import { Session } from '@/utils/Session/Session';
+import { Capacitor } from '@capacitor/core';
 import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
 import { albumsOutline, checkmarkDoneOutline, fileTrayFullOutline, personCircleOutline, speedometerOutline, walletOutline } from 'ionicons/icons';
 import { computed, ref } from 'vue';
 
 
 const isAdmin = ref(false);
+const isAndroid = ref(false);
 
 const isAdminCheck = async () => {
     const currentSession = await Session.getCurrentSession();
@@ -49,5 +51,13 @@ const isAdminCheck = async () => {
 
     isAdmin.value = currentSession.roles().includes("admin");
 }
+
+const isAndroidCheck = async () => {
+    const platform = await Capacitor.getPlatform();
+    if (platform === "android"){
+      isAndroid.value = true;
+    }
+}
 isAdminCheck();
+isAndroidCheck();
 </script>

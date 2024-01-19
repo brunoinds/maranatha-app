@@ -84,6 +84,10 @@ function buildNative(){
 }
 
 const commands = {
+    'increment-version': async () => {
+        incrementBuildVersion();
+        updateVersionAndBuildOnProject();
+    },
     '0': async () => {
         incrementBuildVersion();
         updateVersionAndBuildOnProject();

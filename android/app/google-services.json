@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:347833971235:android:08159f4e9516f16a787796",
+        "android_client_info": {
+          "package_name": "com.imedicineapp.maranathainvoices"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeOL3WqXmCsGOg5GMP0eTre88s0tppdnE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:347833971235:android:b0f2b216d329b650787796",
         "android_client_info": {
           "package_name": "com.imedicineapp.maranathasender"

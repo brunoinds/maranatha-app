@@ -1,4 +1,4 @@
-package com.imedicineapp.maranathasender;
+package com.imedicineapp.maranathainvoices;
 
 import com.getcapacitor.BridgeActivity;
 

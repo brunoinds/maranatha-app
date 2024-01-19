@@ -9,7 +9,7 @@
         <ion-content>
             <section class="content">
                 <ion-list v-if="!isLoading" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                    <ion-item>
+                    <ion-item button @click="accountOptions">
                         <ion-avatar slot="start">
                             <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
                         </ion-avatar>
@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonImg, IonAvatar, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonImg, IonAvatar, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController, actionSheetController, toastController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
@@ -113,6 +113,80 @@ const doLogout = async () => {
 loadAccount();
 checkForNotificationAllow();
 
+const doDeleteMyAccount = async () => {
+    const alert = await alertController.create({
+        header: 'Eliminar mi cuenta',
+        message: '¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.',
+        buttons: [
+            {
+                text: 'Cancelar',
+                role: 'cancel',
+                handler: () => {
+                    
+                }
+            },
+            {
+                text: 'Eliminar',
+                role: 'destructive',
+                handler: async () => {
+                    try {
+                        const response = await RequestAPI.delete('/me/account');
+                        if (response.status == 200){
+                            const session = await Session.getCurrentSession() as unknown as Session;
+                            if (!session){
+                                goToLogin();
+                            }
+                            await session.logout({
+                                force: true
+                            });
+                            const toast =  await toastController.create({
+                                message: 'Cuenta eliminada',
+                                duration: 2000
+                            })
+                            toast.present();
+                            goToLogin();
+                        }
+                    } catch (error:any) {
+                        alertController.create({
+                            header: 'Error',
+                            message: 'No se pudo eliminar tu cuenta por el siguiente error: ' + error.message,
+                            buttons: ['Ok']
+                        }).then((alert) => {
+                            alert.present();
+                        })
+                    }
+                    
+                }
+            }
+        ]
+    });
+
+    alert.present();
+}
+
+const accountOptions = async () => {
+    await actionSheetController.create({
+        header: 'Configuración de cuenta',
+        buttons: [
+            {
+                text: 'Eliminar mi cuenta',
+                role: 'destructive',
+                handler: () => {
+                    doDeleteMyAccount()
+                }
+            },
+            {
+                text: 'Cancelar',
+                role: 'cancel',
+                handler: () => {
+                    
+                }
+            }
+        ]
+    }).then((actionSheet) => {
+        actionSheet.present();
+    })
+}
 
 let notificationAllowanceChecker:any = null;
 onMounted(() => {

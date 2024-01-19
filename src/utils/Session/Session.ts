@@ -95,12 +95,14 @@ class Session{
             }
         }
     }
-    public async logout(){
+    public async logout(options: {force: boolean} = {force: false}){
         try {
             const response = await RequestAPI.post('/logout', {});
         } catch (error:any) {
-            if (error.code != 401){
-                throw new Error(error.response.message);
+            if (!options.force){
+                if (error.code != 401){
+                    throw new Error(error.response.message);
+                }
             }
         }
 

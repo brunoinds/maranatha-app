@@ -138,6 +138,9 @@ const loadAllReports = async () => {
 
     isLoading.value = false;
     reportsData.value = reportsFetched;
+
+
+    AppEvents.emit('all:reloaded-all-reports-fired')
 };
 
 const openReport = (reportId: number) => {

@@ -1,3 +1,4 @@
+import { AppEvents } from "@/utils/AppEvents/AppEvents";
 import { Environment } from "@/utils/Environment/Environment";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { Session } from "@/utils/Session/Session";
@@ -6,7 +7,19 @@ import { Capacitor } from "@capacitor/core";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { alertController } from "@ionic/vue";
 import OneSignalVuePlugin from '@onesignal/onesignal-vue3'
+import { OneSignalPlugin } from "onesignal-cordova-plugin";
 import { register } from 'register-service-worker'
+
+
+class NotificationsDeepLinks{
+    public static openDeepLink(deepLink: string){
+        const cleanLink = deepLink.split('/app/')[1];
+        Session.waitForLogin().then((session:any) => {
+            AppEvents.emit('all:reload');
+            Session.router?.push('/' + cleanLink);
+        })
+    }
+}
 
 class Notifications{
     public static oneSignalAppId: string = Environment.variable('ONESIGNAL_APP_ID');
@@ -131,6 +144,12 @@ class Notifications{
         Session.waitForLogin().then((session:any) => {
             if (Capacitor.isNativePlatform()){
                 OneSignal.initialize(Notifications.oneSignalAppId);
+                OneSignal.Notifications.addEventListener('click', async (e:any) => {
+                    let clickData = await e.notification;
+                    if (clickData.additionalData.deepLink){
+                        NotificationsDeepLinks.openDeepLink(clickData.additionalData.deepLink);
+                    }
+                })
                 setTimeout(() => {
                     OneSignal.login(Toolbox.getOneSignalUserId(Session.session?.id()));
                     Notifications.oneSignal = OneSignal;

@@ -316,22 +316,6 @@ const openCamera = async (forceFromGallery: boolean = false) => {
     }
     const scanDocumentWeb = () => {
         return new Promise(async (resolve, reject) => {
-            const result = await FilePicker.pickFiles({
-                types: ['image/*'],
-                multiple: false,
-            });
-
-            if (result.files.length == 0){
-                return;
-            }
-
-            const file = result.files[0];
-            const url = URL.createObjectURL(file.blob as Blob);
-            resolve({
-                path: url,
-                webPath: url
-            });
-            return;
             const image = await Camera.getPhoto({
                 quality: 90,
                 allowEditing: true,

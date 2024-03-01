@@ -10,7 +10,11 @@ import { Environment } from '@/utils/Environment/Environment';
 class RequestAPI{
     private static domainUrl: string = (() => {
         if (Environment.platform() == 'Native'){
-            return Environment.variable('API_DOMAIN_URL');
+            if (Environment.environment() == 'dev'){
+                return Environment.variable('API_DOMAIN_URL_EXTERNAL');
+            }else{
+                return Environment.variable('API_DOMAIN_URL');
+            }
         }
         const currentUrl = new URL(window.location.href);
         if (currentUrl.port != ''){

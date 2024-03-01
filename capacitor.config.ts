@@ -9,7 +9,8 @@ const config: CapacitorConfig = {
   },
   ios: {
     appendUserAgent: "ios:application",
-    webContentsDebuggingEnabled: true
+    webContentsDebuggingEnabled: true,
+    handleApplicationNotifications: false
   }
 };
 

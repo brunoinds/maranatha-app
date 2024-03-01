@@ -3,7 +3,7 @@
         <ion-header>
         </ion-header>
         <ion-content class="ion-padding" :scrollX="false" :scrollY="false">
-            <section class="holder ion-padding">
+            <section ref="holder" class="holder ion-padding">
                 <article style="">
                     <header>
                         <ion-img :src="MaranathaLogo" style="width: 90%;margin: 0 auto;"></ion-img>
@@ -39,7 +39,11 @@ import { useRouter } from 'vue-router';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateUser from '@/dialogs/CreateUser/CreateUser.vue';
+import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
+import { Capacitor } from '@capacitor/core';
+
 const page = ref<HTMLElement|null>(null);
+const holder = ref<HTMLElement|null>(null);
 
 const passwordInput = ref(null)
 const usernameInput = ref(null)
@@ -113,6 +117,42 @@ onMounted(() => {
     })
 })
 
+
+
+
+Keyboard.addListener('keyboardWillShow', info => {
+    Keyboard.setResizeMode({
+        mode: KeyboardResize.None
+    });
+
+    if (Capacitor.getPlatform() === 'ios') {
+        holder.value?.style.setProperty(
+            'transform',
+            `translateY(-${info.keyboardHeight / 2}px)`
+        );
+    }else if (Capacitor.getPlatform() === 'android'){
+        holder.value?.style.setProperty(
+            'transform',
+            `translateY(-${info.keyboardHeight / 3}px)`
+        );
+    }
+});
+
+Keyboard.addListener('keyboardDidShow', info => {
+
+});
+
+Keyboard.addListener('keyboardWillHide', () => {
+    holder.value?.style.removeProperty('transform');
+});
+
+Keyboard.addListener('keyboardDidHide', () => {
+    Keyboard.setResizeMode({
+        mode: KeyboardResize.Ionic
+    });
+});
+
+
 </script>
 
 
@@ -123,6 +163,7 @@ onMounted(() => {
     bottom: 0;
     left: 0;
     right: 0;
+    transition: transform 0.3s;
 
     > article{
         position: absolute;

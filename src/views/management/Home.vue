@@ -6,6 +6,9 @@
             </ion-toolbar>
         </ion-header>
         <ion-content>
+            <ion-refresher v-if="segmentValue == 'reports'" slot="fixed" @ionRefresh="handleRefresh($event)">
+                <ion-refresher-content></ion-refresher-content>
+            </ion-refresher>
             <article class="viewport">
                 <aside v-if="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                     <br>
@@ -72,7 +75,7 @@
 </styles>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonSegment, IonSegmentButton, IonTitle, IonContent,IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonSegment, IonSegmentButton, IonTitle, IonRefresher, IonRefresherContent, IonContent,IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, ref, watch } from 'vue';
 import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, sendOutline, closeCircleOutline, pencilOutline, home } from 'ionicons/icons';
@@ -87,11 +90,20 @@ import Settings from '@/views/management/settings/Settings.vue';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import Graphs from '@/views/management/graphs/Graphs.vue';
 import HomeGraphs from '@/views/management/graphs/HomeGraphs.vue';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
 const router = useRouter();
 const route = useRoute();
 const page = ref<HTMLElement|null>(null);
 const segmentValue = ref('home');
 
+
+const handleRefresh = (event: CustomEvent) => {
+    const callbackId = AppEvents.on('all:reloaded-all-reports-fired', () => {
+        event.detail.complete();
+        AppEvents.off('all:reloaded-all-reports-fired', callbackId);
+    })
+    AppEvents.emit('all:reload');
+};
 
 const segments = [
     {

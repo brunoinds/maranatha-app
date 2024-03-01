@@ -7,6 +7,9 @@
             </ion-toolbar>
         </ion-header>
         <ion-content>
+            <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
+                <ion-refresher-content></ion-refresher-content>
+            </ion-refresher>
             <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
                 <ion-fab-button @click="createNewReport">
                     <ion-icon :icon="addOutline"></ion-icon>
@@ -101,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonRefresher, IonRefresherContent, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
@@ -158,6 +161,14 @@ const loadUserReports = async () => {
     const reportsFetched = await StoredReports.getReports();
     isLoading.value = false;
     reportsData.value = reportsFetched;
+};
+
+const handleRefresh = (event: CustomEvent) => {
+    loadUserReports().then(() => {
+        event.detail.complete();
+    }).catch(() => {
+        event.detail.complete();
+    });
 };
 
 const openReport = (reportId: number) => {

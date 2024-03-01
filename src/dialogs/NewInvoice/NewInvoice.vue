@@ -339,15 +339,32 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             const result = await FilePicker.pickFiles({
                 types: ['application/pdf'],
                 multiple: false,
+                readData: true
             });
 
             if (result.files.length == 0){
                 return;
             }
             const file = result.files[0];
+            let sourcePDF = null;
 
-            const url = URL.createObjectURL(file.blob as Blob);
-            const pdf = await PDFModifier.loadPDF(url);
+            if (Capacitor.isNativePlatform()){
+                function convertDataURIToBinary(base64:string) {
+                    const raw = window.atob(base64);
+                    const rawLength = raw.length;
+                    const array = new Uint8Array(new ArrayBuffer(rawLength));
+                    for(let i = 0; i < rawLength; i++) {
+                        array[i] = raw.charCodeAt(i);
+                    }
+                    return array;
+                }
+
+                sourcePDF = {data: convertDataURIToBinary(file.data as string)}
+            }else{
+                const url = URL.createObjectURL(file.blob as Blob);
+                sourcePDF = url;
+            }
+            const pdf = await PDFModifier.loadPDF(sourcePDF);
 
             const imageBase64 = await pdf.extractPagesIntoSingleImageAsBase64();
 

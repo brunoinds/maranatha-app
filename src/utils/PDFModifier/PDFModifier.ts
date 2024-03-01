@@ -77,9 +77,9 @@ export class PDFModifier{
         return this.mergeImagesVerticallyAsBase64(imagesInBase64);
     }
 
-    public static async loadPDF(url: string): Promise<PDFModifier>{
+    public static async loadPDF(source: any): Promise<PDFModifier>{
         return new Promise((resolve, reject) => {
-            const loadingTask = createLoadingTask(url);
+            const loadingTask = createLoadingTask(source);
             loadingTask.promise.then((pdf: PDFDocumentProxy) => {
                 resolve(new PDFModifier(pdf))
             }).catch((error: any) => {

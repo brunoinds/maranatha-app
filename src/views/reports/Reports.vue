@@ -119,6 +119,8 @@ import NewAttendance from '../../dialogs/NewAttendance/NewAttendance.vue';
 import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { onMounted } from 'vue';
+import { FilePicker } from '@capawesome/capacitor-file-picker';
+import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
@@ -198,4 +200,4 @@ onMounted(() => {
     margin: 0 auto;
     width: 100%;
 }
-</style>
+</style>@/utils/PDFtoImage/PDFModifier

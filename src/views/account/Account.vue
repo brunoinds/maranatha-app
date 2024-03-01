@@ -129,6 +129,16 @@ const doDeleteMyAccount = async () => {
                 text: 'Eliminar',
                 role: 'destructive',
                 handler: async () => {
+                    if (isAdmin.value){
+                        const toast =  await toastController.create({
+                            message: 'No puedes eliminar tu cuenta porque eres administrador',
+                            duration: 2000
+                        })
+                        toast.present();
+                        return;
+                    }
+
+
                     try {
                         const response = await RequestAPI.delete('/me/account');
                         if (response.status == 200){

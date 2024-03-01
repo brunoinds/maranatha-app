@@ -109,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle,IonButtons, IonThumbnail, IonAccordion, IonAccordionGroup, IonContent, IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle,IonButtons, IonThumbnail, IonAccordion, IonAccordionGroup, IonContent, IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController, actionSheetController } from '@ionic/vue';
 import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { EInvoiceType, IInvoice } from '../../interfaces/InvoiceInterfaces';
 import { IJob, IExpense } from '../../interfaces/JobsAndExpensesInterfaces';
@@ -140,6 +140,8 @@ import { Capacitor } from '@capacitor/core';
 import { Session } from '@/utils/Session/Session';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
+import { FilePicker } from '@capawesome/capacitor-file-picker';
+import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
 
 
 const currencyInput = ref<CurrencyInput|null>(null);
@@ -279,6 +281,22 @@ const openCamera = async (forceFromGallery: boolean = false) => {
     }
     const scanDocumentWeb = () => {
         return new Promise(async (resolve, reject) => {
+            const result = await FilePicker.pickFiles({
+                types: ['image/*'],
+                multiple: false,
+            });
+
+            if (result.files.length == 0){
+                return;
+            }
+
+            const file = result.files[0];
+            const url = URL.createObjectURL(file.blob as Blob);
+            resolve({
+                path: url,
+                webPath: url
+            });
+            return;
             const image = await Camera.getPhoto({
                 quality: 90,
                 allowEditing: true,
@@ -297,13 +315,39 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             });
         })
     }
+    const openPDFPicker = () => {
+        return new Promise(async (resolve, reject) => {
+            const result = await FilePicker.pickFiles({
+                types: ['application/pdf'],
+                multiple: false,
+            });
+
+            if (result.files.length == 0){
+                return;
+            }
+            const file = result.files[0];
+
+            const url = URL.createObjectURL(file.blob as Blob);
+            const pdf = await PDFModifier.loadPDF(url);
+
+            const imageBase64 = await pdf.extractPagesIntoSingleImageAsBase64();
+
+            //Convert base64image into objectUrl:
+            const blob = await fetch(`${imageBase64}`).then(res => res.blob());
+            const blobUrl = URL.createObjectURL(blob);
+            resolve({
+                path: blobUrl,
+                webPath: blobUrl
+            })
+        })
+    }
 
 
     const loadImageFrom = async (image: {path: string, webPath: string}, origin: "Web" | "Native" = "Native") => {
+
         isLoadingImage.value = true;
         const response = await fetch(image.webPath as unknown as string);
         const blob = await response.blob();
-        const blobUrl = URL.createObjectURL(blob);
         const file = new File([blob], "image.jpg", {type: blob.type});
 
         imageCompression(file, {
@@ -316,17 +360,27 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 reader.readAsDataURL(compressedFile);
             }).then((base64ImagePre) => {
                 const base64Image = (base64ImagePre as string).split(";base64,")[1];
-                dynamicData.value.uploadedImageBase64 = base64Image;
-                dynamicData.value.uploadedImageBase64 = base64Image;
+                const imageSize = (base64Image.length * (3/4)) / 1000000;
 
+
+                if (imageSize >= 1){
+                    alertController.create({
+                        header: "Oops...",
+                        message: "La imagen es muy pesada, por favor, suba una imagen más ligera (límite de 4MB)",
+                        buttons: ["OK"]
+                    }).then((alert) => {
+                        alert.present();
+                    })
+                    isLoadingImage.value = false;
+                    return;
+                }
+
+                dynamicData.value.uploadedImageBase64 = base64Image;
+                dynamicData.value.uploadedImageBase64 = base64Image;
                 accordionGroup.value.$el.value = "second";
                 isLoadingImage.value = false;
             })
         })
-
-        
-
-
         BarcodeScanner.isSupported().then((isSupported) => {
             if (!isSupported){
                 return;
@@ -340,10 +394,40 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 const barcode = response.barcodes[0];
                 setBarcodeData(barcode.rawValue)
             })
+        }).catch((error) => {
+            
         })
     }
 
-    if (forceFromGallery || !Capacitor.isNativePlatform()){
+    if (forceFromGallery){
+        actionSheetController.create({
+            header: "Selecciona una opción",
+            buttons: [
+                {
+                    text: "Subir PDF",
+                    handler: () => {
+                        openPDFPicker().then(async (image) => {
+                            await loadImageFrom(image as unknown as {path: string, webPath: string}, "Web");
+                        })
+                    }
+                },
+                {
+                    text: "Subir Foto",
+                    handler: () => {
+                        scanDocumentWeb().then(async (image) => {
+                            await loadImageFrom(image as unknown as {path: string, webPath: string});
+                        })
+                    }
+                },
+                {
+                    text: "Cancelar",
+                    role: "cancel"
+                }
+            ]
+        }).then((actionSheet) => {
+            actionSheet.present();
+        })
+    }else if (!Capacitor.isNativePlatform()){
         scanDocumentWeb().then(async (image) => {
             await loadImageFrom(image as unknown as {path: string, webPath: string});
         })

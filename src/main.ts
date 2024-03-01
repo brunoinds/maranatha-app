@@ -38,6 +38,7 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import { ErrorTracking } from '@/utils/ErrorTracking/ErrorTracking';
+import VuePdf from 'vue3-pdfjs'
 
 
 
@@ -83,6 +84,7 @@ const app = createApp(App)
     mode: 'ios',
   })
   .use(vuetify)
+  .use(VuePdf)
   .use(router);
 
 

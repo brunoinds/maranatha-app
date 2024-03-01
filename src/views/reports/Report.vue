@@ -37,6 +37,16 @@
                             </ion-label>
                             <ion-icon slot="start" :icon="send"></ion-icon>
                         </ion-button>
+
+                        <div>
+                            <ion-button color="tertiary" fill="clear" expand="block" @click="downloadPdfAndExcelFiles('PDF')" :disabled="invoices.length == 0 || isLoading || invoicesDataWithPendingImageUpload.length > 0">
+                                <ion-label>
+                                    Previsualizar PDF
+                                </ion-label>
+                                <ion-icon slot="start" :icon="eyeOutline"></ion-icon>
+                            </ion-button>
+                        </div>
+
                         <ion-label v-if="invoicesDataWithPendingImageUpload.length > 0">
                             <p style="font-size: 9px; text-align: center;">
                                 Hay {{ invoicesDataWithPendingImageUpload.length }} {{ reportType.toLowerCase() }}s que aún no ha sido subida al servidor. Por favor, espere a que se suban todas las imágenes para poder enviar el reporte.
@@ -234,6 +244,8 @@
                             <ion-icon slot="start" :icon="closeCircleOutline"></ion-icon>
                         </ion-button>
                     </article>
+
+                    
                 </main>
             </article>
         </ion-content>
@@ -244,7 +256,7 @@
 import { IonPage, IonHeader, IonToolbar,IonCard, IonCardHeader, IonCardSubtitle, IonCardContent, IonCardTitle, IonTitle,IonChip, IonContent, IonIcon, IonListHeader, IonButton, IonList, IonItem, IonLabel, IonProgressBar, modalController, IonBackButton, IonButtons, actionSheetController, toastController, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, ref } from 'vue';
-import { add, addOutline, pencilOutline, send, trashBinOutline, cashOutline, cloudUploadOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline, checkmark, checkmarkDoneOutline, timeOutline, lockOpenOutline, documentTextOutline } from 'ionicons/icons';
+import { add, addOutline, pencilOutline, send, trashBinOutline, cashOutline, cloudUploadOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline, checkmark, checkmarkDoneOutline, timeOutline, lockOpenOutline, documentTextOutline, eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import { EMoneyType, EReportStatus, IReport } from '../../interfaces/ReportInterfaces';
 import IonTitleSubtitle from '../../components/IonTitleSubtitle/IonTitleSubtitle.vue';
 
@@ -640,7 +652,7 @@ const depositRestitution = async () => {
     })
 }
 
-const downloadPdfAndExcelFiles = async () => {
+const downloadPdfAndExcelFiles = async (preffer = null) => {
     const invoicesTotalAmount = invoicesData.value.reduce((total, invoice) => {
         return total + invoice.amount;
     }, 0);
@@ -755,6 +767,13 @@ const downloadPdfAndExcelFiles = async () => {
         }
     }
 
+
+    if (preffer == 'PDF'){
+        generatePDFDocument().then((pdfDocument) => {
+            shareDocument(pdfDocument, '.pdf');
+        })
+        return;
+    }
 
     await actionSheetController.create({
         header: 'Elige un formato para descargar:',

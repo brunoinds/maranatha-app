@@ -174,12 +174,23 @@ class PDFCreator{
         
     }
     private generateImagesPagesOnPDF(){
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
+            const jobs = await JobsAndExpenses.getJobs();
             //Add each image from this.canvasItems.canvasBase64 to a new page on this.doc:
             this.canvasItems.forEach((canvasItem, i) => {
                 const totalInvoices = this.canvasItems.length;
                 this.doc.addPage();
 
+                const pageHeight = this.doc.internal.pageSize.getHeight();
+                const textPadding = {
+                    x: 5,
+                    y: 5
+                }
+
+                const pageTexting = [
+                    {text: `${canvasItem.invoice.description}`},
+                    {text: `${jobs.find((item) => item.code == canvasItem.invoice.job_code) ? jobs.find((item) => item.code == canvasItem.invoice.job_code)?.name : ""} ${canvasItem.invoice.job_code}-${canvasItem.invoice.expense_code}`},
+                ]
 
                 //If canvas is portrait, fit it to page:
                 if (canvasItem.canvas.height > canvasItem.canvas.width){
@@ -213,6 +224,11 @@ class PDFCreator{
                         this.doc.addImage(canvasItem.canvas, 'JPEG', (pageWidth - newCanvasWidth) / 2, 0, newCanvasWidth, pageHeight);
                     }
                 }
+                pageTexting.reverse().forEach((textItem, index) => {
+                    this.doc.setFontSize(8).setFont('helvetica', 'normal');
+                    this.doc.setTextColor(255, 0, 0);
+                    this.doc.text(textItem.text, textPadding.x, pageHeight - (textPadding.y + (index * 5)));
+                })
                 this.updateProgress('Generando páginas de documentos escaneados', {current: i, total: totalInvoices}, 4, 4);
             })
             resolve(this.doc);
@@ -271,6 +287,7 @@ class PDFCreator{
 
 
                     textsToWrite.reverse().forEach((text, index) => {
+                        return;
                         const canvasHeight = canvasItem.canvas.height - 20;
 
                         const drawStroked = (text:string, x:number, y:number) => {

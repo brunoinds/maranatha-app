@@ -29,10 +29,44 @@
                             <ion-card-content >
                                 <ion-grid name="content">
                                     <ion-row name="amount-area">
-                                        <ion-card-title name="amount" value="$" color="warning" style="font-size: 50px" >{{ Toolbox.moneyFormat(indicators.reports.pendingApproval.amount) }}</ion-card-title>
+                                        <ion-card-title name="amount" value="$" color="warning" style="font-size: 50px" >{{ Toolbox.moneyFormat(indicators.reports.byStatus[EReportStatus.Submitted].amount) }}</ion-card-title>
                                     </ion-row>
                                     <ion-row>
-                                        <ion-label name="note">{{ indicators.reports.pendingApproval.count }} reportes</ion-label>
+                                        <ion-label name="note">{{ indicators.reports.byStatus[EReportStatus.Submitted].count }} reportes</ion-label>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-card-content>
+                        </ion-card>
+                    </ion-col>
+                    <ion-col v-if="false">
+                        <ion-card class="card-amount" style="height: 180px;">
+                            <ion-card-header>
+                                <ion-card-subtitle>Borradores</ion-card-subtitle>
+                            </ion-card-header>
+                            <ion-card-content >
+                                <ion-grid name="content">
+                                    <ion-row name="amount-area">
+                                        <ion-card-title name="amount" value="$" color="medium" style="font-size: 50px" >{{ Toolbox.moneyFormat(indicators.reports.byStatus[EReportStatus.Draft].amount) }}</ion-card-title>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-label name="note">{{ indicators.reports.byStatus[EReportStatus.Draft].count }} reportes</ion-label>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-card-content>
+                        </ion-card>
+                    </ion-col>
+                    <ion-col  v-if="false">
+                        <ion-card class="card-amount" style="height: 180px;">
+                            <ion-card-header>
+                                <ion-card-subtitle>Rechazados</ion-card-subtitle>
+                            </ion-card-header>
+                            <ion-card-content >
+                                <ion-grid name="content">
+                                    <ion-row name="amount-area">
+                                        <ion-card-title name="amount" value="$" color="medium" style="font-size: 50px" >{{ Toolbox.moneyFormat(indicators.reports.byStatus[EReportStatus.Rejected].amount) }}</ion-card-title>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-label name="note">{{ indicators.reports.byStatus[EReportStatus.Rejected].count }} reportes</ion-label>
                                     </ion-row>
                                 </ion-grid>
                             </ion-card-content>
@@ -159,6 +193,7 @@ import { watch } from 'vue';
 import { onMounted } from 'vue';
 
 import { Viewport } from '@/utils/Viewport/Viewport';
+import { EReportStatus } from '@/interfaces/ReportInterfaces';
 
 
 const isLoading = ref<boolean>(true);

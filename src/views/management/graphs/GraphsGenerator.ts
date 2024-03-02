@@ -1,3 +1,4 @@
+import { EReportStatus } from "@/interfaces/ReportInterfaces"
 import { RequestAPI } from "@/utils/Requests/RequestAPI"
 import { DateTime } from "luxon"
 
@@ -378,6 +379,13 @@ interface AccountantCurrentYearIndicators{
             amount: number,
             count: number,
             items: any[]
+        },
+        byStatus: {
+            [key: EReportStatus]: {
+                amount: number,
+                count: number,
+                items: any[]
+            };
         }
     },
     invoices: {
@@ -502,7 +510,8 @@ class AccountantCurrentYearState{
                 amount: 0,
                 count: 0,
                 items: [],
-            }
+            },
+            byStatus: {}
         },
         wallets: {
             pettyCash: {
@@ -777,6 +786,21 @@ class AccountantCurrentYearState{
                 this.indicators.reports.pendingApproval.count += wallet.petty_cash.reports.not_approved.items.length;
 
 
+                wallet.petty_cash.reports.by_status.forEach((report:any) => {
+                    if (!this.indicators.reports.byStatus[report.status]){
+                        this.indicators.reports.byStatus[report.status] = {
+                            amount: 0,
+                            count: 0,
+                            items: []
+                        }
+                    }
+                    this.indicators.reports.byStatus[report.status].amount += report.data.amount_in.dollars;
+                    this.indicators.reports.byStatus[report.status].count += report.data.items.length;
+
+                    report.data.items.forEach((reporter:any) => {
+                        this.indicators.reports.byStatus[report.status].items.push(reporter);
+                    })
+                })
 
                 wallet.petty_cash.reports.pending_reposition.items.forEach((report:any) => {
                     this.indicators.reports.pendingRestitution.items.push(report);

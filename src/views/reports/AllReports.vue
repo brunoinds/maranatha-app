@@ -17,7 +17,7 @@
 
                                 <p>{{report.reportType}}</p>
                                 <p>{{report.reportDates}}</p>
-                                <p><b>{{report.moneyPrefix}} {{report.invoices.totalAmount}}</b></p>
+                                <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
 
                             </ion-label>
                             <ReportStatusChip :report="report"></ReportStatusChip>

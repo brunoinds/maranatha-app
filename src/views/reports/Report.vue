@@ -549,25 +549,27 @@ const rejectReport = async () => {
     prompt.present();
 }
 const createExportPDF = async () => {
-    const instance = new PDFCreator({
-        report: reportData.value as IReport,
-        invoices: (() => {
+    const invoicesSorted = (() => {
             let invoices = invoicesData.value.map((invoice) => {
                 return _.cloneDeep(invoice);
             });
             invoices = invoices.sort((a, b) => {
                 return DateTime.fromISO(a.date).toJSDate() - DateTime.fromISO(b.date).toJSDate();
             });
-            console.log(invoices)
             return invoices;
-        })(),
+        })();
+
+
+    const instance = new PDFCreator({
+        report: reportData.value as IReport,
+        invoices: invoicesSorted,
         textContents: {
             submittedBy: (await Session.getCurrentSession())?.name() as unknown as string,
             fromDateToDate: (() => {
                 if (invoicesData.value.length == 0){
                     return `del ${report.value.from_date}  hasta el ${report.value.to_date}`;
                 }else{
-                    return `del ${DateTime.fromISO(invoicesData.value[0].date).toLocaleString(DateTime.DATE_MED)}  hasta el ${DateTime.fromISO(invoicesData.value[invoicesData.value.length - 1].date).toLocaleString(DateTime.DATE_MED)}`;
+                    return `del ${DateTime.fromISO(invoicesSorted[0].date).toLocaleString(DateTime.DATE_MED)}  hasta el ${DateTime.fromISO(invoicesSorted[invoicesSorted.length - 1].date).toLocaleString(DateTime.DATE_MED)}`;
                 }
             })(),
             currency: (() => {

@@ -283,6 +283,7 @@ import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
 import Numeral from 'numeral';
 import AddRepositionPettyCash from '@/dialogs/AddRepositionPettyCash/AddRepositionPettyCash.vue';
+import _ from 'lodash';
 
 const reportData = ref<IReport|null>(null);
 const invoicesData = ref<Array<IInvoice>>([]);
@@ -551,12 +552,13 @@ const createExportPDF = async () => {
     const instance = new PDFCreator({
         report: reportData.value as IReport,
         invoices: (() => {
-            const invoices = invoicesData.value.map((invoice) => {
-                return invoice;
+            let invoices = invoicesData.value.map((invoice) => {
+                return _.cloneDeep(invoice);
             });
-            invoices.sort((a, b) => {
-                return DateTime.fromISO(a.date).toMillis() - DateTime.fromISO(b.date).toMillis();
+            invoices = invoices.sort((a, b) => {
+                return DateTime.fromISO(a.date).toJSDate() - DateTime.fromISO(b.date).toJSDate();
             });
+            console.log(invoices)
             return invoices;
         })(),
         textContents: {

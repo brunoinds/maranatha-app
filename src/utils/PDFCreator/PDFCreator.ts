@@ -182,6 +182,7 @@ class PDFCreator{
                 this.doc.addPage();
 
                 const pageHeight = this.doc.internal.pageSize.getHeight();
+                const pageWidth = this.doc.internal.pageSize.getWidth();
                 const textPadding = {
                     x: 5,
                     y: 5
@@ -224,11 +225,30 @@ class PDFCreator{
                         this.doc.addImage(canvasItem.canvas, 'JPEG', (pageWidth - newCanvasWidth) / 2, 0, newCanvasWidth, pageHeight);
                     }
                 }
-                pageTexting.reverse().forEach((textItem, index) => {
+                
+                /*pageTexting.reverse().forEach((textItem, index) => {
                     this.doc.setFontSize(8).setFont('helvetica', 'normal');
                     this.doc.setTextColor(255, 0, 0);
                     this.doc.text(textItem.text, textPadding.x, pageHeight - (textPadding.y + (index * 5)));
+                })*/
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = 1000;
+                canvas.height = this.doc.internal.pageSize.getHeight() as unknown as number;
+                const ctx = canvas.getContext('2d') as unknown as CanvasRenderingContext2D;
+
+                ctx.font = '18px Arial'; 
+                ctx.fillStyle = 'yellow';
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 3;
+
+                pageTexting.reverse().forEach((textItem, index) => {
+                    ctx.strokeText(textItem.text, textPadding.x + 10, 30 + ((index * 20)));
+                    ctx.fillText(textItem.text, textPadding.x + 10, 30 + ((index * 20)));
                 })
+
+                this.doc.addImage(canvas, 'PNG', 0, 0); 
+
                 this.updateProgress('Generando páginas de documentos escaneados', {current: i, total: totalInvoices}, 4, 4);
             })
             resolve(this.doc);
@@ -266,6 +286,7 @@ class PDFCreator{
             })
             
             Promise.all(promises).then((canvasItems) => {
+                this.canvasItems = canvasItems;
                 resolve(this.canvasItems);
             })
         })

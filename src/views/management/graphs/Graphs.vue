@@ -278,6 +278,11 @@ const comparisonDropdownChosen = ref<string|null>(null);
 const indicatorsData = ref<AccountantPeriodComparisonIndicators|null>(null);
 
 
+const jobs = ref<IJob[]>([]);
+
+
+
+
 interface AccountantPeriodComparisonIndicatorsComputed{
     spendings: {
         total: {
@@ -837,6 +842,15 @@ const indicators = computed<AccountantPeriodComparisonIndicatorsComputed|null>((
                 },
                 tooltip: {
                     callbacks: {
+                        title: function(context:any) {
+                            const job = jobs.value.filter((job) => job.code == context[0].label);
+
+                            if (job.length == 0){
+                                return context[0].label;
+                            }else{
+                                return context[0].label + " " + job[0].name;
+                            }
+                        },
                         label: function(context:any) {
                             let label = context.dataset.label || '';
                             if (label) {
@@ -883,6 +897,9 @@ const indicators = computed<AccountantPeriodComparisonIndicatorsComputed|null>((
                 },
                 tooltip: {
                     callbacks: {
+                        title: function(context:any) {
+                            return `Día ${context[0].label}`;
+                        },
                         label: function(context:any) {
                             let label = context.dataset.label || '';
                             if (label) {
@@ -957,7 +974,10 @@ function loadData(){
 
 onMounted(() => {
     comparisonDropdownChosen.value = comparisonOptions.value[1].value;
-
+    
+    JobsAndExpenses.getJobs().then((jobsData) => {
+        jobs.value = jobsData;
+    });
     const callbackId = AppEvents.on('all:reload', () => {
         loadData()
     })

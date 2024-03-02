@@ -113,6 +113,12 @@ const segments = [
         icon: '🏠'
     },
     {
+        id: 'reports',
+        title: '📥 Reportes',
+        name: 'Reportes',
+        icon: '📥'
+    },
+    {
         id: 'informs',
         title: '📊 Analytics',
         name: 'Analytics',
@@ -123,12 +129,6 @@ const segments = [
         title: '🧾 Plantillas',
         name: 'Plantillas',
         icon: '🧾'
-    },
-    {
-        id: 'reports',
-        title: '📥 Reportes',
-        name: 'Reportes',
-        icon: '📥'
     },
     {
         id: 'attendances',

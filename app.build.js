@@ -1,6 +1,8 @@
 import { exec, execSync } from 'child_process';
 import fs from 'fs';
 import { spawn } from 'child_process';
+import open from 'open';
+import path from 'path';
 
 
 function incrementBuildVersion(){
@@ -73,6 +75,62 @@ function buildIOS(){
         });
     })
 }
+function deployIOS(){
+    const xcodeProjectPath ='ios/App/App.xcodeproj';
+
+        // Path to the Xcode executable
+        const xcodePath = '/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild';
+
+        // Command to open the Xcode project
+        const openProjectCommand = `open "${xcodeProjectPath}"`;
+
+
+        console.log(openProjectCommand)
+        // Open the Xcode project
+        const openProjectProcess = spawn('sh', ['-c', openProjectCommand]);
+
+        openProjectProcess.on('close', (code) => {
+            if (code !== 0) {
+                console.error(`Opening Xcode project failed with code ${code}`);
+                return;
+            }
+            console.log('Xcode project opened successfully');
+            // Command to archive the project
+            const archiveCommand = `"${xcodePath}" -project "${xcodeProjectPath}" -scheme "App" archive`;
+
+            // Execute the command to archive the project
+            const archiveProcess = spawn('sh', ['-c', archiveCommand]);
+
+            archiveProcess.stdout.on('data', (data) => {
+                console.log(data.toString());
+            })
+            archiveProcess.on('close', (code) => {
+                if (code !== 0) {
+                    console.error(`Archiving project failed with code ${code}`);
+                    return;
+                }
+            
+
+                console.log('Project archived successfully');
+            
+                return;
+                // Command to upload the archive to App Store Connect
+                const uploadCommand = `"${xcodePath}" -project "${xcodeProjectPath}" -scheme "Your Scheme" -archivePath "path/to/archive.xcarchive" -exportOptionsPlist "path/to/export.plist" -exportArchive -uploadSymbols`;
+            
+                // Execute the command to upload the archive to App Store Connect
+                const uploadProcess = spawn('sh', ['-c', uploadCommand]);
+            
+                uploadProcess.on('close', (code) => {
+                    if (code !== 0) {
+                        console.error(`Uploading to App Store Connect failed with code ${code}`);
+                        return;
+                    }
+                    console.log('Archive uploaded to App Store Connect successfully');
+                });
+            });
+        });
+}
+
 
 function buildNative(){
     return new Promise(async (resolve, reject) => {
@@ -113,6 +171,9 @@ const commands = {
         updateVersionAndBuildOnProject();
         await buildNative();
     },
+    'deploy': async () => {
+        deployIOS();
+    }
 }
 
 function main(){

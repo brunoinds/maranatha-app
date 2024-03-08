@@ -293,6 +293,8 @@ class PDFCreator{
     }
     private async writeOnImages(){
         return new Promise(async (resolve, reject) => {
+            resolve(this.canvasItems);
+            return;
             const jobs = await JobsAndExpenses.getJobs();
             const promises = this.canvasItems.map((canvasItem, i) => {
                 const totalInvoices = this.canvasItems.length;

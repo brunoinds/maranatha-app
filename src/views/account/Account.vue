@@ -25,6 +25,7 @@
                             <h2>Autorizar notificaciones</h2>
                         </ion-label>
                     </ion-item>
+
                     <ion-item @click="doLogout" button>
                         <ion-icon color="danger" :icon="close" slot="start"></ion-icon>
                         <ion-label color="danger">Terminar sesión</ion-label>
@@ -32,11 +33,18 @@
                 </ion-list>
             </section>
         </ion-content>
+        <ion-footer>
+            <ion-toolbar class="version-toolbar">
+                <section class="ion-padding">
+                    <pre style="font-size: 12px; color: darkgray; margin: 0">{{ aboutAppText }}</pre>
+                </section>
+            </ion-toolbar>
+        </ion-footer>
     </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonImg, IonAvatar, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController, actionSheetController, toastController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonFooter, IonTextarea, IonContent, IonImg, IonAvatar, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController, actionSheetController, toastController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
@@ -49,8 +57,9 @@ import { Capacitor } from '@capacitor/core';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { Notifications } from '@/utils/Notifications/Notifications';
 import { onMounted } from 'vue';
-import { on } from 'events';
+import AppConfig from '@/../app.config.json';
 
+const aboutAppText = ref<string>(`Version: ${AppConfig.versioning.version} \nBuild: ${AppConfig.versioning.build}`);
 const accountData = ref<any>(null);
 const isLoading = ref<boolean>(true);
 const router = useRouter();
@@ -220,6 +229,12 @@ onMounted(() => {
     max-width: 600px;
     margin: 0 auto;
     width: 100%;
+}
+
+.version-toolbar{
+    --background: white;
+    --border-color: white;
+    --border-style: none;
 }
 
 </style>

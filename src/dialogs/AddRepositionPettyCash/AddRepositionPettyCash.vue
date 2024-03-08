@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController, actionSheetController } from '@ionic/vue';
 import { defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
@@ -77,6 +77,9 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import imageCompression from 'browser-image-compression';
 import { EReportStatus, IReport } from '@/interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
+import { Capacitor } from '@capacitor/core';
+import { FilePicker } from '@capawesome/capacitor-file-picker';
+import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
 const router = useRouter();
 const isLoadingImageCompression = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
@@ -213,8 +216,83 @@ const loadReceiptImage = async () => {
             webPath: image.webPath as unknown as string
         }
     }
+    const getPDFImage = async () => {
+        return new Promise(async (resolve, reject) => {
+            const result = await FilePicker.pickFiles({
+                types: ['application/pdf'],
+                multiple: false,
+                readData: true
+            });
 
-    const image = await getCameraImage();
+            if (result.files.length == 0){
+                return;
+            }
+            const file = result.files[0];
+            let sourcePDF = null;
+
+            if (Capacitor.isNativePlatform()){
+                function convertDataURIToBinary(base64:string) {
+                    const raw = window.atob(base64);
+                    const rawLength = raw.length;
+                    const array = new Uint8Array(new ArrayBuffer(rawLength));
+                    for(let i = 0; i < rawLength; i++) {
+                        array[i] = raw.charCodeAt(i);
+                    }
+                    return array;
+                }
+
+                sourcePDF = {data: convertDataURIToBinary(file.data as string)}
+            }else{
+                const url = URL.createObjectURL(file.blob as Blob);
+                sourcePDF = url;
+            }
+            const pdf = await PDFModifier.loadPDF(sourcePDF);
+
+            const imageBase64 = await pdf.extractPagesIntoSingleImageAsBase64();
+
+            //Convert base64image into objectUrl:
+            const blob = await fetch(`${imageBase64}`).then(res => res.blob());
+            const blobUrl = URL.createObjectURL(blob);
+            resolve({
+                path: blobUrl,
+                webPath: blobUrl
+            })
+        })
+    }
+    const getImageOrPDF = async () => {
+        return new Promise((resolve, reject) => {
+            actionSheetController.create({
+                header: 'Tipo de documento',
+                buttons: [
+                    {
+                        text: 'Foto',
+                        handler: () => {
+                            getCameraImage().then((image) => {
+                                resolve(image)
+                            })
+                        }
+                    },
+                    {
+                        text: 'PDF',
+                        handler: () => {
+                            getPDFImage().then((image) => {
+                                resolve(image)
+                            })
+                        }
+                    },
+                    {
+                        text: 'Cancelar',
+                        role: 'cancel'
+                    }
+                ]
+            }).then((actionSheet) => {
+                actionSheet.present();
+            })
+        })
+        
+    }
+
+    const image = await getImageOrPDF() as any;
 
     isLoadingImageCompression.value = true;
     const response = await fetch(image.webPath as unknown as string);

@@ -140,7 +140,7 @@ const doDeleteMyAccount = async () => {
                 handler: async () => {
                     if (isAdmin.value){
                         const toast =  await toastController.create({
-                            message: 'No puedes eliminar tu cuenta porque eres administrador',
+                            message: '❌ No puedes eliminar tu cuenta porque eres administrador',
                             duration: 2000
                         })
                         toast.present();
@@ -159,7 +159,7 @@ const doDeleteMyAccount = async () => {
                                 force: true
                             });
                             const toast =  await toastController.create({
-                                message: 'Cuenta eliminada',
+                                message: '✅ Cuenta eliminada con éxito',
                                 duration: 2000
                             })
                             toast.present();

@@ -220,7 +220,7 @@ const deleteUser = async () => {
                             
                         });
                         toastController.create({
-                            message: 'Usuario borrado con éxito',
+                            message: '✅ Usuario borrado con éxito',
                             duration: 2000
                         }).then((toast) => {
                             toast.present();

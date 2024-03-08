@@ -400,7 +400,7 @@ const deleteInvoice = async (invoice:IInvoice) => {
     }
     loadReportInvoices();
     toastController.create({
-        message: reportType.value + ' eliminada con éxito',
+        message: '✅ ' + reportType.value + ' eliminada con éxito',
         duration: 2000
     }).then((toast) => {
         toast.present();
@@ -534,7 +534,7 @@ const rejectReport = async () => {
                     })
                     isLoading.value = false;
                     toastController.create({
-                        message: 'Reporte rechazado con éxito',
+                        message: '✅ Reporte rechazado con éxito',
                         duration: 2000
                     }).then((toast) => {
                         toast.present();
@@ -597,7 +597,7 @@ const undoSendReport = async () => {
     })
     isLoading.value = false;
     toastController.create({
-        message: 'Reporte reaperturado con éxito',
+        message: '✅ Reporte reaperturado con éxito',
         duration: 2000
     }).then((toast) => {
         toast.present();
@@ -607,7 +607,7 @@ const undoSendReport = async () => {
 }
 const sendReport = async () => {
     toastController.create({
-        message: 'Enviando...',
+        message: '📤 Enviando...',
         duration: 2000
     }).then((toast) => {
         toast.present();
@@ -664,7 +664,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
     const filename = `${reportData.value?.title} (${Toolbox.moneyPrefix(reportData.value?.money_type as unknown as EMoneyType).replace('/', '')} ${invoicesTotalAmount.toFixed(2)})`;
     const generatePDFDocument = async () => {
         toastController.create({
-            message: 'Generando PDF... Esto puede tardar unos minutos...',
+            message: '📄 Generando PDF... Esto puede tardar unos minutos...',
             duration: 5000
         }).then((toast) => {
             toast.present();

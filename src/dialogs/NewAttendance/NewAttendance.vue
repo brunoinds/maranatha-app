@@ -140,7 +140,7 @@ const createNewAttendance = async () => {
             ...response.attendance
         });
         toastController.create({
-            message: 'Asistencia creada con éxito!',
+            message: '✅ Asistencia creada con éxito!',
             duration: 2000
         }).then((toast) => {
             toast.present();

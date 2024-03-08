@@ -145,7 +145,7 @@ const deleteJob = async (job:any) => {
 
         loadJobs();
         toastController.create({
-            message: 'Job eliminado con éxito',
+            message: '✅ Job eliminado con éxito',
             duration: 2000
         }).then((toast) => {
             toast.present();

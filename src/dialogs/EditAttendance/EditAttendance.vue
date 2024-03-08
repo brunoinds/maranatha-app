@@ -106,7 +106,7 @@ const saveAttendance = async () => {
             ...response.attendance
         });
         toastController.create({
-            message: 'Asistencia actualizada con éxito!',
+            message: '✅ Asistencia actualizada con éxito!',
             duration: 2000
         }).then((toast) => {
             toast.present();
@@ -156,7 +156,7 @@ const deleteAttendance = async () => {
             ...response.attendance
         });
         toastController.create({
-            message: 'Asistencia eliminada con éxito!',
+            message: '✅ Asistencia eliminada con éxito!',
             duration: 2000
         }).then((toast) => {
             toast.present();

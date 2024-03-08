@@ -216,7 +216,7 @@ const setBarcodeData = (qrCodeContent:string) => {
 
     if (!response.isValid || !response.content){
         toastController.create({
-            message: "El código QR no es válido",
+            message: "❌ El código QR no es válido",
             duration: 2000
         }).then((toast) => {
             toast.present();
@@ -248,7 +248,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 const cameraPermissionRequest = await Camera.requestPermissions();
                 if (cameraPermissionRequest.camera == 'denied'){
                     toastController.create({
-                        message: "El acceso a la cámara está bloqueado por su teléfono",
+                        message: "❌ El acceso a la cámara está bloqueado por su teléfono",
                         duration: 2000
                     }).then((toast) => {
                         toast.present();
@@ -257,7 +257,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 }
             }else if (cameraPermission.camera == 'denied'){
                 toastController.create({
-                    message: "El acceso a la cámara está bloqueado por su teléfono",
+                    message: "❌ El acceso a la cámara está bloqueado por su teléfono",
                     duration: 2000
                 }).then((toast) => {
                     toast.present();
@@ -543,7 +543,7 @@ const saveInvoice = async () => {
         try {
             const response = await RequestAPI.patch("/invoices/" + invoice.value.id, invoiceDocument);
             toastController.create({
-                message: "La " + invoiceType.value + " se ha guardada con éxito",
+                message: "✅ La " + invoiceType.value + " se ha guardada con éxito",
                 duration: 2000
             }).then((toast) => {
                 toast.present();

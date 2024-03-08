@@ -117,7 +117,7 @@ const deleteExpense = async (job:any) => {
         await RequestAPI.delete(`/expenses/${job.id}`);
         loadExpenses();
         toastController.create({
-            message: 'Expense eliminado con éxito',
+            message: '✅ Expense eliminado con éxito',
             duration: 2000
         }).then((toast) => {
             toast.present();

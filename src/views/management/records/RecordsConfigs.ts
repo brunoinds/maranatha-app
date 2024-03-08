@@ -8,7 +8,8 @@ import { DateTime } from "luxon";
 const contents:any = {
     jobsDropdownOptions: null,
     expensesDropdownOptions: null,
-    usersDropdownOptions: null
+    usersDropdownOptions: null,
+    jobsZonesDropdownOptions: null
 }
 const load = async () => {
     const jobs = await JobsAndExpenses.getJobs();
@@ -32,6 +33,18 @@ const load = async () => {
         }
     })
 
+    const jobsZonesDropdownOptions = jobs.map((job) => {
+        return {
+            id: job.zone,
+            name: job.zone,
+            value: job.zone
+        }
+    }).filter((zone:any, index:number, self:any) => {
+        return index === self.findIndex((t:any) => (
+            t.id === zone.id
+        ))
+    })
+
     const expensesDropdownOptions = expenses.map((expense) => {
         return {
             id: expense.code,
@@ -52,16 +65,17 @@ const load = async () => {
     contents.jobsDropdownOptions = jobsDropdownOptions;
     contents.expensesDropdownOptions = expensesDropdownOptions;
     contents.usersDropdownOptions = usersDropdownOptions;
+    contents.jobsZonesDropdownOptions = jobsZonesDropdownOptions;
     contents.users = users;
 }
 
 const RecordsConfigs = {
     getConfigurations: async () => {
-        if (!contents.jobsDropdownOptions){
+        if (!contents.jobsDropdownOptions || !contents.jobsZonesDropdownOptions){
             await load();
         }
 
-        const { jobsDropdownOptions, expensesDropdownOptions, usersDropdownOptions } = contents;
+        const { jobsDropdownOptions, expensesDropdownOptions, usersDropdownOptions, jobsZonesDropdownOptions } = contents;
 
 
         return [
@@ -88,23 +102,7 @@ const RecordsConfigs = {
                         name: 'Zona de Job',
                         isRequired: false,
                         type: 'dropdown',
-                        options: [
-                            {
-                                id: 'North',
-                                name: 'Zona Norte',
-                                value: 'North'
-                            },
-                            {
-                                id: 'South',
-                                name: 'Zona Sur',
-                                value: 'South'
-                            },
-                            {
-                                id: 'NoZone',
-                                name: 'Sin Zona',
-                                value: 'NoZone'
-                            },
-                        ]
+                        options: jobsZonesDropdownOptions
                     },
                     {
                         id: 'expense_code',

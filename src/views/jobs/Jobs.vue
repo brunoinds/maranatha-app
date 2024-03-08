@@ -54,14 +54,6 @@ const loadJobs = async () => {
 
 const jobs = computed(() => {
     const data = jobsData.value.map((job) => {
-        if (job.zone == 'NoZone'){
-            job.zone = 'Sin zona';
-        }else if (job.zone == 'North'){
-            job.zone = 'Norte';
-        }else if (job.zone == 'South'){
-            job.zone = 'Sur';
-        }
-
         return {
             id: job.id,
             name: job.name,
@@ -78,13 +70,18 @@ const addJob = async (prefiled:any = null) => {
         inputs: [
             {
                 type: 'text',
-                placeholder: 'Name',
+                placeholder: 'Nombre',
                 value: prefiled ? prefiled.name : null
             },
             {
                 type: 'text',
                 placeholder: 'Code',
                 value: prefiled ? prefiled.code : null
+            },
+            {
+                type: 'text',
+                placeholder: 'Zona',
+                value: prefiled ? prefiled.zone : null
             }
         ],
         buttons: [
@@ -96,7 +93,7 @@ const addJob = async (prefiled:any = null) => {
                 },
             },
             {
-                text: 'Siguiente',
+                text: 'Crear',
                 role: 'confirm'
             }
         ]
@@ -110,86 +107,60 @@ const addJob = async (prefiled:any = null) => {
         return;
     }
 
-
-    const alertZone = await alertController.create({
-        header: 'Elegir Zona del Job',
-        inputs: [
-            {
-                label: 'Norte',
-                type: 'radio',
-                value: 'North',
-            },
-            {
-                label: 'Sur',
-                type: 'radio',
-                value: 'South',
-            },
-            {
-                label: 'Sin Zona',
-                type: 'radio',
-                value: 'NoZone',
-            }
-        ],
-        buttons: [
-            {
-                text: 'Cancelar',
-                role: 'cancel',
-                handler: () => {
-                    
-                },
-            },
-            {
-                text: 'Crear Job',
-                role: 'confirm'
-            }
-        ]
-    });
-
-    await alertZone.present();
-    const { role: roleZone, data: dataZone } = await alertZone.onDidDismiss();
-
-    if (roleZone == "confirm"){
-        const dataParsed = {
-            name: data.values[0],
-            code: data.values[1],
-            zone: 'NoZone'
-        }
-        const chosenZone = dataZone.values;
-
-        dataParsed.zone = chosenZone;
-        
-        RequestAPI.post('/jobs', dataParsed).then((response) => {
-            alertController.create({
-                header: '¡Éxito!',
-                message: 'Job creado exitosamente',
-                buttons: ['OK']
-            }).then(async (alert) => {
-                await alert.present();
-                await alert.onDidDismiss();
-                loadJobs();
-            });
-        }).catch((error) => {
-            alertController.create({
-                header: 'Oops...',
-                message: error.response.message,
-                buttons: ['OK']
-            }).then(async (alert) => {
-                await alert.present();
-                await alert.onDidDismiss();
-                addJob(dataParsed);
-            });
-        });
+    const dataParsed = {
+        name: data.values[0],
+        code: data.values[1],
+        zone: data.values[2]
     }
+
+    if (dataParsed.zone == null || dataParsed.zone.trim().length == 0){
+        dataParsed.zone = "NoZone";
+    }
+
+    RequestAPI.post('/jobs', dataParsed).then((response) => {
+        alertController.create({
+            header: '¡Éxito!',
+            message: 'Job creado exitosamente',
+            buttons: ['OK']
+        }).then(async (alert) => {
+            await alert.present();
+            await alert.onDidDismiss();
+            loadJobs();
+        });
+    }).catch((error) => {
+        alertController.create({
+            header: 'Oops...',
+            message: error.response.message,
+            buttons: ['OK']
+        }).then(async (alert) => {
+            await alert.present();
+            await alert.onDidDismiss();
+            addJob(dataParsed);
+        });
+    });
 }
 const deleteJob = async (job:any) => {
-    await RequestAPI.delete(`/jobs/${job.id}`);
-    loadJobs();
-    toastController.create({
-        message: 'Job eliminado con éxito',
-        duration: 2000
-    }).then((toast) => {
-        toast.present();
-    })
+    try {
+        await RequestAPI.delete(`/jobs/${job.id}`);
+
+        loadJobs();
+        toastController.create({
+            message: 'Job eliminado con éxito',
+            duration: 2000
+        }).then((toast) => {
+            toast.present();
+        })
+    } catch (error) {
+        alertController.create({
+            header: 'Oops...',
+            message: error.response.message,
+            buttons: ['OK']
+        }).then((alert) => {
+            alert.present();
+        })
+    }
+
+    
 }
 const clickJob = async(job:any) => {
     await actionSheetController.create({
@@ -226,7 +197,7 @@ const editJob = async (job:any) => {
         inputs: [
         {
                 type: 'text',
-                placeholder: 'Name',
+                placeholder: 'Nombre',
                 value: job.name
             },
             {
@@ -234,6 +205,11 @@ const editJob = async (job:any) => {
                 placeholder: 'Code',
                 value: job.code
             },
+            {
+                type: 'text',
+                placeholder: 'Zone',
+                value: job.zone
+            }
         ],
         buttons: [
             {
@@ -244,7 +220,7 @@ const editJob = async (job:any) => {
                 },
             },
             {
-                text: 'Siguiente',
+                text: 'Guardar',
                 role: 'confirm'
             }
         ]
@@ -257,77 +233,38 @@ const editJob = async (job:any) => {
         return;
     }
 
-    const alertZone = await alertController.create({
-        header: 'Elegir Zona del Job',
-        inputs: [
-            {
-                label: 'Norte',
-                type: 'radio',
-                value: 'North',
-            },
-            {
-                label: 'Sur',
-                type: 'radio',
-                value: 'South',
-            },
-            {
-                label: 'Sin Zona',
-                type: 'radio',
-                value: 'NoZone',
-            }
-        ],
-        buttons: [
-            {
-                text: 'Cancelar',
-                role: 'cancel',
-                handler: () => {
-                    
-                },
-            },
-            {
-                text: 'Guardar Job',
-                role: 'confirm'
-            }
-        ]
-    });
-
-    await alertZone.present();
-    const { role: roleZone, data: dataZone } = await alertZone.onDidDismiss();
-
-
-    if (role == "confirm"){
-        const dataParsed = {
-            id: job.id,
-            name: data.values[0],
-            code: data.values[1],
-            zone: 'NoZone'
-        }
-
-        const chosenZone = dataZone.values;
-        dataParsed.zone = chosenZone;
-
-        RequestAPI.patch('/jobs/' + job.id, dataParsed).then((response) => {
-            alertController.create({
-                header: '¡Éxito!',
-                message: 'Job guardado exitosamente',
-                buttons: ['OK']
-            }).then(async (alert) => {
-                await alert.present();
-                await alert.onDidDismiss();
-                loadJobs();
-            });
-        }).catch((error) => {
-            alertController.create({
-                header: 'Oops...',
-                message: error.response.message,
-                buttons: ['OK']
-            }).then(async (alert) => {
-                await alert.present();
-                await alert.onDidDismiss();
-                editJob(job);
-            });
-        });
+    const dataParsed = {
+        id: job.id,
+        name: data.values[0],
+        code: data.values[1],
+        zone: data.values[2]
     }
+
+    if (dataParsed.zone == null || dataParsed.zone.trim().length == 0){
+        dataParsed.zone = "NoZone";
+    }
+
+    RequestAPI.patch('/jobs/' + job.id, dataParsed).then((response) => {
+        alertController.create({
+            header: '¡Éxito!',
+            message: 'Job guardado exitosamente',
+            buttons: ['OK']
+        }).then(async (alert) => {
+            await alert.present();
+            await alert.onDidDismiss();
+            loadJobs();
+        });
+    }).catch((error) => {
+        alertController.create({
+            header: 'Oops...',
+            message: error.response.message,
+            buttons: ['OK']
+        }).then(async (alert) => {
+            await alert.present();
+            await alert.onDidDismiss();
+            editJob(job);
+        });
+    });
 }
 
 loadJobs();

@@ -33,7 +33,6 @@ App.addListener('appRestoredResult', data => {
   AppEvents.emit('all:reload');
 });
 App.addListener('resume', () => {
-  console.log('App resumed');
   AppEvents.emit('all:reload');
 });
 

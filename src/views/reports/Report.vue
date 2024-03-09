@@ -666,7 +666,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
     const filename = `${reportData.value?.title} (${Toolbox.moneyPrefix(reportData.value?.money_type as unknown as EMoneyType).replace('/', '')} ${invoicesTotalAmount.toFixed(2)})`;
     const generatePDFDocument = async () => {
         toastController.create({
-            message: '📄 Generando PDF... Esto puede tardar unos minutos...',
+            message: '📄 Generando reporte en PDF...',
             duration: 5000
         }).then((toast) => {
             toast.present();

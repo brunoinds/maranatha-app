@@ -105,32 +105,48 @@ class CapacitorCompiler{
     }
 }
 
-class AppDeployer{
+class IonicCLI{
+    public static async serve(args: string[] = []){
+        return new Promise((resolve, reject) => {
+            const ls = spawn('ionic', ['serve', ...args], {
+                stdio: ['inherit', 'inherit', 'inherit']
+            });
+            ls.on('close', (code) => {
+                resolve(code);
+            })
+            ls.on('error', (err) => {
+                reject(err);
+            })
+        })
+    }
+}
+
+class AppNativeCompiler{
     public static appBuildPath = '.build';
 
-    public static async deploy(platform: Platforms = Platforms.iOS){
+    public static async compile(platform: Platforms = Platforms.iOS){
         if (platform === Platforms.iOS){
-            return await AppDeployer.iOSDeploy();
+            return await AppNativeCompiler.iOSCompile();
         } else if (platform === Platforms.Android){
-            return await AppDeployer.androidDeploy();
+            return await AppNativeCompiler.androidCompile();
         }
     }
 
-    private static async androidDeploy(){
+    private static async androidCompile(){
         return new Promise (async (resolve, reject) => {
             const androidSigningStoreFilePathAbsolute = fs.realpathSync(AppConfigSecrets.publish.android.signing.signingStoreFilePath);
-            const androidBuildPath = `${AppDeployer.appBuildPath}/android`;
+            const androidBuildPath = `${AppNativeCompiler.appBuildPath}/android`;
 
             const emptyBuildFolder = async () => {
                 return new Promise((resolve, reject) => {
-                    if (!fs.existsSync(AppDeployer.appBuildPath)){
-                        fs.mkdirSync(AppDeployer.appBuildPath);
+                    if (!fs.existsSync(AppNativeCompiler.appBuildPath)){
+                        fs.mkdirSync(AppNativeCompiler.appBuildPath);
                     }
                     if (fs.existsSync(androidBuildPath)){
                         fs.rmdirSync(androidBuildPath, { recursive: true });
                     }
                     fs.mkdirSync(androidBuildPath);
-                    fs.writeFileSync(`${AppDeployer.appBuildPath}/.gitignore`, '');
+                    fs.writeFileSync(`${AppNativeCompiler.appBuildPath}/.gitignore`, '');
                     resolve({});
                 })
             }
@@ -190,11 +206,11 @@ class AppDeployer{
             }
         })
     }
-    private static async iOSDeploy(){
+    private static async iOSCompile(){
         return new Promise(async (resolve, reject) => {
             //xcodebuild -workspace ios/App/App.xcworkspace -scheme App -archivePath build/YourProject.xcarchive archive
 
-            const iosBuildPath = `${AppDeployer.appBuildPath}/ios`;
+            const iosBuildPath = `${AppNativeCompiler.appBuildPath}/ios`;
 
             const archivePath = `${iosBuildPath}/App.xcarchive`;
             const exportOptionsPath = `${iosBuildPath}/exportOptions.plist`;
@@ -204,14 +220,14 @@ class AppDeployer{
 
             const emptyBuildFolder = async () => {
                 return new Promise((resolve, reject) => {
-                    if (!fs.existsSync(AppDeployer.appBuildPath)){
-                        fs.mkdirSync(AppDeployer.appBuildPath);
+                    if (!fs.existsSync(AppNativeCompiler.appBuildPath)){
+                        fs.mkdirSync(AppNativeCompiler.appBuildPath);
                     }
                     if (fs.existsSync(iosBuildPath)){
                         fs.rmdirSync(iosBuildPath, { recursive: true });
                     }
                     fs.mkdirSync(iosBuildPath);
-                    fs.writeFileSync(`${AppDeployer.appBuildPath}/.gitignore`, '');
+                    fs.writeFileSync(`${AppNativeCompiler.appBuildPath}/.gitignore`, '');
                     resolve({});
                 })
             }
@@ -280,10 +296,10 @@ class AppDeployer{
 }
 
 class CapacitorDeployer{
-    public static async deploy(platform: Platforms = Platforms.iOS){
-        await AppDeployer.deploy(platform);
+    public static async compile(platform: Platforms = Platforms.iOS){
+        await AppNativeCompiler.compile(platform);
     }
-    public static publish(platform: Platforms = Platforms.iOS){
+    public static async deploy(platform: Platforms = Platforms.iOS){
         return new Promise(async (resolve, reject) => {
             const openAppStoreConnect = async () => {
                 return new Promise((resolve, reject) => {
@@ -312,7 +328,7 @@ class CapacitorDeployer{
 
             const showAndroidReleaseInFinder = async () => {
                 return new Promise((resolve, reject) => {
-                    const ls = spawn('open', [`${AppDeployer.appBuildPath}/android`]);
+                    const ls = spawn('open', [`${AppNativeCompiler.appBuildPath}/android`]);
                     ls.on('close', (code) => {
                         resolve(code);
                     })
@@ -341,6 +357,7 @@ class CLI{
         'cap sync',
         'cap live',
         'cap run',
+        'cap compile',
         'cap deploy',
         'cap publish',
         'ionic serve'
@@ -378,30 +395,37 @@ class CLI{
             return;
         }
 
-        const platform = commandsReceived[2];
-        const args = commandsReceived.slice(3);
+        if (commandSelected.startsWith('cap')){
+            const platform = commandsReceived[2];
+            const args = commandsReceived.slice(3);
 
-        if (commandSelected === 'cap build'){
-            await CLI.capBuild(platform, args);
-        } else if (commandSelected === 'cap open'){
-            await CLI.capOpen(platform, args);
-        } else if (commandSelected === 'cap sync'){
-            await CLI.capSync(platform, args);
-        } else if (commandSelected === 'cap live'){
-            await CLI.capLive(platform, args);
-        } else if (commandSelected === 'cap run'){
-            await CLI.capRun(platform, args);
-        } else if (commandSelected === 'cap deploy'){
-            await CLI.capDeploy(platform, args);
-        } else if (commandSelected === 'cap publish'){
-            await CLI.capPublish(platform, args);
-        } else {
-            console.log('Command not found');
-            console.log('Available commands:');
-            CLI.commands.forEach(command => {
-                console.log(`- ${command
-                }`);
-            })
+            if (commandSelected === 'cap build'){
+                await CLI.capBuild(platform, args);
+            } else if (commandSelected === 'cap open'){
+                await CLI.capOpen(platform, args);
+            } else if (commandSelected === 'cap sync'){
+                await CLI.capSync(platform, args);
+            } else if (commandSelected === 'cap live'){
+                await CLI.capLive(platform, args);
+            } else if (commandSelected === 'cap run'){
+                await CLI.capRun(platform, args);
+            } else if (commandSelected === 'cap compile'){
+                await CLI.capCompile(platform, args);
+            } else if (commandSelected === 'cap deploy'){
+                await CLI.capDeploy(platform, args);
+            } else if (commandSelected === 'cap publish'){
+                await CLI.capPublish(platform, args);
+            }else {
+                console.log('Command not found');
+                console.log('Available commands:');
+                CLI.commands.forEach(command => {
+                    console.log(`- ${command
+                    }`);
+                })
+            }
+        } else if (commandSelected === 'ionic serve'){
+            const args = commandsReceived.slice(2);
+            await CLI.ionicServe(args);
         }
     }
 
@@ -409,36 +433,64 @@ class CLI{
         return new Promise(async (resolve, reject) => {
             await Versioning.incrementBuildVersion();
             await CapacitorCompiler.build(platform);
+            resolve({})
         })
     }
     private static async capOpen(platform: Platforms = Platforms.iOS, args: []){
         return new Promise(async (resolve, reject) => {
             await CapacitorCompiler.open(platform);
+            resolve({})
         })
     }
     private static async capSync(platform: Platforms = Platforms.iOS, args: []){
         return new Promise(async (resolve, reject) => {
             await CapacitorCompiler.sync();
+            resolve({})
         })
     }
     private static async capLive(platform: Platforms = Platforms.iOS, args: []){
         return new Promise(async (resolve, reject) => {
             await CapacitorCompiler.live(platform);
+            resolve({})
         })
     }
     private static async capRun(platform: Platforms = Platforms.iOS, args: []){
         return new Promise(async (resolve, reject) => {
             await CapacitorCompiler.run(platform);
+            resolve({})
+        })
+    }
+    private static async capCompile(platform: Platforms = Platforms.iOS, args: []){
+        return new Promise(async (resolve, reject) => {
+            await CapacitorDeployer.compile(platform);
+            resolve({})
         })
     }
     private static async capDeploy(platform: Platforms = Platforms.iOS, args: []){
         return new Promise(async (resolve, reject) => {
             await CapacitorDeployer.deploy(platform);
+            resolve({})
         })
     }
     private static async capPublish(platform: Platforms = Platforms.iOS, args: []){
         return new Promise(async (resolve, reject) => {
-            await CapacitorDeployer.publish(platform);
+            await Versioning.changeEnvironment('prod');
+            await Versioning.incrementBuildVersion();
+            await CapacitorCompiler.build(platform);
+            await CapacitorDeployer.compile(platform);
+            await CapacitorDeployer.deploy(platform);
+            resolve({})
+        })
+    }
+    private static async ionicServe(args: string[]){
+        return new Promise(async (resolve, reject) => {
+            if (args.includes('--prod')){
+                await Versioning.changeEnvironment('prod');
+            } else {
+                await Versioning.changeEnvironment('dev');
+            }
+            await IonicCLI.serve(args);
+            resolve({})
         })
     }
 }

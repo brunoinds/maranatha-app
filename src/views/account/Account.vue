@@ -57,9 +57,9 @@ import { Capacitor } from '@capacitor/core';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { Notifications } from '@/utils/Notifications/Notifications';
 import { onMounted } from 'vue';
-import AppConfig from '@/../app.config.json';
+import { Environment } from '@/utils/Environment/Environment';
 
-const aboutAppText = ref<string>(`Version: ${AppConfig.versioning.version} \nBuild: ${AppConfig.versioning.build}`);
+const aboutAppText = ref<string>(`Version: ${Environment.version()} \nBuild: ${Environment.build()}`);
 const accountData = ref<any>(null);
 const isLoading = ref<boolean>(true);
 const router = useRouter();

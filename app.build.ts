@@ -25,6 +25,14 @@ class Versioning{
             })
         })
     }
+    public static async changeEnvironment(environment: 'prod' | 'dev'){
+        return new Promise((resolve, reject) => {
+            const configContent = JSON.parse(fs.readFileSync('app.config.json', 'utf8'));
+            configContent.environment = environment;
+            fs.writeFileSync('app.config.json', JSON.stringify(configContent, null, 4));
+            resolve({});
+        })
+    }
 }
 
 class CapacitorCompiler{
@@ -334,7 +342,8 @@ class CLI{
         'cap live',
         'cap run',
         'cap deploy',
-        'cap publish'
+        'cap publish',
+        'ionic serve'
     ]
 
     public static async entryPoint(){

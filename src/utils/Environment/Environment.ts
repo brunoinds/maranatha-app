@@ -1,11 +1,19 @@
 import { Capacitor } from "@capacitor/core";
 
+import AppConfig from '@/../app.config.json';
 
-import configuration from './../../../app.config';
-
+interface ApplicationConfig{
+    version: string,
+    build: number,
+    environment: 'prod' | 'dev'
+}
 
 class Environment{
-    private static config = configuration.load();
+    private static config : ApplicationConfig = {
+        version: AppConfig.versioning.version,
+        build: AppConfig.versioning.build,
+        environment: AppConfig.environment as 'prod' | 'dev'
+    }
     public static variable(variable: string): any{
         const variableName = (`VITE_${Environment.environment()}_${variable.toUpperCase()}`).toUpperCase();
         const response = import.meta.env[variableName];

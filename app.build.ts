@@ -256,14 +256,14 @@ class AppNativeCompiler{
                         <string>app-store-connect</string>
                         <key>teamID</key>
                         <string>${developmentId}</string>
+                        <key>destination</key>
+                        <string>upload</string>
                     </dict>
                     </plist>`
 
                     fs.writeFileSync(exportOptionsPath, plistContent);
                     resolve({});
                 })
-
-                //<key>destination</key> <string>upload</string>
             }
 
             const exportProject = async () => {

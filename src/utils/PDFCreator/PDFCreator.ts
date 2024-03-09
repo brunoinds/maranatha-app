@@ -24,6 +24,7 @@ interface PDFCreatorOptions{
                 percentage: number,
                 name: string,
             },
+            iddle?: boolean
         }) => void,
     }
 }
@@ -48,6 +49,7 @@ class PDFCreator{
             percentage: number,
             name: string,
         },
+        iddle?: boolean
     } | null = null;
     private options: PDFCreatorOptions;
     
@@ -63,7 +65,6 @@ class PDFCreator{
 
     public async create(){
         await this.loadImages();
-        await this.writeOnImages();
         await this.generateTableOnPDF();
         await this.generateImagesPagesOnPDF();
         
@@ -73,6 +74,8 @@ class PDFCreator{
 
     private generateTableOnPDF(){
         return new Promise(async (resolve, reject) => {
+            this.updateProgress(`Generando tabla (0/28)...`, {current: 0, total: 28}, 2, 3);
+
             const pageWidth = this.doc.internal.pageSize.getWidth() as unknown as number;
             this.doc.setFontSize(13).setFont('helvetica', 'bold');
             this.doc.text("MARANATHA", pageWidth / 2, 10, { align: 'center'});
@@ -126,7 +129,7 @@ class PDFCreator{
                                 return {content: item, styles: { valign: 'middle', halign: 'center' }}
                             }));
                         }
-                        this.updateProgress('Generando tabla de ítems', {current: index, total: 28}, 3, 4);
+                        this.updateProgress(`Generando tabla (${index}/28)...`, {current: index, total: 28}, 2, 3);
                     })
                     return listRows;
                 })(),
@@ -168,8 +171,9 @@ class PDFCreator{
                 tableLineColor: [0, 0, 0],
                 tableLineWidth: 0.5
             })
-            resolve(this.doc);
 
+            this.updateProgress(`Generando tabla (28/28)...`, {current: 28, total: 28}, 2, 3);
+            resolve(this.doc);
         })
         
     }
@@ -225,13 +229,6 @@ class PDFCreator{
                         this.doc.addImage(canvasItem.canvas, 'JPEG', (pageWidth - newCanvasWidth) / 2, 0, newCanvasWidth, pageHeight);
                     }
                 }
-                
-                /*pageTexting.reverse().forEach((textItem, index) => {
-                    this.doc.setFontSize(8).setFont('helvetica', 'normal');
-                    this.doc.setTextColor(255, 0, 0);
-                    this.doc.text(textItem.text, textPadding.x, pageHeight - (textPadding.y + (index * 5)));
-                })*/
-                
                 const canvas = document.createElement('canvas');
                 canvas.width = 1000;
                 canvas.height = this.doc.internal.pageSize.getHeight() as unknown as number;
@@ -249,16 +246,17 @@ class PDFCreator{
 
                 this.doc.addImage(canvas, 'PNG', 0, 0); 
 
-                this.updateProgress('Generando páginas de documentos escaneados', {current: i, total: totalInvoices}, 4, 4);
+                this.updateProgress(`Agregando fotos (${i}/${totalInvoices})...`, {current: i, total: totalInvoices}, 3, 3);
             })
             resolve(this.doc);
         })
     }
 
     private async loadImages(){
+        const totalInvoices = this.invoices.length;
+        let countInvoicesImagesLoaded = 0;
         return new Promise((resolve, reject) => {
             const promises = this.invoices.map((invoice, i) => {
-                const totalInvoices = this.invoices.length;
                 return new Promise((resolve, reject) => {
                     RequestAPI.get('/invoices/' + invoice.id + "/image").then((response) => {
                         const imageBase64 = "data:image/png;base64," + response.image;
@@ -278,60 +276,16 @@ class PDFCreator{
                                 canvasBase64: null
                             }
                             this.canvasItems.push(canvasItem);
-                            this.updateProgress('Cargando documentos escaneados', {current: i, total: totalInvoices}, 1, 4);
+                            countInvoicesImagesLoaded++;
+                            this.updateProgress(`Descargando fotos (${countInvoicesImagesLoaded}/${totalInvoices})...`, {current: countInvoicesImagesLoaded, total: totalInvoices}, 1, 3);
                             resolve(canvasItem);
                         }
                     })
                 })
             })
-            
+            this.updateProgress(`Descargando fotos (0/${totalInvoices})...`, {current: 0, total: totalInvoices, iddle: true}, 1, 3);
             Promise.all(promises).then((canvasItems) => {
                 this.canvasItems = canvasItems;
-                resolve(this.canvasItems);
-            })
-        })
-    }
-    private async writeOnImages(){
-        return new Promise(async (resolve, reject) => {
-            resolve(this.canvasItems);
-            return;
-            const jobs = await JobsAndExpenses.getJobs();
-            const promises = this.canvasItems.map((canvasItem, i) => {
-                const totalInvoices = this.canvasItems.length;
-                return new Promise((resolve, reject) => {
-                    let context = canvasItem.canvas.getContext('2d') as unknown as CanvasRenderingContext2D;
-                    context.fillStyle = 'black';
-                    context.font = 'bold 60px Arial';
-
-                    const textsToWrite: Array<string> = [
-                        `${canvasItem.invoice.description}`,
-                        `${jobs.find((item) => item.code == canvasItem.invoice.job_code) ? jobs.find((item) => item.code == canvasItem.invoice.job_code)?.name : ""} ${canvasItem.invoice.job_code}-${canvasItem.invoice.expense_code}`,
-                    ];
-
-
-                    textsToWrite.reverse().forEach((text, index) => {
-                        return;
-                        const canvasHeight = canvasItem.canvas.height - 20;
-
-                        const drawStroked = (text:string, x:number, y:number) => {
-                            context.strokeStyle = 'black';
-                            context.lineWidth = 4;
-                            context.strokeText(text, x, y);
-                            context.fillStyle = 'yellow';
-                            context.fillText(text, x, y);
-                        }
-                        
-                        
-                        drawStroked(text, 10, canvasHeight - (index * 60));
-                    })
-
-                    canvasItem.canvasBase64 = canvasItem.canvas.toDataURL('image/png');
-                    this.updateProgress('Escribiendo en documentos escaneados', {current: i, total: totalInvoices}, 2, 4);
-                    resolve(canvasItem);
-                })
-            })
-
-            Promise.all(promises).then((canvasItems) => {
                 resolve(this.canvasItems);
             })
         })
@@ -340,23 +294,26 @@ class PDFCreator{
 
     private updateProgress(stageName: string, stageProgress: {
         current: number, 
-        total: number
+        total: number,
+        iddle?: boolean
     }, currentStage: number, numberOfStages: number){
         if (numberOfStages == 0){
             throw new Error("numberOfStages can't be 0");
         }
 
         const currentStageProgress = (stageProgress.current / stageProgress.total) * 100;
-        const overallProgress = ((currentStage / numberOfStages) * 100) + currentStageProgress / numberOfStages;
+
+        //Overall progress 
+        const overallProgress = (100 * (((currentStage - 1) * 100) + currentStageProgress)) /  (numberOfStages * 100)
 
         this.progress = {
             percentage: overallProgress,
             stage: {
                 percentage: currentStageProgress,
                 name: stageName,
-            }
+            },
+            iddle: stageProgress.iddle ? true : false,
         }
-
         this.options.listenTo.onProgress(this.progress);
     }
 }

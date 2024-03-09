@@ -159,8 +159,6 @@ const deleteJob = async (job:any) => {
             alert.present();
         })
     }
-
-    
 }
 const clickJob = async(job:any) => {
     await actionSheetController.create({

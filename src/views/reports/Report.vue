@@ -12,7 +12,7 @@
                         <ion-icon :icon="ellipsisHorizontal"></ion-icon>
                     </ion-button>
                 </IonButtons>
-                <ion-progress-bar v-if="loadingProcess ? true : isLoading" :type="loadingProcess ? (loadingProcess.iddle ? 'indeterminate' : 'determinate') : 'indeterminate'" :value="loadingProcess ? (loadingProcess.iddle ? undefined : loadingProcess.percentage) : undefined"></ion-progress-bar>
+                <ion-progress-bar v-if="loadingProcess ? true : isLoading" :type="loadingProcess ? (loadingProcess.iddle ? 'indeterminate' : 'determinate') : 'indeterminate'" :value="loadingProcess ? (loadingProcess.iddle ? undefined : loadingProcess.percentage * 0.01) : undefined"></ion-progress-bar>
             </ion-toolbar>
         </ion-header>
         <ion-content>
@@ -255,7 +255,7 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar,IonCard, IonCardHeader, IonCardSubtitle, IonCardContent, IonCardTitle, IonTitle,IonChip, IonContent, IonIcon, IonListHeader, IonButton, IonList, IonItem, IonLabel, IonProgressBar, modalController, IonBackButton, IonButtons, actionSheetController, toastController, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { add, addOutline, pencilOutline, send, trashBinOutline, cashOutline, cloudUploadOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline, checkmark, checkmarkDoneOutline, timeOutline, lockOpenOutline, documentTextOutline, eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import { EMoneyType, EReportStatus, IReport } from '../../interfaces/ReportInterfaces';
 import IonTitleSubtitle from '../../components/IonTitleSubtitle/IonTitleSubtitle.vue';
@@ -578,10 +578,12 @@ const createExportPDF = async () => {
         },
         listenTo: {
             onProgress: (progress) => {
-                loadingProcess.value = {
-                    ...progress,
-                    iddle: false
-                };
+                nextTick(() => {
+                    loadingProcess.value = {
+                        ...progress,
+                        iddle: progress.iddle || false
+                    };
+                })
             }
         }
     });

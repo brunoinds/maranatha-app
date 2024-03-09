@@ -9,7 +9,7 @@
     "build-laravel": "vite build --base=/app/ --outDir=../resources/ionic --emptyOutDir",
     "local-build-laravel": "vite build --base=/app/ --outDir=../maranatha-sender/resources/ionic --emptyOutDir",
     "upload-sentry": "npx @sentry/wizard@latest -i sourcemaps",
-    "builder": "node app.build.js --",
+    "cli": "npx tsx ./app.build.ts",
     "preview": "vite preview",
     "test:e2e": "cypress run",
     "test:unit": "vitest",

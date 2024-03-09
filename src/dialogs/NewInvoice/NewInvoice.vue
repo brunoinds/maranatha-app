@@ -75,7 +75,7 @@
                                 </ion-item>
                                 <ion-item>
                                     <ion-input @ionInput="checkTicketOnInput"  :class="(isRepeatedTicket) ? 'display-error-holder' : ''" :label="'Código de ' + invoiceType + ':'" label-placement="stacked" placeholder="AAXX-XXXXXXXX" v-model="invoice.ticket_number">
-                                        <div slot="end" v-if="isRepeatedTicket" :class="(isRepeatedTicket) ? 'display-error' : ''"><ion-text color="danger" style="font-size: 10px">Este ticket ya ha sido ingresado anteriormente</ion-text></div>
+                                        <div slot="end" v-if="isRepeatedTicket" :class="(isRepeatedTicket) ? 'display-error' : ''"><ion-text color="danger" style="font-size: 10px">⚠️ Este ticket ya ha sido ingresado anteriormente</ion-text></div>
                                     </ion-input>
                                 </ion-item>
                                 <ion-item>
@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle,IonButtons, IonThumbnail, IonAccordion, IonAccordionGroup, IonContent, IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController, actionSheetController } from '@ionic/vue';
+import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle,IonButtons, IonThumbnail, IonAccordion, IonAccordionGroup, IonContent, IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, IonText, toastController, alertController, actionSheetController } from '@ionic/vue';
 import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { EInvoiceType, IInvoice, INewInvoice } from '../../interfaces/InvoiceInterfaces';
 import { IJob, IExpense } from '../../interfaces/JobsAndExpensesInterfaces';
@@ -308,7 +308,7 @@ const setBarcodeData = (qrCodeContent:string) => {
                     text: 'No'
                 },
                 {
-                    text: 'Converter a USD',
+                    text: 'Converter',
                     handler: async () => {
                         const result = await CurrencyFly.convert(parseFloat(response.content.price), {
                             from: 'BRL',

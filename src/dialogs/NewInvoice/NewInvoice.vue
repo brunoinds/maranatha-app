@@ -74,7 +74,9 @@
                                     <CurrencyInput ref="currencyInput" class="native-input sc-ion-input-ios" v-model="invoice.amount" :options="{ currency: 'PEN', autoDecimalDigits: true, currencyDisplay: 'hidden' }"></CurrencyInput>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-input :label="'Código de ' + invoiceType + ':'" label-placement="stacked" placeholder="AAXX-XXXXXXXX" v-model="invoice.ticket_number"></ion-input>
+                                    <ion-input @ionInput="checkTicketOnInput"  :class="(isRepeatedTicket) ? 'display-error-holder' : ''" :label="'Código de ' + invoiceType + ':'" label-placement="stacked" placeholder="AAXX-XXXXXXXX" v-model="invoice.ticket_number">
+                                        <div slot="end" v-if="isRepeatedTicket" :class="(isRepeatedTicket) ? 'display-error' : ''"><ion-text color="danger" style="font-size: 10px">Este ticket ya ha sido ingresado anteriormente</ion-text></div>
+                                    </ion-input>
                                 </ion-item>
                                 <ion-item>
                                     <ion-input label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  inputmode="numeric"></ion-input>
@@ -148,12 +150,14 @@ import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
+import { CurrencyFly } from '@/utils/CurrencyFly/CurrencyFly';
 
 
 const currencyInput = ref<CurrencyInput|null>(null);
 const accordionGroup = ref<any>(null);
 const isLoading = ref<boolean>(true);
 const isLoadingImageCompression = ref<boolean>(false);
+const isRepeatedTicket = ref<boolean>(false);
 const dynamicData = ref<{
     uploadedImageBase64: null | string,
     formErrors: Array<{field: string, message: string}>,
@@ -203,6 +207,20 @@ const jobsAndExpensesSelector = computed(() => {
     }
 })
 
+const checkTicketOnInput = (event: CustomEvent) => {
+    const value = event.detail.value.trim();
+
+    if (value.length == 0){
+        isRepeatedTicket.value = false;
+        return;
+    }
+
+    RequestAPI.get('/invoices/ticket-number/check', {
+        ticket_number: value
+    }).then((response) => {
+        isRepeatedTicket.value = response.exists;
+    })
+}
 
 const invoice = ref<INewInvoice>({
     report_id: props.reportId,
@@ -261,13 +279,75 @@ const setBarcodeData = (qrCodeContent:string) => {
 
     invoice.value.qrcode_data = response.qrCode;
     invoice.value.ticket_number = response.content.docCode;
+    
     invoice.value.commerce_number = response.content.ruc;
     invoice.value.amount = parseFloat(response.content.price).toFixed(2) as unknown as number;
     currencyInput.value.$el.value = `${invoice.value.amount}`;
 
+    checkTicketOnInput({
+        detail: {
+            value: response.content.docCode
+        }
+    } as any)
+
     if (response.content.date){
         const ticketDate = DateTime.fromFormat(response.content.date, "yyyy-MM-dd");
         invoice.value.date = ticketDate.toFormat("dd/MM/yyyy");
+    }
+
+
+
+
+    if (response.country == 'Brazil'){
+        //Ask if want to convert the amount to USD:
+        alertController.create({
+            header: 'Converter a USD',
+            message: `El monto de la ${invoiceType.value.toLowerCase()} está en BRL, ¿desea convertirlo a USD?`,
+            buttons: [
+                {
+                    text: 'No'
+                },
+                {
+                    text: 'Converter a USD',
+                    handler: async () => {
+                        const result = await CurrencyFly.convert(parseFloat(response.content.price), {
+                            from: 'BRL',
+                            to: 'USD',
+                            date: DateTime.fromFormat(response.content.date, "yyyy-MM-dd").toJSDate()
+                        })
+
+                        const exchangeTypeResponse = await CurrencyFly.getExchangeInfo({
+                            from: 'BRL',
+                            to: 'USD',
+                            date: DateTime.fromFormat(response.content.date, "yyyy-MM-dd").toJSDate()
+                        })
+
+                        alertController.create({
+                            header: 'Monto convertido',
+                            subHeader: `1 ${exchangeTypeResponse.from} = ${exchangeTypeResponse.value} ${exchangeTypeResponse.to} (${DateTime.fromFormat(exchangeTypeResponse.date, "yyyy-MM-dd").toFormat("dd/MM/yyyy")})`,
+                            message: `El valor en USD es de $${result.toFixed(2)}`,
+                            buttons: [
+                                {
+                                    text: 'Rechazar',
+                                    role: 'cancel'
+                                },
+                                {
+                                    text: `Aceptar $${result.toFixed(2)}`,
+                                    handler: () => {
+                                        invoice.value.amount = result.toFixed(2) as unknown as number;
+                                        currencyInput.value.$el.value = `${invoice.value.amount}`;
+                                    }
+                                }
+                            ]
+                        }).then((alert) => {
+                            alert.present();
+                        })
+                    }
+                }
+            ]
+        }).then((alert) => {
+            alert.present();
+        })
     }
 }
 const openQRCodeScanner = async () => {
@@ -626,5 +706,13 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.display-error-holder{
+    height: 70px;
+}
+.display-error{
+    position: absolute;
+    bottom: 2px;
 }
 </style>

@@ -13,16 +13,18 @@ interface QRCodeParserResponseBuy{
         price: string;
         date: string | null;
     } | null,
-    qrCode: string
+    qrCode: string,
+    country: 'Peru' | 'Brazil'
 }
 class QRCodeParser{
-    public static parseBuyCode(qrCode: string): QRCodeParserResponseBuy{
+    private static parsePeruvianCode(qrCode: string): QRCodeParserResponseBuy{
         const containsTheSplitter = qrCode.split("|").length > 3;
         if (!containsTheSplitter) {
             return {
                 content: null,
                 isValid: false,
-                qrCode: qrCode
+                qrCode: qrCode,
+                country: 'Peru'
             };
         }
 
@@ -106,8 +108,81 @@ class QRCodeParser{
         return {
             content: data,
             isValid: true,
-            qrCode: qrCode
+            qrCode: qrCode,
+            country: 'Peru'
         };
+    }
+    private static parseBrazilianCode(qrCode: string): QRCodeParserResponseBuy{
+        const url = qrCode;
+
+        try {
+            const parsedUrl = new URL(url);
+
+            // Check if the URL is valid
+            if (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") {
+                const dhEmiHex = parsedUrl.searchParams.get("dhEmi");
+                const vNF = parsedUrl.searchParams.get("vNF");
+                const vICMS = parsedUrl.searchParams.get("vICMS");
+                const chNFe = parsedUrl.searchParams.get("chNFe");
+
+                // Check if both dhEmi and vNF query parameters exist
+                if (dhEmiHex && vNF && vICMS && chNFe) {
+                    function hexToASCII(stringContent: string) {
+                        let hex = stringContent.toString();
+                        let str = '';
+                        for (let n = 0; n < hex.length; n += 2) {
+                            str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
+                        }
+                        return str;
+                    }
+                    const dhEmiIso = hexToASCII(dhEmiHex);
+
+                    return {
+                        content: {
+                            price: vNF.toString().replace(',', '.'),
+                            date: dhEmiIso.split('T')[0],
+                            igv: vICMS.toString().replace(',', '.'),
+                            ruc: '',
+                            docCode: chNFe.toString(),
+                        },
+                        isValid: true,
+                        qrCode: qrCode,
+                        country: 'Brazil'
+                    };
+                } else {
+                    return {
+                        content: null,
+                        isValid: false,
+                        qrCode: qrCode,
+                        country: 'Brazil'
+                    };
+                }
+            } else {
+                return {
+                    content: null,
+                    isValid: false,
+                    qrCode: qrCode,
+                    country: 'Brazil'
+                };
+            }
+        } catch (err) {
+            return {
+                content: null,
+                isValid: false,
+                qrCode: qrCode,
+                country: 'Brazil'
+            };
+        }
+    }
+
+
+    public static parseBuyCode(qrCode: string): QRCodeParserResponseBuy{
+        const peruvianResponse = QRCodeParser.parsePeruvianCode(qrCode)
+        if (peruvianResponse.isValid){
+            return peruvianResponse;
+        }
+        const brazilianResponse = QRCodeParser.parseBrazilianCode(qrCode)
+        return brazilianResponse
     }
 }
 

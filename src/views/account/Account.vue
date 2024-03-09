@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonFooter, IonTextarea, IonContent, IonImg, IonAvatar, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController, actionSheetController, toastController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonFooter, IonButton, IonTextarea, IonContent, IonImg, IonAvatar, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController, actionSheetController, toastController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
@@ -58,6 +58,8 @@ import { Viewport } from '@/utils/Viewport/Viewport';
 import { Notifications } from '@/utils/Notifications/Notifications';
 import { onMounted } from 'vue';
 import { Environment } from '@/utils/Environment/Environment';
+import { CurrencyFly } from '@/utils/CurrencyFly/CurrencyFly';
+import { QRCodeParser } from '@/utils/QRCodeParser/QRCodeParser';
 
 const aboutAppText = ref<string>(`Version: ${Environment.version()} \nBuild: ${Environment.build()}`);
 const accountData = ref<any>(null);

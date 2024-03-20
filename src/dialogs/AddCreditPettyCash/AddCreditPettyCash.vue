@@ -15,7 +15,7 @@
         <ion-content>
             <section class="ion-padding">
                 <section class="ion-padding deposit-camp">
-                    <CurrencyInput ref="currencyInput" class="native-input sc-ion-input-ios" style="text-align: center; font-size: 48px;" v-model="dynamicData.amount" :options="{ currency: 'PEN', autoDecimalDigits: true, currencyDisplay: 'narrowSymbol', locale: 'es-PE', hideCurrencySymbolOnFocus: false }"></CurrencyInput>
+                    <CurrencyInput ref="currencyInput" class="native-input sc-ion-input-ios" style="text-align: center; font-size: 48px;" v-model="dynamicData.amount" :options="{ currency: 'PEN', autoDecimalDigits: false, currencyDisplay: 'narrowSymbol', locale: 'es-PE', hideCurrencySymbolOnFocus: false }"></CurrencyInput>
                 </section>
             </section>
             

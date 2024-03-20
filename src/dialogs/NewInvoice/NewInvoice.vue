@@ -74,7 +74,7 @@
                                 </ion-accordion-group>
                                 <ion-item>
                                     <ion-label position="stacked">Valor:</ion-label>
-                                    <CurrencyInput ref="currencyInput" class="native-input sc-ion-input-ios" v-model="invoice.amount" :options="{ currency: 'PEN', autoDecimalDigits: true, currencyDisplay: 'hidden' }"></CurrencyInput>
+                                    <CurrencyInput ref="currencyInput" class="native-input sc-ion-input-ios" v-model="invoice.amount" :options="{ currency: 'PEN', autoDecimalDigits: false, currencyDisplay: 'hidden' }"></CurrencyInput>
                                 </ion-item>
                                 <ion-item>
                                     <ion-input @ionInput="checkTicketOnInput"  :class="(isRepeatedTicket) ? 'display-error-holder' : ''" :label="'Código de ' + invoiceType + ':'" label-placement="stacked" placeholder="AAXX-XXXXXXXX" v-model="invoice.ticket_number">

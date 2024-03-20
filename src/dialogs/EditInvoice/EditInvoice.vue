@@ -64,10 +64,14 @@
                                 <ion-item>
                                     <ion-input label="Descripción del gasto:" label-placement="stacked" placeholder="Ej.: material para construcción" v-model="invoice.description"></ion-input>
                                 </ion-item>
-                                <ion-item>
-                                    <ion-label position="stacked">Fecha:</ion-label>
-                                    <input class="native-input sc-ion-input-ios" v-maska data-maska="##/##/####" v-model="invoice.date" inputmode="numeric">
-                                </ion-item>
+                                <ion-accordion-group>
+                                    <ion-accordion value="start">
+                                        <ion-item lines="inset" slot="header">
+                                            <ion-input label="Fecha" label-placement="stacked" placeholder="10/10/2023" v-model="invoice.date" :readonly="true"></ion-input>
+                                        </ion-item>
+                                        <ion-datetime slot="content" presentation="date" v-model="dynamicData.datetimePickerDate" @ion-change="onDatePickerChange"></ion-datetime>
+                                    </ion-accordion>
+                                </ion-accordion-group>
 
                                 <ion-item>
                                     <ion-label position="stacked">Valor:</ion-label>
@@ -143,7 +147,11 @@ import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
 
-
+const onDatePickerChange = (event: CustomEvent) => {
+    const date = event.detail.value.split('T')[0];
+    const formatted = DateTime.fromFormat(date, "yyyy-MM-dd").toFormat("dd/MM/yyyy").toString();
+    invoice.value.date = formatted;
+}
 const currencyInput = ref<CurrencyInput|null>(null);
 const accordionGroup = ref<any>(null);
 const isLoading = ref<boolean>(true);
@@ -153,12 +161,14 @@ const dynamicData = ref<{
     uploadedImageBase64: null | string,
     originalImageBase64: null | string,
     formErrors: Array<{field: string, message: string}>,
-    status: "idle" | "uploading-image" | "creating-invoice" | "success" | "error"
+    status: "idle" | "uploading-image" | "creating-invoice" | "success" | "error",
+    datetimePickerDate: string
 }>({
     uploadedImageBase64: null,
     originalImageBase64: null,
     formErrors: [],
-    status: "idle"
+    status: "idle",
+    datetimePickerDate: DateTime.now().toISO()
 })
 const props = defineProps({
     invoice: {
@@ -233,6 +243,7 @@ const setBarcodeData = (qrCodeContent:string) => {
     if (response.content.date){
         const ticketDate = DateTime.fromFormat(response.content.date, "yyyy-MM-dd");
         invoice.value.date = ticketDate.toFormat("dd/MM/yyyy");
+        dynamicData.value.datetimePickerDate = ticketDate.toISODate() as unknown as string;
     }
 }
 const openQRCodeScanner = async () => {
@@ -592,6 +603,10 @@ onMounted(async () => {
     }, 100);
     loadJobsAndExpenses();
     loadImage();
+
+    dynamicData.value.datetimePickerDate = DateTime.fromISO(props.invoice.date).toISODate()?.toString();
+
+
 })
 </script>
 

@@ -302,6 +302,7 @@ const loadReceiptImage = async () => {
 
     imageCompression(file, {
         maxSizeMB: 1,
+        maxWidthOrHeight: 1024
     }).then((compressedFile) => {
         new Promise((resolve, reject) => {
             const reader = new FileReader();

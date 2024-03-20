@@ -460,14 +460,16 @@ const openCamera = async (forceFromGallery: boolean = false) => {
 
 
     const loadImageFrom = async (image: {path: string, webPath: string}, origin: "Web" | "Native" = "Native") => {
-
         isLoadingImageCompression.value = true;
         const response = await fetch(image.webPath as unknown as string);
         const blob = await response.blob();
         const file = new File([blob], "image.jpg", {type: blob.type});
 
+        console.log("Original Image size: ", (file.size / 1000000) + "MB");
+
         imageCompression(file, {
             maxSizeMB: 1,
+            maxWidthOrHeight: 1024
         }).then((compressedFile) => {
             new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -478,7 +480,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 const base64Image = (base64ImagePre as string).split(";base64,")[1];
                 const imageSize = (base64Image.length * (3/4)) / 1000000;
 
-
+                console.log("Compressed Image size: ", imageSize);
                 if (imageSize >= 1){
                     alertController.create({
                         header: "Oops...",

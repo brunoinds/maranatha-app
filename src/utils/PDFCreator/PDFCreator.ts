@@ -4,6 +4,7 @@ import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { Session } from "@/utils/Session/Session";
 import { JobsAndExpenses } from "@/utils/Stored/JobsAndExpenses";
 import { Toolbox } from "@/utils/Toolbox/Toolbox";
+import imageCompression from "browser-image-compression";
 import { jsPDF } from "jspdf";
 import 'jspdf-autotable';
 import { DateTime } from "luxon";
@@ -230,7 +231,7 @@ class PDFCreator{
                     }
                 }
                 const canvas = document.createElement('canvas');
-                canvas.width = 1000;
+                canvas.width = 500;
                 canvas.height = this.doc.internal.pageSize.getHeight() as unknown as number;
                 const ctx = canvas.getContext('2d') as unknown as CanvasRenderingContext2D;
 
@@ -238,14 +239,13 @@ class PDFCreator{
                 ctx.fillStyle = 'yellow';
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 3;
+                
 
                 pageTexting.reverse().forEach((textItem, index) => {
                     ctx.strokeText(textItem.text, textPadding.x + 10, 30 + ((index * 20)));
                     ctx.fillText(textItem.text, textPadding.x + 10, 30 + ((index * 20)));
-                })
-
+                });
                 this.doc.addImage(canvas, 'PNG', 0, 0); 
-
                 this.updateProgress(`Agregando fotos (${i}/${totalInvoices})...`, {current: i, total: totalInvoices}, 3, 3);
             })
             resolve(this.doc);

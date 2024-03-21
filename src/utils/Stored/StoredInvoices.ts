@@ -4,6 +4,7 @@ import { Dialog } from "@/utils/Dialog/Dialog";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { StoredReports } from "@/utils/Stored/StoredReports";
 import { TStorage } from "@/utils/Toolbox/TStorage";
+import { ref } from "vue";
 
 interface IInvoiceResponse{
     id: number;
@@ -23,7 +24,7 @@ interface IInvoiceResponse{
 }
 
 class StoredInvoices{
-    private static isUpdatingPending: boolean = false;
+    public static isUpdatingPending = ref(false);
     private static disableShowUpdatingDialog = false;
     private static disableShowUpdatingDialogTimeout: any = null;
     public static getInvoices(reportId: number): Promise<IInvoiceResponse[]>{
@@ -221,6 +222,7 @@ class StoredInvoices{
                 const performPromises = (dialog:any) => {
                     return new Promise((resolve, reject) => {
                         let listOfUpdates:Array<{previousId: number, updatedInvoiceData: IInvoiceResponse}> = [];
+                        StoredInvoices.isUpdatingPending.value = true;
                         Promise.all(listInvoicesToUpdate).then((listInvoicesToUpdate) => {
                             listInvoicesToUpdate.forEach((invoiceToUpdate) => {
                                 listOfUpdates.push({
@@ -238,6 +240,7 @@ class StoredInvoices{
                                 if (dialog){
                                     dialog?.close();
                                 }
+                                StoredInvoices.isUpdatingPending.value = false;
                                 resolve(listOfUpdates);
                             }).catch(() => {
                                 reject();
@@ -270,7 +273,7 @@ class StoredInvoices{
     }
     private static waitUpdatePending():Promise<void>{
         return new Promise((resolve, reject) => {
-            if (StoredInvoices.isUpdatingPending){
+            if (StoredInvoices.isUpdatingPending.value){
                 setTimeout(() => {
                     StoredInvoices.waitUpdatePending().then(() => {
                         resolve();

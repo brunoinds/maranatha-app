@@ -65,7 +65,7 @@
                                     <ion-input label="Descripción del gasto:" label-placement="stacked" placeholder="Ej.: material para construcción" v-model="invoice.description"></ion-input>
                                 </ion-item>
                                 <ion-accordion-group>
-                                    <ion-accordion value="start">
+                                    <ion-accordion value="start" class="datetime-accordion">
                                         <ion-item lines="inset" slot="header">
                                             <ion-input label="Fecha" label-placement="stacked" placeholder="10/10/2023" v-model="invoice.date" :readonly="true"></ion-input>
                                         </ion-item>
@@ -94,11 +94,44 @@
                         </ion-item>
                         <section slot="content">
                             <ion-list>
-                                <ion-item>
-                                    <ion-select label="Job" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Job"  v-model="invoice.job_code">
+                                <ion-item v-if="dynamicData.listSelectedJobs.length == 0">
+                                    <ion-select label="Job" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Job"  v-model="invoice.job_code" @ion-change="(ev) => {dynamicData.listSelectedJobs = []; addJobToList(ev.detail.value)}">
                                         <ion-select-option v-for="job in jobsAndExpensesSelector.jobs" :value="job.code">{{job.code}} - {{ job.name }}</ion-select-option>
                                     </ion-select>
                                 </ion-item>
+                            </ion-list>
+                            <ion-accordion-group  v-if="dynamicData.listSelectedJobs.length > 0">
+                                <ion-accordion value="start" class="jobs-accordion">
+                                    <ion-item lines="inset" slot="header">
+                                        <ion-input label="Jobs" label-placement="stacked" placeholder="Selecciona el Job" :value="dynamicData.listSelectedJobs.map((i) => {return i.job.code}).join(', ')" :readonly="true"></ion-input>
+                                    </ion-item>
+                                    <section slot="content">
+                                        <ion-list>
+                                            <ion-item v-for="(jobItem, index) in dynamicData.listSelectedJobs" :key="jobItem.id">
+                                                <div slot="start"></div>
+                                                <ion-select style="flex: 1 1 80%;max-width: 75%;min-width: 75%;" :label="'Job ' + (index + 1) " label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Job" v-model="jobItem.job">
+                                                    <ion-select-option v-for="job in jobsAndExpensesSelector.jobs" :value="job">{{job.code}} - {{ job.name }}</ion-select-option>
+                                                </ion-select>
+                                                
+                                                <ion-input min="0" max="100" style="flex: 30%; min-width: 85px; max-width: 85px;" :class="!selectedJobsPercentageIsCompleted ? 'jl-not-completed' : ''"  label="Porcentaje" label-placement="stacked" type="number" placeholder="100" v-model="jobItem.percentage" inputmode="decimal"></ion-input>
+                                                
+                                                <ion-button fill="clear" slot="end" @click="dynamicData.listSelectedJobs = dynamicData.listSelectedJobs.filter(e => e.id != jobItem.id); removeFromJobList()">
+                                                    <ion-icon :icon="removeCircleOutline"></ion-icon>
+                                                </ion-button>
+                                            </ion-item>
+                                        </ion-list>
+
+                                        <p v-if="!selectedJobsPercentageIsCompleted" style="font-size: 10px; margin-left: 33px; color: red; text-align: right; margin-right: 12px;">La sumatória de los porcentajes tiene que ser igual a 100%</p>
+
+                                        <ion-button expand="block" fill="clear" @click="addJobToList()">
+                                            <ion-icon :icon="addOutline" slot="start"></ion-icon>
+                                            Agregar Job
+                                        </ion-button>
+                                    </section>
+                                </ion-accordion>
+                            </ion-accordion-group>
+
+                            <ion-list>
                                 <ion-item>
                                     <ion-select label="Expense" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Expense"  v-model="invoice.expense_code">
                                         <ion-select-option v-for="expense in jobsAndExpensesSelector.expenses" :value="expense.code">{{ expense.code }} - {{ expense.name }}</ion-select-option>
@@ -124,7 +157,7 @@ import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle,IonButtons, IonThumbna
 import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { EInvoiceType, IInvoice, INewInvoice } from '../../interfaces/InvoiceInterfaces';
 import { IJob, IExpense } from '../../interfaces/JobsAndExpensesInterfaces';
-import { briefcaseOutline, trashBinOutline, camera, cameraOutline, arrowForward, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash, attachOutline } from 'ionicons/icons';
+import { briefcaseOutline, trashBinOutline, camera, cameraOutline, arrowForward, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash, attachOutline, addOutline, removeCircleOutline } from 'ionicons/icons';
 
 import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
 //import { Money3Component } from 'v-money3';
@@ -154,14 +187,13 @@ import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
 import { CurrencyFly } from '@/utils/CurrencyFly/CurrencyFly';
+import { StoredReports } from '@/utils/Stored/StoredReports';
 
 const onDatePickerChange = (event: CustomEvent) => {
     const date = event.detail.value.split('T')[0];
     const formatted = DateTime.fromFormat(date, "yyyy-MM-dd").toFormat("dd/MM/yyyy").toString();
     invoice.value.date = formatted;
 }
-
-
 
 const currencyInput = ref<CurrencyInput|null>(null);
 const accordionGroup = ref<any>(null);
@@ -172,17 +204,23 @@ const dynamicData = ref<{
     uploadedImageBase64: null | string,
     formErrors: Array<{field: string, message: string}>,
     status: "idle" | "uploading-image" | "creating-invoice" | "success" | "error",
-    datetimePickerDate: string
+    datetimePickerDate: string,
+    listSelectedJobs: Array<{id: string, job: IJob, percentage: number}>,
 }>({
     uploadedImageBase64: null,
     formErrors: [],
     status: "idle",
-    datetimePickerDate: DateTime.now().toISODate() as unknown as string
+    datetimePickerDate: DateTime.now().toISODate() as unknown as string,
+    listSelectedJobs: []
 })
 const props = defineProps({
     reportId: {
         type: Number,
         required: true
+    },
+    reportInvoices: {
+        type: Array,
+        required: true,
     },
     type: {
         type: String,
@@ -219,6 +257,31 @@ const jobsAndExpensesSelector = computed(() => {
     }
 })
 
+const addJobToList = (jobCode: null|string = null) => {
+    dynamicData.value.listSelectedJobs.forEach((item) => {
+        item.percentage = (100 / (dynamicData.value.listSelectedJobs.length + 1)).toFixed(2) as unknown as number;
+    })
+
+    dynamicData.value.listSelectedJobs.push({
+        id: (dynamicData.value.listSelectedJobs.length + 1).toString(),
+        job: (jobCode) ?  jobsAndExpensesSelector.value.jobs.find((job) => job.code == jobCode) as IJob : jobsAndExpensesSelector.value.jobs[0],
+        percentage: (100 / (dynamicData.value.listSelectedJobs.length + 1)).toFixed(2) as unknown as number
+    })
+}
+const removeFromJobList = () => {
+    dynamicData.value.listSelectedJobs.forEach((item) => {
+        item.percentage = (100 / (dynamicData.value.listSelectedJobs.length)).toFixed(2) as unknown as number;
+    })
+}
+const selectedJobsPercentageIsCompleted = computed(()=> {
+    let totalPercentage = 0;
+    dynamicData.value.listSelectedJobs.forEach((item) => {
+        totalPercentage += parseFloat(item.percentage);
+    })
+
+    totalPercentage = Math.round(totalPercentage);
+    return totalPercentage == 100;
+})
 const checkTicketOnInput = (event: CustomEvent) => {
     const value = event.detail.value.trim();
 
@@ -248,21 +311,6 @@ const invoice = ref<INewInvoice>({
     image: null
 });
 
-/* For tests porpuses
-const invoice = ref<INewInvoice>({
-    report_id: props.reportId,
-    type: props.type as unknown as EInvoiceType,
-    description: "Test", 
-    ticket_number: "123", 
-    commerce_number: "123", 
-    date: DateTime.now().toFormat("dd/MM/yyyy").toString(),
-    job_code: "708", 
-    expense_code: "1008", 
-    amount: 10 as unknown as number,
-    qrcode_data: "",
-    image: null
-});
-*/
 const invoiceType = computed(() => {
     return invoice.value.type === "Bill" ? "Boleta" : "Factura";
 })
@@ -270,11 +318,9 @@ const stepsChecks = computed(() => {
     return {
         first: dynamicData.value.uploadedImageBase64 !== null ? true : false,
         second: (invoice.value.description.length !== 0 && invoice.value.date.length !== 0 && invoice.value.ticket_number.length !== 0 && invoice.value.commerce_number.length !== 0 && invoice.value.amount !== 0) ? true : false,
-        third: (invoice.value.job_code.length !== 0 && invoice.value.expense_code.length !== 0) ? true : false
+        third: (invoice.value.job_code.length !== 0 && invoice.value.expense_code.length !== 0 && (dynamicData.value.listSelectedJobs.length > 0 ? selectedJobsPercentageIsCompleted.value :  true)) ? true : false
     }
 })
-
-
 
 const setBarcodeData = (qrCodeContent:string) => {
     const response = QRCodeParser.parseBuyCode(qrCodeContent);
@@ -660,41 +706,107 @@ const createNewInvoice = async () => {
         isLoading.value = true;
         dynamicData.value.status = "creating-invoice";
 
-        const invoiceDocument = {
-            ...invoice.value,
-            id: 0,
-            date: DateTime.fromFormat(invoice.value.date, "dd/MM/yyyy").toISO(),
-            image: dynamicData.value.uploadedImageBase64,
-            report_id: parseInt(props.reportId.toString())
-        } as unknown as IInvoice;
+        
 
-        try {
-            const invoiceCreated = await StoredInvoices.addInvoice(invoiceDocument);
-            const newInvoiceId = invoiceCreated.id;
 
-            toastController.create({
-                message: "✅ La " + invoiceType.value + " se ha creado con éxito",
-                duration: 2000
-            }).then((toast) => {
-                toast.present();
-            })
-            isLoading.value = false;
-            props.emitter.fire("created");
-            props.emitter.fire("close");
-        } catch (error) {
-            alertController.create({
-                header: "Error",
-                message: "No se pudo crear el documento",
-            }).then((alert) => {
-                alert.present();
-            })
-            isLoading.value = false;
+
+        const createMultiplesInvoices = async () => {
+            const listInvoicesToCreate = dynamicData.value.listSelectedJobs.map((selectedJob, i) => {
+                return {
+                    ...invoice.value,
+                    job_code: selectedJob.job.code,
+                    amount: parseFloat((invoice.value.amount * (selectedJob.percentage / 100)).toFixed(2)),
+                    id: i,
+                    date: DateTime.fromFormat(invoice.value.date, "dd/MM/yyyy").toISO(),
+                    image: dynamicData.value.uploadedImageBase64,
+                    report_id: parseInt(props.reportId.toString())
+                } as unknown as IInvoice;
+            });
+
+            if (props.reportInvoices.length + listInvoicesToCreate.length > 28){
+                //Abort and show message:
+                alertController.create({
+                    header: "Oops...",
+                    subHeader: "No se puede crear más de 28 documentos en un reporte",
+                    message: "Cada job elegido para el documento se convertirá en un documento separado y el límite de 28 documentos por reporte se superará.",
+                    buttons: ["OK"]
+                }).then((alert) => {
+                    alert.present();
+                })
+                isLoading.value = false;
+                dynamicData.value.status = "idle";
+                return;
+            }
+
+
+
+
+            try {
+                for (let i = 0; i < listInvoicesToCreate.length; i++){
+                    const invoiceCreated = await StoredInvoices.addInvoice(listInvoicesToCreate[i]);
+                }
+
+                toastController.create({
+                    message: "✅ La " + invoiceType.value + " se ha creado con éxito",
+                    duration: 2000
+                }).then((toast) => {
+                    toast.present();
+                })
+                isLoading.value = false;
+                props.emitter.fire("created");
+                props.emitter.fire("close");
+            } catch (error) {
+                alertController.create({
+                    header: "Error",
+                    message: "No se pudo crear el documento",
+                }).then((alert) => {
+                    alert.present();
+                })
+                isLoading.value = false;
+            }
+        }
+
+        const createSingleInvoice = async () => {
+            const invoiceDocument = {
+                ...invoice.value,
+                id: 0,
+                date: DateTime.fromFormat(invoice.value.date, "dd/MM/yyyy").toISO(),
+                image: dynamicData.value.uploadedImageBase64,
+                report_id: parseInt(props.reportId.toString())
+            } as unknown as IInvoice;
+
+            try {
+                const invoiceCreated = await StoredInvoices.addInvoice(invoiceDocument);
+                const newInvoiceId = invoiceCreated.id;
+
+                toastController.create({
+                    message: "✅ La " + invoiceType.value + " se ha creado con éxito",
+                    duration: 2000
+                }).then((toast) => {
+                    toast.present();
+                })
+                isLoading.value = false;
+                props.emitter.fire("created");
+                props.emitter.fire("close");
+            } catch (error) {
+                alertController.create({
+                    header: "Error",
+                    message: "No se pudo crear el documento",
+                }).then((alert) => {
+                    alert.present();
+                })
+                isLoading.value = false;
+            }
+        }
+
+
+        if (dynamicData.value.listSelectedJobs.length > 0){
+            createMultiplesInvoices();
+        }else{
+            createSingleInvoice();
         }
     }
-
 }
-
-
 
 const loadJobsAndExpenses = async () => {
     const jobs =  await JobsAndExpenses.getJobs() as unknown as Array<IJob>;
@@ -729,5 +841,18 @@ onMounted(async () => {
 .display-error{
     position: absolute;
     bottom: 2px;
+}
+
+.datetime-accordion{
+    &::part(content expanded){
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f4f5f8;
+    }
+}
+
+.jl-not-completed{
+    color: red;
 }
 </style>

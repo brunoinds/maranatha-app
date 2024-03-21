@@ -223,6 +223,8 @@
                         </ion-button>
                     </section>
                     <ion-list>
+                        <ion-progress-bar v-if="isUpdatingPending" type="indeterminate"></ion-progress-bar>
+
                         <ion-item v-for="invoice in invoices" :key="invoice.id" @click="openInvoice(invoice)" button :detail="true" :disabled="report.status != 'Draft'">
                             <ion-label>
                                 <h2><b>{{ invoice.description }}</b></h2>
@@ -255,7 +257,7 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar,IonCard, IonCardHeader, IonCardSubtitle, IonCardContent, IonCardTitle, IonTitle,IonChip, IonContent, IonIcon, IonListHeader, IonButton, IonList, IonItem, IonLabel, IonProgressBar, modalController, IonBackButton, IonButtons, actionSheetController, toastController, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
-import { computed, nextTick, ref } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { add, addOutline, pencilOutline, send, trashBinOutline, cashOutline, cloudUploadOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline, checkmark, checkmarkDoneOutline, timeOutline, lockOpenOutline, documentTextOutline, eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import { EMoneyType, EReportStatus, IReport } from '../../interfaces/ReportInterfaces';
 import IonTitleSubtitle from '../../components/IonTitleSubtitle/IonTitleSubtitle.vue';
@@ -354,9 +356,13 @@ const report = computed(() => {
     }
 });
 
+
+
 const addInvoice = async () => {
     Dialog.show(NewInvoice, {
         props:{
+            report: report.value,
+            reportInvoices: invoices.value,
             reportId: reportId.value,
             type: report.value.type,
             autoShowCamera: false
@@ -492,7 +498,9 @@ const loadReportInvoices = async () => {
     })
 }
 
-
+const isUpdatingPending = computed(() => {
+    return StoredInvoices.isUpdatingPending.value;
+}) 
 const acceptReport = async () => {
     isLoading.value = true;
 
@@ -911,6 +919,7 @@ const isAdminCheck = async () => {
 
     isAdmin.value = currentSession.roles().includes("admin");
 }
+
 isAdminCheck();
 initialize();
 </script>

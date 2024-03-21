@@ -65,7 +65,7 @@
                                     <ion-input label="Descripción del gasto:" label-placement="stacked" placeholder="Ej.: material para construcción" v-model="invoice.description"></ion-input>
                                 </ion-item>
                                 <ion-accordion-group>
-                                    <ion-accordion value="start">
+                                    <ion-accordion value="start" class="datetime-accordion">
                                         <ion-item lines="inset" slot="header">
                                             <ion-input label="Fecha" label-placement="stacked" placeholder="10/10/2023" v-model="invoice.date" :readonly="true"></ion-input>
                                         </ion-item>
@@ -615,5 +615,13 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.datetime-accordion{
+    &::part(content expanded){
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f4f5f8;
+    }
 }
 </style>

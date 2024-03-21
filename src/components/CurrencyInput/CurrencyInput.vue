@@ -2,6 +2,7 @@
     <input
         ref="inputRef"
         type="text"
+        inputmode="decimal"
         :disabled="disabled"
     />
 </template>

@@ -373,6 +373,18 @@ const openCamera = async (forceFromGallery: boolean = false) => {
         const blob = await response.blob();
         const file = new File([blob], "image.jpg", {type: blob.type});
 
+        if (file.size == 0){
+            alertController.create({
+                header: "Oops...",
+                message: "Este PDF contiene muchas páginas, no se pudo convertirlo en imagen. Por favor, elige un PDF más pequeño.",
+                buttons: ["OK"]
+            }).then((alert) => {
+                alert.present();
+            })
+            isLoadingImage.value = false;
+            return;
+        }
+
         imageCompression(file, {
             maxSizeMB: 1,
             maxWidthOrHeight: 1024

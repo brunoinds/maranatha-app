@@ -24,17 +24,20 @@
                             <ion-icon slot="end" :icon="checkmarkCircleOutline" color="success" v-show="stepsChecks.first"></ion-icon>
                         </ion-item>
                         <section slot="content">
+
+
+                            <ion-img v-if="dynamicData.uploadedImageBase64" :src="'data:image/jpeg;base64,' + dynamicData.uploadedImageBase64"></ion-img>
+
+
                             <ion-list v-if="dynamicData.uploadedImageBase64">
-                                <ion-item>
-                                    <ion-thumbnail slot="start">
-                                        <ion-img :src="'data:image/jpeg;base64,' + dynamicData.uploadedImageBase64"></ion-img>
-                                    </ion-thumbnail>
-                                    <ion-button fill="outline" color="danger" @click="deleteImageFromCamera"> 
-                                        <ion-icon slot="start" :icon="trashBinOutline"></ion-icon>
+                                <ion-item button @click="deleteImageFromCamera"> 
+                                    <ion-icon  color="danger" slot="start" :icon="trashBinOutline"></ion-icon>
+                                    <ion-label  color="danger">
                                         Borrar Foto de la {{invoiceType}}
-                                    </ion-button>
+                                    </ion-label>
                                 </ion-item>
                             </ion-list>
+                            
                             <section class="ion-padding" v-if="!dynamicData.uploadedImageBase64" style="display: flex; align-content: center; justify-content: space-between;">
                                 <ion-button expand="block" fill="outline" @click="openCamera()" style="width: 100%;" v-if="!isLoadingImageCompression"> 
                                     <ion-icon slot="start" :icon="camera"></ion-icon>
@@ -530,6 +533,18 @@ const openCamera = async (forceFromGallery: boolean = false) => {
         const file = new File([blob], "image.jpg", {type: blob.type});
 
         console.log("Original Image size: ", (file.size / 1000000) + "MB");
+
+        if (file.size == 0){
+            alertController.create({
+                header: "Oops...",
+                message: "Este PDF contiene muchas páginas, no se pudo convertirlo en imagen. Por favor, elige un PDF más pequeño.",
+                buttons: ["OK"]
+            }).then((alert) => {
+                alert.present();
+            })
+            isLoadingImageCompression.value = false;
+            return;
+        }
 
         imageCompression(file, {
             maxSizeMB: 1,

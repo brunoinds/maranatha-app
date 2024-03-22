@@ -137,8 +137,8 @@
 
                                 <br><br>
                                 <ion-button expand="block" color="light" @click="undoSendReport">
-                                    <ion-icon slot="start" :icon="closeCircleOutline"></ion-icon>
-                                    Cancelar envío y reaperturar reporte
+                                    <ion-icon slot="end" :icon="arrowForwardOutline"></ion-icon>
+                                    Corregir observaciones ahora
                                 </ion-button>
                             </ion-card-content>
 
@@ -258,7 +258,7 @@
 import { IonPage, IonHeader, IonToolbar,IonCard, IonCardHeader, IonCardSubtitle, IonCardContent, IonCardTitle, IonTitle,IonChip, IonContent, IonIcon, IonListHeader, IonButton, IonList, IonItem, IonLabel, IonProgressBar, modalController, IonBackButton, IonButtons, actionSheetController, toastController, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
-import { add, addOutline, pencilOutline, send, trashBinOutline, cashOutline, cloudUploadOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline, checkmark, checkmarkDoneOutline, timeOutline, lockOpenOutline, documentTextOutline, eyeOffOutline, eyeOutline } from 'ionicons/icons';
+import { add, addOutline, pencilOutline, send, trashBinOutline, cashOutline, cloudUploadOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline, checkmark, checkmarkDoneOutline, timeOutline, lockOpenOutline, documentTextOutline, eyeOffOutline, eyeOutline, chevronForwardCircleOutline, arrowForwardOutline } from 'ionicons/icons';
 import { EMoneyType, EReportStatus, IReport } from '../../interfaces/ReportInterfaces';
 import IonTitleSubtitle from '../../components/IonTitleSubtitle/IonTitleSubtitle.vue';
 

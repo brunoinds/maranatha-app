@@ -25,6 +25,8 @@
                     <ion-select label="Tipo de moneda" label-placement="stacked" interface="action-sheet" v-model="dynamicData.moneyType" :disabled="isLoading">
                         <ion-select-option value="PEN">Soles</ion-select-option>
                         <ion-select-option value="USD">Dólares</ion-select-option>
+                        <ion-select-option value="BRL">Reales</ion-select-option>
+                        <ion-select-option value="PYG">Guaranies</ion-select-option>
                     </ion-select>
                 </ion-item>
                 <ion-item>
@@ -55,6 +57,7 @@ import { DateTime } from 'luxon';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
 import { IReportResponse, StoredReports } from '@/utils/Stored/StoredReports';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -181,7 +184,7 @@ const generateDefaultTitle = () => {
             const startDate = DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy");
             //Use Intl and get the month name in es-PE:
             const monthName = new Intl.DateTimeFormat('es-PE', { month: 'long'}).formatToParts(startDate.toJSDate())[0].value;
-            const moneyName = dynamicData.value.moneyType == EMoneyType.PEN ? 'Soles' : 'Dólares';
+            const moneyName = Toolbox.moneyName(dynamicData.value.moneyType);
             //The report title will be: "Boletas Enero 2021":
             return `${monthName} - ${dynamicData.value.type == EReportType.Bill ? 'Boletas' : 'Facturas'} en ${moneyName.toLowerCase()}`;
         } catch (error) {

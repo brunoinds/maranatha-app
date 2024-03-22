@@ -17,6 +17,34 @@ class Toolbox{
                 return "S/.";
             case EMoneyType.USD:
                 return "$";
+            case EMoneyType.BRL:
+                return "R$";
+            case EMoneyType.PYG:
+                return "₲";
+        }
+    }
+    public static moneyName(moneyType: EMoneyType): string{
+        switch(moneyType){
+            case EMoneyType.PEN:
+                return "Soles";
+            case EMoneyType.USD:
+                return "Dólares";
+            case EMoneyType.BRL:
+                return "Reales";
+            case EMoneyType.PYG:
+                return "Guaraníes";
+        }
+    }
+    public static moneyNameEnglish(moneyType: EMoneyType): string{
+        switch(moneyType){
+            case EMoneyType.PEN:
+                return "Peruvian Soles";
+            case EMoneyType.USD:
+                return "US Dollars";
+            case EMoneyType.BRL:
+                return "Brazilian Reales";
+            case EMoneyType.PYG:
+                return "Paraguayan Guaraníes";
         }
     }
     public static moneyFormat(amount: number, withPrefix: EMoneyType|boolean = false): string{

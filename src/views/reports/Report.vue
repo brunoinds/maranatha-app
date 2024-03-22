@@ -225,7 +225,7 @@
                     <ion-list>
                         <ion-progress-bar v-if="isUpdatingPending" type="indeterminate"></ion-progress-bar>
 
-                        <ion-item v-for="invoice in invoices" :key="invoice.id" @click="openInvoice(invoice)" button :detail="true" :disabled="report.status != 'Draft'">
+                        <ion-item v-for="invoice in invoices" :key="invoice.id" @click="openInvoice(invoice)" button :detail="true">
                             <ion-label>
                                 <h2><b>{{ invoice.description }}</b></h2>
                                 <h3>{{ invoice.date }}</h3>
@@ -412,12 +412,14 @@ const deleteInvoice = async (invoice:IInvoice) => {
         toast.present();
     })
 }
-const editInvoice = async (invoice:IInvoice) => {
+const editInvoice = async (invoice:IInvoice, readonly: boolean = false) => {
     Dialog.show(EditInvoice, {
         props:{
+            report: report.value,
             invoice: invoice,
             type: report.value.type,
-            autoShowCamera: false
+            autoShowCamera: false,
+            readonly: readonly
         },
         onLoaded($this) {
             $this.on('updated', (event:any) => {
@@ -466,6 +468,11 @@ const openInvoice = async (invoice:IInvoice) => {
                 }
             }
         ]
+    }
+
+    if (report.value.status != 'Draft'){
+        editInvoice(invoice.original, true)
+        return;
     }
 
 
@@ -581,7 +588,7 @@ const createExportPDF = async () => {
                 }
             })(),
             currency: (() => {
-                return report.value.money_type == EMoneyType.PEN ? 'Peruvian Soles (PEN)' : 'US Dollars (USD)';
+                return Toolbox.moneyNameEnglish(report.value.money_type) + ` (${report.value.money_type})`;
             })()
         },
         listenTo: {

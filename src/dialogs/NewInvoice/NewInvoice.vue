@@ -74,7 +74,7 @@
                                 </ion-accordion-group>
                                 <ion-item>
                                     <ion-label position="stacked">Valor:</ion-label>
-                                    <CurrencyInput ref="currencyInput" class="native-input sc-ion-input-ios" v-model="invoice.amount" :options="{ currency: 'PEN', autoDecimalDigits: false, currencyDisplay: 'hidden' }"></CurrencyInput>
+                                    <CurrencyInput ref="currencyInput" class="native-input sc-ion-input-ios" v-model="invoice.amount" :options="{ currency: props.report.money_type, currencyDisplay: 'narrowSymbol', autoDecimalDigits: false, locale: 'es-PE', hideCurrencySymbolOnFocus: false, precision: 2}"></CurrencyInput>
                                 </ion-item>
                                 <ion-item>
                                     <ion-input @ionInput="checkTicketOnInput"  :class="(isRepeatedTicket) ? 'display-error-holder' : ''" :label="'Código de ' + invoiceType + ':'" label-placement="stacked" placeholder="AAXX-XXXXXXXX" v-model="invoice.ticket_number">
@@ -188,6 +188,7 @@ import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
 import { CurrencyFly } from '@/utils/CurrencyFly/CurrencyFly';
 import { StoredReports } from '@/utils/Stored/StoredReports';
+import { IReport } from '@/interfaces/ReportInterfaces';
 
 const onDatePickerChange = (event: CustomEvent) => {
     const date = event.detail.value.split('T')[0];
@@ -218,6 +219,10 @@ const props = defineProps({
         type: Number,
         required: true
     },
+    report: {
+        type: Object as () => IReport,
+        required: true
+    },
     reportInvoices: {
         type: Array,
         required: true,
@@ -244,7 +249,7 @@ const jobsAndExpensesSelector = computed(() => {
     return {
         jobs: jobsAndExpenses.value.jobs,
         expenses: (() => {
-            if (invoice.value.job_code == "0000"){
+            if (invoice.value.job_code.startsWith('000')){
                 return jobsAndExpenses.value.expenses.filter((expense) => {
                     return (parseInt(expense.code) >= 700 && parseInt(expense.code) <= 799)
                 })

@@ -5,9 +5,11 @@
                 <ion-buttons slot="start">
                     <ion-button :disabled="isLoading" @click="emitter.fire('close')">Cancelar</ion-button>
                 </ion-buttons>
-                <ion-title>Editar {{invoiceType}}</ion-title>
+                <ion-title v-if="readonly">Visualizar {{invoiceType}}</ion-title>
+                <ion-title v-if="!readonly">Editar {{invoiceType}}</ion-title>
+
                 <ion-buttons slot="end">
-                    <ion-button @click="saveInvoice" :disabled="!(stepsChecks.first && stepsChecks.second && stepsChecks.third) || isLoading">
+                    <ion-button v-if="!readonly" @click="saveInvoice" :disabled="!(stepsChecks.first && stepsChecks.second && stepsChecks.third) || isLoading">
                         Guardar
                     </ion-button>
                 </ion-buttons>
@@ -29,7 +31,7 @@
                             <ion-img v-if="dynamicData.uploadedImageBase64" :src="'data:image/jpeg;base64,' + dynamicData.uploadedImageBase64"></ion-img>
 
                             <ion-list v-if="dynamicData.uploadedImageBase64">
-                                <ion-item button @click="deleteImageFromCamera"> 
+                                <ion-item button @click="deleteImageFromCamera" v-if="!readonly"> 
                                     <ion-icon  color="danger" slot="start" :icon="trashBinOutline"></ion-icon>
                                     <ion-label  color="danger">
                                         Borrar Foto de la {{invoiceType}}
@@ -55,33 +57,33 @@
                         <section slot="content">
                             <ion-list>
                                 <ion-item>
-                                    <ion-input label="Código QR" label-placement="stacked" placeholder="" v-model="invoice.qrcode_data"></ion-input>
-                                    <ion-button slot="end" fill="clear" @click="openQRCodeScanner"> 
+                                    <ion-input :readonly="readonly" label="Código QR" label-placement="stacked" placeholder="" v-model="invoice.qrcode_data"></ion-input>
+                                    <ion-button slot="end" fill="clear" @click="openQRCodeScanner" v-if="!readonly"> 
                                         Scanear QR
                                         <ion-icon slot="start" :icon="qrCodeOutline"></ion-icon>
                                     </ion-button>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-input label="Descripción del gasto:" label-placement="stacked" placeholder="Ej.: material para construcción" v-model="invoice.description"></ion-input>
+                                    <ion-input label="Descripción del gasto:" label-placement="stacked" placeholder="Ej.: material para construcción" v-model="invoice.description" :readonly="readonly"></ion-input>
                                 </ion-item>
                                 <ion-accordion-group>
                                     <ion-accordion value="start" class="datetime-accordion">
                                         <ion-item lines="inset" slot="header">
                                             <ion-input label="Fecha" label-placement="stacked" placeholder="10/10/2023" v-model="invoice.date" :readonly="true"></ion-input>
                                         </ion-item>
-                                        <ion-datetime slot="content" presentation="date" v-model="dynamicData.datetimePickerDate" @ion-change="onDatePickerChange"></ion-datetime>
+                                        <ion-datetime :disabled="readonly" slot="content" presentation="date" v-model="dynamicData.datetimePickerDate" @ion-change="onDatePickerChange"></ion-datetime>
                                     </ion-accordion>
                                 </ion-accordion-group>
 
                                 <ion-item>
                                     <ion-label position="stacked">Valor:</ion-label>
-                                    <CurrencyInput ref="currencyInput" class="native-input sc-ion-input-ios" v-model="invoice.amount" :options="{ currency: 'PEN', autoDecimalDigits: false, currencyDisplay: 'hidden' }"></CurrencyInput>
+                                    <CurrencyInput ref="currencyInput"  :disabled="readonly" class="native-input sc-ion-input-ios" v-model="invoice.amount" :options="{ currency: props.report.money_type, currencyDisplay: 'narrowSymbol', autoDecimalDigits: false, locale: 'es-PE', hideCurrencySymbolOnFocus: false, precision: 2 }"></CurrencyInput>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-input :label="'Código de ' + invoiceType + ':'" label-placement="stacked" placeholder="AAXX-XXXXXXXX" v-model="invoice.ticket_number"></ion-input>
+                                    <ion-input  :readonly="readonly" :label="'Código de ' + invoiceType + ':'" label-placement="stacked" placeholder="AAXX-XXXXXXXX" v-model="invoice.ticket_number"></ion-input>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-input label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  inputmode="numeric"></ion-input>
+                                    <ion-input  :readonly="readonly" label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  inputmode="numeric"></ion-input>
                                 </ion-item>
                             </ion-list>
                         </section>
@@ -94,12 +96,12 @@
                         <section slot="content">
                             <ion-list>
                                 <ion-item>
-                                    <ion-select label="Job" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Job"  v-model="invoice.job_code">
+                                    <ion-select  :disabled="readonly" label="Job" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Job"  v-model="invoice.job_code">
                                         <ion-select-option v-for="job in jobsAndExpensesSelector.jobs" :value="job.code">{{job.code}} - {{ job.name }}</ion-select-option>
                                     </ion-select>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-select label="Expense" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Expense"  v-model="invoice.expense_code">
+                                    <ion-select  :disabled="readonly" label="Expense" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Expense"  v-model="invoice.expense_code">
                                         <ion-select-option v-for="expense in jobsAndExpensesSelector.expenses" :value="expense.code">{{ expense.code }} - {{ expense.name }}</ion-select-option>
                                     </ion-select>                  
                                 </ion-item>
@@ -146,6 +148,7 @@ import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
+import { IReport } from '@/interfaces/ReportInterfaces';
 
 const onDatePickerChange = (event: CustomEvent) => {
     const date = event.detail.value.split('T')[0];
@@ -178,6 +181,14 @@ const props = defineProps({
     emitter: {
         type: DialogEventEmitter,
         required: true
+    },
+    report: {
+        type: Object as () => IReport,
+        required: true
+    },
+    readonly: {
+        type: Boolean,
+        default: false
     }
 });
 const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
@@ -188,7 +199,7 @@ const jobsAndExpensesSelector = computed(() => {
     return {
         jobs: jobsAndExpenses.value.jobs,
         expenses: (() => {
-            if (invoice.value.job_code == "0000"){
+            if (invoice.value.job_code.startsWith('000')){
                 return jobsAndExpenses.value.expenses.filter((expense) => {
                     return (parseInt(expense.code) >= 700 && parseInt(expense.code) <= 799)
                 })

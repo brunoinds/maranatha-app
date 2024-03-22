@@ -11,7 +11,9 @@ enum EReportType {
 }
 enum EMoneyType{
     USD = 'USD',
-    PEN = 'PEN'
+    PEN = 'PEN',
+    BRL = 'BRL',
+    PYG = 'PYG'
 }
 interface IReport{
     id: number;

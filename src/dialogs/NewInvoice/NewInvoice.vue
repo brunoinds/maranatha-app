@@ -362,7 +362,7 @@ const setBarcodeData = (qrCodeContent:string) => {
 
 
 
-    if (response.country == 'Brazil'){
+    /*if (response.country == 'Brazil'){
         //Ask if want to convert the amount to USD:
         alertController.create({
             header: 'Converter a USD',
@@ -412,7 +412,7 @@ const setBarcodeData = (qrCodeContent:string) => {
         }).then((alert) => {
             alert.present();
         })
-    }
+    }*/
 }
 const openQRCodeScanner = async () => {
     QRCodeScanner.open().onScan().then((content) => {

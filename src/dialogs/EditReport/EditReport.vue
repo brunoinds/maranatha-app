@@ -26,10 +26,10 @@
                 </ion-item>
                 <ion-item>
                     <ion-select label="Tipo de moneda" label-placement="stacked" interface="action-sheet" v-model="dynamicData.moneyType" :disabled="isLoading">
-                        <ion-select-option value="PEN">Soles</ion-select-option>
-                        <ion-select-option value="USD">Dólares</ion-select-option>
-                        <ion-select-option value="BRL">Reales</ion-select-option>
-                        <ion-select-option value="PYG">Guaranies</ion-select-option>
+                        <ion-select-option value="PEN">Soles (S/.)</ion-select-option>
+                        <ion-select-option value="USD">Dólares ($)</ion-select-option>
+                        <ion-select-option value="BRL">Reales (R$)</ion-select-option>
+                        <ion-select-option value="PYG">Guaranies (₲)</ion-select-option>
                     </ion-select>
                 </ion-item>
                 <ion-item>

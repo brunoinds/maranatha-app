@@ -818,9 +818,12 @@ const createNewInvoice = async () => {
         }
 
 
-        if (dynamicData.value.listSelectedJobs.length > 0){
+        if (dynamicData.value.listSelectedJobs.length > 1){
             createMultiplesInvoices();
         }else{
+            if (dynamicData.value.listSelectedJobs.length == 1){
+                invoice.value.job_code = dynamicData.value.listSelectedJobs[0].job.code;
+            }
             createSingleInvoice();
         }
     }

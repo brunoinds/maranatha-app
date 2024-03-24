@@ -30,6 +30,7 @@
                 </ion-list>
 
                 <main class="content">
+                    
                     <article class="ion-padding"  v-if="report.status == 'Draft' && !isOfflineReport" >
                         <ion-button color="success" expand="block" @click="sendReport" :disabled="invoices.length == 0 || isLoading || invoicesDataWithPendingImageUpload.length > 0">
                             <ion-label>
@@ -212,10 +213,33 @@
                         </ion-card>
                     </section>
 
+
+                    <section v-if="duplicatedInvoices.hasDuplicatedInvoices && report.status == EReportStatus.Draft">
+                        <ion-card color="warning">
+                            <ion-card-content>
+                                <b>⚠️ Aviso: {{reportType.toLowerCase()}}s duplicadas</b>
+                                <br>
+                                <p>Este reporte contiene {{ duplicatedInvoices.items.length }} {{reportType.toLowerCase()}}s duplicadas y pueden ser rechazadas por el administrador.</p>
+                            </ion-card-content>
+                        </ion-card>
+                    </section>
+
+
+                    <section v-if="duplicatedInvoices.hasDuplicatedInvoices && report.status == EReportStatus.Submitted && isAdmin">
+                        <ion-card color="warning">
+                            <ion-card-content>
+                                <b>⚠️ Aviso: {{reportType.toLowerCase()}}s duplicadas</b>
+                                <br>
+                                <p>Este reporte contiene {{ duplicatedInvoices.items.length }} {{reportType.toLowerCase()}}s duplicadas. Verifica antes de aprobar el reporte.</p>
+                            </ion-card-content>
+                        </ion-card>
+                    </section>
+
                     <br>
 
                     <ion-list-header style="font-size: 15px">{{ reportType }}s del reporte ({{ invoices.length }} / 28)</ion-list-header>
                     
+
                     <section class="ion-padding">
                         <ion-button expand="block" fill="outline" @click="addInvoice" :disabled="invoices.length == 28 || isLoading" v-if="report.status == 'Draft'"> 
                             <ion-icon slot="start" :icon="add"></ion-icon>
@@ -231,9 +255,11 @@
                                 <h3>{{ invoice.date }}</h3>
                                 <p>{{ invoice.jobName }}</p>
                             </ion-label>
+
                             <ion-label slot="end">
                                 <h3>{{report.moneyPrefix}} {{ Toolbox.moneyFormat(invoice.amount) }}</h3>
                             </ion-label>
+                            <ion-badge v-if="duplicatedInvoices.items.find(item => item.id == invoice.id) && (report.status != EReportStatus.Approved && report.status != EReportStatus.Restituted)" color="warning" slot="end">D</ion-badge>
                         </ion-item>
                     </ion-list>
 
@@ -255,7 +281,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar,IonCard, IonCardHeader, IonCardSubtitle, IonCardContent, IonCardTitle, IonTitle,IonChip, IonContent, IonIcon, IonListHeader, IonButton, IonList, IonItem, IonLabel, IonProgressBar, modalController, IonBackButton, IonButtons, actionSheetController, toastController, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar,IonCard, IonBadge, IonCardHeader, IonCardSubtitle, IonCardContent, IonCardTitle, IonTitle,IonChip, IonContent, IonIcon, IonListHeader, IonButton, IonList, IonItem, IonLabel, IonProgressBar, modalController, IonBackButton, IonButtons, actionSheetController, toastController, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { add, addOutline, pencilOutline, send, trashBinOutline, cashOutline, cloudUploadOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline, checkmark, checkmarkDoneOutline, timeOutline, lockOpenOutline, documentTextOutline, eyeOffOutline, eyeOutline, chevronForwardCircleOutline, arrowForwardOutline } from 'ionicons/icons';
@@ -356,7 +382,35 @@ const report = computed(() => {
     }
 });
 
+const duplicatedInvoices = computed(() => {
+    let listIdentificators:any = [];
 
+
+    invoicesData.value.forEach((invoice) => {
+        let isSameJob = false;
+        if (invoice.description.includes('[') && invoice.description.includes(']') && invoice.description.includes('/')  && invoice.description.includes('%')){
+            isSameJob = true;
+        }
+
+        if (!isSameJob){
+            listIdentificators.push({
+                id: invoice.id,
+                invoice: invoice,
+                identificator: invoice.commerce_number + '//' + invoice.ticket_number
+            });
+        }
+    })
+
+    const onlyDuplicatedItems = listIdentificators.filter((item, index) => {
+        return listIdentificators.findIndex((item2) => item2.identificator == item.identificator) != index;
+    })
+
+
+    return {
+        hasDuplicatedInvoices: onlyDuplicatedItems.length > 0,
+        items: onlyDuplicatedItems
+    }
+})
 
 const addInvoice = async () => {
     Dialog.show(NewInvoice, {
@@ -937,6 +991,13 @@ initialize();
     max-width: 600px;
     margin: 0 auto;
     width: 100%;
+}
+
+
+.advices{
+    padding: 20px;
+    padding-bottom: 0px;
+    text-align: center;
 }
 </styles>
 

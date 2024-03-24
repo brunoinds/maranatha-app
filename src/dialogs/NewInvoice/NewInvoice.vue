@@ -85,7 +85,7 @@
                                     </ion-input>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-input label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  inputmode="numeric"></ion-input>
+                                    <ion-input @ionInput="checkTicketOnInput" label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  inputmode="numeric"></ion-input>
                                 </ion-item>
                             </ion-list>
                         </section>
@@ -291,16 +291,14 @@ const selectedJobsPercentageIsCompleted = computed(()=> {
     return totalPercentage == 100;
 })
 const checkTicketOnInput = (event: CustomEvent) => {
-    const value = event.detail.value.trim();
-
-    if (value.length == 0){
+    if (invoice.value.ticket_number.trim().length == 0 || invoice.value.commerce_number.trim().length == 0){
         isRepeatedTicket.value = false;
         return;
     }
 
     RequestAPI.get('/invoices/ticket-number/check', {
-        ticket_number: value,
-        ruc: invoice.value.commerce_number
+        ticket_number: invoice.value.ticket_number,
+        commerce_number: invoice.value.commerce_number
     }).then((response) => {
         isRepeatedTicket.value = response.exists;
     })
@@ -733,7 +731,7 @@ const createNewInvoice = async () => {
             const listInvoicesToCreate = dynamicData.value.listSelectedJobs.map((selectedJob, i) => {
                 return {
                     ...invoice.value,
-                    description: invoice.value.description + ` [${(i+1)}/${dynamicData.value.listSelectedJobs.length} - ${(selectedJob.percentage).toFixed(0)}%]`,
+                    description: invoice.value.description + ` [${(i+1)}/${dynamicData.value.listSelectedJobs.length} - ${(selectedJob.percentage * 1).toFixed(0)}%]`,
                     job_code: selectedJob.job.code,
                     amount: parseFloat((invoice.value.amount * (selectedJob.percentage / 100)).toFixed(2)),
                     id: i,

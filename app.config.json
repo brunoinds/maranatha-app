@@ -1,7 +1,7 @@
 {
     "versioning": {
-        "version": "1.1.5",
+        "version": "1.1.6",
         "build": 22
     },
-    "environment": "dev"
+    "environment": "prod"
 }

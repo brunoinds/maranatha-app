@@ -1,4 +1,4 @@
-import { EMoneyType, EReportStatus, EReportType } from "@/interfaces/ReportInterfaces";
+import { ECountryType, EMoneyType, EReportStatus, EReportType } from "@/interfaces/ReportInterfaces";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { Session } from "@/utils/Session/Session";
 import { TStorage } from "@/utils/Toolbox/TStorage";
@@ -16,6 +16,7 @@ interface IReportResponse{
     exported_pdf: string|null;
     type: EReportType;
     money_type: EMoneyType;
+    country: ECountryType;
     rejection_reason: string|null;
     rejected_at: string|null;
     approved_at: string|null;
@@ -193,6 +194,7 @@ class StoredReports{
                             to_date:report.to_date,
                             status: report.status,
                             money_type: report.money_type,
+                            country: report.country,
                         }).then((response) => {
                             resolve({
                                 previousId: report.id,

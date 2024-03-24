@@ -47,6 +47,41 @@ class Toolbox{
                 return "Paraguayan Guaraníes";
         }
     }
+
+    public static countryName(countryType: string, options: {includeFlag?: boolean, flagOnly?: boolean, language?: string} = {
+        includeFlag: true,
+        flagOnly: false,
+        language: 'es'
+    }){
+        const countryName = (() => {
+            const countryCode = countryType;
+            const displayNames = new Intl.DisplayNames(['es'], { type: 'region' });
+            const countryName = displayNames.of(countryCode);
+            return countryName;
+        })();
+
+        const flags:any = {
+            PE: "🇵🇪",
+            BR: "🇧🇷",
+            PY: "🇵🇾",
+            US: "🇺🇸"
+        }
+
+        if (options.flagOnly){
+            return flags[countryType] as unknown as string;
+        }
+        if (!options.includeFlag){
+            return countryName as unknown as string;
+        }
+
+        
+
+        
+
+        return flags[countryType] + " " + countryName;
+    }
+
+
     public static moneyFormat(amount: number, withPrefix: EMoneyType|boolean = false): string{
         if (withPrefix){
             return this.moneyPrefix(withPrefix as EMoneyType) + " " + Numeral(amount).format('0,0.00');

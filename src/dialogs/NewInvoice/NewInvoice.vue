@@ -299,7 +299,8 @@ const checkTicketOnInput = (event: CustomEvent) => {
     }
 
     RequestAPI.get('/invoices/ticket-number/check', {
-        ticket_number: value
+        ticket_number: value,
+        ruc: invoice.value.commerce_number
     }).then((response) => {
         isRepeatedTicket.value = response.exists;
     })
@@ -637,7 +638,6 @@ const openCamera = async (forceFromGallery: boolean = false) => {
 const deleteImageFromCamera = () => {
     dynamicData.value.uploadedImageBase64 = null;
 }
-
 const validateData = async () => {
     const formErrors: Array<{field: string, message: string}> = [];
 
@@ -710,7 +710,6 @@ const validateData = async () => {
         };
     }
 }
-
 const createNewInvoice = async () => {
     const validationResponse = validateData();
     if (!(await validationResponse).isValid){
@@ -734,6 +733,7 @@ const createNewInvoice = async () => {
             const listInvoicesToCreate = dynamicData.value.listSelectedJobs.map((selectedJob, i) => {
                 return {
                     ...invoice.value,
+                    description: invoice.value.description + ` [${(i+1)}/${dynamicData.value.listSelectedJobs.length} - ${(selectedJob.percentage).toFixed(0)}%]`,
                     job_code: selectedJob.job.code,
                     amount: parseFloat((invoice.value.amount * (selectedJob.percentage / 100)).toFixed(2)),
                     id: i,
@@ -827,7 +827,6 @@ const createNewInvoice = async () => {
         }
     }
 }
-
 const loadJobsAndExpenses = async () => {
     const jobs =  await JobsAndExpenses.getJobs() as unknown as Array<IJob>;
     jobsAndExpenses.value.jobs = jobs;

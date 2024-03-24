@@ -83,7 +83,17 @@ class PDFCreator{
             this.doc.setFontSize(10);
             this.doc.text("EXPENSE REPORT", pageWidth / 2, 17, { align: 'center'});
             this.doc.setFontSize(9).setFont('helvetica', 'normal');
-            this.doc.text("Country - Peru", pageWidth / 2, 24, { align: 'center' });
+
+            const $this = this;
+            const countryName = (() => {
+                const countryCode = $this.report.country;
+                const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+                const countryName = displayNames.of(countryCode);
+                return countryName;
+            })();
+
+
+            this.doc.text(`Country - ${countryName}`, pageWidth / 2, 24, { align: 'center' });
             
             this.doc.setFontSize(8).setFont('helvetica', 'normal');
             this.doc.text("Report Dates: ", (pageWidth / 2) - 22, 29, { align: 'center' });

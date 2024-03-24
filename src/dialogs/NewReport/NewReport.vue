@@ -29,6 +29,15 @@
                         <ion-select-option value="PYG">Guaranies (₲)</ion-select-option>
                     </ion-select>
                 </ion-item>
+
+                <ion-item>
+                    <ion-select label="País" label-placement="stacked" interface="action-sheet" v-model="dynamicData.country" :disabled="isLoading">
+                        <ion-select-option value="PE">Perú 🇵🇪</ion-select-option>
+                        <ion-select-option value="BR">Brasil 🇧🇷</ion-select-option>
+                        <ion-select-option value="PY">Paraguay 🇵🇾</ion-select-option>
+                        <ion-select-option value="US">EE. UU. 🇺🇸</ion-select-option>
+                    </ion-select>
+                </ion-item>
                 <ion-item>
                     <ion-label position="stacked">Fecha de Inicio</ion-label>
                     <input class="native-input sc-ion-input-ios" v-maska data-maska="##/##/####" v-model="dynamicData.startDate" :disabled="isLoading">
@@ -52,7 +61,7 @@ import { defineComponent, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { vMaska } from "maska";
-import { EMoneyType, EReportStatus, EReportType, IReport } from '@/interfaces/ReportInterfaces';
+import { ECountryType, EMoneyType, EReportStatus, EReportType, IReport } from '@/interfaces/ReportInterfaces';
 import { DateTime } from 'luxon';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
@@ -70,12 +79,14 @@ const dynamicData = ref<{
     type: EReportType,
     startDate: string,
     endDate: string,
-    moneyType: EMoneyType
+    moneyType: EMoneyType,
+    country: ECountryType
 }>({
     type: EReportType.Bill,
     moneyType: EMoneyType.PEN,
     startDate: (DateTime.now().set({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString(),
-    endDate: (DateTime.now().set({ day: 1}).plus({ month: 1}).minus({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString()
+    endDate: (DateTime.now().set({ day: 1}).plus({ month: 1}).minus({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString(),
+    country: ECountryType.PE
 });
 const dynamicTitle = ref('');
 
@@ -102,6 +113,7 @@ const createNewReport = async () => {
         title: dynamicTitle.value,
         type: dynamicData.value.type,
         money_type: dynamicData.value.moneyType,
+        country: dynamicData.value.country,
         from_date: DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").toISO() as string,
         to_date: DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy").toISO() as string,
         status: EReportStatus.Draft,

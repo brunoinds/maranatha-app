@@ -15,6 +15,12 @@ enum EMoneyType{
     BRL = 'BRL',
     PYG = 'PYG'
 }
+export enum ECountryType{
+    PE = 'PE',
+    BR = 'BR',
+    PY = 'PY',
+    US = 'US'
+}
 interface IReport{
     id: number;
     created_at: string;
@@ -27,6 +33,7 @@ interface IReport{
     exported_pdf: string|null;
     type: EReportType;
     money_type: EMoneyType;
+    country: ECountryType;
     rejection_reason: string|null;
     rejected_at: string|null;
     approved_at: string|null;

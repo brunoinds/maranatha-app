@@ -21,9 +21,9 @@
                     <ion-item>
                         <ion-label>
                             <h1><b>{{ report.title }}</b></h1>
-                            <p>{{reportType}}s</p>
+                            <p>{{reportType}}s {{ Toolbox.countryName(report.country as unknown as any, {flagOnly: true}) }} </p>
                             <p>{{report.from_date}} - {{ report.to_date }}</p>
-                            <p><b>{{report.moneyPrefix}}{{ report.amount.text }}</b></p>
+                            <p><b>{{report.moneyPrefix}} {{ report.amount.text }}</b></p>
                         </ion-label>
                         <ReportStatusChip :report="reportData"></ReportStatusChip>
                     </ion-item>

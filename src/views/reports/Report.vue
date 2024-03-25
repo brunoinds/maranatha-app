@@ -633,7 +633,7 @@ const createExportPDF = async () => {
         report: reportData.value as IReport,
         invoices: invoicesSorted,
         textContents: {
-            submittedBy: (await Session.getCurrentSession())?.name() as unknown as string,
+            submittedBy: (await RequestAPI.get('/users')).find((account:any) => account.id == reportData.value?.user_id)?.name as unknown as string,
             fromDateToDate: (() => {
                 if (invoicesData.value.length == 0){
                     return `del ${report.value.from_date}  hasta el ${report.value.to_date}`;

@@ -9,8 +9,8 @@
                 <ion-buttons slot="end">    
                     <ion-button @click="saveReport">Guardar</ion-button>
                 </ion-buttons>
-                <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
             </ion-toolbar>
+            <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
         <ion-content>
             <ion-list :inset="true" v-if="!isLoading">

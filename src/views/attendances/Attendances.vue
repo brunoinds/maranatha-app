@@ -3,8 +3,8 @@
         <ion-header>
             <ion-toolbar>
                 <ion-title>Mis Asistencias</ion-title>
-                <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
             </ion-toolbar>
+            <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
         <ion-content>
             <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">

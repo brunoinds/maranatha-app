@@ -9,8 +9,8 @@
                 <ion-buttons slot="end">    
                     <ion-button @click="saveAttendance">Guardar</ion-button>
                 </ion-buttons>
-                <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
             </ion-toolbar>
+            <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
         <ion-content>
             <ion-list-header>Datos de la Asistencia</ion-list-header>

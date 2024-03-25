@@ -2,11 +2,10 @@
     <ion-page>
         <ion-header>
             <ion-toolbar>
-                <ion-buttons slot="start">
-                </ion-buttons>
+                <ion-buttons slot="start"></ion-buttons>
                 <ion-title>Sincronizando boletas y facturas</ion-title>
-                <ion-progress-bar :value="progressValue"></ion-progress-bar>
             </ion-toolbar>
+            <ion-progress-bar :value="progressValue"></ion-progress-bar>
         </ion-header>
         <ion-content>
             <article class="ion-padding" style="display: flex;flex-direction: column; align-items: center; justify-content: center; height: 100%;">

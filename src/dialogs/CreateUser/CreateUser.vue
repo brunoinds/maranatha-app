@@ -6,8 +6,8 @@
                     <ion-button @click="props.emitter.fire('close')">Cancelar</ion-button>
                 </ion-buttons>
                 <ion-title>Crear Cuenta</ion-title>
-                <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
             </ion-toolbar>
+            <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
         <ion-content>
             <ion-list>

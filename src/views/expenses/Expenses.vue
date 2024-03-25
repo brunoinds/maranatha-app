@@ -6,13 +6,13 @@
                     <ion-back-button default-href="/"></ion-back-button>
                 </ion-buttons>
                 <ion-title>Expenses</ion-title>
-                <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
                 <ion-buttons slot="end">
                     <ion-button @click="addExpense">
                         <ion-icon :icon="addOutline"></ion-icon>
                     </ion-button>
                 </ion-buttons>
             </ion-toolbar>
+            <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
         <ion-content>
             <ion-list v-if="!isLoading">

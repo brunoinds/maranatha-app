@@ -3,7 +3,6 @@
         <ion-header>
             <ion-toolbar>
                 <ion-title>Asistencia</ion-title>
-                <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
                 <ion-buttons slot="start">
                     <IonBackButton :disable="isLoading" defaultHref="/my-attendances"></IonBackButton>
                 </ion-buttons>
@@ -13,6 +12,7 @@
                     </ion-button>
                 </ion-buttons>
             </ion-toolbar>
+            <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
         <ion-content>
             <section class="content">

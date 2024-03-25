@@ -69,6 +69,14 @@ interface AccountantPeriodIndicators{
         spendings: {
             perDayAverage: number
         }
+    },
+    reports: {
+        time: {
+            averageHoursBetweenCreatedAndSubmitted: number,  
+            averageHoursBetweenSubmittedAndApproved: number,
+            averageHoursBetweenApprovedAndRestituted: number,
+            averageHoursBetweenSubmittedAndRestituted: number,
+        }
     }
 }
 class AccountantPeriodGraph{
@@ -115,6 +123,14 @@ class AccountantPeriodGraph{
             },
             spendings: {
                 perDayAverage: 0
+            }
+        },
+        reports: {
+            time: {
+                averageHoursBetweenCreatedAndSubmitted: 0,  
+                averageHoursBetweenSubmittedAndApproved: 0,
+                averageHoursBetweenApprovedAndRestituted: 0,
+                averageHoursBetweenSubmittedAndRestituted: 0,
             }
         }
     }
@@ -295,9 +311,31 @@ class AccountantPeriodGraph{
                 this.indicators.spendings.daily.push(daySpendings);
             })
         })();
+        const reportsByTime = (async () => {
+            const response = await RequestAPI.get('/management/records/reports/by-time', {
+                start_date: this.startDate,
+                end_date: this.endDate
+            })
+
+
+            response.data.body.forEach((indicator:any) => {
+                if (indicator.indicator == 'average_between_created_and_submitted'){
+                    this.indicators.reports.time.averageHoursBetweenCreatedAndSubmitted = indicator.average_time_in_hours;
+                }
+                if (indicator.indicator == 'average_between_submitted_and_approved'){
+                    this.indicators.reports.time.averageHoursBetweenSubmittedAndApproved = indicator.average_time_in_hours;
+                }
+                if (indicator.indicator == 'average_between_approved_and_restituted'){
+                    this.indicators.reports.time.averageHoursBetweenApprovedAndRestituted = indicator.average_time_in_hours;
+                }
+                if (indicator.indicator == 'average_between_submitted_and_restituted'){
+                    this.indicators.reports.time.averageHoursBetweenSubmittedAndRestituted = indicator.average_time_in_hours;
+                }
+            })
+        })();
 
         return new Promise((resolve) => {
-            Promise.all([attendancesByWorker, attendancesByJobs, jobsByCosts, usersByCosts]).then(() => {
+            Promise.all([attendancesByWorker, attendancesByJobs, jobsByCosts, usersByCosts, reportsByTime]).then(() => {
                 resolve();
             });
         })
@@ -386,6 +424,12 @@ interface AccountantCurrentYearIndicators{
                 count: number,
                 items: any[]
             };
+        },
+        time: {
+            averageHoursBetweenCreatedAndSubmitted: number,  
+            averageHoursBetweenSubmittedAndApproved: number,
+            averageHoursBetweenApprovedAndRestituted: number,
+            averageHoursBetweenSubmittedAndRestituted: number,
         }
     },
     invoices: {
@@ -511,7 +555,13 @@ class AccountantCurrentYearState{
                 count: 0,
                 items: [],
             },
-            byStatus: {}
+            byStatus: {},
+            time: {
+                averageHoursBetweenCreatedAndSubmitted: 0,
+                averageHoursBetweenSubmittedAndApproved: 0,
+                averageHoursBetweenApprovedAndRestituted: 0,
+                averageHoursBetweenSubmittedAndRestituted: 0
+            }
         },
         wallets: {
             pettyCash: {
@@ -848,11 +898,32 @@ class AccountantCurrentYearState{
             this.indicators.wallets.pettyCash.usagePercentage.average = calculatorAverage.pettyCash.usagePercentage.average / usersBalances.balances.length;
             this.indicators.wallets.pettyCash.balance.average = calculatorAverage.pettyCash.balance.average / usersBalances.balances.length;
         })();
+        const reportsByTime = (async () => {
+            const response = await RequestAPI.get('/management/records/reports/by-time', {
+                start_date: this.startDate,
+                end_date: this.endDate
+            })
+
+            response.data.body.forEach((indicator:any) => {
+                if (indicator.indicator == 'average_between_created_and_submitted'){
+                    this.indicators.reports.time.averageHoursBetweenCreatedAndSubmitted = indicator.average_time_in_hours;
+                }
+                if (indicator.indicator == 'average_between_submitted_and_approved'){
+                    this.indicators.reports.time.averageHoursBetweenSubmittedAndApproved = indicator.average_time_in_hours;
+                }
+                if (indicator.indicator == 'average_between_approved_and_restituted'){
+                    this.indicators.reports.time.averageHoursBetweenApprovedAndRestituted = indicator.average_time_in_hours;
+                }
+                if (indicator.indicator == 'average_between_submitted_and_restituted'){
+                    this.indicators.reports.time.averageHoursBetweenSubmittedAndRestituted = indicator.average_time_in_hours;
+                }
+            })
+        })();
 
 
 
         return new Promise((resolve) => {
-            Promise.all([attendancesByWorker, attendancesByJobs, jobsByCosts, usersByCosts, balances]).then(() => {
+            Promise.all([attendancesByWorker, attendancesByJobs, jobsByCosts, usersByCosts, balances, reportsByTime]).then(() => {
                 resolve();
             });
         })
@@ -1049,6 +1120,38 @@ interface AccountantPeriodComparisonIndicators{
         },
         spendings: {
             perDayAverage: {
+                value: number,
+                previous: {
+                    value: number,
+                    percentage: number
+                }
+            }
+        }
+    },
+    reports: {
+        time: {
+            averageHoursBetweenCreatedAndSubmitted: {
+                value: number,
+                previous: {
+                    value: number,
+                    percentage: number
+                }
+            },
+            averageHoursBetweenSubmittedAndApproved: {
+                value: number,
+                previous: {
+                    value: number,
+                    percentage: number
+                }
+            },
+            averageHoursBetweenApprovedAndRestituted: {
+                value: number,
+                previous: {
+                    value: number,
+                    percentage: number
+                }
+            },
+            averageHoursBetweenSubmittedAndRestituted: {
                 value: number,
                 previous: {
                     value: number,
@@ -1263,6 +1366,38 @@ class AccountantPeriodComparison{
                             previous: {
                                 value: this.previousPeriod.indicators.invoices.spendings.perDayAverage,
                                 percentage: this.previousPeriod.indicators.invoices.spendings.perDayAverage >= 0 ? ((this.currentPeriod.indicators.invoices.spendings.perDayAverage - this.previousPeriod.indicators.invoices.spendings.perDayAverage) / this.previousPeriod.indicators.invoices.spendings.perDayAverage) * 100 : 0
+                            }
+                        }
+                    }
+                },
+                reports: {
+                    time: {
+                        averageHoursBetweenCreatedAndSubmitted: {
+                            value: this.currentPeriod.indicators.reports.time.averageHoursBetweenCreatedAndSubmitted,
+                            previous: {
+                                value: this.previousPeriod.indicators.reports.time.averageHoursBetweenCreatedAndSubmitted,
+                                percentage: this.previousPeriod.indicators.reports.time.averageHoursBetweenCreatedAndSubmitted >= 0 ? ((this.currentPeriod.indicators.reports.time.averageHoursBetweenCreatedAndSubmitted - this.previousPeriod.indicators.reports.time.averageHoursBetweenCreatedAndSubmitted) / this.previousPeriod.indicators.reports.time.averageHoursBetweenCreatedAndSubmitted) * 100 : 0
+                            }
+                        },
+                        averageHoursBetweenSubmittedAndApproved: {
+                            value: this.currentPeriod.indicators.reports.time.averageHoursBetweenSubmittedAndApproved,
+                            previous: {
+                                value: this.previousPeriod.indicators.reports.time.averageHoursBetweenSubmittedAndApproved,
+                                percentage: this.previousPeriod.indicators.reports.time.averageHoursBetweenSubmittedAndApproved >= 0 ? ((this.currentPeriod.indicators.reports.time.averageHoursBetweenSubmittedAndApproved - this.previousPeriod.indicators.reports.time.averageHoursBetweenSubmittedAndApproved) / this.previousPeriod.indicators.reports.time.averageHoursBetweenSubmittedAndApproved) * 100 : 0
+                            }
+                        },
+                        averageHoursBetweenApprovedAndRestituted: {
+                            value: this.currentPeriod.indicators.reports.time.averageHoursBetweenApprovedAndRestituted,
+                            previous: {
+                                value: this.previousPeriod.indicators.reports.time.averageHoursBetweenApprovedAndRestituted,
+                                percentage: this.previousPeriod.indicators.reports.time.averageHoursBetweenApprovedAndRestituted >= 0 ? ((this.currentPeriod.indicators.reports.time.averageHoursBetweenApprovedAndRestituted - this.previousPeriod.indicators.reports.time.averageHoursBetweenApprovedAndRestituted) / this.previousPeriod.indicators.reports.time.averageHoursBetweenApprovedAndRestituted) * 100 : 0
+                            }
+                        },
+                        averageHoursBetweenSubmittedAndRestituted: {
+                            value: this.currentPeriod.indicators.reports.time.averageHoursBetweenSubmittedAndRestituted,
+                            previous: {
+                                value: this.previousPeriod.indicators.reports.time.averageHoursBetweenSubmittedAndRestituted,
+                                percentage: this.previousPeriod.indicators.reports.time.averageHoursBetweenSubmittedAndRestituted >= 0 ? ((this.currentPeriod.indicators.reports.time.averageHoursBetweenSubmittedAndRestituted - this.previousPeriod.indicators.reports.time.averageHoursBetweenSubmittedAndRestituted) / this.previousPeriod.indicators.reports.time.averageHoursBetweenSubmittedAndRestituted) * 100 : 0
                             }
                         }
                     }

@@ -151,6 +151,78 @@
 
                 <ion-row>
                     <ion-col>
+                        <ion-card class="card-amount" style="height: 180px;">
+                            <ion-card-header>
+                                <ion-card-subtitle>Tiempo Promedio Envío y Reembolso</ion-card-subtitle>
+                            </ion-card-header>
+                            <ion-card-content >
+                                <ion-grid name="content">
+                                    <ion-row name="amount-area">
+                                        <ion-card-title name="amount" style="font-size: 65px;">{{ indicators.reports.time.averageHoursBetweenSubmittedAndRestituted.toFixed(1) }}</ion-card-title>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-note name="note">horas</ion-note>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-card-content>
+                        </ion-card>
+                    </ion-col>
+                    <ion-col>
+                        <ion-card class="card-amount" style="height: 180px;">
+                            <ion-card-header>
+                                <ion-card-subtitle>Tiempo Promedio Envío y Aprobación</ion-card-subtitle>
+                            </ion-card-header>
+                            <ion-card-content >
+                                <ion-grid name="content">
+                                    <ion-row name="amount-area">
+                                        <ion-card-title name="amount" style="font-size: 65px;">{{ indicators.reports.time.averageHoursBetweenSubmittedAndApproved.toFixed(1) }}</ion-card-title>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-note name="note">horas</ion-note>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-card-content>
+                        </ion-card>
+                    </ion-col>
+
+                    <ion-col>
+                        <ion-card class="card-amount" style="height: 180px;">
+                            <ion-card-header>
+                                <ion-card-subtitle>Tiempo Promedio Aprobación y Reembolso</ion-card-subtitle>
+                            </ion-card-header>
+                            <ion-card-content >
+                                <ion-grid name="content">
+                                    <ion-row name="amount-area">
+                                        <ion-card-title name="amount" style="font-size: 65px;">{{ indicators.reports.time.averageHoursBetweenApprovedAndRestituted.toFixed(1) }}</ion-card-title>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-note name="note">horas</ion-note>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-card-content>
+                        </ion-card>
+                    </ion-col>
+                    <ion-col>
+                        <ion-card class="card-amount" style="height: 180px;">
+                            <ion-card-header>
+                                <ion-card-subtitle>Tiempo Promedio Creación y Envío</ion-card-subtitle>
+                            </ion-card-header>
+                            <ion-card-content >
+                                <ion-grid name="content">
+                                    <ion-row name="amount-area">
+                                        <ion-card-title name="amount" style="font-size: 65px;">{{ indicators.reports.time.averageHoursBetweenCreatedAndSubmitted.toFixed(1) }}</ion-card-title>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-note name="note">horas</ion-note>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-card-content>
+                        </ion-card>
+                    </ion-col>
+                </ion-row>
+
+                <ion-row>
+                    <ion-col>
                         <ion-card style="height: 400px;">
                             <ion-card-header>
                                 <ion-card-subtitle>Gastos en el año</ion-card-subtitle>

@@ -97,6 +97,117 @@
                     </ion-col>
                 </ion-row>
 
+
+
+
+
+
+
+
+                <ion-row>
+                    <ion-col>
+                        <ion-card class="card-amount" style="height: 180px;">
+                            <ion-card-header>
+                                <ion-card-subtitle>Tiempo Promedio Envío y Reembolso</ion-card-subtitle>
+                            </ion-card-header>
+                            <ion-card-content>
+                                <ion-grid name="content">
+                                    <ion-row name="amount-area">
+                                        <ion-card-title name="amount">{{ indicators.reports.time.averageHoursBetweenSubmittedAndRestituted.value }}</ion-card-title>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-note name="note">horas</ion-note>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-chip name="chip" :color="indicators.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage.color">
+                                            <ion-icon iname="icon" :icon="indicators.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage.icon"></ion-icon>
+                                            <ion-label name="percentage" v-show="!indicators.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage.hideValue">{{ indicators.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage.value }}</ion-label>
+                                        </ion-chip>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-card-content>
+                        </ion-card>
+                    </ion-col>
+                    <ion-col>
+                        <ion-card class="card-amount" style="height: 180px;">
+                            <ion-card-header>
+                                <ion-card-subtitle>Tiempo Promedio Envío y Aprobación</ion-card-subtitle>
+                            </ion-card-header>
+                            <ion-card-content>
+                                <ion-grid name="content">
+                                    <ion-row name="amount-area">
+                                        <ion-card-title name="amount">{{ indicators.reports.time.averageHoursBetweenSubmittedAndApproved.value }}</ion-card-title>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-note name="note">horas</ion-note>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-chip name="chip" :color="indicators.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage.color">
+                                            <ion-icon iname="icon" :icon="indicators.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage.icon"></ion-icon>
+                                            <ion-label name="percentage" v-show="!indicators.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage.hideValue">{{ indicators.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage.value }}</ion-label>
+                                        </ion-chip>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-card-content>
+                        </ion-card>
+                    </ion-col>
+                    <ion-col>
+                        <ion-card class="card-amount" style="height: 180px;">
+                            <ion-card-header>
+                                <ion-card-subtitle>Tiempo Promedio Aprobación y Reembolso</ion-card-subtitle>
+                            </ion-card-header>
+                            <ion-card-content>
+                                <ion-grid name="content">
+                                    <ion-row name="amount-area">
+                                        <ion-card-title name="amount">{{ indicators.reports.time.averageHoursBetweenApprovedAndRestituted.value }}</ion-card-title>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-note name="note">horas</ion-note>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-chip name="chip" :color="indicators.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage.color">
+                                            <ion-icon iname="icon" :icon="indicators.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage.icon"></ion-icon>
+                                            <ion-label name="percentage" v-show="!indicators.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage.hideValue">{{ indicators.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage.value }}</ion-label>
+                                        </ion-chip>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-card-content>
+                        </ion-card>
+                    </ion-col>
+                    <ion-col>
+                        <ion-card class="card-amount" style="height: 180px;">
+                            <ion-card-header>
+                                <ion-card-subtitle>Tiempo Promedio Creación y Envío</ion-card-subtitle>
+                            </ion-card-header>
+                            <ion-card-content>
+                                <ion-grid name="content">
+                                    <ion-row name="amount-area">
+                                        <ion-card-title name="amount">{{ indicators.reports.time.averageHoursBetweenCreatedAndSubmitted.value }}</ion-card-title>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-note name="note">horas</ion-note>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-chip name="chip" :color="indicators.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage.color">
+                                            <ion-icon iname="icon" :icon="indicators.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage.icon"></ion-icon>
+                                            <ion-label name="percentage" v-show="!indicators.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage.hideValue">{{ indicators.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage.value }}</ion-label>
+                                        </ion-chip>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-card-content>
+                        </ion-card>
+                    </ion-col>
+                </ion-row>
+
+
+
+
+
+
+
+
+
+
                 <ion-row  v-if="Viewport.data.value.deviceSetting != 'DesktopLandscape'">
                     <ion-card style="width: 100%; height: 285px;">
                         <ion-card-header>
@@ -472,6 +583,54 @@ interface AccountantPeriodComparisonIndicatorsComputed{
                 }
             }
         }
+    },
+    reports: {
+            time: {
+                averageHoursBetweenCreatedAndSubmitted: {
+                    value: string,
+                    previous: {
+                        percentage: {
+                            color: string,
+                            value: string,
+                            icon: string,
+                            hideValue: boolean
+                        }
+                    }
+                },
+                averageHoursBetweenSubmittedAndApproved: {
+                    value: string,
+                    previous: {
+                        percentage: {
+                            color: string,
+                            value: string,
+                            icon: string,
+                            hideValue: boolean
+                        }
+                    }
+                },
+                averageHoursBetweenApprovedAndRestituted: {
+                    value: string,
+                    previous: {
+                        percentage: {
+                            color: string,
+                            value: string,
+                            icon: string,
+                            hideValue: boolean
+                        }
+                    }
+                },
+                averageHoursBetweenSubmittedAndRestituted: {
+                    value: string,
+                    previous: {
+                        percentage: {
+                            color: string,
+                            value: string,
+                            icon: string,
+                            hideValue: boolean
+                        }
+                    }
+                }
+            }
     }
 }
 const indicators = computed<AccountantPeriodComparisonIndicatorsComputed|null>(() => {
@@ -658,6 +817,54 @@ const indicators = computed<AccountantPeriodComparisonIndicatorsComputed|null>((
             },
             spendings: {
                 perDayAverage: {
+                    value: '',
+                    previous: {
+                        percentage: {
+                            color: '',
+                            value: '',
+                            icon: '',
+                            hideValue: false
+                        }
+                    }
+                }
+            }
+        },
+        reports: {
+            time: {
+                averageHoursBetweenCreatedAndSubmitted: {
+                    value: '',
+                    previous: {
+                        percentage: {
+                            color: '',
+                            value: '',
+                            icon: '',
+                            hideValue: false
+                        }
+                    }
+                },
+                averageHoursBetweenSubmittedAndApproved: {
+                    value: '',
+                    previous: {
+                        percentage: {
+                            color: '',
+                            value: '',
+                            icon: '',
+                            hideValue: false
+                        }
+                    }
+                },
+                averageHoursBetweenApprovedAndRestituted: {
+                    value: '',
+                    previous: {
+                        percentage: {
+                            color: '',
+                            value: '',
+                            icon: '',
+                            hideValue: false
+                        }
+                    }
+                },
+                averageHoursBetweenSubmittedAndRestituted: {
                     value: '',
                     previous: {
                         percentage: {
@@ -915,6 +1122,32 @@ const indicators = computed<AccountantPeriodComparisonIndicatorsComputed|null>((
             }
         }
     };
+
+
+
+    indicatorsComputed.reports.time.averageHoursBetweenApprovedAndRestituted.value = indicators.reports.time.averageHoursBetweenApprovedAndRestituted.value.toFixed(0);
+    indicatorsComputed.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage.color = (indicators.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage > 0) ? 'danger' : 'success';
+    indicatorsComputed.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage.icon = (indicators.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage > 0) ? arrowUpCircleOutline : arrowDownCircleOutline;
+    indicatorsComputed.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage.value = `${indicators.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage.toFixed(0)}%`;
+    indicatorsComputed.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage.hideValue = indicators.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage == Infinity || indicators.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage == -Infinity || isNaN(indicators.reports.time.averageHoursBetweenApprovedAndRestituted.previous.percentage);
+
+    indicatorsComputed.reports.time.averageHoursBetweenCreatedAndSubmitted.value = indicators.reports.time.averageHoursBetweenCreatedAndSubmitted.value.toFixed(0);
+    indicatorsComputed.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage.color = (indicators.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage > 0) ? 'danger' : 'success';
+    indicatorsComputed.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage.icon = (indicators.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage > 0) ? arrowUpCircleOutline : arrowDownCircleOutline;
+    indicatorsComputed.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage.value = `${indicators.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage.toFixed(0)}%`;
+    indicatorsComputed.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage.hideValue = indicators.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage == Infinity || indicators.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage == -Infinity || isNaN(indicators.reports.time.averageHoursBetweenCreatedAndSubmitted.previous.percentage);
+
+    indicatorsComputed.reports.time.averageHoursBetweenSubmittedAndApproved.value = indicators.reports.time.averageHoursBetweenSubmittedAndApproved.value.toFixed(0);
+    indicatorsComputed.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage.color = (indicators.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage > 0) ? 'danger' : 'success';
+    indicatorsComputed.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage.icon = (indicators.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage > 0) ? arrowUpCircleOutline : arrowDownCircleOutline;
+    indicatorsComputed.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage.value = `${indicators.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage.toFixed(0)}%`;
+    indicatorsComputed.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage.hideValue = indicators.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage == Infinity || indicators.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage == -Infinity || isNaN(indicators.reports.time.averageHoursBetweenSubmittedAndApproved.previous.percentage);
+
+    indicatorsComputed.reports.time.averageHoursBetweenSubmittedAndRestituted.value = indicators.reports.time.averageHoursBetweenSubmittedAndRestituted.value.toFixed(0);
+    indicatorsComputed.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage.color = (indicators.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage > 0) ? 'danger' : 'success';
+    indicatorsComputed.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage.icon = (indicators.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage > 0) ? arrowUpCircleOutline : arrowDownCircleOutline;
+    indicatorsComputed.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage.value = `${indicators.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage.toFixed(0)}%`;
+    indicatorsComputed.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage.hideValue = indicators.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage == Infinity || indicators.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage == -Infinity || isNaN(indicators.reports.time.averageHoursBetweenSubmittedAndRestituted.previous.percentage);
 
     return indicatorsComputed;
 })

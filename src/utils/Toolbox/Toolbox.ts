@@ -136,7 +136,6 @@ class Toolbox{
     public static share(fileNameWithExtention: string, base64Data: string){
         if (Capacitor.isNativePlatform()){
             this.openNative(fileNameWithExtention, base64Data);
-            //this.shareNative(fileNameWithExtention, base64Data);
         }else{
             const byteString = atob(base64Data);
             const ab = new ArrayBuffer(byteString.length);
@@ -160,6 +159,30 @@ class Toolbox{
         }else{
             return "user-id-" + userId;
         }
+    }
+
+    public static async fetchWithProgress(url: string, options: any = undefined , onProgress: (progress: number) => void): Promise<Blob>{
+        return new Promise(async (resolve, reject) => {
+            const response = await fetch(url, options);
+            if (!response.ok){
+                reject(response);
+            }
+            const reader = response.body?.getReader() as ReadableStreamDefaultReader<Uint8Array>;
+            const contentLength = response.headers.get('Content-Length') as string;
+            let receivedLength = 0;
+            let chunks = [];
+            while (true){
+                const {done, value} = await reader.read();
+                if (done){
+                    break;
+                }
+                chunks.push(value);
+                receivedLength += value.length;
+                onProgress((receivedLength / parseInt(contentLength)) * 100);
+            }
+            const blob = new Blob(chunks);
+            resolve(blob);
+        });
     }
 }
 

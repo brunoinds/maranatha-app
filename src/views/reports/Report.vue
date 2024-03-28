@@ -734,6 +734,47 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
 
     const filename = `${reportData.value?.title} (${Toolbox.moneyPrefix(reportData.value?.money_type as unknown as EMoneyType).replace('/', '')} ${invoicesTotalAmount.toFixed(2)})`;
     const generatePDFDocument = async () => {
+        return new Promise(async (resolve, reject) => {
+            loadingProcess.value = {
+                iddle: true,
+                percentage: 0,
+                stage: {
+                    name: 'Generando PDF...',
+                    percentage: 0
+                }
+            }
+
+            const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/reports/${reportId.value}/pdf-download`;
+            const pdfDocument = await Toolbox.fetchWithProgress(pdfDownloadUrl, undefined, (progress) => {
+                loadingProcess.value = {
+                    iddle: false,
+                    percentage: progress,
+                    stage: {
+                        name: 'Descargando PDF...',
+                        percentage: progress
+                    }
+                }
+            }).then((blob) => {
+                const reader = new FileReader()
+                reader.onload = () => {
+                    resolve({
+                        blobUrl: URL.createObjectURL(blob),
+                        base64: reader.result?.split('data:application/pdf;base64,')[1] as unknown as string
+                    })
+                }
+                reader.onerror = () => {                
+                    
+                }
+                reader.readAsDataURL(blob);
+            })
+        });
+
+
+
+
+
+
+        return;
         toastController.create({
             message: '📄 Generando reporte en PDF...',
             duration: 5000
@@ -794,8 +835,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                 }
                 reader.readAsDataURL(blob);
             })
-        })
-        
+        });
     }
     const compressIntoZipFile = async (pdfDocument:any, excelDocument:any) => {
         return new Promise(async (resolve, reject) => {

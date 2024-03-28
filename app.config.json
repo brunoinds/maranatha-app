@@ -3,5 +3,5 @@
         "version": "1.1.8",
         "build": 26
     },
-    "environment": "dev"
+    "environment": "prod"
 }

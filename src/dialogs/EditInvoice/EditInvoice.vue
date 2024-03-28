@@ -25,7 +25,7 @@
                             <ion-icon slot="end" :icon="checkmarkCircleOutline" color="success" v-show="stepsChecks.first"></ion-icon>
                         </ion-item>
                         <section slot="content">
-                            <ion-progress-bar v-if="isLoadingImage" type="indeterminate"></ion-progress-bar>
+                            <ion-progress-bar v-if="isLoadingImageCompression" type="indeterminate"></ion-progress-bar>
 
 
                             <ion-img v-if="dynamicData.uploadedImageBase64" :src="'data:image/jpeg;base64,' + dynamicData.uploadedImageBase64"></ion-img>
@@ -38,7 +38,7 @@
                                     </ion-label>
                                 </ion-item>
                             </ion-list>
-                            <section class="ion-padding" v-if="!dynamicData.uploadedImageBase64 && !isLoadingImage" style="display: flex; align-content: center; justify-content: space-between;">
+                            <section class="ion-padding" v-if="!dynamicData.uploadedImageBase64 && !isLoadingImageCompression" style="display: flex; align-content: center; justify-content: space-between;">
                                 <ion-button expand="block" fill="outline" @click="openCamera()" style="width: 100%;"> 
                                     <ion-icon slot="start" :icon="camera"></ion-icon>
                                     Tomar Foto de la {{invoiceType}}
@@ -158,7 +158,7 @@ const onDatePickerChange = (event: CustomEvent) => {
 const currencyInput = ref<CurrencyInput|null>(null);
 const accordionGroup = ref<any>(null);
 const isLoading = ref<boolean>(true);
-const isLoadingImage = ref<boolean>(true);
+const isLoadingImageCompression = ref<boolean>(true);
 
 const dynamicData = ref<{
     uploadedImageBase64: null | string,
@@ -294,7 +294,10 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 if (scannedImages.length > 0) {
                     resolve({
                         path: scannedImages[0],
-                        webPath: Capacitor.convertFileSrc(scannedImages[0])
+                        webPath: Capacitor.convertFileSrc(scannedImages[0]),
+                        details: {
+
+                        }
                     })
                 }
             }
@@ -317,7 +320,10 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             });
             resolve({
                 path: image.path as unknown as string,
-                webPath: image.webPath as unknown as string
+                webPath: image.webPath as unknown as string,
+                details: {
+
+                }
             });
         })
     }
@@ -360,18 +366,22 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             const blobUrl = URL.createObjectURL(blob);
             resolve({
                 path: blobUrl,
-                webPath: blobUrl
+                webPath: blobUrl,
+                details: {
+                    pages: pdf.pagesCount()
+                }
             })
         })
     }
 
 
-    const loadImageFrom = async (image: {path: string, webPath: string}, origin: "Web" | "Native" = "Native") => {
-
-        isLoadingImage.value = true;
+    const loadImageFrom = async (image: {path: string, webPath: string, details: {[key: string]:any}}, origin: "Web" | "Native" = "Native") => {
+        isLoadingImageCompression.value = true;
         const response = await fetch(image.webPath as unknown as string);
         const blob = await response.blob();
         const file = new File([blob], "image.jpg", {type: blob.type});
+
+        console.log("Original Image size: ", (file.size / 1000000) + "MB");
 
         if (file.size == 0){
             alertController.create({
@@ -381,13 +391,13 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             }).then((alert) => {
                 alert.present();
             })
-            isLoadingImage.value = false;
+            isLoadingImageCompression.value = false;
             return;
         }
 
         imageCompression(file, {
             maxSizeMB: 1,
-            maxWidthOrHeight: 1024
+            maxWidthOrHeight: (image.details.pages) ? ((image.details.pages > 1) ? undefined : 1024)  : 1024
         }).then((compressedFile) => {
             new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -398,8 +408,8 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 const base64Image = (base64ImagePre as string).split(";base64,")[1];
                 const imageSize = (base64Image.length * (3/4)) / 1000000;
 
-
-                if (imageSize >= 1){
+                console.log("Compressed Image size: ", imageSize);
+                if (imageSize >= 4){
                     alertController.create({
                         header: "Oops...",
                         message: "La imagen es muy pesada, por favor, suba una imagen más ligera (límite de 4MB)",
@@ -407,14 +417,14 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                     }).then((alert) => {
                         alert.present();
                     })
-                    isLoadingImage.value = false;
+                    isLoadingImageCompression.value = false;
                     return;
                 }
 
                 dynamicData.value.uploadedImageBase64 = base64Image;
                 dynamicData.value.uploadedImageBase64 = base64Image;
                 accordionGroup.value.$el.value = "second";
-                isLoadingImage.value = false;
+                isLoadingImageCompression.value = false;
             })
         })
         BarcodeScanner.isSupported().then((isSupported) => {
@@ -443,7 +453,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                     text: "Subir PDF",
                     handler: () => {
                         openPDFPicker().then(async (image) => {
-                            await loadImageFrom(image as unknown as {path: string, webPath: string}, "Web");
+                            await loadImageFrom(image as unknown as any, "Web");
                         })
                     }
                 },
@@ -451,7 +461,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                     text: "Subir Foto",
                     handler: () => {
                         scanDocumentWeb().then(async (image) => {
-                            await loadImageFrom(image as unknown as {path: string, webPath: string});
+                            await loadImageFrom(image as unknown as any);
                         })
                     }
                 },
@@ -607,7 +617,7 @@ const loadJobsAndExpenses = async () => {
 }
 
 const loadImage = async () => {
-    isLoadingImage.value = true;
+    isLoadingImageCompression.value = true;
     isLoading.value = true;
     const response = await RequestAPI.get("/invoices/" + invoice.value.id + "/image");
 
@@ -615,7 +625,7 @@ const loadImage = async () => {
         dynamicData.value.uploadedImageBase64 = response.image;
         dynamicData.value.originalImageBase64 = response.image;
     }
-    isLoadingImage.value = false;
+    isLoadingImageCompression.value = false;
     isLoading.value = false;
 }
 

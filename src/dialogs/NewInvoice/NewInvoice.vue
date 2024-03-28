@@ -453,7 +453,10 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 if (scannedImages.length > 0) {
                     resolve({
                         path: scannedImages[0],
-                        webPath: Capacitor.convertFileSrc(scannedImages[0])
+                        webPath: Capacitor.convertFileSrc(scannedImages[0]),
+                        details: {
+
+                        }
                     })
                 }
             }
@@ -476,7 +479,10 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             });
             resolve({
                 path: image.path as unknown as string,
-                webPath: image.webPath as unknown as string
+                webPath: image.webPath as unknown as string,
+                details: {
+
+                }
             });
         })
     }
@@ -519,13 +525,16 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             const blobUrl = URL.createObjectURL(blob);
             resolve({
                 path: blobUrl,
-                webPath: blobUrl
+                webPath: blobUrl,
+                details: {
+                    pages: pdf.pagesCount()
+                }
             })
         })
     }
 
 
-    const loadImageFrom = async (image: {path: string, webPath: string}, origin: "Web" | "Native" = "Native") => {
+    const loadImageFrom = async (image: {path: string, webPath: string, details: {[key: string]:any}}, origin: "Web" | "Native" = "Native") => {
         isLoadingImageCompression.value = true;
         const response = await fetch(image.webPath as unknown as string);
         const blob = await response.blob();
@@ -547,7 +556,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
 
         imageCompression(file, {
             maxSizeMB: 1,
-            maxWidthOrHeight: 1024
+            maxWidthOrHeight: (image.details.pages) ? ((image.details.pages > 1) ? undefined : 1024)  : 1024
         }).then((compressedFile) => {
             new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -559,7 +568,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 const imageSize = (base64Image.length * (3/4)) / 1000000;
 
                 console.log("Compressed Image size: ", imageSize);
-                if (imageSize >= 1){
+                if (imageSize >= 4){
                     alertController.create({
                         header: "Oops...",
                         message: "La imagen es muy pesada, por favor, suba una imagen más ligera (límite de 4MB)",
@@ -603,7 +612,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                     text: "Subir PDF",
                     handler: () => {
                         openPDFPicker().then(async (image) => {
-                            await loadImageFrom(image as unknown as {path: string, webPath: string}, "Web");
+                            await loadImageFrom(image as unknown as any, "Web");
                         })
                     }
                 },
@@ -611,7 +620,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                     text: "Subir Foto",
                     handler: () => {
                         scanDocumentWeb().then(async (image) => {
-                            await loadImageFrom(image as unknown as {path: string, webPath: string});
+                            await loadImageFrom(image as unknown as any);
                         })
                     }
                 },
@@ -722,10 +731,6 @@ const createNewInvoice = async () => {
     }else{
         isLoading.value = true;
         dynamicData.value.status = "creating-invoice";
-
-        
-
-
 
         const createMultiplesInvoices = async () => {
             const listInvoicesToCreate = dynamicData.value.listSelectedJobs.map((selectedJob, i) => {

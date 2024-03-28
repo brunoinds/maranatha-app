@@ -71,6 +71,9 @@ export class PDFModifier{
         return canvas.toDataURL('image/png');
     }
 
+    public pagesCount(): number{
+        return this.pdf.numPages;
+    }
 
     public async extractPagesIntoSingleImageAsBase64(): Promise<string>{
         const imagesInBase64 = await this.extractPagesAsImagesAsBase64();

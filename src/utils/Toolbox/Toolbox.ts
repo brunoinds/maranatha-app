@@ -20,7 +20,7 @@ class Toolbox{
             case EMoneyType.BRL:
                 return "R$";
             case EMoneyType.PYG:
-                return "₲";
+                return "Gs.";
         }
     }
     public static moneyName(moneyType: EMoneyType): string{

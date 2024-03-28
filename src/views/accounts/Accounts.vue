@@ -6,8 +6,8 @@
                     <ion-back-button defaultHref="/account"></ion-back-button>
                 </ion-buttons>
                 <ion-title>Cuentas</ion-title>
+                <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
             </ion-toolbar>
-            <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
         <ion-content>
             <ion-list v-if="!isLoading">

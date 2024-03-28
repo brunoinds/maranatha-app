@@ -3,8 +3,8 @@
         <ion-header>
             <ion-toolbar>
                 <ion-title>Mis Reportes</ion-title>
+                <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
             </ion-toolbar>
-            <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
         <ion-content>
             <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">

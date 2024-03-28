@@ -11,8 +11,8 @@
                         <ion-icon :icon="addOutline"></ion-icon>
                     </ion-button>
                 </ion-buttons>
+                <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
             </ion-toolbar>
-            <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
         <ion-content>
             <ion-list v-if="!isLoading">
@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonImg, IonAvatar, IonProgressBar,IonButtons, IonBackButton, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController, actionSheetController, toastController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonButton, IonContent, IonImg, IonAvatar, IonProgressBar,IonButtons, IonBackButton, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController, actionSheetController, toastController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, ref } from 'vue';
 

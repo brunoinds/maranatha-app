@@ -147,6 +147,14 @@
                     <ion-skeleton-text v-for="i in 8" animated style="height: 70px; border-radius: 10px;"></ion-skeleton-text>
                 </section>
             </section>
+
+
+            <section class="visibler">
+                <ion-img :src="CreditCardNeutral"></ion-img>
+                <ion-img :src="CreditCardPositive"></ion-img>
+                <ion-img :src="CreditCardNegative"></ion-img>
+                <ion-img :src="CreditCardAdmin"></ion-img>
+            </section>
         </ion-content>
     </ion-page>
 </template>
@@ -186,13 +194,6 @@ const selectedYear = ref<number>(DateTime.now().year);
 const route = useRoute();
 
 const userId = ref(route.params.id);
-
-const forcedImages = [
-    new Image().src = CreditCardPositive,
-    new Image().src = CreditCardNegative,
-    new Image().src = CreditCardNeutral,
-    new Image().src = CreditCardAdmin,
-];
 
 const userBalance = computed<UserBalanceComputed|null>(() => {
     let userBalance:any|UserBalanceComputed = JSON.parse(JSON.stringify(userBalanceData.value)) as unknown as UserBalance;
@@ -739,6 +740,16 @@ ion-content {
     --background: #f2f3f7;
 }
 
+
+.visibler{
+    position: absolute; z-index: -1; visibility: hidden;
+    > ion-img{
+        position: absolute;
+        z-index: -1;
+        width: 30px;
+        height: 30px;
+    }
+}
 
 .content{
     max-width: 600px;

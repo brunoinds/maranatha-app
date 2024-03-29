@@ -25,7 +25,7 @@
             <section class="content">
                 <br>
                 <article class="ion-padding wallet">
-                    <ion-label>{{userBalance?.user.name}}</ion-label>
+                    <ion-label v-if="!isLoading">{{userBalance?.user.name}}</ion-label>
                     <div v-if="!isAdminWallet && !isLoading">
                         <ion-img v-show="userBalance?.totals.balance.type == 'neutral'" :src="CreditCardNeutral" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
                         <ion-img v-show="userBalance?.totals.balance.type == 'positive'" :src="CreditCardPositive" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>

@@ -38,7 +38,7 @@ class RequestAPI{
         return new Promise(async (resolve, reject) => {
             RequestAPI.proxyResponse(axios.get(this.variables.rootUrl + url, { params: parameters, 
                 headers: {
-                    'Authorization': await RequestAPI.getAuthHeader(),
+                    'Authorization': await RequestAPI.authHeader(),
                     'ngrok-skip-browser-warning': true
                 }
             }))
@@ -59,7 +59,7 @@ class RequestAPI{
         return new Promise(async (resolve, reject) => {
             RequestAPI.proxyResponse(axios.post(this.variables.rootUrl + url, body, {
                 headers: {
-                    'Authorization': await RequestAPI.getAuthHeader(),
+                    'Authorization': await RequestAPI.authHeader(),
                     'ngrok-skip-browser-warning': true
                 },
                 onUploadProgress: (progressEvent) => {
@@ -84,7 +84,7 @@ class RequestAPI{
         return new Promise(async (resolve, reject) => {
             RequestAPI.proxyResponse(axios.patch(this.variables.rootUrl + url, body, {
                 headers: {
-                    'Authorization': await RequestAPI.getAuthHeader(),
+                    'Authorization': await RequestAPI.authHeader(),
                     'ngrok-skip-browser-warning': true
                 }
             }))
@@ -103,7 +103,7 @@ class RequestAPI{
         return new Promise(async (resolve, reject) => {
             RequestAPI.proxyResponse(axios.put(this.variables.rootUrl + url, parameters, {
                 headers: {
-                    'Authorization': await RequestAPI.getAuthHeader(),
+                    'Authorization': await RequestAPI.authHeader(),
                     'ngrok-skip-browser-warning': true
                 }
             }))
@@ -122,7 +122,7 @@ class RequestAPI{
         return new Promise(async (resolve, reject) => {
             RequestAPI.proxyResponse(axios.delete(this.variables.rootUrl + url, { params: parameters,
                 headers: {
-                    'Authorization': await RequestAPI.getAuthHeader(),
+                    'Authorization': await RequestAPI.authHeader(),
                     'ngrok-skip-browser-warning': true
             }}))
             .then((response) => {
@@ -157,7 +157,7 @@ class RequestAPI{
         return new Promise(async (resolve, reject) => {
             RequestAPI.proxyResponse(axios.get(this.variables.rootUrl + url, { params: parameters, 
                 headers: {
-                    'Authorization': await RequestAPI.getAuthHeader(),
+                    'Authorization': await RequestAPI.authHeader(),
                     'ngrok-skip-browser-warning': true
                 }
             }))
@@ -173,7 +173,7 @@ class RequestAPI{
         })
     }
 
-    private static async getAuthHeader(): Promise<any>{
+    public static async authHeader(): Promise<any>{
         return new Promise(async (resolve, reject) => {
             if (await Session.isLogged()){
                 resolve('Bearer ' + (await Session.getCurrentSession())?.token());

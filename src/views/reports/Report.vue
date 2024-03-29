@@ -745,7 +745,12 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
             }
 
             const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/reports/${reportId.value}/pdf-download`;
-            const pdfDocument = await Toolbox.fetchWithProgress(pdfDownloadUrl, undefined, (progress) => {
+            const pdfDocument = await Toolbox.fetchWithProgress(pdfDownloadUrl,  {
+                method: 'GET',
+                headers: {
+                    'Authorization': await RequestAPI.authHeader()
+                }
+            }, (progress) => {
                 loadingProcess.value = {
                     iddle: false,
                     percentage: progress,
@@ -820,7 +825,12 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
             }
 
             const excelDownloadUrl = `${RequestAPI.variables.rootUrl}/reports/${reportId.value}/excel-download`;
-            const excelDocument = await fetch(excelDownloadUrl).then((response) => {
+            const excelDocument = await fetch(excelDownloadUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': await RequestAPI.authHeader()
+                }
+            }).then((response) => {
                 return response.blob();
             }).then((blob) => {
                 const reader = new FileReader()

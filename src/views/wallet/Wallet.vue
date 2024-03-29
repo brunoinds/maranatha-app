@@ -130,13 +130,13 @@
                 <ion-list-header style="font-size: 15px"  v-if="!isLoading &&  userBalance?.items.length > 0">Historial de Movimientos</ion-list-header>
                 <ion-list :inset="true" v-if="!isLoading">
                     <ion-item v-for="item in userBalance?.items" :key="item.id" @click="openBalance(item)" button>
-                        <ion-icon slot="start" :icon="item.icon"></ion-icon>
+                        <ion-icon color="medium" slot="start" :icon="item.icon"></ion-icon>
                         <ion-label>
                             <h2><b>{{item.description}}</b></h2>
                             <p>{{ item.date }}</p>
                             <p>Saldo: S/.{{ item.balance_here.value }}</p>
                         </ion-label>
-                        <ion-note slot="end" :color="item.color">{{item.amount.signal}}S/. {{ item.amount.value }}</ion-note>
+                        <ion-note slot="end" :color="item.color">{{item.amount.signal}}S/.{{ item.amount.value }}</ion-note>
                     </ion-item>
                 </ion-list>
 

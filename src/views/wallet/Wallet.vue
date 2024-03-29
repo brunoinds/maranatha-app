@@ -31,7 +31,7 @@
                         <ion-img v-show="userBalance?.totals.balance.type == 'positive'" :src="CreditCardPositive" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
                         <ion-img v-show="userBalance?.totals.balance.type == 'negative'" :src="CreditCardNegative" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
                     </div>
-                    <ion-img v-if="isAdminWallet" :src="CreditCardAdmin" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
+                    <ion-img v-if="isAdminWallet && !isLoading" :src="CreditCardAdmin" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
                     
                     <ion-skeleton-text animated style="height: 220px;width: 100%;border-radius: 20px;" v-if="isLoading"></ion-skeleton-text>
                 </article>

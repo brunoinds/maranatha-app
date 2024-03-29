@@ -23,17 +23,18 @@
         </ion-header>
         <ion-content>
             <section class="content">
-                <br>
-                <article class="ion-padding wallet">
-                    <ion-label v-if="!isLoading">{{userBalance?.user.name}}</ion-label>
-                    <div v-if="!isAdminWallet && !isLoading">
-                        <ion-img v-show="userBalance?.totals.balance.type == 'neutral'" :src="CreditCardNeutral" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
-                        <ion-img v-show="userBalance?.totals.balance.type == 'positive'" :src="CreditCardPositive" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
-                        <ion-img v-show="userBalance?.totals.balance.type == 'negative'" :src="CreditCardNegative" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
-                    </div>
-                    <ion-img v-if="isAdminWallet && !isLoading" :src="CreditCardAdmin" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
-                    
-                    <ion-skeleton-text animated style="height: 220px;width: 100%;border-radius: 20px;" v-if="isLoading"></ion-skeleton-text>
+
+                <article class="wallet">
+                    <article>
+                        <ion-label v-if="!isLoading">{{userBalance?.user.name}}</ion-label>
+
+                        <ion-skeleton-text animated style="height: 220px;width: 100%;border-radius: 20px;" v-if="isLoading"></ion-skeleton-text>
+
+                        <ion-img :visible="isAdminWallet && !isLoading"                                  :src="CreditCardAdmin"></ion-img>
+                        <ion-img :visible="userBalance?.totals.balance.type == 'neutral'  && !isLoading && !isAdminWallet" :src="CreditCardNeutral"></ion-img>
+                        <ion-img :visible="userBalance?.totals.balance.type == 'positive' && !isLoading && !isAdminWallet" :src="CreditCardPositive"></ion-img>
+                        <ion-img :visible="userBalance?.totals.balance.type == 'negative' && !isLoading && !isAdminWallet" :src="CreditCardNegative"></ion-img>
+                    </article>
                 </article>
 
 
@@ -135,8 +136,8 @@
                         <ion-icon slot="start" :icon="item.icon"></ion-icon>
                         <ion-label>
                             <h2><b>{{item.description}}</b></h2>
-                            <p><b>Fecha:</b> {{ item.date }}</p>
-                            <p>Saldo: S/. {{ item.balance_here.value }}</p>
+                            <p>{{ item.date }}</p>
+                            <p>Saldo: S/.{{ item.balance_here.value }}</p>
                         </ion-label>
                         <ion-note slot="end" :color="item.color">{{item.amount.signal}}S/. {{ item.amount.value }}</ion-note>
                     </ion-item>
@@ -147,14 +148,6 @@
                     <ion-skeleton-text v-for="i in 8" animated style="height: 70px; border-radius: 10px;"></ion-skeleton-text>
                 </section>
             </section>
-
-
-            <section class="visibler">
-                <ion-img :src="CreditCardNeutral"></ion-img>
-                <ion-img :src="CreditCardPositive"></ion-img>
-                <ion-img :src="CreditCardNegative"></ion-img>
-                <ion-img :src="CreditCardAdmin"></ion-img>
-            </section>
         </ion-content>
     </ion-page>
 </template>
@@ -163,7 +156,7 @@
 import { IonPage, IonHeader, IonGrid, IonCard, IonListHeader, IonSkeletonText, IonButtons, IonBackButton, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonNote, IonRow, IonCol, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonIcon, IonList, IonItem, IonLabel, actionSheetController, alertController, toastController } from '@ionic/vue';
 import { computed, onUnmounted, ref } from 'vue';
 
-import { addCircleOutline, alertCircle, cashOutline, chevronBackCircleOutline, chevronForwardCircleOutline, downloadOutline, gitCompareOutline, removeCircleOutline, shareOutline } from 'ionicons/icons';
+import { addCircleOutline, alertCircle, cardOutline, cashOutline, chevronBackCircleOutline, chevronForwardCircleOutline, downloadOutline, gitCompareOutline, removeCircleOutline, shareOutline } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
 import {AppEvents} from '../../utils/AppEvents/AppEvents';
 import CreditCardPositive from '&/assets/images/credit-card-positive.svg';
@@ -209,7 +202,7 @@ const userBalance = computed<UserBalanceComputed|null>(() => {
             }else if (item.model === 'Restitution'){
                 return gitCompareOutline;
             }else if (item.model === 'Expense'){
-                return cashOutline;
+                return cardOutline;
             }else{
                 return alertCircle;
             }
@@ -257,7 +250,7 @@ const userBalance = computed<UserBalanceComputed|null>(() => {
         balance: {
             signal: userBalanceData.value.totals.balance > 0 ? '+' : '-',
             amount: Numeral(userBalanceData.value.totals.balance).format('0,0.00'),
-            color: userBalanceData.value.totals.balance > 0 ? 'success' : 'danger',
+            color: (userBalanceData.value.totals.balance == 0) ? 'primary' : userBalanceData.value.totals.balance > 0 ? 'success' : 'danger',
             type: (() => {
                 if (userBalanceData.value.totals.balance > 0) return 'positive';
                 if (userBalanceData.value.totals.balance < 0) return 'negative';
@@ -741,16 +734,6 @@ ion-content {
 }
 
 
-.visibler{
-    position: absolute; z-index: -1; visibility: hidden;
-    > ion-img{
-        position: absolute;
-        z-index: -1;
-        width: 30px;
-        height: 30px;
-    }
-}
-
 .content{
     max-width: 600px;
     margin: 0 auto;
@@ -760,18 +743,49 @@ ion-content {
     position: relative;
     max-width: 400px;
     margin: 0 auto;
-    > ion-label{
-        position: absolute;
-        z-index: 1000;
-        bottom: 96px;
-        left: 35px;
-        width: 100%;
-        font-size: 16px;
-        font-weight: bold;
-        text-transform: uppercase;
-        color: #fff;
-        text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.47);
+    padding: 18px;
+
+
+    > article{
+        border-radius: 20px;
+        position: relative;
+        height: 230px;
+        width: 100%; 
+        margin: 0 auto; 
+
+        
+
+        > ion-img{
+            filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            visibility: hidden;
+            z-index: 0;
+
+            &[visible="true"]{
+                visibility: visible;
+                z-index: 10;
+            }
+        }
+        > ion-label{
+            position: absolute;
+            z-index: 1000;
+            bottom: 96px;
+            left: 13px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.47);
+            z-index: 11;
+        }
     }
+
+    
 }
 
 .header{

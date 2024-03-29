@@ -999,8 +999,13 @@ const indicators = computed<AccountantPeriodComparisonIndicatorsComputed|null>((
                 },
                 tooltip: {
                     callbacks: {
+                        title: function(context:any) {
+                            const item = context[0];
+                            return item.label
+                        },
                         label: function(context:any) {
                             let label = context.dataset.label || '';
+                            label = 'Gastos';
                             if (label) {
                                 label += ': ';
                             }
@@ -1060,6 +1065,7 @@ const indicators = computed<AccountantPeriodComparisonIndicatorsComputed|null>((
                         },
                         label: function(context:any) {
                             let label = context.dataset.label || '';
+                            label = 'Gastos';
                             if (label) {
                                 label += ': ';
                             }

@@ -37,8 +37,6 @@
                     </article>
                 </article>
 
-
-
                 <article>
                     <ion-grid class="ion-padding">
                         <ion-row>
@@ -117,7 +115,6 @@
                         </ion-row>
                     </ion-grid>
                 </article>
-
 
                 <ion-list-header  v-if="isAdmin && !isLoading" style="font-size: 15px">Opciones del Administrador</ion-list-header>
 

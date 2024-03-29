@@ -26,13 +26,25 @@
                 <br>
                 <article class="ion-padding wallet">
                     <ion-label>{{userBalance?.user.name}}</ion-label>
-                    <ion-img :src="CreditCard" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
+                    <div v-if="!isAdminWallet">
+                        <ion-img v-show="userBalance?.totals.balance.type == 'neutral'" :src="CreditCardNeutral" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
+                        <ion-img v-show="userBalance?.totals.balance.type == 'positive'" :src="CreditCardPositive" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
+                        <ion-img v-show="userBalance?.totals.balance.type == 'negative'" :src="CreditCardNegative" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
+                    </div>
+                    <ion-img v-if="isAdminWallet" :src="CreditCardAdmin" style="width: 100%; margin: 0 auto; filter: drop-shadow(rgba(0, 0, 0, 0.47) 0px 0px 3px);"></ion-img>
+                    
+                    <ion-skeleton-text animated style="height: 220px;width: 100%;border-radius: 20px;" v-if="isLoading"></ion-skeleton-text>
                 </article>
+
+
+
                 <article>
                     <ion-grid class="ion-padding">
                         <ion-row>
                             <ion-col>
-                                <ion-card style="margin: 0; padding: 0; width: 100%;">
+                                <ion-skeleton-text v-if="isLoading" animated style="height: 100px; border-radius: 10px;"></ion-skeleton-text>
+
+                                <ion-card style="margin: 0; padding: 0; width: 100%;" v-if="!isLoading">
                                     <ion-card-header>
                                         <ion-card-title :color="userBalance?.totals.balance.color" style="text-wrap: nowrap; font-size: 38px;">S/. {{ userBalance?.totals.balance.amount }}</ion-card-title>
                                         <ion-card-subtitle>Saldo total</ion-card-subtitle>
@@ -41,13 +53,15 @@
                             </ion-col>
                         </ion-row>
                         <ion-row>
-                            <ion-card style="margin: 5px; padding: 0; width: 100%">
+                            <ion-skeleton-text v-if="isLoading" animated style="height: 200px; border-radius: 10px; margin: 6px"></ion-skeleton-text>
+
+                            <ion-card style="margin: 5px; padding: 0; width: 100%" v-if="!isLoading">
                                 <ion-card-content>
                                     <line-chart :height="200" :chart-data="chartData" :options="chartOptions"></line-chart>
                                 </ion-card-content>
                             </ion-card>
                         </ion-row>
-                        <ion-row>
+                        <ion-row  v-if="!isLoading">
                             <ion-col>
                                 <ion-card style="margin: 0; padding: 0; width: 100%;">
                                     <ion-card-header>
@@ -104,9 +118,9 @@
                 </article>
 
 
-                <ion-list-header  v-if="isAdmin" style="font-size: 15px">Opciones del Administrador</ion-list-header>
+                <ion-list-header  v-if="isAdmin && !isLoading" style="font-size: 15px">Opciones del Administrador</ion-list-header>
 
-                <ion-list :inset="true" v-if="isAdmin">
+                <ion-list :inset="true" v-if="isAdmin && !isLoading">
                     <ion-item button  @click="addCredit">
                         <ion-icon color="success" slot="start" :icon="addCircleOutline"></ion-icon>
                         <ion-label>
@@ -115,8 +129,8 @@
                     </ion-item>
                 </ion-list>
 
-                <ion-list-header style="font-size: 15px">Historial de Movimientos</ion-list-header>
-                <ion-list :inset="true">
+                <ion-list-header style="font-size: 15px"  v-if="!isLoading &&  userBalance?.items.length > 0">Historial de Movimientos</ion-list-header>
+                <ion-list :inset="true" v-if="!isLoading">
                     <ion-item v-for="item in userBalance?.items" :key="item.id" @click="openBalance(item)" button>
                         <ion-icon slot="start" :icon="item.icon"></ion-icon>
                         <ion-label>
@@ -127,19 +141,28 @@
                         <ion-note slot="end" :color="item.color">{{item.amount.signal}}S/. {{ item.amount.value }}</ion-note>
                     </ion-item>
                 </ion-list>
+
+
+                <section style="padding: 20px"  v-if="isLoading">
+                    <ion-skeleton-text v-for="i in 8" animated style="height: 70px; border-radius: 10px;"></ion-skeleton-text>
+                </section>
             </section>
         </ion-content>
     </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonGrid, IonCard, IonListHeader, IonButtons, IonBackButton, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonNote, IonRow, IonCol, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonIcon, IonList, IonItem, IonLabel, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { IonPage, IonHeader, IonGrid, IonCard, IonListHeader, IonSkeletonText, IonButtons, IonBackButton, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonNote, IonRow, IonCol, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonIcon, IonList, IonItem, IonLabel, actionSheetController, alertController, toastController } from '@ionic/vue';
 import { computed, onUnmounted, ref } from 'vue';
 
 import { addCircleOutline, alertCircle, cashOutline, chevronBackCircleOutline, chevronForwardCircleOutline, downloadOutline, gitCompareOutline, removeCircleOutline, shareOutline } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
 import {AppEvents} from '../../utils/AppEvents/AppEvents';
-import CreditCard from '&/assets/images/credit-card.svg';
+import CreditCardPositive from '&/assets/images/credit-card-positive.svg';
+import CreditCardNegative from '&/assets/images/credit-card-negative.svg';
+import CreditCardNeutral from '&/assets/images/credit-card-neutral.svg';
+import CreditCardAdmin from '&/assets/images/credit-card-admin.svg';
+
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { DateTime } from 'luxon';
 import Numeral from 'numeral';
@@ -163,6 +186,13 @@ const selectedYear = ref<number>(DateTime.now().year);
 const route = useRoute();
 
 const userId = ref(route.params.id);
+
+const forcedImages = [
+    new Image().src = CreditCardPositive,
+    new Image().src = CreditCardNegative,
+    new Image().src = CreditCardNeutral,
+    new Image().src = CreditCardAdmin,
+];
 
 const userBalance = computed<UserBalanceComputed|null>(() => {
     let userBalance:any|UserBalanceComputed = JSON.parse(JSON.stringify(userBalanceData.value)) as unknown as UserBalance;
@@ -227,6 +257,11 @@ const userBalance = computed<UserBalanceComputed|null>(() => {
             signal: userBalanceData.value.totals.balance > 0 ? '+' : '-',
             amount: Numeral(userBalanceData.value.totals.balance).format('0,0.00'),
             color: userBalanceData.value.totals.balance > 0 ? 'success' : 'danger',
+            type: (() => {
+                if (userBalanceData.value.totals.balance > 0) return 'positive';
+                if (userBalanceData.value.totals.balance < 0) return 'negative';
+                return 'neutral';
+            })()
         },
     }
     userBalance.petty_cash.given_amount = Numeral(userBalance.petty_cash.given_amount).format('0,0.00');
@@ -267,7 +302,7 @@ const chartData = ref<any>({
             fill: false,
             label: 'Amount',
             data: [],
-            borderColor: '#4bc0c0',
+            borderColor: '#3880FF',
             backgroundColor: '#98eaea',
             tension: 0.2
         }
@@ -428,6 +463,7 @@ interface UserBalanceComputed{
             signal: string;
             amount: string;
             color: string;
+            type: 'positive'| 'negative' | 'neutral'
         };
     };
     items: Array<{
@@ -509,6 +545,8 @@ interface UserBalanceComputed{
     };
 }
 const isAdmin = ref(false);
+
+
 const isAdminCheck = async () => {
     const currentSession = await Session.getCurrentSession();
     if (!currentSession){
@@ -517,6 +555,15 @@ const isAdminCheck = async () => {
 
     isAdmin.value = currentSession.roles().includes("admin");
 }
+
+
+const isAdminWallet = computed(() => {
+    if (walletType.value == 'management'){
+        return false;
+    }else{
+        return isAdmin.value;
+    }
+})
 
 const addCredit = () => {
     Dialog.show(AddCreditPettyCash, {
@@ -670,12 +717,11 @@ const openBalance = async (balance: UserBalanceComputed['items'][0]) => {
     })
 }
 
-loadUserBalanceYear();
-
-
 isAdminCheck();
 
 onMounted(() => {
+    loadUserBalanceYear();
+
     const callbackId = AppEvents.on('all:reload', () => {
         loadUserBalanceYear();
     })

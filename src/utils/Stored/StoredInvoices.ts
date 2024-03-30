@@ -20,7 +20,8 @@ interface IInvoiceResponse{
     expense_code: string,
     amount: number,
     qrcode_data: string,
-    image: string|null
+    image: string|null,
+    image_size: number|null,
 }
 
 class StoredInvoices{

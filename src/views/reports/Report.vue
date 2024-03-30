@@ -327,8 +327,10 @@ const loadingProcess = ref<{
     },
     iddle: boolean
 }|null>(null);
-const signal = ref("");
 
+const dynamicMarkers = ref({
+    showedExtrapolatePdfSize: false
+})
 
 const isOfflineReport = computed(() => {
     return !navigator.onLine
@@ -413,24 +415,62 @@ const duplicatedInvoices = computed(() => {
 })
 
 const addInvoice = async () => {
-    Dialog.show(NewInvoice, {
-        props:{
-            report: report.value,
-            reportInvoices: invoices.value,
-            reportId: reportId.value,
-            type: report.value.type,
-            autoShowCamera: false
-        },
-        onLoaded($this) {
-            $this.on('created', (event:any) => {
-                loadReportInvoices();
+    const showAddInvoiceModal = () => {
+        Dialog.show(NewInvoice, {
+            props:{
+                report: report.value,
+                reportInvoices: invoices.value,
+                reportId: reportId.value,
+                type: report.value.type,
+                autoShowCamera: false
+            },
+            onLoaded($this) {
+                $this.on('created', (event:any) => {
+                    loadReportInvoices();
+                })
+            },
+            modalControllerOptions: {
+                presentingElement: page,
+                showBackdrop: true,
+            }
+        })
+    }
+
+
+    const checkExtrapolatePdfSize = () => {
+        //Sum invoices.image_size (bytes), check if the sum is greater than 22MB:
+        const sum = invoices.value.reduce((total, invoice) => {
+            return total + (invoice.image_size || 0);
+        }, 0);
+
+        const isExtrapolatePdfSize = (sum > 22000000); // 22000000
+        if (isExtrapolatePdfSize && !dynamicMarkers.value.showedExtrapolatePdfSize){
+            dynamicMarkers.value.showedExtrapolatePdfSize = true;
+            alertController.create({
+                header: '¡Atención!',
+                message: 'El tamaño del PDF final probablemente excederá el límite de 25MB. ¿Deseas continuar subiendo otros documentos en este reporte?',
+                buttons: [
+                    {
+                        text: 'No',
+                        role: 'cancel'
+                    },
+                    {
+                        text: 'Sí',
+                        role: 'confirm',
+                        handler: () => {
+                            showAddInvoiceModal();
+                        }
+                    }
+                ]
+            }).then((alert) => {
+                alert.present();
             })
-        },
-        modalControllerOptions: {
-            presentingElement: page,
-            showBackdrop: true,
+        }else{
+            showAddInvoiceModal();
         }
-    })
+    }
+
+    checkExtrapolatePdfSize();
 }
 const editReport = async () => {
     Dialog.show(EditReport, {

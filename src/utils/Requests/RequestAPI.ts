@@ -72,7 +72,7 @@ class RequestAPI{
                 resolve(response.data);
             })
             .catch((error) => {
-                console.log(error)
+                console.error(error)
                 reject({
                     code: error.response.status,
                     response: error.response.data

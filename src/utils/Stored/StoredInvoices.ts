@@ -4,6 +4,8 @@ import { Dialog } from "@/utils/Dialog/Dialog";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { StoredReports } from "@/utils/Stored/StoredReports";
 import { TStorage } from "@/utils/Toolbox/TStorage";
+import { Toolbox } from "@/utils/Toolbox/Toolbox";
+import { alertController } from "@ionic/vue";
 import { ref } from "vue";
 
 interface IInvoiceResponse{
@@ -112,6 +114,20 @@ class StoredInvoices{
             }).then((bucket) => {
                 bucket.data.invoices = bucket.data.invoices.filter((invoice:IInvoiceResponse) => {
                     return invoice.id !== id;
+                })
+                bucket.save().then(() => {
+                    resolve(true);
+                })
+            })
+        })
+    }
+    public static removeLocalInvoices(): Promise<boolean>{
+        return new Promise((resolve, reject) => {
+            TStorage.load('StoredInvoices', {
+                invoices: []
+            }).then((bucket) => {
+                bucket.data.invoices = bucket.data.invoices.filter((invoice:IInvoiceResponse) => {
+                    return invoice.id < 10000;
                 })
                 bucket.save().then(() => {
                     resolve(true);
@@ -265,6 +281,101 @@ class StoredInvoices{
                         performPromises(dialog).then((listOfUpdates:any) => {
                             resolve(listOfUpdates);
                         }).catch((err) => {
+                            const catchedError = err as Error;
+                            alertController.create({
+                                header: 'Oops...',
+                                message: 'Ud. ya creado boletas/facturas en modo offline y ahora que hay internet, estamos teniendo problemas para enviarlas al administrador. Si el problema persiste, por favor, contacta al soporte.',
+                                buttons: [
+                                    {
+                                        text: 'Reintentar sincronizar',
+                                        handler: () => {
+                                            
+                                        }
+                                    },
+                                    {
+                                        text: 'Otra alternativa',
+                                        handler: () => {
+                                            alertController.create({
+                                                header: 'Borrar boletas creadas en modo offline',
+                                                message: 'Tu puedes borrar las boletas/facturas creadas en el modo offline y volver a subirlas ahora en modo online. ¿Quieres hacerlo?',
+                                                buttons: [
+                                                    {
+                                                        text: 'Sí, borrar',
+                                                        handler: () => {
+                                                            StoredInvoices.removeLocalInvoices().then(() => {
+                                                                alertController.create({
+                                                                    header: 'Salga de la app',
+                                                                    message: 'Cierra y vuelva abrir la aplicación',
+                                                                    buttons: [
+                                                                        {
+                                                                            text: 'Ok',
+                                                                            handler: () => {
+                                                                                
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }).then((alert) => {
+                                                                    alert.present();
+                                                                })
+                                                            })
+                                                        }
+                                                    },
+                                                    {
+                                                        text: 'No, gracias',
+                                                    }
+                                                ]
+                                            }).then((alert) => {
+                                                alert.present();
+                                            })
+                                        }
+                                    },
+                                    {
+                                        text: 'Contactar a soporte',
+                                        handler: () => {
+                                            alertController.create({
+                                                header: 'Reporte de error',
+                                                message: 'Descarga el reporte de error y envíalo al administrador',
+                                                buttons: [
+                                                    {
+                                                        text: 'Descargar reporte de error',
+                                                        handler: () => {
+                                                            const errorObject = {
+                                                                stack: catchedError.stack,
+                                                                ...catchedError
+                                                            };
+                                                            const errorJSON = JSON.stringify(errorObject, null, 2);
+
+                                                            const textContent = `
+                                                                Error Report:
+
+                                                                ${errorJSON}
+
+                                                                Content of StoredInvoices:
+                                                                ${JSON.stringify(bucket.data, null, 2)}
+                                                            `
+                                                            const a = document.createElement('a');
+                                                            const file = new Blob([textContent], {type: 'text/plain'});
+
+
+                                                            //Convert to base64:
+                                                            const reader = new FileReader();
+                                                            reader.onload = function() {
+                                                                const base64Text = reader.result as string;
+                                                                Toolbox.share('error-report.txt', base64Text);
+                                                            }
+                                                            reader.readAsDataURL(file);
+                                                        }
+                                                    }
+                                                ]
+                                            }).then((alert) => {
+                                                alert.present();
+                                            })
+                                        }
+                                    }
+                                ]
+                            }).then((alert) => {
+                                alert.present();
+                            })
                             reject(err);
                         })
                     }

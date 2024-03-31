@@ -450,7 +450,7 @@ class CLI{
     }
     private static async capLive(platform: Platforms = Platforms.iOS, args: []){
         return new Promise(async (resolve, reject) => {
-            await Versioning.changeEnvironment('dev');
+            await Versioning.changeEnvironment('prod');
             await CapacitorCompiler.live(platform);
             resolve({})
         })

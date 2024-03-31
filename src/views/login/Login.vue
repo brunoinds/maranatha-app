@@ -119,38 +119,40 @@ onMounted(() => {
 
 
 
+if (Capacitor.isNativePlatform()){
+    Keyboard.addListener('keyboardWillShow', info => {
+        Keyboard.setResizeMode({
+            mode: KeyboardResize.None
+        });
 
-Keyboard.addListener('keyboardWillShow', info => {
-    Keyboard.setResizeMode({
-        mode: KeyboardResize.None
+        if (Capacitor.getPlatform() === 'ios') {
+            holder.value?.style.setProperty(
+                'transform',
+                `translateY(-${info.keyboardHeight / 2}px)`
+            );
+        }else if (Capacitor.getPlatform() === 'android'){
+            holder.value?.style.setProperty(
+                'transform',
+                `translateY(-${info.keyboardHeight / 3}px)`
+            );
+        }
     });
 
-    if (Capacitor.getPlatform() === 'ios') {
-        holder.value?.style.setProperty(
-            'transform',
-            `translateY(-${info.keyboardHeight / 2}px)`
-        );
-    }else if (Capacitor.getPlatform() === 'android'){
-        holder.value?.style.setProperty(
-            'transform',
-            `translateY(-${info.keyboardHeight / 3}px)`
-        );
-    }
-});
+    Keyboard.addListener('keyboardDidShow', info => {
 
-Keyboard.addListener('keyboardDidShow', info => {
-
-});
-
-Keyboard.addListener('keyboardWillHide', () => {
-    holder.value?.style.removeProperty('transform');
-});
-
-Keyboard.addListener('keyboardDidHide', () => {
-    Keyboard.setResizeMode({
-        mode: KeyboardResize.Ionic
     });
-});
+
+    Keyboard.addListener('keyboardWillHide', () => {
+        holder.value?.style.removeProperty('transform');
+    });
+
+    Keyboard.addListener('keyboardDidHide', () => {
+        Keyboard.setResizeMode({
+            mode: KeyboardResize.Ionic
+        });
+    });
+
+}
 
 
 </script>

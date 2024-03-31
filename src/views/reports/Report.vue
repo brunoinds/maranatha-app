@@ -436,7 +436,6 @@ const addInvoice = async () => {
         })
     }
 
-
     const checkExtrapolatePdfSize = () => {
         //Sum invoices.image_size (bytes), check if the sum is greater than 22MB:
         const sum = invoices.value.reduce((total, invoice) => {
@@ -804,7 +803,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                 reader.onload = () => {
                     resolve({
                         blobUrl: URL.createObjectURL(blob),
-                        base64: reader.result?.split('data:application/pdf;base64,')[1] as unknown as string
+                        base64: reader.result?.split(';base64,')[1] as unknown as string
                     })
                 }
                 reader.onerror = () => {                

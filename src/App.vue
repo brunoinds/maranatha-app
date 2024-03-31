@@ -8,7 +8,7 @@
 import { Session } from '@/utils/Session/Session';
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
 import { useRouter } from 'vue-router';
-import { useOneSignal } from '@onesignal/onesignal-vue3';
+//import { useOneSignal } from '@onesignal/onesignal-vue3';
 import { Capacitor } from '@capacitor/core';
 import { Notifications } from '@/utils/Notifications/Notifications';
 import { App } from '@capacitor/app';
@@ -17,8 +17,8 @@ import { AppEvents } from '@/utils/AppEvents/AppEvents';
 Session.router = useRouter();
 
 if (!Capacitor.isNativePlatform()){
-  const oneSignal = useOneSignal();
-  Notifications.initializeOneSignal(oneSignal);
+  //const oneSignal = useOneSignal();
+  //Notifications.initializeOneSignal(oneSignal);
 }
 
 
@@ -38,7 +38,6 @@ App.addListener('resume', () => {
 
 const checkAppLaunchUrl = async () => {
   const { url } = await App.getLaunchUrl();
-
   console.log('App opened with URL: ' + url);
 };
 

@@ -160,6 +160,7 @@ class Notifications{
                     return;
                 }
 
+                return;
                 register(`/resources/service-workers/one-signal-sw.js`,{
                     registrationOptions: { scope: './' },
                     ready (registration) {

@@ -140,6 +140,7 @@ class Session{
                 token: sessionStorage.data.token
             }
             Session.session = new Session(sessionData);
+            ErrorTracking.linkToSession();
         }else{
             Session.session = null;
         }

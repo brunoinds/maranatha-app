@@ -89,7 +89,7 @@ const app = createApp(App)
 
 
 if (!Capacitor.isNativePlatform()){
-  app.use(OneSignalVuePlugin, {
+  /*app.use(OneSignalVuePlugin, {
     appId: Notifications.oneSignalAppId,
     promptOptions: {
       prompts: [
@@ -100,7 +100,7 @@ if (!Capacitor.isNativePlatform()){
         },
       ]
     }
-  })
+  })*/
 }
 
 ErrorTracking.initialize(app, router);

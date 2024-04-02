@@ -58,7 +58,6 @@
                     <ion-list-header v-if="attendance" style="font-size: 15px">Listado de Asistencias</ion-list-header>
                     <br>
 
-
                     <article  v-if="attendance" class="attendance-table-holder">
                         <table class="attendance-table">
                             <thead>

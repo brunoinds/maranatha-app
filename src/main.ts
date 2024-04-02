@@ -39,6 +39,8 @@ import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import { ErrorTracking } from '@/utils/ErrorTracking/ErrorTracking';
 import VuePdf from 'vue3-pdfjs'
+import { ScriptInject } from '@/utils/ScriptInject/ScriptInject';
+import { Environment } from '@/utils/Environment/Environment';
 
 
 
@@ -89,6 +91,13 @@ const app = createApp(App)
 
 
 if (!Capacitor.isNativePlatform()){
+  //Inject script tag on document:
+  let scriptSrc = '/assets/dependencies/qrcode/instascan.min.js';
+  if (Environment.environment() == 'prod'){
+    scriptSrc = '/app/assets/dependencies/qrcode/instascan.min.js';
+  }
+  ScriptInject.inject(scriptSrc, true);
+  
   /*app.use(OneSignalVuePlugin, {
     appId: Notifications.oneSignalAppId,
     promptOptions: {

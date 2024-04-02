@@ -179,6 +179,7 @@ const validateCamps = () => {
 
 const loadReceiptImage = async () => {
     const getCameraImage = async () => {
+        
         const image = await Camera.getPhoto({
             quality: 90,
             allowEditing: false,

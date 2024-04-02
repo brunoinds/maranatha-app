@@ -53,56 +53,60 @@ class QRCodeParser{
             igv: (parts[predifinedParts.igv[0]].trim()),
             price: (parts[predifinedParts.price[0]].trim()),
             date: (() => {
-                const data = parts[predifinedParts.date[0]].trim().split(" ")[0]
-                //Should check for dates in those formats, is is not available, return null.: dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy, yyyy-mm-dd, yyyy/mm/dd, yyyy.mm.dd
-                const dateRegex = /(\d{2}[-/.]\d{2}[-/.]\d{4})|(\d{4}[-/.]\d{2}[-/.]\d{2})/;
-                const dateMatch = data.match(dateRegex);
-                let datePreSanitizedValue = null
-                if (dateMatch) {
-                    //Define witch type of format is: dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy, yyyy-mm-dd, yyyy/mm/dd, yyyy.mm.dd:
-                    const isDotStyle = data.includes(".");
-                    const isSlashStyle = data.includes("/");
-                    const isDashStyle = data.includes("-");
+                try {
+                    const data = parts[predifinedParts.date[0]].trim().split(" ")[0]
+                    //Should check for dates in those formats, is is not available, return null.: dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy, yyyy-mm-dd, yyyy/mm/dd, yyyy.mm.dd
+                    const dateRegex = /(\d{2}[-/.]\d{2}[-/.]\d{4})|(\d{4}[-/.]\d{2}[-/.]\d{2})/;
+                    const dateMatch = data.match(dateRegex);
+                    let datePreSanitizedValue = null
+                    if (dateMatch) {
+                        //Define witch type of format is: dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy, yyyy-mm-dd, yyyy/mm/dd, yyyy.mm.dd:
+                        const isDotStyle = data.includes(".");
+                        const isSlashStyle = data.includes("/");
+                        const isDashStyle = data.includes("-");
 
-                    if (isSlashStyle){
-                        const whereIsTheYear = data.split("/").findIndex((value) => value.length === 4);
-                        const whereIsTheDay = data.split("/").findIndex((value, i) => {
-                            return value.length === 2 && value !== "00" && parseInt(value) <= 31 && i !== 1
-                        });
-                        const whereIsTheMonth = 1
+                        if (isSlashStyle){
+                            const whereIsTheYear = data.split("/").findIndex((value) => value.length === 4);
+                            const whereIsTheDay = data.split("/").findIndex((value, i) => {
+                                return value.length === 2 && value !== "00" && parseInt(value) <= 31 && i !== 1
+                            });
+                            const whereIsTheMonth = 1
 
-                        datePreSanitizedValue = `${data.split("/")[whereIsTheYear]}-${data.split("/")[whereIsTheMonth]}-${data.split("/")[whereIsTheDay]}`;
-                    }else if (isDotStyle){
-                        const whereIsTheYear = data.split(".").findIndex((value) => value.length === 4);
-                        const whereIsTheDay = data.split(".").findIndex((value, i) => {
-                            return value.length === 2 && value !== "00" && parseInt(value) <= 31 && i !== 1
-                        });
-                        const whereIsTheMonth = 1
+                            datePreSanitizedValue = `${data.split("/")[whereIsTheYear]}-${data.split("/")[whereIsTheMonth]}-${data.split("/")[whereIsTheDay]}`;
+                        }else if (isDotStyle){
+                            const whereIsTheYear = data.split(".").findIndex((value) => value.length === 4);
+                            const whereIsTheDay = data.split(".").findIndex((value, i) => {
+                                return value.length === 2 && value !== "00" && parseInt(value) <= 31 && i !== 1
+                            });
+                            const whereIsTheMonth = 1
 
-                        datePreSanitizedValue = `${data.split(".")[whereIsTheYear]}-${data.split(".")[whereIsTheMonth]}-${data.split(".")[whereIsTheDay]}`;
-                    }else if (isDashStyle){
-                        const whereIsTheYear = data.split("-").findIndex((value) => value.length === 4);
-                        const whereIsTheDay = data.split("-").findIndex((value, i) => {
-                            return value.length === 2 && value !== "00" && parseInt(value) <= 31  && i !== 1
-                        });
-                        const whereIsTheMonth = 1
+                            datePreSanitizedValue = `${data.split(".")[whereIsTheYear]}-${data.split(".")[whereIsTheMonth]}-${data.split(".")[whereIsTheDay]}`;
+                        }else if (isDashStyle){
+                            const whereIsTheYear = data.split("-").findIndex((value) => value.length === 4);
+                            const whereIsTheDay = data.split("-").findIndex((value, i) => {
+                                return value.length === 2 && value !== "00" && parseInt(value) <= 31  && i !== 1
+                            });
+                            const whereIsTheMonth = 1
 
-                        datePreSanitizedValue = `${data.split("-")[whereIsTheYear]}-${data.split("-")[whereIsTheMonth]}-${data.split("-")[whereIsTheDay]}`;
+                            datePreSanitizedValue = `${data.split("-")[whereIsTheYear]}-${data.split("-")[whereIsTheMonth]}-${data.split("-")[whereIsTheDay]}`;
+                        }
+                    }else{
+                        return null;
                     }
-                }else{
-                    return null;
-                }
 
-                if (datePreSanitizedValue){
-                    //Check if has valid format: yyyy-mm-dd:
-                    const dateRegex = /(\d{4}[-]\d{2}[-]\d{2})/;
-                    const dateMatch = datePreSanitizedValue.match(dateRegex);
-                    if (dateMatch){
-                        return datePreSanitizedValue;
+                    if (datePreSanitizedValue){
+                        //Check if has valid format: yyyy-mm-dd:
+                        const dateRegex = /(\d{4}[-]\d{2}[-]\d{2})/;
+                        const dateMatch = datePreSanitizedValue.match(dateRegex);
+                        if (dateMatch){
+                            return datePreSanitizedValue;
+                        }
+                        return null;
                     }
                     return null;
+                } catch (error) {
+                    return null;   
                 }
-                return null;
             })()
         }
         return {

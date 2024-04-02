@@ -306,25 +306,29 @@ const openCamera = async (forceFromGallery: boolean = false) => {
     }
     const scanDocumentWeb = () => {
         return new Promise(async (resolve, reject) => {
-            const image = await Camera.getPhoto({
-                quality: 90,
-                allowEditing: true,
-                resultType: CameraResultType.Uri,
-                source: (() => {
-                    if (forceFromGallery){
-                        return CameraSource.Photos;
-                    }else{
-                        return CameraSource.Prompt;
-                    }
-                })()
-            });
-            resolve({
-                path: image.path as unknown as string,
-                webPath: image.webPath as unknown as string,
-                details: {
+            try {
+                const image = await Camera.getPhoto({
+                    quality: 90,
+                    allowEditing: true,
+                    resultType: CameraResultType.Uri,
+                    source: (() => {
+                        if (forceFromGallery){
+                            return CameraSource.Photos;
+                        }else{
+                            return CameraSource.Prompt;
+                        }
+                    })()
+                });
+                resolve({
+                    path: image.path as unknown as string,
+                    webPath: image.webPath as unknown as string,
+                    details: {
 
-                }
-            });
+                    }
+                });
+            } catch (error) {
+                
+            }
         })
     }
     const openPDFPicker = () => {

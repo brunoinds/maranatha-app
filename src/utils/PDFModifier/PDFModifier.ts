@@ -9,8 +9,6 @@ export class PDFModifier{
 
     public constructor(PDFDocumentProxy: PDFDocumentProxy){      
         this.pdf = PDFDocumentProxy;
-
-        
     }
 
 

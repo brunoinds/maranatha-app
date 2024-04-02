@@ -29,6 +29,14 @@
                     <ion-label position="stacked">Descripción</ion-label>
                     <ion-input v-model="dynamicData.description" placeholder="Detalles adicionales" :disabled="isLoading"></ion-input>
                 </ion-item>
+                <ion-item>
+                    <ion-label position="stacked">Fecha de Inicio</ion-label>
+                    <input class="native-input sc-ion-input-ios" v-maska data-maska="##/##/####" v-model="dynamicData.startDate" :disabled="isLoading">
+                </ion-item>
+                <ion-item>
+                    <ion-label position="stacked">Fecha de Término</ion-label>
+                    <input class="native-input sc-ion-input-ios" v-maska data-maska="##/##/####" v-model="dynamicData.endDate" :disabled="isLoading">
+                </ion-item>
             </ion-list>
 
             <article class="ion-padding">
@@ -70,11 +78,15 @@ const props = defineProps({
 const dynamicData = ref<{
     jobCode: number|null,
     expenseCode: number|null,
-    description: string
+    description: string,
+    startDate: string,
+    endDate: string
 }>({
     description: props.attendance.description,
     jobCode: props.attendance.job_code,
-    expenseCode: props.attendance.expense_code
+    expenseCode: props.attendance.expense_code,
+    startDate: DateTime.fromISO(props.attendance.from_date).toFormat('dd/MM/yyyy'),
+    endDate: DateTime.fromISO(props.attendance.to_date).toFormat('dd/MM/yyyy')
 });
 
 const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
@@ -100,7 +112,9 @@ const saveAttendance = async () => {
     RequestAPI.put('/attendances/' + props.attendance.id, {
         description: dynamicData.value.description,
         job_code: dynamicData.value.jobCode,
-        expense_code: dynamicData.value.expenseCode
+        expense_code: dynamicData.value.expenseCode,
+        from_date: DateTime.fromFormat(dynamicData.value.startDate, 'dd/MM/yyyy').toISO(),
+        to_date: DateTime.fromFormat(dynamicData.value.endDate, 'dd/MM/yyyy').toISO()
     }).then((response) => {
         props.emitter.fire('updated', {
             ...response.attendance
@@ -127,6 +141,24 @@ const saveAttendance = async () => {
 
 const validateCamps = () => {
     let errors = [];
+    const isStartDateValid = DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").isValid;
+    const isEndDateValid = DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy").isValid;
+
+    if (!isStartDateValid){
+        errors.push(DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").invalidExplanation);
+    }
+    if (!isEndDateValid){
+        errors.push(DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy").invalidExplanation);
+    }
+
+    if (isStartDateValid && isEndDateValid){
+        const startDate = DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy");
+        const endDate = DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy");
+
+        if (startDate > endDate){
+            errors.push("La fecha de inicio no puede ser mayor a la fecha de término");
+        }
+    }
 
     if (dynamicData.value.jobCode == null){
         errors.push("Debes seleccionar un Job");

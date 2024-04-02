@@ -44,6 +44,15 @@
                             <ion-icon shape="round" size="default" :icon="checkmarkDone" slot="start"></ion-icon>
                             Guardar Asistencia
                         </ion-button>
+
+                        <div>
+                            <ion-button color="success" fill="clear" expand="block" @click="downloadExcel">
+                                <ion-label>
+                                    Descargar Excel
+                                </ion-label>
+                                <ion-icon slot="start" :icon="cloudDownloadOutline"></ion-icon>
+                            </ion-button>
+                        </div>
                     </section>
 
                     <ion-list-header v-if="attendance" style="font-size: 15px">Listado de Asistencias</ion-list-header>
@@ -73,12 +82,7 @@
                     <br>
                     <br>
                     <br>
-                    <footer v-if="attendance" class="ion-padding">
-                    <ion-button color="success" @click="downloadExcel" fill="outline" size="small" expand="block" style="max-width: 200px; margin: 0 auto; width: 100%;">
-                        <ion-icon slot="start" :icon="cloudDownloadOutline"></ion-icon>
-                        Descargar Excel
-                    </ion-button>
-                </footer>
+
             </section>
         </ion-content>
     </ion-page>
@@ -301,7 +305,7 @@ const saveWorkersAttendances = async () => {
 const editAttendance = () => {
     Dialog.show(EditAttendance, {
         props: {
-            attendance: attendancesData.value
+            attendance: attendancesData.value,
         },
         onLoaded($this) {
             $this.on('updated', (event:any) => {

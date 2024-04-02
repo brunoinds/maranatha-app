@@ -15,8 +15,8 @@ class ErrorTracking{
                 app,
                 dsn: Environment.variable('SENTRY_DSN'),
                 integrations: [],
-                release: 'maranathasender@' + Environment.version() + ':' + Environment.build(),
-                dist: Environment.version() + ':' + Environment.build(),
+                release: 'maranathasender@' + Environment.version() + '.' + Environment.build(),
+                dist: Environment.version() + '.' + Environment.build(),
                 environment: Environment.environment()
             },
             SentryVue.init

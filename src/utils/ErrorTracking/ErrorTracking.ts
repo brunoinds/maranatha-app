@@ -23,7 +23,7 @@ class ErrorTracking{
                 app,
                 dsn: Environment.variable('SENTRY_DSN'),
                 integrations: integrations,
-                release: 'maranathasender@' + Environment.version() + '.' + Environment.build(),
+                release: 'maranathasender@' + Environment.version(),
                 dist: Environment.version() + '.' + Environment.build(),
                 environment: Environment.environment(),
                 // Session Replay

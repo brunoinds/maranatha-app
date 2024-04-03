@@ -975,6 +975,7 @@ const indicators = computed<AccountantPeriodComparisonIndicatorsComputed|null>((
             responsive: true,
             plugins: {
                 legend: {
+                    display: false,
                     position: 'bottom',
                 },
                 title: {

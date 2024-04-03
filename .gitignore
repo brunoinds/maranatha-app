@@ -33,3 +33,5 @@ npm-debug.log*
 /keys
 /.build
 /app.config.secrets.json
+# Sentry Config File
+.env.sentry-build-plugin

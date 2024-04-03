@@ -153,7 +153,7 @@
                     <ion-col>
                         <ion-card class="card-amount" style="height: 180px;">
                             <ion-card-header>
-                                <ion-card-subtitle>Tiempo Promedio Envío y Reembolso</ion-card-subtitle>
+                                <ion-card-subtitle style="font-size: 9px">Tiempo Promedio Envío y Reembolso</ion-card-subtitle>
                             </ion-card-header>
                             <ion-card-content >
                                 <ion-grid name="content">
@@ -170,7 +170,7 @@
                     <ion-col>
                         <ion-card class="card-amount" style="height: 180px;">
                             <ion-card-header>
-                                <ion-card-subtitle>Tiempo Promedio Envío y Aprobación</ion-card-subtitle>
+                                <ion-card-subtitle style="font-size: 9px">Tiempo Promedio Envío y Aprobación</ion-card-subtitle>
                             </ion-card-header>
                             <ion-card-content >
                                 <ion-grid name="content">
@@ -188,7 +188,7 @@
                     <ion-col>
                         <ion-card class="card-amount" style="height: 180px;">
                             <ion-card-header>
-                                <ion-card-subtitle>Tiempo Promedio Aprobación y Reembolso</ion-card-subtitle>
+                                <ion-card-subtitle style="font-size: 9px">Tiempo Promedio Aprobación y Reembolso</ion-card-subtitle>
                             </ion-card-header>
                             <ion-card-content >
                                 <ion-grid name="content">
@@ -205,7 +205,7 @@
                     <ion-col>
                         <ion-card class="card-amount" style="height: 180px;">
                             <ion-card-header>
-                                <ion-card-subtitle>Tiempo Promedio Creación y Envío</ion-card-subtitle>
+                                <ion-card-subtitle style="font-size: 9px">Tiempo Promedio Creación y Envío</ion-card-subtitle>
                             </ion-card-header>
                             <ion-card-content >
                                 <ion-grid name="content">

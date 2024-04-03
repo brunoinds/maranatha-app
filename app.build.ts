@@ -39,7 +39,7 @@ class CapacitorCompiler{
     public static async build(platform: Platforms = Platforms.iOS){
         return new Promise((resolve, reject) => {
             const ls = spawn('ionic', ['capacitor', 'build', platform], {
-                stdio: ['inherit', 'inherit', 'inherit']
+                stdio: ['inherit', 'inherit', 'inherit'],
             });
             ls.on('close', (code) => {
                 resolve(code);
@@ -347,7 +347,6 @@ class CapacitorDeployer{
         })
     }
 }
-
 
 
 class CLI{

@@ -202,6 +202,10 @@ class RequestAPI{
             .then((response) => {
                 resolve(response)
             }).catch((error) => {
+                if (!error.response){
+                    console.error(error)
+                    reject(error)
+                }
                 if (error.response.data.message == 'Unauthenticated.'){
                     reactions.onAunauthenticated(error.request, error.response);
                 }

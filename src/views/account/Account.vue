@@ -44,22 +44,16 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonFooter, IonButton, IonTextarea, IonContent, IonImg, IonAvatar, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController, actionSheetController, toastController } from '@ionic/vue';
+import { IonAvatar, IonContent, IonFooter, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { onUnmounted, ref } from 'vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
-import { computed, onUnmounted, ref } from 'vue';
-import { Dialog } from '../../utils/Dialog/Dialog';
-
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn, notificationsCircle } from 'ionicons/icons';
-import { IReport } from '../../interfaces/ReportInterfaces';
-import { useRouter } from 'vue-router';
-import { Session } from '@/utils/Session/Session';
-import { Capacitor } from '@capacitor/core';
-import { Viewport } from '@/utils/Viewport/Viewport';
-import { Notifications } from '@/utils/Notifications/Notifications';
-import { onMounted } from 'vue';
 import { Environment } from '@/utils/Environment/Environment';
-import { CurrencyFly } from '@/utils/CurrencyFly/CurrencyFly';
-import { QRCodeParser } from '@/utils/QRCodeParser/QRCodeParser';
+import { Notifications } from '@/utils/Notifications/Notifications';
+import { Session } from '@/utils/Session/Session';
+import { Viewport } from '@/utils/Viewport/Viewport';
+import { close, notificationsCircle } from 'ionicons/icons';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 const aboutAppText = ref<string>(`Version: ${Environment.version()} \nBuild: ${Environment.build()}`);
 const accountData = ref<any>(null);
@@ -72,15 +66,6 @@ const isNotificationsNotAllowed = ref<boolean>(false);
 const goToLogin = () => {
     router.replace('/login');
 }
-const goToJobs = () => {
-    router.push('/jobs');
-}
-const goToAccounts = () => {
-    router.push('/accounts');
-}
-const goToExpenses = () => {
-    router.push('/expenses');
-}
 const checkForNotificationAllow = async () => {
     const result = await Notifications.checkForPermission();
     if (result == "NotAsked"){
@@ -91,12 +76,10 @@ const checkForNotificationAllow = async () => {
 
     return result;
 }
-
 const allowNotifications = async () => {
     await Notifications.softAskForPermission();
     checkForNotificationAllow();
 }
-
 const loadAccount = async () => {
     accountData.value = await RequestAPI.get('/account/me');
     isLoading.value = false;
@@ -110,7 +93,7 @@ const loadAccount = async () => {
 }
 
 const doLogout = async () => {
-    Session.getCurrentSession().then(async(session: Session) => {
+    Session.getCurrentSession().then(async (session: Session) => {
         if (!session){
             goToLogin();
         }
@@ -212,7 +195,7 @@ const accountOptions = async () => {
 let notificationAllowanceChecker:any = null;
 onMounted(() => {
     notificationAllowanceChecker = setInterval(async () => {
-       const response = await checkForNotificationAllow();
+        const response = await checkForNotificationAllow();
         if (response != "NotAsked"){
             clearInterval(notificationAllowanceChecker);
         }

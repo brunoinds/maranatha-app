@@ -24,18 +24,14 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonImg, IonAvatar,IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { RequestAPI } from '../../utils/Requests/RequestAPI';
-import { computed, ref } from 'vue';
-import { Dialog } from '../../utils/Dialog/Dialog';
 import EditUser from '@/dialogs/EditUser/EditUser.vue';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
+import { ref } from 'vue';
+import { Dialog } from '../../utils/Dialog/Dialog';
+import { RequestAPI } from '../../utils/Requests/RequestAPI';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn } from 'ionicons/icons';
-import { IReport } from '../../interfaces/ReportInterfaces';
-import { useRouter } from 'vue-router';
 const accountsData = ref<any>(null);
 const isLoading = ref<boolean>(true);
-const router = useRouter();
 const page = ref<HTMLElement|null>(null);
 
 const loadAccounts = async () => {
@@ -44,7 +40,7 @@ const loadAccounts = async () => {
     isLoading.value = false;
 }
 
-const updateUser = (account) => {
+const updateUser = (account:any) => {
     Dialog.show(EditUser, {
         onLoaded($this) {
             $this.on('updated', (event:any) => {

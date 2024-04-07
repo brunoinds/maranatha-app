@@ -150,7 +150,7 @@ const deleteJob = async (job:any) => {
         }).then((toast) => {
             toast.present();
         })
-    } catch (error) {
+    } catch (error: any) {
         alertController.create({
             header: 'Oops...',
             message: error.response.message,

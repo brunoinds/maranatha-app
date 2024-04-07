@@ -790,6 +790,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                     'Authorization': await RequestAPI.authHeader()
                 }
             }, (progress) => {
+                console.log(progress)
                 loadingProcess.value = {
                     iddle: false,
                     percentage: progress,

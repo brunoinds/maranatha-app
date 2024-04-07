@@ -88,21 +88,19 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonSkeletonText, IonButtons, IonBackButton, IonButton, IonCheckbox, IonTitle, IonContent, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController, toastController } from '@ionic/vue';
-import { RequestAPI } from '../../utils/Requests/RequestAPI';
+import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonSkeletonText, IonTitle, IonToolbar, toastController } from '@ionic/vue';
 import { computed, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
-
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkDone, ellipsisHorizontal, checkmarkCircleOutline,sendOutline, closeCircleOutline, cloudDownloadOutline  } from 'ionicons/icons';
-import { IAttendance, EAttendanceStatus } from '../../interfaces/AttendanceInterfaces';
-import { useRoute, useRouter } from 'vue-router';
-import NewReport from '../../dialogs/NewReport/NewReport.vue';
-import { DateTime } from 'luxon';
-import {AppEvents} from '../../utils/AppEvents/AppEvents';
-import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
-import EditAttendance from '../../dialogs/EditAttendance/EditAttendance.vue';
+import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { ExcelGenerator } from '@/utils/Attendances/ExcelGenerator';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import { checkmarkDone, cloudDownloadOutline, ellipsisHorizontal } from 'ionicons/icons';
+import { DateTime } from 'luxon';
+import { useRoute, useRouter } from 'vue-router';
+import EditAttendance from '../../dialogs/EditAttendance/EditAttendance.vue';
+import { EAttendanceStatus, IAttendance } from '../../interfaces/AttendanceInterfaces';
+import { AppEvents } from '../../utils/AppEvents/AppEvents';
 
 const attendanceId = ref<string|null>(null);
 const attendancesData = ref<IAttendance|null>(null);
@@ -132,7 +130,7 @@ const dynamicData = ref({
     daysChecking: []
 })
 
-const attendance = computed<IAttendance>(() => {
+const attendance = computed<IAttendance|null>(() => {
     const attendanceItem = attendancesData.value;
 
     return attendanceItem
@@ -208,7 +206,7 @@ const loadAttendance = async () => {
                 }
             })
         }
-    });
+    }) as unknown as any;
 
     jobAndExpense.value.job = await JobsAndExpenses.getJob(attendancesFetched.attendance.job_code);
     jobAndExpense.value.expense = await JobsAndExpenses.getExpense(attendancesFetched.attendance.expense_code);

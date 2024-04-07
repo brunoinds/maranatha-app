@@ -38,24 +38,21 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { RequestAPI } from '../../utils/Requests/RequestAPI';
+import AttendanceIcon from '&/assets/icons/attendance.svg';
+import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonImg, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
-import AttendanceIcon from '&/assets/icons/attendance.svg';
+import { RequestAPI } from '../../utils/Requests/RequestAPI';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline,sendOutline, closeCircleOutline  } from 'ionicons/icons';
-import { IAttendance } from '../../interfaces/AttendanceInterfaces';
-import { useRouter } from 'vue-router';
-import NewReport from '../../dialogs/NewReport/NewReport.vue';
-import { DateTime } from 'luxon';
-import {AppEvents} from '../../utils/AppEvents/AppEvents';
-import { Toolbox } from '@/utils/Toolbox/Toolbox';
-import NewAttendance from '../../dialogs/NewAttendance/NewAttendance.vue';
 import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { on } from 'events';
+import { addOutline } from 'ionicons/icons';
+import { DateTime } from 'luxon';
+import { useRouter } from 'vue-router';
+import NewAttendance from '../../dialogs/NewAttendance/NewAttendance.vue';
+import { IAttendance } from '../../interfaces/AttendanceInterfaces';
+import { AppEvents } from '../../utils/AppEvents/AppEvents';
 
 const attendancesData = ref<Array<IAttendance>>([]);
 const isLoading = ref<boolean>(true);
@@ -68,8 +65,6 @@ const jobsAndExpenses = ref<{
     jobs: [],
     expenses: []
 });
-
-
 const attendances = computed(() => {
     const attendanceItems = attendancesData.value.map((attendance) => {
         const attendanceItem = {
@@ -94,13 +89,9 @@ const loadUserAttendances = async () => {
     isLoading.value = false;
     attendancesData.value = attendancesFetched;
 };
-
 const openAttendance = (attendanceId: number) => {
     router.push(`/attendances/${attendanceId}`);
 }
-
-
-
 const createNewAttendance = async () => {
     Dialog.show(NewAttendance, {
         onLoaded($this) {
@@ -117,28 +108,22 @@ const createNewAttendance = async () => {
     })
 }
 
-
-
 loadUserAttendances();
 
 onMounted(() => {
     const callbackId = AppEvents.on('all:reload', () => {
         loadUserAttendances();
     })
-
     onUnmounted(() => {
         AppEvents.off('all:reload', callbackId);
     })
 })
-
 </script>
 
 <style scoped lang="scss">
-
 .content{
     max-width: 600px;
     margin: 0 auto;
     width: 100%;
 }
-
 </style>

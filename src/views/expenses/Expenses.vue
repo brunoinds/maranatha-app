@@ -28,11 +28,10 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonImg, IonAvatar, IonButtons, IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController, actionSheetController, toastController } from '@ionic/vue';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { ref } from 'vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
-import { computed, ref } from 'vue';
-
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn } from 'ionicons/icons';
+import { addOutline } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
 
 const expensesData = ref<Array<{

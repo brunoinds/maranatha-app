@@ -356,17 +356,25 @@ class CapacitorLiveUpdates{
     public static appBundlePath = '.bundle';
 
     public static async bundle(){
-        //Command: npx @capgo/cli bundle zip
 
         return new Promise(async (resolve, reject) => {
-
-            //Dinamic import of the capacitor.config.ts file:
-
             const outputPath = `${CapacitorConfig.appId}_${Versioning.getVersioning().version}.zip` 
 
+            const emptyBundleFolder = async () => {
+                return new Promise((resolve, reject) => {
+                    if (!fs.existsSync(CapacitorLiveUpdates.appBundlePath)){
+                        fs.mkdirSync(CapacitorLiveUpdates.appBundlePath);
+                    }
+                    if (fs.existsSync(CapacitorLiveUpdates.appBundlePath)){
+                        fs.rmSync(CapacitorLiveUpdates.appBundlePath, { recursive: true });
+                    }
+                    fs.mkdirSync(CapacitorLiveUpdates.appBundlePath);
+                    resolve({});
+                })
+            }
             const bundle = async () => {
                 return new Promise((resolve, reject) => {
-                    const ls = spawn('npx', ['@capgo/cli', 'bundle', 'zip'], {
+                    const ls = spawn('npx', ['@capgo/cli', 'bundle', 'zip', '--bundle', Versioning.getVersioning().version], {
                         stdio: ['inherit', 'inherit', 'inherit']
                     });
                     ls.on('close', (code) => {
@@ -377,19 +385,20 @@ class CapacitorLiveUpdates{
                     })
                 })
             }
-
-            const moveToBundles = async () => {
+            const moveToBundle = async () => {
                 //If .bundles folder does not exist, create it:
                 if (!fs.existsSync(CapacitorLiveUpdates.appBundlePath)){
                     fs.mkdirSync(CapacitorLiveUpdates.appBundlePath);
                 }
 
-                //Move the generated bundle to the .bundles folder:
-                fs.renameSync(outputPath, `${CapacitorLiveUpdates.appBundlePath}/${outputPath}`);
+                //Move the generated bundle to the .bundles folder, if it already exists, overwrite it:
+                fs.copyFileSync(outputPath, `${CapacitorLiveUpdates.appBundlePath}/${outputPath}`);
+                fs.unlinkSync(outputPath);
             }
             try {
+                await emptyBundleFolder();
                 await bundle();
-                await moveToBundles();
+                await moveToBundle();
                 resolve({});
             } catch (error) {
                 reject(error);
@@ -408,6 +417,7 @@ class CLI{
         'cap compile',
         'cap deploy',
         'cap publish',
+        'cap bundle',
         'ionic serve'
     ]
 
@@ -463,6 +473,8 @@ class CLI{
                 await CLI.capDeploy(platform, args);
             } else if (commandSelected === 'cap publish'){
                 await CLI.capPublish(platform, args);
+            } else if (commandSelected === 'cap bundle'){
+                await CapacitorLiveUpdates.bundle();
             }else {
                 console.log('Command not found');
                 console.log('Available commands:');

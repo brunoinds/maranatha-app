@@ -11,6 +11,11 @@ const config: CapacitorConfig = {
     appendUserAgent: "ios:application",
     webContentsDebuggingEnabled: true,
     handleApplicationNotifications: false
+  },
+  plugins: {
+    CapacitorUpdater: {
+      autoUpdate: false,
+    }
   }
 };
 

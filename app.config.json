@@ -3,5 +3,8 @@
         "version": "1.1.11",
         "build": 32
     },
+    "liveUpdates": {
+        "minimalNativeVersion": "1.1.11"
+    },
     "environment": "prod"
 }

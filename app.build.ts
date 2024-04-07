@@ -1,6 +1,7 @@
 import { exec, execSync, spawn } from 'child_process';
 import fs from 'fs';
 import AppConfigSecrets from './app.config.secrets.json';
+import CapacitorConfig from './capacitor.config.ts';
 
 enum Platforms{
     iOS = 'ios',
@@ -32,6 +33,9 @@ class Versioning{
             fs.writeFileSync('app.config.json', JSON.stringify(configContent, null, 4));
             resolve({});
         })
+    }
+    public static getVersioning(){
+        return JSON.parse(fs.readFileSync('app.config.json', 'utf8')).versioning;
     }
 }
 
@@ -348,6 +352,51 @@ class CapacitorDeployer{
     }
 }
 
+class CapacitorLiveUpdates{
+    public static appBundlePath = '.bundle';
+
+    public static async bundle(){
+        //Command: npx @capgo/cli bundle zip
+
+        return new Promise(async (resolve, reject) => {
+
+            //Dinamic import of the capacitor.config.ts file:
+
+            const outputPath = `${CapacitorConfig.appId}_${Versioning.getVersioning().version}.zip` 
+
+            const bundle = async () => {
+                return new Promise((resolve, reject) => {
+                    const ls = spawn('npx', ['@capgo/cli', 'bundle', 'zip'], {
+                        stdio: ['inherit', 'inherit', 'inherit']
+                    });
+                    ls.on('close', (code) => {
+                        resolve(code);
+                    })
+                    ls.on('error', (err) => {
+                        reject(err);
+                    })
+                })
+            }
+
+            const moveToBundles = async () => {
+                //If .bundles folder does not exist, create it:
+                if (!fs.existsSync(CapacitorLiveUpdates.appBundlePath)){
+                    fs.mkdirSync(CapacitorLiveUpdates.appBundlePath);
+                }
+
+                //Move the generated bundle to the .bundles folder:
+                fs.renameSync(outputPath, `${CapacitorLiveUpdates.appBundlePath}/${outputPath}`);
+            }
+            try {
+                await bundle();
+                await moveToBundles();
+                resolve({});
+            } catch (error) {
+                reject(error);
+            }
+        })
+    }
+}
 
 class CLI{
     public static commands = [

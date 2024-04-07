@@ -10,6 +10,9 @@ import { Session } from '@/utils/Session/Session';
 import { App } from '@capacitor/app';
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
 import { useRouter } from 'vue-router';
+import { CapacitorUpdater } from '@capgo/capacitor-updater';
+
+CapacitorUpdater.notifyAppReady();
 
 Session.router = useRouter();
 

@@ -1,4 +1,5 @@
 PODS:
+  - Alamofire (5.9.1)
   - Capacitor (5.4.1):
     - CapacitorCordova
   - CapacitorApp (5.0.6):
@@ -27,12 +28,17 @@ PODS:
     - Capacitor
   - CapawesomeCapacitorFilePicker (5.3.0):
     - Capacitor
+  - CapgoCapacitorUpdater (5.8.9):
+    - Alamofire
+    - Capacitor
+    - SSZipArchive
+    - Version
   - CordovaPluginsStatic (5.4.1):
     - CapacitorCordova
     - OneSignalXCFramework (= 5.0.2)
-  - GoogleDataTransport (9.2.5):
+  - GoogleDataTransport (9.4.1):
     - GoogleUtilities/Environment (~> 7.7)
-    - nanopb (< 2.30910.0, >= 2.30908.0)
+    - nanopb (< 2.30911.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
   - GoogleMLKit/BarcodeScanning (4.0.0):
     - GoogleMLKit/MLKitCore
@@ -51,12 +57,16 @@ PODS:
     - GoogleToolboxForMac/Defines (= 2.3.2)
     - "GoogleToolboxForMac/NSString+URLArguments (= 2.3.2)"
   - "GoogleToolboxForMac/NSString+URLArguments (2.3.2)"
-  - GoogleUtilities/Environment (7.11.1):
+  - GoogleUtilities/Environment (7.13.0):
+    - GoogleUtilities/Privacy
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/Logger (7.11.1):
+  - GoogleUtilities/Logger (7.13.0):
     - GoogleUtilities/Environment
-  - GoogleUtilities/UserDefaults (7.11.1):
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/Privacy (7.13.0)
+  - GoogleUtilities/UserDefaults (7.13.0):
     - GoogleUtilities/Logger
+    - GoogleUtilities/Privacy
   - GoogleUtilitiesComponents (1.1.0):
     - GoogleUtilities/Logger
   - GTMSessionFetcher/Core (2.3.0)
@@ -78,11 +88,11 @@ PODS:
     - GTMSessionFetcher/Core (< 3.0, >= 1.1)
     - MLImage (= 1.0.0-beta4)
     - MLKitCommon (~> 9.0)
-  - nanopb (2.30909.0):
-    - nanopb/decode (= 2.30909.0)
-    - nanopb/encode (= 2.30909.0)
-  - nanopb/decode (2.30909.0)
-  - nanopb/encode (2.30909.0)
+  - nanopb (2.30910.0):
+    - nanopb/decode (= 2.30910.0)
+    - nanopb/encode (= 2.30910.0)
+  - nanopb/decode (2.30910.0)
+  - nanopb/encode (2.30910.0)
   - OneSignalXCFramework (5.0.2):
     - OneSignalXCFramework/OneSignalComplete (= 5.0.2)
   - OneSignalXCFramework/OneSignal (5.0.2):
@@ -124,13 +134,15 @@ PODS:
     - OneSignalXCFramework/OneSignalNotifications
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalOutcomes
-  - PromisesObjC (2.2.0)
-  - Sentry/HybridSDK (8.8.0):
-    - SentryPrivate (= 8.8.0)
-  - SentryCapacitor (0.15.0):
+  - PromisesObjC (2.4.0)
+  - Sentry/HybridSDK (8.18.0):
+    - SentryPrivate (= 8.18.0)
+  - SentryCapacitor (0.15.1):
     - Capacitor
-    - Sentry/HybridSDK (= 8.8.0)
-  - SentryPrivate (8.8.0)
+    - Sentry/HybridSDK (= 8.18.0)
+  - SentryPrivate (8.18.0)
+  - SSZipArchive (2.4.3)
+  - Version (0.8.0)
 
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
@@ -147,11 +159,13 @@ DEPENDENCIES:
   - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - "CapawesomeCapacitorFilePicker (from `../../node_modules/@capawesome/capacitor-file-picker`)"
+  - "CapgoCapacitorUpdater (from `../../node_modules/@capgo/capacitor-updater`)"
   - CordovaPluginsStatic (from `../capacitor-cordova-ios-plugins`)
   - "SentryCapacitor (from `../../node_modules/@sentry/capacitor`)"
 
 SPEC REPOS:
   trunk:
+    - Alamofire
     - GoogleDataTransport
     - GoogleMLKit
     - GoogleToolboxForMac
@@ -167,6 +181,8 @@ SPEC REPOS:
     - PromisesObjC
     - Sentry
     - SentryPrivate
+    - SSZipArchive
+    - Version
 
 EXTERNAL SOURCES:
   Capacitor:
@@ -197,12 +213,15 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/status-bar"
   CapawesomeCapacitorFilePicker:
     :path: "../../node_modules/@capawesome/capacitor-file-picker"
+  CapgoCapacitorUpdater:
+    :path: "../../node_modules/@capgo/capacitor-updater"
   CordovaPluginsStatic:
     :path: "../capacitor-cordova-ios-plugins"
   SentryCapacitor:
     :path: "../../node_modules/@sentry/capacitor"
 
 SPEC CHECKSUMS:
+  Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
   Capacitor: 4c0681b47eebeba1f902093d24149cf2f518393e
   CapacitorApp: 024e1b1bea5f883d79f6330d309bc441c88ad04a
   CapacitorCamera: 084b0b228bba7d00587910337b1c89e93b1d32ab
@@ -217,24 +236,27 @@ SPEC CHECKSUMS:
   CapacitorShare: cd41743331cb71d217c029de54b681cbd91e0fcc
   CapacitorStatusBar: 565c0a1ebd79bb40d797606a8992b4a105885309
   CapawesomeCapacitorFilePicker: 41f486cb4a89c6a7c8a4f5d683dbf96658894182
+  CapgoCapacitorUpdater: fa6fedc02691b5a699a83304160c31f9bbc60ccc
   CordovaPluginsStatic: b6450ec1d4e288212d11eb43fba5b2613a9f1903
-  GoogleDataTransport: 54dee9d48d14580407f8f5fbf2f496e92437a2f2
+  GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleMLKit: 2bd0dc6253c4d4f227aad460f69215a504b2980e
   GoogleToolboxForMac: 8bef7c7c5cf7291c687cf5354f39f9db6399ad34
-  GoogleUtilities: 9aa0ad5a7bc171f8bae016300bfcfa3fb8425749
+  GoogleUtilities: d053d902a8edaa9904e1bd00c37535385b8ed152
   GoogleUtilitiesComponents: 679b2c881db3b615a2777504623df6122dd20afe
   GTMSessionFetcher: 3a63d75eecd6aa32c2fc79f578064e1214dfdec2
   MLImage: 7bb7c4264164ade9bf64f679b40fb29c8f33ee9b
   MLKitBarcodeScanning: 04e264482c5f3810cb89ebc134ef6b61e67db505
   MLKitCommon: c1b791c3e667091918d91bda4bba69a91011e390
   MLKitVision: 8baa5f46ee3352614169b85250574fde38c36f49
-  nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
+  nanopb: 438bc412db1928dac798aa6fd75726007be04262
   OneSignalXCFramework: d47a350b15e106a5dc310e3f97867e28dad6589e
-  PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
-  Sentry: 927dfb29d18a14d924229a59cc2ad149f43349f2
-  SentryCapacitor: 87ad38b15cd1ffb0ca8f202af148567adfa68ae1
-  SentryPrivate: 4350d865f898224ab9fa02b37d6ee7fbb623f47e
+  PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
+  Sentry: 8984a4ffb2b9bd2894d74fb36e6f5833865bc18e
+  SentryCapacitor: 5c27da09956d89b0ba715071f6a37c137d9aea50
+  SentryPrivate: 2f0c9ba4c3fc993f70eab6ca95673509561e0085
+  SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
+  Version: de5907f2c5d0f3cf21708db7801d1d5401139486
 
-PODFILE CHECKSUM: 038c99ec1900876fc6d1ac35226c4403c3b23e0d
+PODFILE CHECKSUM: 063d147c1ff258b4f08330fcfb0941026250b317
 
 COCOAPODS: 1.15.2

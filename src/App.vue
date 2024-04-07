@@ -13,6 +13,7 @@ import { useRouter } from 'vue-router';
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
 import { Capacitor } from '@capacitor/core';
 import { LiveUpdates } from '@/utils/LiveUpdates/LiveUpdates';
+import { Environment } from '@/utils/Environment/Environment';
 
 
 
@@ -38,6 +39,8 @@ App.addListener('appStateChange', async(state) => {
 		}
 	}
 })
+
+console.log({appVersionNew: Environment.version()})
 
 if (Capacitor.isNativePlatform()){
 	CapacitorUpdater.notifyAppReady();

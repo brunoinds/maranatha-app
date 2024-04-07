@@ -40,7 +40,7 @@ export class LiveUpdates{
         }
 
 
-        alertController.create({
+        const alerting = await alertController.create({
             header: 'Update disponible',
             buttons: [
                 {
@@ -51,7 +51,7 @@ export class LiveUpdates{
                 }
             ]
         })
-
+        alerting.present()
     }
 
     public static async downloadUpdate(bundle: DownloadableBundle){

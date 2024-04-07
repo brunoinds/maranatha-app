@@ -24,6 +24,8 @@ PODS:
     - Capacitor
   - CapacitorShare (5.0.6):
     - Capacitor
+  - CapacitorSplashScreen (5.0.7):
+    - Capacitor
   - CapacitorStatusBar (5.0.6):
     - Capacitor
   - CapawesomeCapacitorFilePicker (5.3.0):
@@ -33,7 +35,7 @@ PODS:
     - Capacitor
     - SSZipArchive
     - Version
-  - CordovaPluginsStatic (5.4.1):
+  - CordovaPluginsStatic (5.7.0):
     - CapacitorCordova
     - OneSignalXCFramework (= 5.0.2)
   - GoogleDataTransport (9.4.1):
@@ -157,6 +159,7 @@ DEPENDENCIES:
   - "CapacitorMlkitBarcodeScanning (from `../../node_modules/@capacitor-mlkit/barcode-scanning`)"
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
   - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
+  - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - "CapawesomeCapacitorFilePicker (from `../../node_modules/@capawesome/capacitor-file-picker`)"
   - "CapgoCapacitorUpdater (from `../../node_modules/@capgo/capacitor-updater`)"
@@ -209,6 +212,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/push-notifications"
   CapacitorShare:
     :path: "../../node_modules/@capacitor/share"
+  CapacitorSplashScreen:
+    :path: "../../node_modules/@capacitor/splash-screen"
   CapacitorStatusBar:
     :path: "../../node_modules/@capacitor/status-bar"
   CapawesomeCapacitorFilePicker:
@@ -234,10 +239,11 @@ SPEC CHECKSUMS:
   CapacitorMlkitBarcodeScanning: ea08ef246e5d3511d5a231a59fae36b16ad9acb3
   CapacitorPushNotifications: b31e326c6e4eb216a622041d6ca21a973f34943f
   CapacitorShare: cd41743331cb71d217c029de54b681cbd91e0fcc
+  CapacitorSplashScreen: dd3de3f3644710fa2a697cfb91ec262eece4d242
   CapacitorStatusBar: 565c0a1ebd79bb40d797606a8992b4a105885309
   CapawesomeCapacitorFilePicker: 41f486cb4a89c6a7c8a4f5d683dbf96658894182
   CapgoCapacitorUpdater: fa6fedc02691b5a699a83304160c31f9bbc60ccc
-  CordovaPluginsStatic: b6450ec1d4e288212d11eb43fba5b2613a9f1903
+  CordovaPluginsStatic: aade773e5fbcffa2ff53cfe7ec2086da88be807e
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleMLKit: 2bd0dc6253c4d4f227aad460f69215a504b2980e
   GoogleToolboxForMac: 8bef7c7c5cf7291c687cf5354f39f9db6399ad34
@@ -257,6 +263,6 @@ SPEC CHECKSUMS:
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
   Version: de5907f2c5d0f3cf21708db7801d1d5401139486
 
-PODFILE CHECKSUM: 063d147c1ff258b4f08330fcfb0941026250b317
+PODFILE CHECKSUM: 8eb3858bc8c4db4a7c3cffa561223da0e37e8dea
 
 COCOAPODS: 1.15.2

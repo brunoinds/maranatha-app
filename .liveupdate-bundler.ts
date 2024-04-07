@@ -31,7 +31,7 @@ class CapacitorLiveUpdates{
             }
             const bundle = async () => {
                 return new Promise((resolve, reject) => {
-                    const ls = spawn('npx', ['@capgo/cli', 'bundle', 'zip', '--bundle', Versioning.getVersioning().version], {
+                    const ls = spawn('npx', ['@capgo/cli', 'bundle', 'zip', '--bundle', Versioning.getVersioning().version, '--path', '../resources/ionic'], {
                         stdio: ['inherit', 'inherit', 'inherit']
                     });
                     ls.on('close', (code) => {

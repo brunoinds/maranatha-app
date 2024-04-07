@@ -21,9 +21,12 @@ export class LiveUpdates{
             bundles: Array<DownloadableBundle>
         };
 
+        console.log(response)
+
 
         const bundle = response.bundles.length > 0 ? response.bundles[0] : null;
 
+        alert(JSON.stringify(bundle))
 
         if (!bundle){
             return;
@@ -31,6 +34,7 @@ export class LiveUpdates{
 
         const isUpdatableBundle = bundle.version > Environment.version();
 
+        alert(JSON.stringify({isUpdatableBundle, bundle, EnvironmentVersion: Environment.version()}))
         if (!isUpdatableBundle){
             return;
         }

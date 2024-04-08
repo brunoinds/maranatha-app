@@ -1,7 +1,7 @@
 import { Environment } from '@/utils/Environment/Environment';
 import { RequestAPI } from '@/utils/Requests/RequestAPI'
 import { CapacitorUpdater } from '@capgo/capacitor-updater'
-import { alertController } from '@ionic/vue';
+import { alertController, toastController } from '@ionic/vue';
 import { SplashScreen } from '@capacitor/splash-screen'
 
 interface DownloadableBundle{
@@ -15,52 +15,49 @@ export class LiveUpdates{
         bundle: DownloadableBundle,
         content: any
     } = null;
+    private static hasFetchedUpdates = false;
 
-    public static async fetchUpdates(){
+    public static async fetchUpdates()
+    {
+        if (LiveUpdates.hasFetchedUpdates){
+            return;
+        }
+        if (!navigator.onLine){
+            return;
+        }
         const response = (await RequestAPI.get('/app/native/bundles')) as unknown as {
             bundles: Array<DownloadableBundle>
         };
 
-        
-        console.log(response)
-
+        LiveUpdates.hasFetchedUpdates = true;
 
         const bundle = response.bundles.length > 0 ? response.bundles[0] : null;
 
-        alert(JSON.stringify(bundle))
 
+        //alert(`🛜 Found new available update version: ${bundle?.version}, the device has version ${Environment.version()}.`)
         if (!bundle){
             return;
         }
 
         const isUpdatableBundle = bundle.version > Environment.version();
 
-        alert(JSON.stringify({isUpdatableBundle, bundle, EnvironmentVersion: Environment.version()}))
+
         if (!isUpdatableBundle){
             return;
         }
 
+        console.log(`🛜 Found new available update version: ${bundle.version}, the device has version ${Environment.version()}.`)
 
-        const alerting = await alertController.create({
-            header: 'Update disponible',
-            buttons: [
-                {
-                    text: 'Download',
-                    handler: () => {
-                        LiveUpdates.downloadUpdate(bundle)
-                    }
-                }
-            ]
-        })
-        alerting.present()
+
+        LiveUpdates.downloadUpdate(bundle)
     }
 
-    public static async downloadUpdate(bundle: DownloadableBundle){
+    public static async downloadUpdate(bundle: DownloadableBundle)
+    {
         const content = await CapacitorUpdater.download({
             version: bundle.version,
             url: bundle.url,
         })
-
         
         LiveUpdates.downloadedUpdate = {
             bundle,
@@ -68,18 +65,20 @@ export class LiveUpdates{
         }
     }
 
-    public static async installUpdate(){
+    public static async installUpdate()
+    {
         if (!LiveUpdates.downloadedUpdate){
             console.error('Tried to install an update that was not downloaded')
             return;
         }
 
-        alert('Instalando update');
         SplashScreen.show();
         try {
+            console.log(`📲 Installing update on device (${LiveUpdates.downloadedUpdate?.bundle.version})...`)
             await CapacitorUpdater.set(LiveUpdates.downloadedUpdate.content);
             LiveUpdates.downloadedUpdate = null;
         } catch (err) {
+            console.error(`📲❌ Error while installing update of version: ${LiveUpdates.downloadedUpdate?.bundle.version}`, err)
             SplashScreen.hide();
             throw err;
         }

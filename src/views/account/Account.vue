@@ -30,10 +30,6 @@
                         <ion-icon color="danger" :icon="close" slot="start"></ion-icon>
                         <ion-label color="danger">Terminar sesión</ion-label>
                     </ion-item>
-
-                    <ion-item>
-                        <ion-label color="warning">New version success!</ion-label>
-                    </ion-item>
                 </ion-list>
             </section>
         </ion-content>
@@ -59,7 +55,7 @@ import { close, notificationsCircle } from 'ionicons/icons';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
-const aboutAppText = ref<string>(`Version: ${Environment.version()} \nBuild: ${Environment.build()}`);
+const aboutAppText = ref<string>(`Version: ${Environment.version()} \nNative version: ${Environment.storeVersioning().version} (${Environment.storeVersioning().build}) \nBuild: ${Environment.build()}`);
 const accountData = ref<any>(null);
 const isLoading = ref<boolean>(true);
 const router = useRouter();

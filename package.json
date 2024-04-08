@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "ensure-production": "npx json -I -f app.config.json -e 'this.environment=\"prod\"'",
     "build-laravel": "vite build --base=/app/ --outDir=../resources/ionic --emptyOutDir",
     "local-build-laravel": "vite build --base=/app/ --outDir=../maranatha-sender/resources/ionic --emptyOutDir",
     "bundle-laravel": "vite build --outDir=../resources/ionic/.bundles --emptyOutDir && npm run bundler-live-updates --path ../resources/ionic/.bundles",
@@ -58,6 +59,7 @@
     "exceljs": "^4.4.0",
     "html2canvas": "^1.4.1",
     "ionicons": "^7.0.0",
+    "json": "^11.0.0",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.6.0",
     "jszip": "^3.10.1",

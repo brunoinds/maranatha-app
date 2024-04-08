@@ -8,6 +8,9 @@ class Versioning{
     public static getVersioning(){
         return JSON.parse(fs.readFileSync('app.config.json', 'utf8')).versioning;
     }
+    public static getLiveUpdates(){
+        return JSON.parse(fs.readFileSync('app.config.json', 'utf8')).liveUpdates;
+    }
 }
 
 
@@ -46,7 +49,8 @@ class CapacitorLiveUpdates{
 
             const moveBundle = async () => {
                 return new Promise((resolve, reject) => {
-                    fs.rename(`${fileName}`, outputPath, (err) => {
+                    const finalOutputPath = outputPath.replace('.zip', `(m${Versioning.getLiveUpdates().minimalNativeVersion}).zip`)
+                    fs.rename(`${fileName}`, finalOutputPath, (err) => {
                         if (err){
                             reject(err);
                         }

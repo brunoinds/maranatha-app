@@ -6,6 +6,7 @@ import { SplashScreen } from '@capacitor/splash-screen'
 
 interface DownloadableBundle{
     version: string,
+    minimalVersion: string,
     size: number,
     url: string
 }
@@ -43,6 +44,13 @@ export class LiveUpdates{
 
 
         if (!isUpdatableBundle){
+            return;
+        }
+
+        const compatibleWithTheMinimalNativeVersion = bundle.minimalVersion >= Environment.storeVersioning().version;
+        
+        if (!compatibleWithTheMinimalNativeVersion){
+            console.log(`🛜❌ The bundle is not compatible with the current native version. Bundle version: ${bundle.minimalVersion}, Native version: ${Environment.storeVersioning().version}`)
             return;
         }
 

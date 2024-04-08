@@ -14,6 +14,7 @@ import { CapacitorUpdater } from '@capgo/capacitor-updater';
 import { Capacitor } from '@capacitor/core';
 import { LiveUpdates } from '@/utils/LiveUpdates/LiveUpdates';
 import { Environment } from '@/utils/Environment/Environment';
+import { SplashScreen } from '@capacitor/splash-screen';
 
 
 
@@ -30,7 +31,40 @@ App.addListener('resume', () => {
 	AppEvents.emit('all:reload');
 });
 
+/*
+let data = {version: ""}
+CapacitorUpdater.notifyAppReady()
 App.addListener('appStateChange', async(state) => {
+	if (state.isActive) {
+		// Do the download during user active app time to prevent failed download
+		alert('Downloading new app version')
+
+		data = await CapacitorUpdater.download({
+			version: '1.1.14',
+			url: 'https://cgh.imedicineapp.com/com.imedicineapp.maranathainvoices_1.1.14.zip',
+		})
+		alert('New app version downloaded!')
+	}
+	if (!state.isActive && data.version !== "") {
+		alert('Switching to new app version')
+		// Do the switch when user leave app
+		SplashScreen.show()
+		try {
+			await CapacitorUpdater.set(data)
+			alert('New app version switched!')
+		} catch (err) {
+			console.log(err)
+			SplashScreen.hide() // in case the set fail, otherwise the new app will have to hide it
+		}
+	}
+})*/
+
+
+App.addListener('appStateChange', async(state) => {
+	https://cgh.imedicineapp.com/com.imedicineapp.maranathainvoices_1.1.14.zip
+	
+	
+	
 	if (Capacitor.isNativePlatform()){
 		if (state.isActive) {
 			LiveUpdates.fetchUpdates();

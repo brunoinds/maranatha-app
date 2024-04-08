@@ -2,6 +2,8 @@ import CapacitorConfig from './capacitor.config.ts';
 import { exec, execSync, spawn } from 'child_process';
 import fs from 'fs';
 
+
+
 class Versioning{
     public static getVersioning(){
         return JSON.parse(fs.readFileSync('app.config.json', 'utf8')).versioning;
@@ -15,23 +17,14 @@ class CapacitorLiveUpdates{
     public static async bundle(){
 
         return new Promise(async (resolve, reject) => {
-            const outputPath = `${CapacitorConfig.appId}_${Versioning.getVersioning().version}.zip` 
+            const args = process.argv.slice(2);
+            const originPath = args[0];
+            const fileName = `${CapacitorConfig.appId}_${Versioning.getVersioning().version}.zip`;
+            const outputPath = `${originPath}/${fileName}` 
 
-            const emptyBundleFolder = async () => {
-                return new Promise((resolve, reject) => {
-                    if (!fs.existsSync(CapacitorLiveUpdates.appBundlePath)){
-                        fs.mkdirSync(CapacitorLiveUpdates.appBundlePath);
-                    }
-                    if (fs.existsSync(CapacitorLiveUpdates.appBundlePath)){
-                        fs.rmSync(CapacitorLiveUpdates.appBundlePath, { recursive: true });
-                    }
-                    fs.mkdirSync(CapacitorLiveUpdates.appBundlePath);
-                    resolve({});
-                })
-            }
             const bundle = async () => {
                 return new Promise((resolve, reject) => {
-                    const ls = spawn('npx', ['@capgo/cli', 'bundle', 'zip', '--bundle', Versioning.getVersioning().version, '--path', '../resources/ionic'], {
+                    const ls = spawn('npx', ['@capgo/cli', 'bundle', 'zip', '--bundle', Versioning.getVersioning().version, '--path', originPath], {
                         stdio: ['inherit', 'inherit', 'inherit']
                     });
                     ls.on('close', (code) => {
@@ -42,20 +35,29 @@ class CapacitorLiveUpdates{
                     })
                 })
             }
-            const moveToBundle = async () => {
-                //If .bundles folder does not exist, create it:
-                if (!fs.existsSync(CapacitorLiveUpdates.appBundlePath)){
-                    fs.mkdirSync(CapacitorLiveUpdates.appBundlePath);
-                }
 
-                //Move the generated bundle to the .bundles folder, if it already exists, overwrite it:
-                fs.copyFileSync(outputPath, `${CapacitorLiveUpdates.appBundlePath}/${outputPath}`);
-                fs.unlinkSync(outputPath);
+            const emptyBundlesPath = async () => {
+                return new Promise((resolve, reject) => {
+                    fs.rmSync(originPath, { recursive: true });
+                    fs.mkdirSync(originPath);
+                    resolve({})
+                })
+            }
+
+            const moveBundle = async () => {
+                return new Promise((resolve, reject) => {
+                    fs.rename(`${fileName}`, outputPath, (err) => {
+                        if (err){
+                            reject(err);
+                        }
+                        resolve({});
+                    })
+                })
             }
             try {
-                await emptyBundleFolder();
                 await bundle();
-                await moveToBundle();
+                await emptyBundlesPath();
+                await moveBundle();
                 resolve({});
             } catch (error) {
                 reject(error);

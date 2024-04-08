@@ -30,6 +30,10 @@
                         <ion-icon color="danger" :icon="close" slot="start"></ion-icon>
                         <ion-label color="danger">Terminar sesión</ion-label>
                     </ion-item>
+
+                    <ion-item>
+                        <ion-label color="warning">New version success!</ion-label>
+                    </ion-item>
                 </ion-list>
             </section>
         </ion-content>

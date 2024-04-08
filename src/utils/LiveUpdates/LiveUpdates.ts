@@ -21,6 +21,7 @@ export class LiveUpdates{
             bundles: Array<DownloadableBundle>
         };
 
+        
         console.log(response)
 
 

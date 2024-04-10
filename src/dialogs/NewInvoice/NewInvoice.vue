@@ -296,6 +296,9 @@ const checkTicketOnInput = (event: CustomEvent) => {
         return;
     }
 
+    if (!navigator.onLine){
+        return;
+    }
     RequestAPI.get('/invoices/ticket-number/check', {
         ticket_number: invoice.value.ticket_number,
         commerce_number: invoice.value.commerce_number

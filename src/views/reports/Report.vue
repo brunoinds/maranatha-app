@@ -237,6 +237,9 @@
 
                     <br>
 
+
+                    
+
                     <ion-list-header style="font-size: 15px">{{ reportType }}s del reporte ({{ invoices.length }} / 28)</ion-list-header>
                     
 
@@ -247,7 +250,6 @@
                         </ion-button>
                     </section>
                     <ion-list>
-                        <ion-progress-bar v-if="isUpdatingPending" type="indeterminate"></ion-progress-bar>
 
                         <ion-item v-for="invoice in invoices" :key="invoice.id" @click="openInvoice(invoice)" button :detail="true">
                             <ion-label>
@@ -263,6 +265,26 @@
                         </ion-item>
                     </ion-list>
 
+                    <article v-if="isUpdatingPending">
+                        <ion-list-header style="font-size: 15px">{{ reportType }}s en sincronización</ion-list-header>
+                        <br>
+                        <ion-progress-bar v-if="isUpdatingPending" type="indeterminate"></ion-progress-bar>
+                        <ion-list>
+
+                            <ion-item v-for="invoice in syncingItemsData" :key="invoice.id">
+                                <ion-label>
+                                    <h2><b>{{ invoice.description }}</b></h2>
+                                    <h3>{{ invoice.date }}</h3>
+                                    <p>{{ invoice.uploading.text }}</p>
+                                </ion-label>
+
+                                <ion-label slot="end">
+                                    <h3>{{report.moneyPrefix}} {{ Toolbox.moneyFormat(invoice.amount) }}</h3>
+                                </ion-label>
+                            </ion-item>
+                        </ion-list>
+                    </article>
+
                     <br>
                     <article class="ion-padding" v-if="(report.status == 'Submitted') || (isAdmin && report.status != 'Draft')">
                         <ion-button color="danger" expand="block" fill="outline" :disabled="isLoading" @click="undoSendReport">
@@ -272,8 +294,6 @@
                             <ion-icon slot="start" :icon="closeCircleOutline"></ion-icon>
                         </ion-button>
                     </article>
-
-                    
                 </main>
             </article>
         </ion-content>
@@ -302,7 +322,7 @@ import { Session } from '@/utils/Session/Session';
 import {AppEvents} from '../../utils/AppEvents/AppEvents';
 import { TStorage } from '@/utils/Toolbox/TStorage';
 import { StoredReports } from '@/utils/Stored/StoredReports';
-import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
+import { IInvoiceResponseUploading, StoredInvoices } from '@/utils/Stored/StoredInvoices';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
@@ -312,6 +332,8 @@ import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue
 import Numeral from 'numeral';
 import AddRepositionPettyCash from '@/dialogs/AddRepositionPettyCash/AddRepositionPettyCash.vue';
 import _ from 'lodash';
+
+const routeParams = useRoute();
 
 const reportData = ref<IReport|null>(null);
 const invoicesData = ref<Array<IInvoice>>([]);
@@ -577,7 +599,6 @@ const openInvoice = async (invoice:IInvoice) => {
     })
 }
 const loadReport = async () => {
-    const routeParams = useRoute();
     if (reportId.value === null){
         reportId.value = routeParams.params.id as string;
     }
@@ -587,7 +608,6 @@ const loadReport = async () => {
 };
 const loadReportInvoices = async () => {
     return new Promise(async (resolve, reject) => {
-        const routeParams = useRoute();
         if (reportId.value === null){
             reportId.value = routeParams.params.id as string;
         }
@@ -599,7 +619,7 @@ const loadReportInvoices = async () => {
 }
 
 const isUpdatingPending = computed(() => {
-    return StoredInvoices.isUpdatingPending.value;
+    return StoredInvoices.uploadPendingInfo.value.isUploading;
 }) 
 const acceptReport = async () => {
     isLoading.value = true;
@@ -1060,6 +1080,18 @@ const initialize = async () => {
     await loadReport();
     await loadReportInvoices();
 }
+
+
+const syncingItemsData = computed<Array<IInvoiceResponseUploading>>(() => {
+    return StoredInvoices.uploadPendingInfo.value.invoices.filter((invoice) => {
+        return invoice.report_id == reportId.value as unknown as number;
+    }).map(invoice => {
+        return {
+            ...invoice,
+            date: DateTime.fromISO(invoice.date).toFormat('dd/MM/yyyy')
+        }
+    });
+});
 const isAdmin = ref(false);
 const isAdminCheck = async () => {
     const currentSession = await Session.getCurrentSession();

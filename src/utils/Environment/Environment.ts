@@ -54,12 +54,14 @@ class Environment{
     }
 
     public static _initialize(){
-        App.getInfo().then((info) => {
-            Environment.config.storeVersioning = {
-                version: info.version,
-                build: parseInt(info.build)
-            }
-        })
+        if (Environment.platform() === 'Native'){
+            App.getInfo().then((info) => {
+                Environment.config.storeVersioning = {
+                    version: info.version,
+                    build: parseInt(info.build)
+                }
+            })
+        }
     }
 }
 

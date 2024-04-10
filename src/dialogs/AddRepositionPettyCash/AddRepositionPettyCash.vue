@@ -133,48 +133,57 @@ const createDeposit = async () => {
         return;
     }
     isLoading.value = true;
-
-    const responseEditReport = await RequestAPI.patch(`/reports/${props.report.id}`, {
-        status: EReportStatus.Restituted
-    })
-
-    const responseBalances = await RequestAPI.get('/balance/reports/' + props.report.id + '/balances')
-    
-    const responseBalance = responseBalances.find((balance: any) => {
-        return balance.model == 'Restitution'
-    });
-
-    RequestAPI.patch('/balances/' + responseBalance.id, {
-        description: dynamicData.value.description,
-        ticket_number: dynamicData.value.ticketNumber,
-        date: DateTime.fromFormat(dynamicData.value.date, "dd/MM/yyyy").set({
-            hour: DateTime.now().hour,
-            minute: DateTime.now().minute,
-            second: DateTime.now().plus({ second: 1}).second,
-        }).toISO(),
-        receipt_base64: dynamicData.value.receiptBase64
-    }).then((response) => {
-        props.emitter.fire('created', {
-            ...response.balance
-        });
-        toastController.create({
-            message: '✅ Depósito creado con éxito',
-            duration: 2000
-        }).then((toast) => {
-            toast.present();
+    try {
+        const responseEditReport = await RequestAPI.patch(`/reports/${props.report.id}`, {
+            status: EReportStatus.Restituted
         })
-        props.emitter.fire('close');
-    }).catch((error) => {
+
+        const responseBalances = await RequestAPI.get('/balance/reports/' + props.report.id + '/balances')
+        
+        const responseBalance = responseBalances.find((balance: any) => {
+            return balance.model == 'Restitution'
+        });
+
+        RequestAPI.patch('/balances/' + responseBalance.id, {
+            description: dynamicData.value.description,
+            ticket_number: dynamicData.value.ticketNumber,
+            date: DateTime.fromFormat(dynamicData.value.date, "dd/MM/yyyy").set({
+                hour: DateTime.now().hour,
+                minute: DateTime.now().minute,
+                second: DateTime.now().plus({ second: 1}).second,
+            }).toISO(),
+            receipt_base64: dynamicData.value.receiptBase64
+        }).then((response) => {
+            props.emitter.fire('created', {
+                ...response.balance
+            });
+            toastController.create({
+                message: '✅ Depósito creado con éxito',
+                duration: 2000
+            }).then((toast) => {
+                toast.present();
+            })
+            props.emitter.fire('close');
+        }).catch((error) => {
+            alertController.create({
+                header: 'Oops...',
+                message: error.response.message,
+                buttons: ['OK']
+            }).then((alert) => {
+                alert.present();
+            });
+        }).finally(() => {
+            isLoading.value = false;
+        });
+    } catch (error:any) {
         alertController.create({
             header: 'Oops...',
-            message: error.response.message,
+            message: error.toString(),
             buttons: ['OK']
         }).then((alert) => {
             alert.present();
         });
-    }).finally(() => {
-        isLoading.value = false;
-    });
+    }
 }
 
 const validateCamps = () => {

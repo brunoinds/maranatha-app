@@ -34,14 +34,12 @@ export class LiveUpdates{
 
         const bundle = response.bundles.length > 0 ? response.bundles[0] : null;
 
-
         //alert(`🛜 Found new available update version: ${bundle?.version}, the device has version ${Environment.version()}.`)
         if (!bundle){
             return;
         }
 
         const isUpdatableBundle = bundle.version > Environment.version();
-
 
         if (!isUpdatableBundle){
             return;
@@ -55,7 +53,6 @@ export class LiveUpdates{
         }
 
         console.log(`🛜 Found new available update version: ${bundle.version}, the device has version ${Environment.version()}.`)
-
 
         LiveUpdates.downloadUpdate(bundle)
     }

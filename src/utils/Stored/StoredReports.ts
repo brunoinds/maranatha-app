@@ -26,6 +26,10 @@ interface IReportResponse{
         total_amount: number;
     }
 }
+export interface IReportUploadResponse{
+    previousId: number, 
+    updatedReportData: IReportResponse
+}
 
 class StoredReports{
     private static isUpdatingPending: boolean = false;
@@ -172,7 +176,7 @@ class StoredReports{
             })
         })
     }
-    public static uploadPending():Promise<Array<{previousId: number, updatedReportData: IReportResponse}>>{
+    public static uploadPending():Promise<Array<IReportUploadResponse>>{
         return new Promise(async (resolve, reject) => {
             await StoredReports.waitUpdatePending();
             TStorage.load('StoredReports', {
@@ -204,42 +208,44 @@ class StoredReports{
                             reject(error);
                         });
                     })
-                })
-
+                });
                 let listOfUpdates:Array<{previousId: number, updatedReportData: IReportResponse}> = [];
-
                 Promise.all(listReportsToUpdate).then(async (listReportsToUpdate) => {
-                    listReportsToUpdate.forEach((reportToUpdate) => {
-                        listOfUpdates.push({
-                            previousId: reportToUpdate.previousId,
-                            updatedReportData: reportToUpdate.updatedReportData
+                    try {
+                        listReportsToUpdate.forEach((reportToUpdate) => {
+                            listOfUpdates.push({
+                                previousId: reportToUpdate.previousId,
+                                updatedReportData: reportToUpdate.updatedReportData
+                            })
+                            bucket.data.reports = bucket.data.reports.map((report:IReportResponse) => {
+                                if(report.id === reportToUpdate.previousId){
+                                    return reportToUpdate.updatedReportData;
+                                }
+                                return report;
+                            })
                         })
-                        bucket.data.reports = bucket.data.reports.map((report:IReportResponse) => {
-                            if(report.id === reportToUpdate.previousId){
-                                return reportToUpdate.updatedReportData;
+    
+                        const bucketInvoices = await TStorage.load('StoredInvoices', {
+                            invoices: []
+                        })
+                        bucket.data.invoices = bucketInvoices.data.invoices.map((invoice:IReportResponse) => {
+                            const reportUpdated = listOfUpdates.find((update) => {
+                                return update.previousId === invoice.report_id;
+                            }) as any;
+                            if (reportUpdated){
+                                invoice.report_id = reportUpdated.updatedReportData.id;
                             }
-                            return report;
+                            return invoice;
                         })
-                    })
-
-                    const bucketInvoices = await TStorage.load('StoredInvoices', {
-                        invoices: []
-                    })
-                    bucket.data.invoices = bucketInvoices.data.invoices.map((invoice:IReportResponse) => {
-                        const reportUpdated = listOfUpdates.find((update) => {
-                            return update.previousId === invoice.report_id;
-                        }) as any;
-                        if (reportUpdated){
-                            invoice.report_id = reportUpdated.updatedReportData.id;
-                        }
-                        return invoice;
-                    })
-                    await bucketInvoices.save();
-                    bucket.save().then(() => {
-                        resolve(listOfUpdates);
-                    }).catch(() => {
-                        reject();
-                    })
+                        await bucketInvoices.save();
+                        bucket.save().then(() => {
+                            resolve(listOfUpdates);
+                        }).catch((error) => {
+                            reject(error);
+                        })
+                    } catch (error) {
+                        reject(error);   
+                    }
                 })
             })
         })

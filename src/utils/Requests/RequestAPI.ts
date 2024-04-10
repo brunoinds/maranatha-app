@@ -46,10 +46,15 @@ class RequestAPI{
                 resolve(response.data);
             })
             .catch((error) => {
-                reject({
-                    code: error.response.status,
-                    response: error.response.data
-                });
+                console.error(error);
+                if (error.response && error.response.status){
+                    reject({
+                        code: error.response.status,
+                        response: error.response.data
+                    });
+                }else{
+                    reject(error);
+                }
             })
         })
     }
@@ -72,11 +77,15 @@ class RequestAPI{
                 resolve(response.data);
             })
             .catch((error) => {
-                console.error(error)
-                reject({
-                    code: error.response.status,
-                    response: error.response.data
-                });
+                console.error(error);
+                if (error.response && error.response.status){
+                    reject({
+                        code: error.response.status,
+                        response: error.response.data
+                    });
+                }else{
+                    reject(error);
+                }
             })
         })
     }
@@ -92,10 +101,15 @@ class RequestAPI{
                 resolve(response.data);
             })
             .catch((error) => {
-                reject({
-                    code: error.response.status,
-                    response: error.response.data
-                });
+                console.error(error);
+                if (error.response && error.response.status){
+                    reject({
+                        code: error.response.status,
+                        response: error.response.data
+                    });
+                }else{
+                    reject(error);
+                }
             })
         })
     }
@@ -111,10 +125,15 @@ class RequestAPI{
                 resolve(response.data);
             })
             .catch((error) => {
-                reject({
-                    code: error.response.status,
-                    response: error.response.data
-                });
+                console.error(error);
+                if (error.response && error.response.status){
+                    reject({
+                        code: error.response.status,
+                        response: error.response.data
+                    });
+                }else{
+                    reject(error);
+                }
             })
         })
     }
@@ -129,10 +148,15 @@ class RequestAPI{
                 resolve(response.data);
             })
             .catch((error) => {
-                reject({
-                    code: error.response.status,
-                    response: error.response.data
-                });
+                console.error(error);
+                if (error.response && error.response.status){
+                    reject({
+                        code: error.response.status,
+                        response: error.response.data
+                    });
+                }else{
+                    reject(error);
+                }
             })
         })
     }
@@ -165,10 +189,15 @@ class RequestAPI{
                 resolve(response)
             })
             .catch((error) => {
-                reject({
-                    code: error.response.status,
-                    response: error.response.data
-                });
+                console.error(error);
+                if (error.response && error.response.status){
+                    reject({
+                        code: error.response.status,
+                        response: error.response.data
+                    });
+                }else{
+                    reject(error);
+                }
             })
         })
     }
@@ -206,8 +235,10 @@ class RequestAPI{
                     console.error(error)
                     reject(error)
                 }
-                if (error.response.data.message == 'Unauthenticated.'){
-                    reactions.onAunauthenticated(error.request, error.response);
+                if (error.response && error.response.data && error.response.message){
+                    if (error.response.data.message == 'Unauthenticated.'){
+                        reactions.onAunauthenticated(error.request, error.response);
+                    }
                 }
                 reject(error)
             })

@@ -14,7 +14,7 @@ interface QRCodeParserResponseBuy{
         date: string | null;
     } | null,
     qrCode: string,
-    country: 'Peru' | 'Brazil'
+    country: 'Peru' | 'Brazil' | 'Paraguay'
 }
 class QRCodeParser{
     private static parsePeruvianCode(qrCode: string): QRCodeParserResponseBuy{
@@ -179,11 +179,80 @@ class QRCodeParser{
         }
     }
 
+    private static parseParaguayanCode(qrCode: string): QRCodeParserResponseBuy{
+        const url = qrCode;
+
+        if (!url.includes('https://ekuatia.set.gov.py')){
+            return {
+                content: null,
+                isValid: false,
+                qrCode: qrCode,
+                country: 'Paraguay'
+            };
+        }
+
+        try {
+            const parsedUrl = new URL(url);
+
+            const dRucRec = parsedUrl.searchParams.get("dRucRec");
+            const dTotGralOpe = parsedUrl.searchParams.get("dTotGralOpe");
+            const dTotIVA = parsedUrl.searchParams.get("dTotIVA");
+            const dFeEmiDE = parsedUrl.searchParams.get("dFeEmiDE");
+            const ident = parsedUrl.searchParams.get("Id");
+
+
+            if (dRucRec && dTotGralOpe && dFeEmiDE && dTotIVA) {
+                function hexToASCII(stringContent: string) {
+                    let hex = stringContent.toString();
+                    let str = '';
+                    for (let n = 0; n < hex.length; n += 2) {
+                        str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
+                    }
+                    return str;
+                }
+
+                const dhEmiIso = hexToASCII(dFeEmiDE);
+
+
+                return {
+                    content: {
+                        price: parseInt(dTotGralOpe).toString(),
+                        date: dhEmiIso.split('T')[0],
+                        igv: parseInt(dTotIVA).toString(),
+                        ruc: dRucRec,
+                        docCode: ident as string,
+                    },
+                    isValid: true,
+                    qrCode: qrCode,
+                    country: 'Paraguay'
+                };
+            }else{
+                return {
+                    content: null,
+                    isValid: false,
+                    qrCode: qrCode,
+                    country: 'Paraguay'
+                };
+            }
+        } catch (error) {
+            return {
+                content: null,
+                isValid: false,
+                qrCode: qrCode,
+                country: 'Paraguay'
+            };
+        }
+    }
+
 
     public static parseBuyCode(qrCode: string): QRCodeParserResponseBuy{
         const peruvianResponse = QRCodeParser.parsePeruvianCode(qrCode)
         if (peruvianResponse.isValid){
             return peruvianResponse;
+        }
+        const paraguayanResponse = QRCodeParser.parseParaguayanCode(qrCode)
+        if (paraguayanResponse.isValid){
+            return paraguayanResponse;
         }
         const brazilianResponse = QRCodeParser.parseBrazilianCode(qrCode)
         return brazilianResponse

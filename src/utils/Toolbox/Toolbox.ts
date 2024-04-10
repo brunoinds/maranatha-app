@@ -172,6 +172,9 @@ class Toolbox{
             if (!contentLength){
                 contentLength = response.headers.get('Maranatha-Content-Size') as string;
             }
+            if (!contentLength){
+                contentLength = response.headers.get('maranatha-content-size') as string;
+            }
 
             let receivedLength = 0;
             let chunks = [];

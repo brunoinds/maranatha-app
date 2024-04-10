@@ -175,7 +175,7 @@ const validateCamps = () => {
 
 const loadJobsAndExpenses = async () => {
     const jobs =  await JobsAndExpenses.getJobs() as unknown as Array<IJob>;
-    jobsAndExpenses.value.jobs = jobs;
+    jobsAndExpenses.value.jobs = jobs
 
     const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
     jobsAndExpenses.value.expenses = expenses;

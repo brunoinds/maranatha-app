@@ -150,8 +150,8 @@ const segments = [
     },
     {
         id: 'settings',
-        title: '⚙️ Configuraciónes',
-        name: 'Configuraciónes',
+        title: '⚙️ Configuraciones',
+        name: 'Configuraciones',
         icon: '⚙️'
     },
 ];

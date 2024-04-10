@@ -6,5 +6,5 @@
     "liveUpdates": {
         "minimalNativeVersion": "1.1.11"
     },
-    "environment": "prod"
+    "environment": "dev"
 }

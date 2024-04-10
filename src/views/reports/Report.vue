@@ -265,12 +265,11 @@
                         </ion-item>
                     </ion-list>
 
-                    <article v-if="isUpdatingPending">
+                    <article v-if="isUpdatingPending && syncingItemsData.length > 0">
                         <ion-list-header style="font-size: 15px">{{ reportType }}s en sincronización</ion-list-header>
                         <br>
                         <ion-progress-bar v-if="isUpdatingPending" type="indeterminate"></ion-progress-bar>
                         <ion-list>
-
                             <ion-item v-for="invoice in syncingItemsData" :key="invoice.id">
                                 <ion-label>
                                     <h2><b>{{ invoice.description }}</b></h2>

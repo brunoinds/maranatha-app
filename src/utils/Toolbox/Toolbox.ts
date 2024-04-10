@@ -168,7 +168,11 @@ class Toolbox{
                 reject(response);
             }
             const reader = response.body?.getReader() as ReadableStreamDefaultReader<Uint8Array>;
-            const contentLength = response.headers.get('Content-Length') as string;
+            let contentLength = response.headers.get('Content-Length') as string;
+            if (!contentLength){
+                contentLength = response.headers.get('Maranatha-Content-Size') as string;
+            }
+
             let receivedLength = 0;
             let chunks = [];
             while (true){

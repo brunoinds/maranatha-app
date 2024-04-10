@@ -93,12 +93,13 @@ import ErrorIcon from '&/assets/icons/error.svg';
 import { IInvoiceResponseUploading, StoredInvoices } from '@/utils/Stored/StoredInvoices';
 import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonAccordionGroup, IonAccordion, IonThumbnail, IonImg, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController } from '@ionic/vue';
 import { copyOutline, checkmarkCircleOutline, alertCircleOutline, reloadOutline, trashOutline } from 'ionicons/icons';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { DateTime } from 'luxon';
 import { TStorage } from '@/utils/Toolbox/TStorage';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { watch } from 'fs';
 
 
 const props = defineProps({
@@ -117,6 +118,9 @@ props.emitter.on('progress', (data) => {
 
 
 const syncingItemsData = computed<Array<IInvoiceResponseUploading>>(() => {
+    if (StoredInvoices.uploadPendingInfo.value.invoices.length == 0){
+        props.emitter.fire('close');
+    }
     return StoredInvoices.uploadPendingInfo.value.invoices.map(invoice => {
         return {
             ...invoice,
@@ -199,7 +203,6 @@ const removeInvoiceFromQueue = async (id: number) => {
     }
     retrySyncAll();
 }
-
 </script>
 
 <style scoped lang="scss">

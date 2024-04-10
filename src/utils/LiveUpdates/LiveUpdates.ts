@@ -23,7 +23,7 @@ export class LiveUpdates{
         state: 'Searching' | 'Downloading' | 'ReadyToInstall' | 'Installing' | 'NoUpdateAvailable',
         availableUpdate: DownloadableBundle | null
     }>({
-        state: 'Searching',
+        state: 'NoUpdateAvailable',
         availableUpdate: null
     });
 

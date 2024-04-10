@@ -35,7 +35,9 @@
         <ion-footer>
             <ion-list>
                 <ion-item v-if="liveUpdates.state != 'NoUpdateAvailable'">
-                        <ion-icon class="rotate" slot="start" color="medium" :icon="syncOutline"></ion-icon>
+                        <ion-icon class="rotate" v-if="liveUpdates.state != 'ReadyToInstall'" slot="start" color="medium" :icon="syncOutline"></ion-icon>
+                        <ion-icon v-if="liveUpdates.state == 'ReadyToInstall'" slot="start" color="medium" :icon="cloudDoneOutline"></ion-icon>
+
                         <ion-label color="medium" v-if="liveUpdates.state == 'Searching'">
                             <h2>Actualización de datos</h2>
                             <p>Buscando actualizaciones...</p>
@@ -80,7 +82,7 @@ import { Environment } from '@/utils/Environment/Environment';
 import { Notifications } from '@/utils/Notifications/Notifications';
 import { Session } from '@/utils/Session/Session';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { close, notificationsCircle, syncOutline } from 'ionicons/icons';
+import { close, notificationsCircle, syncOutline, cloudDoneOutline } from 'ionicons/icons';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { LiveUpdates } from '@/utils/LiveUpdates/LiveUpdates';

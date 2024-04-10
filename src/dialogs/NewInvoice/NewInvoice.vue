@@ -252,6 +252,9 @@ const jobsAndExpensesSelector = computed(() => {
     return {
         jobs: jobsAndExpenses.value.jobs,
         expenses: (() => {
+            if (dynamicData.value.listSelectedJobs.length > 1){
+                return jobsAndExpenses.value.expenses;
+            }
             if (invoice.value.job_code.startsWith('000')){
                 return jobsAndExpenses.value.expenses.filter((expense) => {
                     return expense.code.length == 3;

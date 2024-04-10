@@ -25,7 +25,6 @@
                             <h2>Autorizar notificaciones</h2>
                         </ion-label>
                     </ion-item>
-
                     <ion-item @click="doLogout" button>
                         <ion-icon color="danger" :icon="close" slot="start"></ion-icon>
                         <ion-label color="danger">Terminar sesión</ion-label>
@@ -34,6 +33,36 @@
             </section>
         </ion-content>
         <ion-footer>
+            <ion-list>
+                <ion-item v-if="liveUpdates.state != 'NoUpdateAvailable'">
+                        <ion-icon class="rotate" slot="start" color="medium" :icon="syncOutline"></ion-icon>
+                        <ion-label color="medium" v-if="liveUpdates.state == 'Searching'">
+                            <h2>Actualización de datos</h2>
+                            <p>Buscando actualizaciones...</p>
+                        </ion-label>
+
+                        <ion-label color="medium"  v-if="liveUpdates.state == 'Downloading'">
+                            <h2>Nueva actualización disponible</h2>
+                            <p>v{{ liveUpdates.availableUpdate?.version }} ({{ liveUpdates.availableUpdate.size }})</p>
+                            <p>Descargando actualización...</p>
+                        </ion-label>
+
+                        <ion-label color="medium"  v-if="liveUpdates.state == 'Installing'">
+                            <h2>Nueva actualización disponible</h2>
+                            <p>v{{ liveUpdates.availableUpdate?.version }} ({{ liveUpdates.availableUpdate.size }})</p>
+                            <p>Instalando actualización...</p>
+                        </ion-label>
+
+                        <ion-label color="medium"  v-if="liveUpdates.state == 'ReadyToInstall'">
+                            <h2>Nueva actualización disponible</h2>
+                            <p>v{{ liveUpdates.availableUpdate?.version }} ({{ liveUpdates.availableUpdate.size }})</p>
+                            <p>Listo para instalar actualización</p>
+                        </ion-label>
+
+
+                        <ion-button v-if="liveUpdates.state == 'ReadyToInstall'" @click="updateNow">Instalar ahora</ion-button>
+                    </ion-item>
+            </ion-list>
             <ion-toolbar class="version-toolbar">
                 <section class="ion-padding">
                     <pre style="font-size: 12px; color: darkgray; margin: 0">{{ aboutAppText }}</pre>
@@ -44,16 +73,18 @@
 </template>
 
 <script setup lang="ts">
-import { IonAvatar, IonContent, IonFooter, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
-import { onUnmounted, ref } from 'vue';
+import { IonAvatar, IonContent, IonFooter, IonHeader, IonIcon,IonButton, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { computed, onUnmounted, ref } from 'vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { Environment } from '@/utils/Environment/Environment';
 import { Notifications } from '@/utils/Notifications/Notifications';
 import { Session } from '@/utils/Session/Session';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { close, notificationsCircle } from 'ionicons/icons';
+import { close, notificationsCircle, syncOutline } from 'ionicons/icons';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { LiveUpdates } from '@/utils/LiveUpdates/LiveUpdates';
+
 
 const aboutAppText = ref<string>(`Version: ${Environment.version()} \nNative version: ${Environment.storeVersioning().version} (${Environment.storeVersioning().build}) \nBuild: ${Environment.build()}`);
 const accountData = ref<any>(null);
@@ -62,6 +93,18 @@ const router = useRouter();
 const page = ref<HTMLElement|null>(null);
 const isAdmin = ref<boolean>(false);
 const isNotificationsNotAllowed = ref<boolean>(false);
+
+
+const liveUpdates = computed(() => {
+    return {
+        ...LiveUpdates.externalLabels.value,
+        availableUpdate: {
+            ...LiveUpdates.externalLabels.value.availableUpdate,
+            size: (LiveUpdates.externalLabels.value.availableUpdate?.size / (1024 * 1024)).toFixed(2) + ' MB'
+        }
+    }
+});
+const updateNow = () => {LiveUpdates.installUpdateIfAvailableAndReady()}
 
 const goToLogin = () => {
     router.replace('/login');
@@ -222,4 +265,16 @@ onMounted(() => {
     --border-style: none;
 }
 
+.rotate {
+    animation: rotation 2s infinite linear;
+}
+
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
+    }
+}
 </style>

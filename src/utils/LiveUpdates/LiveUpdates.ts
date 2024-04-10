@@ -3,6 +3,7 @@ import { RequestAPI } from '@/utils/Requests/RequestAPI'
 import { CapacitorUpdater } from '@capgo/capacitor-updater'
 import { alertController, toastController } from '@ionic/vue';
 import { SplashScreen } from '@capacitor/splash-screen'
+import { ref } from 'vue';
 
 interface DownloadableBundle{
     version: string,
@@ -18,6 +19,14 @@ export class LiveUpdates{
     } = null;
     private static hasFetchedUpdates = false;
 
+    public static externalLabels = ref<{
+        state: 'Searching' | 'Downloading' | 'ReadyToInstall' | 'Installing' | 'NoUpdateAvailable',
+        availableUpdate: DownloadableBundle | null
+    }>({
+        state: 'Searching',
+        availableUpdate: null
+    });
+
     public static async fetchUpdates()
     {
         if (LiveUpdates.hasFetchedUpdates){
@@ -26,6 +35,7 @@ export class LiveUpdates{
         if (!navigator.onLine){
             return;
         }
+        LiveUpdates.externalLabels.value.state = 'Searching';   
         const response = (await RequestAPI.get('/app/native/bundles')) as unknown as {
             bundles: Array<DownloadableBundle>
         };
@@ -36,12 +46,14 @@ export class LiveUpdates{
 
         //alert(`🛜 Found new available update version: ${bundle?.version}, the device has version ${Environment.version()}.`)
         if (!bundle){
+            LiveUpdates.externalLabels.value.state = 'NoUpdateAvailable';
             return;
         }
 
         const isUpdatableBundle = bundle.version > Environment.version();
 
         if (!isUpdatableBundle){
+            LiveUpdates.externalLabels.value.state = 'NoUpdateAvailable';
             return;
         }
 
@@ -49,11 +61,13 @@ export class LiveUpdates{
         
         if (!compatibleWithTheMinimalNativeVersion){
             console.log(`🛜❌ The bundle is not compatible with the current native version. Bundle version: ${bundle.minimalVersion}, Native version: ${Environment.storeVersioning().version}`)
+            LiveUpdates.externalLabels.value.state = 'NoUpdateAvailable';
             return;
         }
 
+        LiveUpdates.externalLabels.value.availableUpdate = bundle;
         console.log(`🛜 Found new available update version: ${bundle.version}, the device has version ${Environment.version()}.`)
-
+        LiveUpdates.externalLabels.value.state = 'Downloading';
         LiveUpdates.downloadUpdate(bundle)
     }
 
@@ -68,6 +82,7 @@ export class LiveUpdates{
             bundle,
             content
         }
+        LiveUpdates.externalLabels.value.state = 'ReadyToInstall';
     }
 
     public static async installUpdate()
@@ -79,6 +94,7 @@ export class LiveUpdates{
 
         SplashScreen.show();
         try {
+            LiveUpdates.externalLabels.value.state = 'Installing';
             console.log(`📲 Installing update on device (${LiveUpdates.downloadedUpdate?.bundle.version})...`)
             await CapacitorUpdater.set(LiveUpdates.downloadedUpdate.content);
             LiveUpdates.downloadedUpdate = null;
@@ -101,3 +117,8 @@ export class LiveUpdates{
         return (LiveUpdates.downloadedUpdate != null);
     }
 }
+
+
+//Buscando nuevas actualizaciones
+//Descargando actualización
+//Instalando actualización

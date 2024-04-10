@@ -201,11 +201,11 @@ const jobsAndExpensesSelector = computed(() => {
         expenses: (() => {
             if (invoice.value.job_code.startsWith('000')){
                 return jobsAndExpenses.value.expenses.filter((expense) => {
-                    return (parseInt(expense.code) >= 700 && parseInt(expense.code) <= 799)
+                    return expense.code.length == 3;
                 })
             }else{
                 return jobsAndExpenses.value.expenses.filter((expense) => {
-                    return !(parseInt(expense.code) >= 700 && parseInt(expense.code) <= 799)
+                    return expense.code.length != 3;
                 })
             }
         })()

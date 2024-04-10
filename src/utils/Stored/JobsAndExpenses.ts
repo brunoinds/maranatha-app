@@ -78,16 +78,20 @@ class JobsAndExpenses{
                 expenses: []
             }).then((bucket) => {
                 JobsAndExpenses.jobs = bucket.data.jobs.sort((a, b) => {
-                    //Rules, in first place, all the jobs with code 0000, then the codes that starts with 2 (desc) and then all the others in desc order:
-                    if (a.code.startsWith("000")){
+                    //Rules, in first place, all the jobs that starts with code 000 (asc), then the codes that starts with "2" (desc) and then all the others in desc order:
+                    if (a.code.startsWith("000") && !b.code.startsWith("000")){
                         return -1;
-                    }else if (b.code.startsWith("000")){
+                    }else if (!a.code.startsWith("000") && b.code.startsWith("000")){
                         return 1;
+                    }else if (a.code.startsWith("000") && b.code.startsWith("000")){
+                        return a.code > b.code ? 1 : -1;
                     }
-                    if (a.code[0] === "2" && b.code[0] !== "2"){
+                    if (a.code.startsWith("2") && !b.code.startsWith("2")){
                         return -1;
-                    }else if (a.code[0] !== "2" && b.code[0] === "2"){
+                    }else if (!a.code.startsWith("2") && b.code.startsWith("2")){
                         return 1;
+                    }else if (a.code.startsWith("2") && b.code.startsWith("2")){
+                        return a.code < b.code ? 1 : -1;
                     }
                     return a.code < b.code ? 1 : -1;
                 });;

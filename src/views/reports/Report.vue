@@ -104,7 +104,7 @@
                             </ion-card-header>
 
                             <ion-card-content>
-                                Este reporte ha sido aprobado y está esperando por la restitución de <b>{{report.moneyPrefix}}{{ report.amount.text }}</b> a la cuenta bancária.
+                                Este reporte ha sido aprobado y está esperando por la restitución de <b>{{report.moneyPrefix}} {{ report.amount.text }}</b> a la cuenta bancária.
                                 <br>
                                 <br>
 
@@ -159,7 +159,7 @@
                             <ion-card-content>
                                 <b>Reporte aprobado</b>
                                 <br>
-                                Este reporte ha sido aprobado por el administrador. El depósito de <b>{{report.moneyPrefix}}{{ report.amount.text }}</b> será realizado a su cuenta lo antes posible.
+                                Este reporte ha sido aprobado por el administrador. El depósito de <b>{{report.moneyPrefix}} {{ report.amount.text }}</b> será realizado a su cuenta lo antes posible.
                             </ion-card-content>
                         </ion-card>
                     </section>
@@ -176,7 +176,7 @@
                             <ion-card-content>
                                 <b>Reporte aprobado y restituido.</b>
                                 <br>
-                                Este reporte ha sido aprobado por el administrador y ya se reembolsó el valor de <b>{{report.moneyPrefix}}{{ report.amount.text }}</b> a su cuenta.
+                                Este reporte ha sido aprobado por el administrador y ya se reembolsó el valor de <b>{{report.moneyPrefix}} {{ report.amount.text }}</b> a su cuenta.
 
 
                                 <br><br>
@@ -238,11 +238,7 @@
                     <br>
 
 
-                    
-
                     <ion-list-header style="font-size: 15px">{{ reportType }}s del reporte ({{ invoices.length }} / 28)</ion-list-header>
-                    
-
                     <section class="ion-padding">
                         <ion-button expand="block" fill="outline" @click="addInvoice" :disabled="invoices.length == 28 || isLoading" v-if="report.status == 'Draft'"> 
                             <ion-icon slot="start" :icon="add"></ion-icon>
@@ -404,36 +400,6 @@ const report = computed(() => {
         }
     }
 });
-
-const duplicatedInvoices = computed(() => {
-    let listIdentificators:any = [];
-
-
-    invoicesData.value.forEach((invoice) => {
-        let isSameJob = false;
-        if (invoice.description.includes('[') && invoice.description.includes(']') && invoice.description.includes('/')  && invoice.description.includes('%')){
-            isSameJob = true;
-        }
-
-        if (!isSameJob){
-            listIdentificators.push({
-                id: invoice.id,
-                invoice: invoice,
-                identificator: invoice.commerce_number + '//' + invoice.ticket_number
-            });
-        }
-    })
-
-    const onlyDuplicatedItems = listIdentificators.filter((item, index) => {
-        return listIdentificators.findIndex((item2) => item2.identificator == item.identificator) != index;
-    })
-
-
-    return {
-        hasDuplicatedInvoices: onlyDuplicatedItems.length > 0,
-        items: onlyDuplicatedItems
-    }
-})
 
 const addInvoice = async () => {
     const showAddInvoiceModal = () => {
@@ -616,10 +582,38 @@ const loadReportInvoices = async () => {
         resolve({})
     })
 }
-
 const isUpdatingPending = computed(() => {
     return StoredInvoices.uploadPendingInfo.value.isUploading;
 }) 
+const duplicatedInvoices = computed(() => {
+    let listIdentificators:any = [];
+
+
+    invoicesData.value.forEach((invoice) => {
+        let isSameJob = false;
+        if (invoice.description.includes('[') && invoice.description.includes(']') && invoice.description.includes('/')  && invoice.description.includes('%')){
+            isSameJob = true;
+        }
+
+        if (!isSameJob){
+            listIdentificators.push({
+                id: invoice.id,
+                invoice: invoice,
+                identificator: invoice.commerce_number + '//' + invoice.ticket_number
+            });
+        }
+    })
+
+    const onlyDuplicatedItems = listIdentificators.filter((item, index) => {
+        return listIdentificators.findIndex((item2) => item2.identificator == item.identificator) != index;
+    })
+
+
+    return {
+        hasDuplicatedInvoices: onlyDuplicatedItems.length > 0,
+        items: onlyDuplicatedItems
+    }
+})
 const acceptReport = async () => {
     isLoading.value = true;
 
@@ -717,7 +711,6 @@ const createExportPDF = async () => {
     const base64String = (await instance.create()).split('data:application/pdf;filename=generated.pdf;base64,')[1];
     return base64String;
 }
-
 const undoSendReport = async () => {
     isLoading.value = true;
 
@@ -763,7 +756,6 @@ const sendReport = async () => {
     initialize();
     AppEvents.emit('all:reload');
 }
-
 const depositRestitution = async () => {
     Dialog.show(AddRepositionPettyCash, {
         onLoaded($this) {
@@ -784,7 +776,6 @@ const depositRestitution = async () => {
         }
     })
 }
-
 const downloadPdfAndExcelFiles = async (preffer = null) => {
     const invoicesTotalAmount = invoicesData.value.reduce((total, invoice) => {
         return total + invoice.amount;
@@ -1001,7 +992,6 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
         actionSheet.present();
     })
 }
-
 const downloadBalanceReceiptImage = async () => {
     isLoading.value = true;
 
@@ -1079,8 +1069,6 @@ const initialize = async () => {
     await loadReport();
     await loadReportInvoices();
 }
-
-
 const syncingItemsData = computed<Array<IInvoiceResponseUploading>>(() => {
     return StoredInvoices.uploadPendingInfo.value.invoices.filter((invoice) => {
         return invoice.report_id == reportId.value as unknown as number;

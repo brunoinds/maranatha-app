@@ -198,10 +198,10 @@ class QRCodeParser{
             const dTotGralOpe = parsedUrl.searchParams.get("dTotGralOpe");
             const dTotIVA = parsedUrl.searchParams.get("dTotIVA");
             const dFeEmiDE = parsedUrl.searchParams.get("dFeEmiDE");
-            const ident = parsedUrl.searchParams.get("Id");
+            let ident = parsedUrl.searchParams.get("Id");
 
 
-            if (dRucRec && dTotGralOpe && dFeEmiDE && dTotIVA) {
+            if (dRucRec && dTotGralOpe && dFeEmiDE && dTotIVA && ident) {
                 function hexToASCII(stringContent: string) {
                     let hex = stringContent.toString();
                     let str = '';
@@ -213,6 +213,12 @@ class QRCodeParser{
 
                 const dhEmiIso = hexToASCII(dFeEmiDE);
 
+                if (ident.length >= 25){
+                    //Get chars from position 11 to 23, including 12 and 24, beliving the chars starts from 0:
+                    ident = ident.substring(11, 24);
+                    //Now, add dashs in the following position: 000-000-0000000:
+                    ident = `${ident.substring(0, 3)}-${ident.substring(3, 6)}-${ident.substring(6, 13)}`;
+                }
 
                 return {
                     content: {
@@ -220,7 +226,7 @@ class QRCodeParser{
                         date: dhEmiIso.split('T')[0],
                         igv: parseInt(dTotIVA).toString(),
                         ruc: dRucRec,
-                        docCode: ident as string,
+                        docCode: ident,
                     },
                     isValid: true,
                     qrCode: qrCode,

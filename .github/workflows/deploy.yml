@@ -23,4 +23,4 @@ jobs:
       - name: List documents
         run: ls
       - name: List documents
-        run: cd .bundles && ls
+        run: cd dist && ls

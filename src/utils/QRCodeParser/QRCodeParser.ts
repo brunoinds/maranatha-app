@@ -194,7 +194,7 @@ class QRCodeParser{
         try {
             const parsedUrl = new URL(url);
 
-            const dRucRec = parsedUrl.searchParams.get("dRucRec");
+            const dRucRec = parsedUrl.searchParams.get("dRucRec")  || parsedUrl.searchParams.get('dNumIDRec');
             const dTotGralOpe = parsedUrl.searchParams.get("dTotGralOpe");
             const dTotIVA = parsedUrl.searchParams.get("dTotIVA");
             const dFeEmiDE = parsedUrl.searchParams.get("dFeEmiDE");

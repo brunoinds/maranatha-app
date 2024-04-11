@@ -11,7 +11,10 @@
     "local-build-laravel": "vite build --base=/app/ --outDir=../maranatha-sender/resources/ionic --emptyOutDir",
     "bundle-laravel": "vite build --outDir=../resources/ionic/.bundles --emptyOutDir && npm run bundler-live-updates --path ../resources/ionic/.bundles",
     "local-bundle-laravel": "vite build --outDir=../maranatha-sender/resources/ionic/.bundles --emptyOutDir && npm run bundler-live-updates --path ../maranatha-sender/resources/ionic/.bundles",
+    
     "bundle-live-update": "vite build --emptyOutDir && npm run bundler-live-updates --path ./dist",
+    "bundle-web-update": "vite build --base=/app/ --emptyOutDir && npm run bundler-live-updates --path ./dist",
+    
     "cli": "npx tsx ./app.build.ts",
     "bundler-live-updates": "npx tsx ./.liveupdate-bundler.ts",
     "preview": "vite preview",

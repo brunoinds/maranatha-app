@@ -194,7 +194,7 @@ class QRCodeParser{
         try {
             const parsedUrl = new URL(url);
 
-            const dRucRec = parsedUrl.searchParams.get("dRucRec")  || parsedUrl.searchParams.get('dNumIDRec');
+            let dRucRec = parsedUrl.searchParams.get("dRucRec")  || parsedUrl.searchParams.get('dNumIDRec');
             const dTotGralOpe = parsedUrl.searchParams.get("dTotGralOpe");
             const dTotIVA = parsedUrl.searchParams.get("dTotIVA");
             const dFeEmiDE = parsedUrl.searchParams.get("dFeEmiDE");
@@ -214,6 +214,11 @@ class QRCodeParser{
                 const dhEmiIso = hexToASCII(dFeEmiDE);
 
                 if (ident.length >= 25){
+                    //Get chars from position 2 to 10, including 2 and 10, beliving the chars starts from 0:
+                    dRucRec = ident.substring(2, 10);
+                    //Now, add dash in the following position: 00000000-0:
+                    dRucRec = `${dRucRec.substring(0, 8)}-${dRucRec.substring(8, 9)}`;
+
                     //Get chars from position 11 to 23, including 12 and 24, beliving the chars starts from 0:
                     ident = ident.substring(11, 24);
                     //Now, add dashs in the following position: 000-000-0000000:

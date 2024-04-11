@@ -18,16 +18,16 @@ jobs:
         run: npm install
       - name: ⭐️ Setting project as "production"
         run: npm run ensure-production
-      - name: 🔨📲 Build Ionic Project (Native Live Update)
+      - name: 📲 Build Ionic Project (Native Live Update)
         run: npm run bundle-live-update
-      - name: Get ZIP file name
+      - name: 🗳️ Get Bundle name
         id: zip_file
         run: |
           zip_file=$(ls dist/*.zip | head -n 1)
           echo "::set-output name=zip_file::$zip_file"
-      - name: Upload to distribution
+      - name: 📤 Upload Bundle to distribution
         env:
           APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
         run: |
-          curl --location --request POST 'https://maranatha.imedicineapp.com/api/app/native/bundles?bundle_name=${{ steps.zip_file.outputs.zip_file }}&secret_key=${{ env.APP_PRIVATE_KEY }}' \
+          curl --fail --location --request POST 'https://maranatha.imedicineapp.com/api/app/native/bundles?secret_key=${{ env.APP_PRIVATE_KEY }}' \
               --form "file=@${{ steps.zip_file.outputs.zip_file }}"

@@ -92,25 +92,25 @@ const app = createApp(App)
 
 
 if (!Capacitor.isNativePlatform()){
-  //Inject script tag on document:
-  let scriptSrc = '/assets/dependencies/qrcode/instascan.min.js';
-  if (Environment.environment() == 'prod'){
-    scriptSrc = '/app/assets/dependencies/qrcode/instascan.min.js';
-  }
-  ScriptInject.inject(scriptSrc, true);
-  
-  /*app.use(OneSignalVuePlugin, {
-    appId: Notifications.oneSignalAppId,
-    promptOptions: {
-      prompts: [
-        {
-          type: 'push',
-          autoPrompt: false,
-          force: true,
-        },
-      ]
+    //Inject script tag on document:
+    let scriptSrc = '/assets/dependencies/qrcode/instascan.min.js';
+    if (Environment.environment() == 'prod'){
+      scriptSrc = '/app/assets/dependencies/qrcode/instascan.min.js';
     }
-  })*/
+    ScriptInject.inject(scriptSrc, true);
+    
+    /*app.use(OneSignalVuePlugin, {
+      appId: Notifications.oneSignalAppId,
+      promptOptions: {
+        prompts: [
+          {
+            type: 'push',
+            autoPrompt: false,
+            force: true,
+          },
+        ]
+      }
+    })*/
 }
 
 ErrorTracking.initialize(app, router);

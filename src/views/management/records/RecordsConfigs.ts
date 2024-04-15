@@ -181,10 +181,10 @@ const RecordsConfigs = {
                             return {
                                 ...item,
                                 attendance_created_at: DateTime.fromFormat(item.attendance_created_at, 'yyyy-MM-dd HH:mm:ss').toFormat('dd/MM/yyyy'),
-                                amount_in_soles: Toolbox.moneyFormat(item.amount_in_soles, EMoneyType.PEN),
-                                amount_in_dollars: Toolbox.moneyFormat(item.amount_in_dollars, EMoneyType.USD),
-                                day_work_amount_in_dollars: Toolbox.moneyFormat(item.day_work_amount_in_dollars, EMoneyType.USD),
-                                day_work_amount_in_soles: Toolbox.moneyFormat(item.day_work_amount_in_soles, EMoneyType.PEN),
+                                amount_in_soles: item.amount_in_soles,
+                                amount_in_dollars: item.amount_in_dollars,
+                                day_work_amount_in_dollars: item.day_work_amount_in_dollars,
+                                day_work_amount_in_soles: item.day_work_amount_in_soles,
                             }
                         }
                     }

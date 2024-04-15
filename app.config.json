@@ -1,10 +1,10 @@
 {
     "versioning": {
         "version": "1.1.28",
-        "build": 34
+        "build": 37
     },
     "liveUpdates": {
-        "minimalNativeVersion": "1.1.11"
+        "minimalNativeVersion": "1.1.21"
     },
-    "environment": "dev"
+    "environment": "prod"
 }

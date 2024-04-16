@@ -1,17 +1,23 @@
 <template>
-    <ion-label>{{label}}</ion-label>
-    <article slot="end">
+    <ion-label v-if="label">{{label}}</ion-label>
+    <article slot="end" v-if="design == 'button'">
+        <ion-datetime-button :datetime="randomId"></ion-datetime-button>
+    </article>
+
+    <article v-if="design == 'text'" class="text-design">
+        <ion-input v-model="valueAsString" :readonly="true"></ion-input>
+
         <ion-datetime-button :datetime="randomId"></ion-datetime-button>
     </article>
 
     <ion-modal :keep-contents-mounted="true">
-        <ion-datetime presentation="date" :value="value" :id="randomId" @ion-change="changeValue"></ion-datetime>
+        <ion-datetime :presentation="presentation" :value="value" :id="randomId" @ion-change="changeValue"></ion-datetime>
     </ion-modal>
 
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonSelect, IonModal, IonDatetimeButton, IonNote, IonPopover, IonDatetime, IonSelectOption, IonTitle, IonContent, IonImg, IonAvatar,IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar,IonInput, IonSelect, IonModal, IonDatetimeButton, IonNote, IonPopover, IonDatetime, IonSelectOption, IonTitle, IonContent, IonImg, IonAvatar,IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { PropType, computed, ref } from 'vue';
 
 import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn } from 'ionicons/icons';
@@ -29,11 +35,16 @@ const props = defineProps({
     },
     label: {
         type: String as PropType<string>,
-        required: true
+        required: false
     },
     value: {
         type: String as PropType<string>,
         required: true
+    },
+    design: {
+        type: String as PropType<'button' | 'text' >,
+        required: false,
+        default: 'button'
     }
 })
 
@@ -49,6 +60,26 @@ const changeValue = (event: any) => {
     emit('update:modelValue', dateTimeValue.value);
 }
 
+const valueAsString = computed(() => {
+    return DateTime.fromISO(dateTimeValue.value).toFormat("dd/MM/yyyy");
+});
+
 
 
 </script>
+
+
+<style scoped lang="scss">
+    .text-design {
+        position: relative;
+
+        > ion-datetime-button{
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 10;
+            //visibility: hidden;
+            opacity: 0%;
+        }
+    }
+</style>

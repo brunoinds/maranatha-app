@@ -16,12 +16,12 @@
             <ion-list-header>Datos de la Asistencia</ion-list-header>
             <ion-list :inset="true">
                 <ion-item>
-                    <ion-label position="stacked">Fecha de Inicio</ion-label>
-                    <input class="native-input sc-ion-input-ios" v-maska data-maska="##/##/####" v-model="dynamicData.startDate" :disabled="isLoading">
+                    <ion-label position="stacked">Fecha de Início</ion-label>
+                    <IonDatetimeItem design="text" presentation="date" v-model="dynamicData.startDate" :disabled="isLoading" :value="dynamicData.startDate"></IonDatetimeItem>
                 </ion-item>
                 <ion-item>
                     <ion-label position="stacked">Fecha de Término</ion-label>
-                    <input class="native-input sc-ion-input-ios" v-maska data-maska="##/##/####" v-model="dynamicData.endDate" :disabled="isLoading">
+                    <IonDatetimeItem design="text" presentation="date" v-model="dynamicData.endDate" :disabled="isLoading" :value="dynamicData.endDate"></IonDatetimeItem>
                 </ion-item>
                 <ion-item>
                     <ion-select label="Job" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Job" v-model="dynamicData.jobCode">
@@ -70,6 +70,7 @@ import { Session } from '@/utils/Session/Session';
 import { IReportResponse, StoredReports } from '@/utils/Stored/StoredReports';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { IJob, IExpense } from '../../interfaces/JobsAndExpensesInterfaces';
+import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -88,8 +89,8 @@ const dynamicData = ref<{
     description: '',
     jobCode: null,
     expenseCode: null,
-    startDate: (DateTime.now().set({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString(),
-    endDate: (DateTime.now().set({ day: 1}).plus({ month: 1}).minus({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString()
+    startDate: (DateTime.now().set({ day: 1}).toISO() as unknown as string).toString(),
+    endDate: (DateTime.now().set({ day: 1}).plus({ month: 1}).minus({ day: 1}).toISO() as unknown as string).toString()
 });
 
 const workersTeamsList = ref<Array<{team: string, workers: [{dni: string, name: string, isSelected: boolean}]}>>([]);
@@ -132,8 +133,8 @@ const createNewAttendance = async () => {
         description: dynamicData.value.description.length > 0 ? dynamicData.value.description : null,
         job_code: dynamicData.value.jobCode,
         expense_code: dynamicData.value.expenseCode,
-        from_date: DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").toISO(),
-        to_date: DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy").toISO(),
+        from_date: dynamicData.value.startDate,
+        to_date: dynamicData.value.endDate,
         workers_dni: selectedWorkers.value.map((worker) => worker.dni)
     }).then((response) => {
         props.emitter.fire('created', {
@@ -161,23 +162,11 @@ const createNewAttendance = async () => {
 
 const validateCamps = () => {
     let errors = [];
-    const isStartDateValid = DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").isValid;
-    const isEndDateValid = DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy").isValid;
+    const startDate = DateTime.fromISO(dynamicData.value.startDate);
+    const endDate = DateTime.fromISO(dynamicData.value.endDate);
 
-    if (!isStartDateValid){
-        errors.push(DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").invalidExplanation);
-    }
-    if (!isEndDateValid){
-        errors.push(DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy").invalidExplanation);
-    }
-
-    if (isStartDateValid && isEndDateValid){
-        const startDate = DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy");
-        const endDate = DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy");
-
-        if (startDate > endDate){
-            errors.push("La fecha de inicio no puede ser mayor a la fecha de término");
-        }
+    if (startDate > endDate){
+        errors.push("La fecha de inicio no puede ser mayor a la fecha de término");
     }
 
     if (dynamicData.value.jobCode == null){

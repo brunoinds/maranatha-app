@@ -303,6 +303,7 @@ const editAttendance = () => {
     Dialog.show(EditAttendance, {
         props: {
             attendance: attendancesData.value,
+            workersDNIs: workersAttendancesData.value.map((worker) => worker.dni)
         },
         onLoaded($this) {
             $this.on('updated', (event:any) => {

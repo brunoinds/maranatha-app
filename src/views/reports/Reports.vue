@@ -15,7 +15,6 @@
                     <ion-icon :icon="addOutline"></ion-icon>
                 </ion-fab-button>
             </ion-fab>
-
             <section class="content">
                 <article v-if="reports.rejected.length > 0">
                     <ion-list-header>Rechazados</ion-list-header>
@@ -124,13 +123,12 @@ import { Viewport } from '@/utils/Viewport/Viewport';
 import { onMounted } from 'vue';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
+import IonDateRange from '@/components/IonDateRange/IonDateRange.vue';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
 const router = useRouter();
 const page = ref<HTMLElement|null>(null);
-
-
 
 const reports = computed(() => {
     const reportsItems = reportsData.value.map((report) => {

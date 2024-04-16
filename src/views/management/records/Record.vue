@@ -127,11 +127,23 @@ const currentRecord = ref<{
     filters: [],
     doSearch: () => {
         currentRecord.value.data.isLoading = true;
+
+        if (currentRecord.value.configuration?.filters)
+
         RequestAPI.get('/management/records/' + currentRecord.value.configuration?.endpoint, (() => {
             const query:any = {};
             currentRecord.value.filters.forEach((filter) => {
                 query[filter.value.id] = filter.value.value;
+
+                if (filter.value.id == 'date_range'){
+                    console.log(filter.value.value)
+                    query['start_date'] = DateTime.fromFormat(filter.value.value.start, 'yyyy-MM-dd').toISO();
+                    query['end_date'] = DateTime.fromFormat(filter.value.value.end, 'yyyy-MM-dd').toISO()
+                }
             });
+
+            query['date_range'] = undefined;
+
             return query;
         })())
         .then((response) => {

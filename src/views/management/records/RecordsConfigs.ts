@@ -84,18 +84,14 @@ const RecordsConfigs = {
                 title: 'Gastos x Jobs',
                 filters: [
                     {
-                        id: 'start_date',
-                        name: 'Fecha de Início',
+                        id: 'date_range',
+                        name: 'Rango Fechas',
                         isRequired: true,
-                        type: 'date',
-                        value: DateTime.now().startOf('month').toISO()
-                    },
-                    {
-                        id: 'end_date',
-                        name: 'Fecha de Fin',
-                        isRequired: true,
-                        type: 'date',
-                        value: DateTime.now().toISO()
+                        type: 'daterange',
+                        value: {
+                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
+                            end: DateTime.now().toFormat('yyyy-MM-dd')
+                        }
                     },
                     {
                         id: 'job_region',
@@ -132,18 +128,14 @@ const RecordsConfigs = {
                 title: 'Asistencias x Jobs',
                 filters: [
                     {
-                        id: 'start_date',
-                        name: 'Fecha de Início',
+                        id: 'date_range',
+                        name: 'Rango Fechas',
                         isRequired: true,
-                        type: 'date',
-                        value: DateTime.now().startOf('month').toISO()
-                    },
-                    {
-                        id: 'end_date',
-                        name: 'Fecha de Fin',
-                        isRequired: true,
-                        type: 'date',
-                        value: DateTime.now().toISO()
+                        type: 'daterange',
+                        value: {
+                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
+                            end: DateTime.now().toFormat('yyyy-MM-dd')
+                        }
                     },
                     {
                         id: 'job_code',
@@ -195,18 +187,14 @@ const RecordsConfigs = {
                 title: 'Asistencias x Trabajadores',
                 filters: [
                     {
-                        id: 'start_date',
-                        name: 'Fecha de Início',
+                        id: 'date_range',
+                        name: 'Rango Fechas',
                         isRequired: true,
-                        type: 'date',
-                        value: DateTime.now().startOf('month').toISO()
-                    },
-                    {
-                        id: 'end_date',
-                        name: 'Fecha de Fin',
-                        isRequired: true,
-                        type: 'date',
-                        value: DateTime.now().toISO()
+                        type: 'daterange',
+                        value: {
+                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
+                            end: DateTime.now().toFormat('yyyy-MM-dd')
+                        }
                     },
                     {
                         id: 'team',
@@ -254,18 +242,14 @@ const RecordsConfigs = {
                 title: 'Gastos x Usuário',
                 filters: [
                     {
-                        id: 'start_date',
-                        name: 'Fecha de Início',
+                        id: 'date_range',
+                        name: 'Rango Fechas',
                         isRequired: true,
-                        type: 'date',
-                        value: DateTime.now().startOf('month').toISO()
-                    },
-                    {
-                        id: 'end_date',
-                        name: 'Fecha de Fin',
-                        isRequired: true,
-                        type: 'date',
-                        value: DateTime.now().toISO()
+                        type: 'daterange',
+                        value: {
+                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
+                            end: DateTime.now().toFormat('yyyy-MM-dd')
+                        }
                     },
                     {
                         id: 'job_code',

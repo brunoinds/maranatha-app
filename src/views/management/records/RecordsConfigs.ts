@@ -173,10 +173,10 @@ const RecordsConfigs = {
                             return {
                                 ...item,
                                 attendance_created_at: DateTime.fromFormat(item.attendance_created_at, 'yyyy-MM-dd HH:mm:ss').toFormat('dd/MM/yyyy'),
-                                amount_in_soles: item.amount_in_soles,
-                                amount_in_dollars: item.amount_in_dollars,
-                                day_work_amount_in_dollars: item.day_work_amount_in_dollars,
-                                day_work_amount_in_soles: item.day_work_amount_in_soles,
+                                amount_in_soles: item.amount_in_soles.toFixed(2),
+                                amount_in_dollars: item.amount_in_dollars.toFixed(2),
+                                day_work_amount_in_dollars: item.day_work_amount_in_dollars.toFixed(2),
+                                day_work_amount_in_soles: item.day_work_amount_in_soles.toFixed(2),
                             }
                         }
                     }

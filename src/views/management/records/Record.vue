@@ -136,7 +136,6 @@ const currentRecord = ref<{
                 query[filter.value.id] = filter.value.value;
 
                 if (filter.value.id == 'date_range'){
-                    console.log(filter.value.value)
                     query['start_date'] = DateTime.fromFormat(filter.value.value.start, 'yyyy-MM-dd').toISO();
                     query['end_date'] = DateTime.fromFormat(filter.value.value.end, 'yyyy-MM-dd').toISO()
                 }

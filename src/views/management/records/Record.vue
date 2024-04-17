@@ -78,7 +78,9 @@ interface IRecordConfiguration{
     data?: {
         body?: {
             formatData?: (data:any) => any;
-        }
+        },
+        footer?: any;
+        rules?: any;
     }
 }
 interface IRecordFilter{
@@ -95,7 +97,9 @@ const downloadExcel = () => {
         data: {
             headers: currentRecord.value.data.headers,
             body: currentRecord.value.data.body,
-            query: currentRecord.value.data.query
+            query: currentRecord.value.data.query,
+            rules: currentRecord.value.data.rules || undefined,
+            footer: currentRecord.value.data.footer || undefined
         },
         filters: currentRecord.value.filters,
         title: 'Informe ' + currentRecord.value.configuration?.title || 'Informe'
@@ -111,6 +115,8 @@ const currentRecord = ref<{
     data: {
         headers: any[];
         body: any[];
+        footer: any;
+        rules: any;
         query: any;
         isLoading: boolean;
     };
@@ -122,6 +128,8 @@ const currentRecord = ref<{
         headers: [],
         body: [],
         query: {},
+        footer: null,
+        rules: null,
         isLoading: false
     },
     filters: [],
@@ -149,7 +157,8 @@ const currentRecord = ref<{
             currentRecord.value.data.headers = response.data.headers;
             currentRecord.value.data.body = response.data.body;
             currentRecord.value.data.query = response.query;
-
+            currentRecord.value.data.footer = response.data.footer || undefined;
+            currentRecord.value.data.rules = response.data.rules || undefined;
 
 
             if (currentRecord.value.configuration?.data?.body?.formatData){

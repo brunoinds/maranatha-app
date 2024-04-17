@@ -124,120 +124,6 @@ const RecordsConfigs = {
                 }
             },
             {
-                id: 'attendances-by-jobs',
-                title: 'Asistencias x Jobs',
-                filters: [
-                    {
-                        id: 'date_range',
-                        name: 'Rango Fechas',
-                        isRequired: true,
-                        type: 'daterange',
-                        value: {
-                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
-                            end: DateTime.now().toFormat('yyyy-MM-dd')
-                        }
-                    },
-                    {
-                        id: 'job_code',
-                        name: 'Job',
-                        isRequired: false,
-                        type: 'dropdown',
-                        options: jobsDropdownOptions
-                    },
-                    {
-                        id: 'expense_code',
-                        name: 'Expense Code',
-                        isRequired: false,
-                        type: 'dropdown',
-                        options: expensesDropdownOptions
-                    },
-                    {
-                        id: 'supervisor',
-                        name: 'Supervisor',
-                        isRequired: false,
-                        type: 'textbox',
-                        value: null
-                    },
-                    {
-                        id: 'worker_dni',
-                        name: 'DNI Trabajador',
-                        isRequired: false,
-                        type: 'textbox',
-                        value: null
-                    }
-                ],
-                endpoint: 'attendances/by-jobs',
-                data: {
-                    body: {
-                        formatData: (item:any) => {
-                            return {
-                                ...item,
-                                attendance_created_at: DateTime.fromFormat(item.attendance_created_at, 'yyyy-MM-dd HH:mm:ss').toFormat('dd/MM/yyyy'),
-                                amount_in_soles: item.amount_in_soles.toFixed(2),
-                                amount_in_dollars: item.amount_in_dollars.toFixed(2),
-                                day_work_amount_in_dollars: item.day_work_amount_in_dollars.toFixed(2),
-                                day_work_amount_in_soles: item.day_work_amount_in_soles.toFixed(2),
-                            }
-                        }
-                    }
-                }
-            },
-            {
-                id: 'attendances-by-workers',
-                title: 'Asistencias x Trabajadores',
-                filters: [
-                    {
-                        id: 'date_range',
-                        name: 'Rango Fechas',
-                        isRequired: true,
-                        type: 'daterange',
-                        value: {
-                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
-                            end: DateTime.now().toFormat('yyyy-MM-dd')
-                        }
-                    },
-                    {
-                        id: 'team',
-                        name: 'Equipo',
-                        isRequired: false,
-                        type: 'textbox',
-                        value: null
-                    },
-                    {
-                        id: 'function',
-                        name: 'Función',
-                        isRequired: false,
-                        type: 'textbox',
-                        value: null
-                    },
-                    {
-                        id: 'supervisor',
-                        name: 'Supervisor',
-                        isRequired: false,
-                        type: 'textbox',
-                        value: null
-                    },
-                    {
-                        id: 'worker_dni',
-                        name: 'DNI Trabajador',
-                        isRequired: false,
-                        type: 'textbox',
-                        value: null
-                    }
-                ],
-                endpoint: 'attendances/by-worker',
-                data: {
-                    body: {
-                        formatData: (item:any) => {
-                            return {
-                                ...item,
-                                
-                            }
-                        }
-                    }
-                }
-            },
-            {
                 id: 'users-by-costs',
                 title: 'Gastos x Usuário',
                 filters: [
@@ -310,6 +196,176 @@ const RecordsConfigs = {
                                 date: DateTime.fromISO(item.date).toFormat('dd/MM/yyyy'),
                                 amount_in_soles: Toolbox.moneyFormat(item.amount_in_soles, EMoneyType.PEN),
                                 amount_in_dollars: Toolbox.moneyFormat(item.amount_in_dollars, EMoneyType.USD),
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                id: 'attendances-by-jobs',
+                title: 'Asistencias x Jobs',
+                filters: [
+                    {
+                        id: 'date_range',
+                        name: 'Rango Fechas',
+                        isRequired: true,
+                        type: 'daterange',
+                        value: {
+                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
+                            end: DateTime.now().toFormat('yyyy-MM-dd')
+                        }
+                    },
+                    {
+                        id: 'job_code',
+                        name: 'Job',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: jobsDropdownOptions
+                    },
+                    {
+                        id: 'expense_code',
+                        name: 'Expense Code',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: expensesDropdownOptions
+                    },
+                    {
+                        id: 'supervisor',
+                        name: 'Supervisor',
+                        isRequired: false,
+                        type: 'textbox',
+                        value: null
+                    },
+                    {
+                        id: 'worker_dni',
+                        name: 'DNI Trabajador',
+                        isRequired: false,
+                        type: 'textbox',
+                        value: null
+                    }
+                ],
+                endpoint: 'attendances/by-jobs',
+                data: {
+                    body: {
+                        formatData: (item:any) => {
+                            return {
+                                ...item,
+                                attendance_created_at: DateTime.fromFormat(item.attendance_created_at, 'yyyy-MM-dd HH:mm:ss').toFormat('dd/MM/yyyy'),
+                                amount_in_soles: item.amount_in_soles.toFixed(2),
+                                amount_in_dollars: item.amount_in_dollars.toFixed(2),
+                                day_work_amount_in_dollars: item.day_work_amount_in_dollars.toFixed(2),
+                                day_work_amount_in_soles: item.day_work_amount_in_soles.toFixed(2),
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                id: 'attendances-by-jobs-expenses',
+                title: 'Asistencias x Jobs x Expenses',
+                filters: [
+                    {
+                        id: 'date_range',
+                        name: 'Rango Fechas',
+                        isRequired: true,
+                        type: 'daterange',
+                        value: {
+                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
+                            end: DateTime.now().toFormat('yyyy-MM-dd')
+                        }
+                    },
+                    {
+                        id: 'job_code',
+                        name: 'Job',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: jobsDropdownOptions
+                    },
+                    {
+                        id: 'expense_code',
+                        name: 'Expense Code',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: expensesDropdownOptions
+                    },
+                    {
+                        id: 'supervisor',
+                        name: 'Supervisor',
+                        isRequired: false,
+                        type: 'textbox',
+                        value: null
+                    },
+                    {
+                        id: 'worker_dni',
+                        name: 'DNI Trabajador',
+                        isRequired: false,
+                        type: 'textbox',
+                        value: null
+                    }
+                ],
+                endpoint: 'attendances/by-jobs-expenses',
+                data: {
+                    body: {
+                        formatData: (item:any) => {
+                            return {
+                                ...item,
+                                amount_in_soles: item.amount_in_soles.toFixed(2),
+                                amount_in_dollars: item.amount_in_dollars.toFixed(2),
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                id: 'attendances-by-workers',
+                title: 'Asistencias x Trabajadores',
+                filters: [
+                    {
+                        id: 'date_range',
+                        name: 'Rango Fechas',
+                        isRequired: true,
+                        type: 'daterange',
+                        value: {
+                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
+                            end: DateTime.now().toFormat('yyyy-MM-dd')
+                        }
+                    },
+                    {
+                        id: 'team',
+                        name: 'Equipo',
+                        isRequired: false,
+                        type: 'textbox',
+                        value: null
+                    },
+                    {
+                        id: 'function',
+                        name: 'Función',
+                        isRequired: false,
+                        type: 'textbox',
+                        value: null
+                    },
+                    {
+                        id: 'supervisor',
+                        name: 'Supervisor',
+                        isRequired: false,
+                        type: 'textbox',
+                        value: null
+                    },
+                    {
+                        id: 'worker_dni',
+                        name: 'DNI Trabajador',
+                        isRequired: false,
+                        type: 'textbox',
+                        value: null
+                    }
+                ],
+                endpoint: 'attendances/by-worker',
+                data: {
+                    body: {
+                        formatData: (item:any) => {
+                            return {
+                                ...item,
+                                
                             }
                         }
                     }

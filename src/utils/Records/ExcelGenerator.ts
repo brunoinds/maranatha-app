@@ -14,6 +14,8 @@ interface IRecordFilter{
 
 interface IRecordData{
     headers: any[];
+    footer?: any | null;
+    rules?: any|null;
     body: any[];
     query: any;
 }
@@ -42,6 +44,15 @@ class ExcelGenerator{
             excelAlpha += String.fromCharCode(64 + index);
             return excelAlpha;
         }
+        const getBodyRowExcelIndex = (index: number) => {
+            return headingRowsCount + index;
+        }
+        const getColumnExcelIndexByHeaderKey = (key: string) => {
+            return getExcelAlpha(options.data.headers.findIndex((header) => header.key == key) + 1);
+        }
+        const getLastRowExcelIndex = () => {
+            return worksheet.rowCount;
+        }
 
         //Add master header rows:
         worksheet.addRows([["MARANATHA"]]);
@@ -68,9 +79,18 @@ class ExcelGenerator{
                 const itemIndex = (countMasterHeaderRows + 1) + validFilters;
 
                 let value = filter.value.value;
-                if (DateTime.fromISO(filter.value.value).isValid){
-                    value = DateTime.fromISO(filter.value.value).toFormat("dd/MM/yyyy");
+
+                if (filter.value.type == 'daterange'){
+                    if (DateTime.fromISO(value.start).isValid && DateTime.fromISO(value.end).isValid){
+                        value = DateTime.fromISO(value.start).toFormat("dd/MM/yyyy") + " - " + DateTime.fromISO(value.end).toFormat("dd/MM/yyyy");
+                    }
+                }else{
+                    if (DateTime.fromISO(filter.value.value).isValid){
+                        value = DateTime.fromISO(filter.value.value).toFormat("dd/MM/yyyy");
+                    }
                 }
+
+                
 
                 worksheet.addRows([[filter.value.name + ": " + value]]);
                 worksheet.mergeCells('A'+(itemIndex)+':'+getExcelAlpha(maxColumns)+(itemIndex));
@@ -101,6 +121,11 @@ class ExcelGenerator{
             };
             cell.font = { bold: true };
         });
+
+
+        const headingRowsCount = countMasterHeaderRows + validFilters + 2;
+
+        
 
 
         //Add body rows:
@@ -165,6 +190,38 @@ class ExcelGenerator{
             worksheet.getColumn(i).width = 15
         }
 
+
+        //Merge based on rules:
+        if (options.data.rules && options.data.rules.merging){
+            if (options.data.rules.merging.rows){
+                options.data.rules.merging.rows.forEach((row:any) => {
+                    const letterIndex = options.data.headers.findIndex((header) => header.key == row.key);
+                    const columnLetter = getExcelAlpha(letterIndex + 1);
+
+                    row.indexes.forEach((index:any) => {
+                        const start = getBodyRowExcelIndex(index.from);
+                        const end = getBodyRowExcelIndex(index.to);
+                        const merging = `${columnLetter}${start}:${columnLetter}${end}`
+                        worksheet.mergeCells(merging);
+                    })
+                })
+            }
+        }
+
+
+        //Add footer rows:
+        if (options.data.footer){
+            if (options.data.footer.totals){
+                worksheet.addRows([]);
+                const excelRow = getLastRowExcelIndex() + 1;
+
+                options.data.footer.totals.items.forEach((item) => {
+                    const excelColumn = getColumnExcelIndexByHeaderKey(item.key);
+                    const excelCell = excelColumn + excelRow;
+                    worksheet.getCell(excelCell).value = item.value;
+                })
+            }
+        }
 
         // Export to file
         return new Promise((resolve, reject) => {

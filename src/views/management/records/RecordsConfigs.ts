@@ -1,4 +1,4 @@
-import { EMoneyType } from "@/interfaces/ReportInterfaces";
+import { ECountryType, EMoneyType } from "@/interfaces/ReportInterfaces";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { JobsAndExpenses } from "@/utils/Stored/JobsAndExpenses";
 import { Toolbox } from "@/utils/Toolbox/Toolbox";
@@ -9,7 +9,8 @@ const contents:any = {
     jobsDropdownOptions: null,
     expensesDropdownOptions: null,
     usersDropdownOptions: null,
-    jobsZonesDropdownOptions: null
+    jobsZonesDropdownOptions: null,
+    moneyTypesDropdownOptions: null,
 }
 const load = async () => {
     const jobs = await JobsAndExpenses.getJobs();
@@ -61,11 +62,44 @@ const load = async () => {
         }
     })
 
+    const moneyTypesDropdownOptions = (() => {
+        //Iterate enum items:
+
+
+        let items:any = [];
+        Object.keys(EMoneyType).forEach((key) => {
+            items.push({
+                id: key,
+                name: key,
+                value: EMoneyType[key]
+            })
+        })
+
+        return items;
+    })();
+
+    const countryTypesDropdownOptions = (() => {
+        //Iterate enum items:
+
+
+        let items:any = [];
+        Object.keys(ECountryType).forEach((key) => {
+            items.push({
+                id: key,
+                name: key,
+                value: ECountryType[key]
+            })
+        })
+
+        return items;
+    })();
 
     contents.jobsDropdownOptions = jobsDropdownOptions;
     contents.expensesDropdownOptions = expensesDropdownOptions;
     contents.usersDropdownOptions = usersDropdownOptions;
     contents.jobsZonesDropdownOptions = jobsZonesDropdownOptions;
+    contents.moneyTypesDropdownOptions = moneyTypesDropdownOptions;
+    contents.countryTypesDropdownOptions = countryTypesDropdownOptions;
     contents.users = users;
 }
 
@@ -75,10 +109,89 @@ const RecordsConfigs = {
             await load();
         }
 
-        const { jobsDropdownOptions, expensesDropdownOptions, usersDropdownOptions, jobsZonesDropdownOptions } = contents;
+        const { jobsDropdownOptions, expensesDropdownOptions, usersDropdownOptions, jobsZonesDropdownOptions, moneyTypesDropdownOptions, countryTypesDropdownOptions } = contents;
 
 
         return [
+            {
+                id: 'invoices-by-items',
+                title: 'Reporte General',
+                filters: [
+                    {
+                        id: 'date_range',
+                        name: 'Rango Fechas',
+                        isRequired: true,
+                        type: 'daterange',
+                        value: {
+                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
+                            end: DateTime.now().toFormat('yyyy-MM-dd')
+                        }
+                    },
+                    {
+                        id: 'job_code',
+                        name: 'Job',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: jobsDropdownOptions
+                    },
+                    {
+                        id: 'expense_code',
+                        name: 'Expense Code',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: expensesDropdownOptions
+                    },
+                    {
+                        id: 'country',
+                        name: 'País',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: countryTypesDropdownOptions
+                    },
+                    {
+                        id: 'invoice_type',
+                        name: 'Tipo',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: [
+                            {
+                                id: 'Bills',
+                                name: 'Boletas',
+                                value: 'Bill'
+                            },
+                            {
+                                id: 'Factures',
+                                name: 'Facturas',
+                                value: 'Facture'
+                            },
+                        ]
+                    },
+                    {
+                        id: 'job_region',
+                        name: 'Zona de Job',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: jobsZonesDropdownOptions
+                    },
+                    {
+                        id: 'money_type',
+                        name: 'Moneda',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: moneyTypesDropdownOptions
+                    }
+                ],
+                endpoint: 'invoices/by-items',
+                data: {
+                    body: {
+                        formatData: (item:any) => {
+                            return {
+                                ...item,
+                            }
+                        }
+                    }
+                }
+            },
             {
                 id: 'jobs-by-costs',
                 title: 'Gastos x Jobs',

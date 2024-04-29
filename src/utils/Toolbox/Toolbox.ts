@@ -176,6 +176,8 @@ class Toolbox{
                 contentLength = response.headers.get('maranatha-content-size') as string;
             }
 
+            console.log(contentLength)
+
             let receivedLength = 0;
             let chunks = [];
             while (true){

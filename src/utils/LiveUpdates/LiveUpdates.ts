@@ -57,7 +57,7 @@ export class LiveUpdates{
             return;
         }
 
-        const compatibleWithTheMinimalNativeVersion = bundle.minimalVersion >= Environment.storeVersioning().version;
+        const compatibleWithTheMinimalNativeVersion = (Environment.storeVersioning().version >= bundle.minimalVersion);
         
         if (!compatibleWithTheMinimalNativeVersion){
             console.log(`🛜❌ The bundle is not compatible with the current native version. Bundle version: ${bundle.minimalVersion}, Native version: ${Environment.storeVersioning().version}`)

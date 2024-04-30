@@ -793,13 +793,29 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                 }
             }
 
-            const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/reports/${reportId.value}/pdf-download`;
+            //Generate random UUID:
+
+            const progressId = Toolbox.generateId();
+
+            const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/reports/${reportId.value}/pdf-download?progress_id=${progressId}`;
+            const pdfCheckProgressDownloadUrl = `/reports/${reportId.value}/check-progress-pdf-download?progress_id=${progressId}`;
+
+            const checkProgress = async () => {
+                const progress = await RequestAPI.get(pdfCheckProgressDownloadUrl);
+                console.log(progress)
+            }
+
+            const intervalCheckProgress = setInterval(async () => {
+                checkProgress();
+            }, 600);
+
             const pdfDocument = await Toolbox.fetchWithProgress(pdfDownloadUrl,  {
                 method: 'GET',
                 headers: {
                     'Authorization': await RequestAPI.authHeader()
                 }
             }, (progress) => {
+                clearInterval(intervalCheckProgress);
                 loadingProcess.value = {
                     iddle: false,
                     percentage: progress,
@@ -809,7 +825,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                     }
                 }
             }).then((blob) => {
-                const reader = new FileReader()
+                const reader = new FileReader();
                 reader.onload = () => {
                     resolve({
                         blobUrl: URL.createObjectURL(blob),
@@ -820,6 +836,10 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                     
                 }
                 reader.readAsDataURL(blob);
+            }).catch((error) => {
+                clearInterval(intervalCheckProgress);
+            }).finally(() => {
+                clearInterval(intervalCheckProgress);
             })
         });
 

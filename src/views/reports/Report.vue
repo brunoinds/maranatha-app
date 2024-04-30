@@ -793,6 +793,8 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                 }
             }
 
+            let isFinished = false;
+
             const progressId = Toolbox.generateId();
 
             const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/reports/${reportId.value}/pdf-download?progress_id=${progressId}`;
@@ -801,6 +803,9 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
             const checkProgress = async () => {
                 try {
                     const progress = await RequestAPI.get(pdfCheckProgressDownloadUrl);
+                    if (isFinished){
+                        return;
+                    }
                     loadingProcess.value = {
                         iddle: false,
                         percentage: progress.percentage,
@@ -848,6 +853,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
             }).catch((error) => {
                 clearInterval(intervalCheckProgress);
             }).finally(() => {
+                isFinished = true;
                 clearInterval(intervalCheckProgress);
             })
         });

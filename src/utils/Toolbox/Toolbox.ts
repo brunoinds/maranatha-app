@@ -6,6 +6,7 @@ import Numeral  from "numeral";
 import sanitize from 'sanitize-filename';
 import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
 import { Environment } from "@/utils/Environment/Environment";
+import axios, { AxiosResponse } from "axios";
 
 class Toolbox{
     public static generateId(): string{
@@ -163,6 +164,8 @@ class Toolbox{
 
     public static async fetchWithProgress(url: string, options: any = undefined , onProgress: (progress: number) => void): Promise<Blob>{
         return new Promise(async (resolve, reject) => {
+            const responseHead: AxiosResponse<ArrayBuffer> = await axios.head(url, options);
+            console.log(responseHead)
             const response = await fetch(url, options);
             if (!response.ok){
                 reject(response);
@@ -176,7 +179,7 @@ class Toolbox{
                 contentLength = response.headers.get('maranatha-content-size') as string;
             }
 
-            console.log(contentLength, response.headers)
+            console.log(contentLength, response)
 
             let receivedLength = 0;
             let chunks = [];

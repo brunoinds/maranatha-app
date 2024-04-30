@@ -793,16 +793,25 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                 }
             }
 
-            //Generate random UUID:
-
             const progressId = Toolbox.generateId();
 
             const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/reports/${reportId.value}/pdf-download?progress_id=${progressId}`;
             const pdfCheckProgressDownloadUrl = `/reports/${reportId.value}/check-progress-pdf-download?progress_id=${progressId}`;
 
             const checkProgress = async () => {
-                const progress = await RequestAPI.get(pdfCheckProgressDownloadUrl);
-                console.log(progress)
+                try {
+                    const progress = await RequestAPI.get(pdfCheckProgressDownloadUrl);
+                    loadingProcess.value = {
+                        iddle: false,
+                        percentage: progress.percentage,
+                        stage: {
+                            name: 'Generando PDF...',
+                            percentage: progress.percentage
+                        }
+                    }
+                } catch (error) {
+                    
+                }
             }
 
             const intervalCheckProgress = setInterval(async () => {

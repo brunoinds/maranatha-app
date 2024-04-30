@@ -793,7 +793,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                 }
             }
 
-            let isFinished = false;
+            let isFinishedPDFGeneration = false;
 
             const progressId = Toolbox.generateId();
 
@@ -803,7 +803,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
             const checkProgress = async () => {
                 try {
                     const progress = await RequestAPI.get(pdfCheckProgressDownloadUrl);
-                    if (isFinished){
+                    if (isFinishedPDFGeneration){
                         return;
                     }
                     loadingProcess.value = {
@@ -829,6 +829,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                     'Authorization': await RequestAPI.authHeader()
                 }
             }, (progress) => {
+                isFinishedPDFGeneration = true
                 clearInterval(intervalCheckProgress);
                 loadingProcess.value = {
                     iddle: false,
@@ -839,6 +840,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                     }
                 }
             }).then((blob) => {
+                isFinishedPDFGeneration = true
                 const reader = new FileReader();
                 reader.onload = () => {
                     resolve({
@@ -853,7 +855,6 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
             }).catch((error) => {
                 clearInterval(intervalCheckProgress);
             }).finally(() => {
-                isFinished = true;
                 clearInterval(intervalCheckProgress);
             })
         });

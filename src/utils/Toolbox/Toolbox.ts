@@ -164,7 +164,7 @@ class Toolbox{
 
     public static async fetchWithProgress(url: string, options: any = undefined , onProgress: (progress: number) => void): Promise<Blob>{
         return new Promise(async (resolve, reject) => {
-            const responseHead: AxiosResponse<ArrayBuffer> = await axios.head(url, options);
+            const responseHead: AxiosResponse<ArrayBuffer> = await axios.get(url, options);
             console.log(responseHead)
             const response = await fetch(url, options);
             if (!response.ok){

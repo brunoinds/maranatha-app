@@ -199,10 +199,22 @@ const datetimeAccordionGroup = ref<any>(null);
 const onDatePickerChange = (event: CustomEvent) => {
     const date = event.detail.value.split('T')[0];
     const formatted = DateTime.fromFormat(date, "yyyy-MM-dd").toFormat("dd/MM/yyyy").toString();
+
+    const previousDate = DateTime.fromFormat(invoice.value.date, "dd/MM/yyyy");
+    const newDate = DateTime.fromFormat(formatted, "dd/MM/yyyy");
+
     invoice.value.date = formatted;
+
+    //Check if the day of the month is the same:
+    if (previousDate.day == newDate.day){
+        return;
+    }else{
+        datetimeAccordionGroup.value.$el.value = undefined;
+    }
 }
 
 const onDatePickerBlur = () => {
+    return;
     datetimeAccordionGroup.value.$el.value = undefined;
 }
 

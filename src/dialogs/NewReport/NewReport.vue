@@ -38,11 +38,11 @@
                         <ion-select-option value="US">EE. UU. 🇺🇸</ion-select-option>
                     </ion-select>
                 </ion-item>
-                <ion-item>
+                <ion-item v-if="false">
                     <ion-label position="stacked">Fecha de Inicio</ion-label>
                     <input class="native-input sc-ion-input-ios" v-maska data-maska="##/##/####" v-model="dynamicData.startDate" :disabled="isLoading">
                 </ion-item>
-                <ion-item>
+                <ion-item v-if="false">
                     <ion-label position="stacked">Fecha de Término</ion-label>
                     <input class="native-input sc-ion-input-ios" v-maska data-maska="##/##/####" v-model="dynamicData.endDate" :disabled="isLoading">
                 </ion-item>

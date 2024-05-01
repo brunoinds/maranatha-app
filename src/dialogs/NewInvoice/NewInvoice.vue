@@ -67,12 +67,12 @@
                                 <ion-item>
                                     <ion-input label="Descripción del gasto:" label-placement="stacked" placeholder="Ej.: material para construcción" v-model="invoice.description"></ion-input>
                                 </ion-item>
-                                <ion-accordion-group>
-                                    <ion-accordion value="start" class="datetime-accordion">
+                                <ion-accordion-group ref="datetimeAccordionGroup">
+                                    <ion-accordion value="start" ref="datetimeAccordion" class="datetime-accordion">
                                         <ion-item lines="inset" slot="header">
                                             <ion-input label="Fecha" label-placement="stacked" placeholder="10/10/2023" v-model="invoice.date" :readonly="true"></ion-input>
                                         </ion-item>
-                                        <ion-datetime slot="content" presentation="date" v-model="dynamicData.datetimePickerDate" @ion-change="onDatePickerChange"></ion-datetime>
+                                        <ion-datetime slot="content" presentation="date" v-model="dynamicData.datetimePickerDate" @ion-change="onDatePickerChange" @ion-blur="onDatePickerBlur"></ion-datetime>
                                     </ion-accordion>
                                 </ion-accordion-group>
                                 <ion-item>
@@ -193,10 +193,17 @@ import { CurrencyFly } from '@/utils/CurrencyFly/CurrencyFly';
 import { StoredReports } from '@/utils/Stored/StoredReports';
 import { IReport } from '@/interfaces/ReportInterfaces';
 
+
+const datetimeAccordionGroup = ref<any>(null);
+
 const onDatePickerChange = (event: CustomEvent) => {
     const date = event.detail.value.split('T')[0];
     const formatted = DateTime.fromFormat(date, "yyyy-MM-dd").toFormat("dd/MM/yyyy").toString();
     invoice.value.date = formatted;
+}
+
+const onDatePickerBlur = () => {
+    datetimeAccordionGroup.value.$el.value = undefined;
 }
 
 const currencyInput = ref<CurrencyInput|null>(null);

@@ -46,8 +46,8 @@
 
                     <ion-label color="medium" v-if="liveUpdates.state == 'NoUpdateAvailable'">
                         <h2>Actualización de seguridad</h2>
-                        <p>Su aplicación está actualizada</p>
-                        <p>v{{ Environment.version() }}</p>
+                        <p>Su aplicación está actualizada (v{{ Environment.version() }})</p>
+                        <p>Clic para buscar nuevas actualizaciones</p>
                     </ion-label>
 
                     <ion-label color="medium"  v-if="liveUpdates.state == 'Downloading'">
@@ -70,10 +70,6 @@
 
 
                     <ion-button v-if="liveUpdates.state == 'ReadyToInstall'" @click="updateNow">Instalar ahora</ion-button>
-                </ion-item>
-                <ion-item @click="lookForUpdates" v-if="liveUpdates.state == 'NoUpdateAvailable'" button>
-                    <ion-icon color="medium" :icon="syncOutline" slot="start"></ion-icon>
-                    <ion-label color="medium">Buscar actualizaciones</ion-label>
                 </ion-item>
             </ion-list>
             <ion-toolbar class="version-toolbar">
@@ -99,7 +95,7 @@ import { useRouter } from 'vue-router';
 import { LiveUpdates } from '@/utils/LiveUpdates/LiveUpdates';
 
 
-const aboutAppText = ref<string>(`Code version: ${Environment.version()} \nNative version: ${Environment.storeVersioning().version} (${Environment.storeVersioning().build})`);
+const aboutAppText = ref<string>(`  Code version: ${Environment.version()} \nNative version: ${Environment.storeVersioning().version} (${Environment.storeVersioning().build})`);
 const accountData = ref<any>(null);
 const isLoading = ref<boolean>(true);
 const router = useRouter();

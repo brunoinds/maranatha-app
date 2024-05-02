@@ -29,6 +29,11 @@
                         <ion-icon color="danger" :icon="close" slot="start"></ion-icon>
                         <ion-label color="danger">Terminar sesión</ion-label>
                     </ion-item>
+
+                    <ion-item @click="testError" button>
+                        <ion-icon color="danger" :icon="close" slot="start"></ion-icon>
+                        <ion-label color="danger">Trigger error</ion-label>
+                    </ion-item>
                 </ion-list>
             </section>
         </ion-content>
@@ -107,6 +112,10 @@ const liveUpdates = computed(() => {
     }
 });
 const updateNow = () => {LiveUpdates.installUpdateIfAvailableAndReady()}
+
+const testError = () => {
+    throw new Error("Test error");
+}
 
 const goToLogin = () => {
     router.replace('/login');

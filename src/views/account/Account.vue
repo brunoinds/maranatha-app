@@ -34,8 +34,8 @@
         </ion-content>
         <ion-footer>
             <ion-list>
-                <ion-item>
-                    <ion-icon class="rotate" v-if="liveUpdates.state != 'ReadyToInstall'" slot="start" color="medium" :icon="syncOutline"></ion-icon>
+                <ion-item @click="() => {liveUpdates.state == 'NoUpdateAvailable' ? lookForUpdates() : undefined}" :button="liveUpdates.state == 'NoUpdateAvailable'">
+                    <ion-icon class="rotate" v-if="liveUpdates.state != 'ReadyToInstall' && liveUpdates.state != 'NoUpdateAvailable'" slot="start" color="medium" :icon="syncOutline"></ion-icon>
                     <ion-icon v-if="liveUpdates.state == 'ReadyToInstall'" slot="start" color="medium" :icon="cloudDoneOutline"></ion-icon>
                     <ion-icon v-if="liveUpdates.state == 'NoUpdateAvailable'" slot="start" color="medium" :icon="shieldCheckmarkOutline"></ion-icon>
 

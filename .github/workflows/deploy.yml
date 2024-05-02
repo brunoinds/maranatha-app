@@ -65,6 +65,8 @@ jobs:
   native-sourcemaps-deploy:
     name: 🪲 Native Sourcemaps Deploy
     runs-on: ubuntu-latest
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     steps:
       - name: 💻 Get the latest code
         uses: actions/checkout@v4

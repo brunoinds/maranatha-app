@@ -27,9 +27,9 @@ export class LiveUpdates{
         availableUpdate: null
     });
 
-    public static async fetchUpdates()
+    public static async fetchUpdates(forceToFetch = false)
     {
-        if (LiveUpdates.hasFetchedUpdates){
+        if (LiveUpdates.hasFetchedUpdates && !forceToFetch){
             return;
         }
         if (!navigator.onLine){

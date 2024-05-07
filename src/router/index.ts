@@ -69,6 +69,10 @@ const routes: Array<RouteRecordRaw> = [
     path: '/wallets/users/:id',
     component: () => import('@/views/wallet/Wallet.vue')
   },
+  {
+    path: '/chats/users/:userId',
+    component: () => import('@/views/chat/ChatView.vue')
+  },
 ]
 
 const router = createRouter({

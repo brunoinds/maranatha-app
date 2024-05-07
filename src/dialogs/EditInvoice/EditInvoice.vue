@@ -95,10 +95,8 @@
                         </ion-item>
                         <section slot="content">
                             <ion-list>
-                                <ion-item>
-                                    <ion-select  :disabled="readonly" label="Job" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Job"  v-model="invoice.job_code">
-                                        <ion-select-option v-for="job in jobsAndExpensesSelector.jobs" :value="job.code">{{job.code}} - {{ job.name }}</ion-select-option>
-                                    </ion-select>
+                                <ion-item button @click="openJobSelector('fromSingleJobSelector', {})">
+                                    <ion-input :readonly="true" label="Job:" label-placement="stacked" placeholder="Selecciona el Job" v-model="invoice.job_code"></ion-input>
                                 </ion-item>
                                 <ion-item>
                                     <ion-select  :disabled="readonly" label="Expense" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Expense"  v-model="invoice.expense_code">
@@ -129,7 +127,7 @@ import { QRCodeParser } from '@/utils/QRCodeParser/QRCodeParser';
 import CurrencyInput from '@/components/CurrencyInput/CurrencyInput.vue';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { DialogEventEmitter } from '@/utils/Dialog/Dialog';
+import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { TStorage } from '@/utils/Toolbox/TStorage';
 
 import { BarcodeDetect }  from '@/utils/BarcodeDetect/BarcodeDetect';
@@ -149,6 +147,7 @@ import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
 import { IReport } from '@/interfaces/ReportInterfaces';
+import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
 
 const onDatePickerChange = (event: CustomEvent) => {
     const date = event.detail.value.split('T')[0];
@@ -631,6 +630,23 @@ const loadImage = async () => {
     }
     isLoadingImageCompression.value = false;
     isLoading.value = false;
+}
+
+const openJobSelector = (origin: string, data:any) => {
+    Dialog.show(JobSelector, {
+        props: {
+            includeDisabledJobs: false
+        },
+        onLoaded($this) {
+            $this.on('selected', (event:any) => {
+                const job = event.data;
+                if (origin == 'fromSingleJobSelector'){
+                    invoice.value.job_code = job.code;
+                }
+            })
+            
+        },
+    })
 }
 
 onMounted(async () => {

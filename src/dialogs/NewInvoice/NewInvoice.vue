@@ -72,7 +72,7 @@
                                         <ion-item lines="inset" slot="header">
                                             <ion-input label="Fecha" label-placement="stacked" placeholder="10/10/2023" v-model="invoice.date" :readonly="true"></ion-input>
                                         </ion-item>
-                                        <ion-datetime slot="content" presentation="date" v-model="dynamicData.datetimePickerDate" @ion-change="onDatePickerChange" @ion-blur="onDatePickerBlur"></ion-datetime>
+                                        <ion-datetime slot="content" presentation="date" v-model="dynamicData.datetimePickerDate" @ion-change="onDatePickerChange"></ion-datetime>
                                     </ion-accordion>
                                 </ion-accordion-group>
                                 <ion-item>
@@ -97,10 +97,8 @@
                         </ion-item>
                         <section slot="content">
                             <ion-list>
-                                <ion-item v-if="dynamicData.listSelectedJobs.length == 0">
-                                    <ion-select label="Job" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Job"  v-model="invoice.job_code" @ion-change="(ev) => {dynamicData.listSelectedJobs = []; addJobToList(ev.detail.value)}">
-                                        <ion-select-option v-for="job in jobsAndExpensesSelector.jobs" :value="job.code">{{job.code}} - {{ job.name }}</ion-select-option>
-                                    </ion-select>
+                                <ion-item v-if="dynamicData.listSelectedJobs.length == 0" button @click="openJobSelector('fromSingleJobSelector', {})">
+                                    <ion-input :readonly="true" label="Job:" label-placement="stacked" placeholder="Selecciona el Job" v-model="invoice.job_code"></ion-input>
                                 </ion-item>
                             </ion-list>
                             <ion-accordion-group  v-if="dynamicData.listSelectedJobs.length > 0">
@@ -112,10 +110,8 @@
                                         <ion-list>
                                             <ion-item v-for="(jobItem, index) in dynamicData.listSelectedJobs" :key="jobItem.id">
                                                 <div slot="start"></div>
-                                                <ion-select style="flex: 1 1 80%;max-width: 75%;min-width: 75%;" :label="'Job ' + (index + 1) " label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Job" v-model="jobItem.job">
-                                                    <ion-select-option v-for="job in jobsAndExpensesSelector.jobs" :value="job">{{job.code}} - {{ job.name }}</ion-select-option>
-                                                </ion-select>
-                                                
+
+                                                <ion-input @click="openJobSelector('fromMultiJobSelector', {index})" style="flex: 1 1 80%;max-width: 75%;min-width: 75%;" :readonly="true" :label="'Job ' + (index + 1) " label-placement="stacked" placeholder="Selecciona el Job" v-model="jobItem.job.name"></ion-input>
                                                 <ion-input min="0" max="100" style="flex: 30%; min-width: 85px; max-width: 85px;" :class="!selectedJobsPercentageIsCompleted ? 'jl-not-completed' : ''"  label="Porcentaje" label-placement="stacked" type="number" placeholder="100" v-model="jobItem.percentage" inputmode="decimal"></ion-input>
                                                 
                                                 <ion-button fill="clear" slot="end" @click="dynamicData.listSelectedJobs = dynamicData.listSelectedJobs.filter(e => e.id != jobItem.id); removeFromJobList()">
@@ -170,7 +166,7 @@ import { QRCodeParser } from '@/utils/QRCodeParser/QRCodeParser';
 import CurrencyInput from '@/components/CurrencyInput/CurrencyInput.vue';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { DialogEventEmitter } from '@/utils/Dialog/Dialog';
+import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { TStorage } from '@/utils/Toolbox/TStorage';
 
 import { BarcodeDetect }  from '@/utils/BarcodeDetect/BarcodeDetect';
@@ -192,6 +188,7 @@ import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
 import { CurrencyFly } from '@/utils/CurrencyFly/CurrencyFly';
 import { StoredReports } from '@/utils/Stored/StoredReports';
 import { IReport } from '@/interfaces/ReportInterfaces';
+import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
 
 
 const datetimeAccordionGroup = ref<any>(null);
@@ -211,11 +208,6 @@ const onDatePickerChange = (event: CustomEvent) => {
     }else{
         datetimeAccordionGroup.value.$el.value = undefined;
     }
-}
-
-const onDatePickerBlur = () => {
-    return;
-    datetimeAccordionGroup.value.$el.value = undefined;
 }
 
 const currencyInput = ref<CurrencyInput|null>(null);
@@ -871,6 +863,35 @@ const loadJobsAndExpenses = async () => {
     const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
     jobsAndExpenses.value.expenses = expenses;
 }
+
+const openJobSelector = (origin: string, data:any) => {
+    Dialog.show(JobSelector, {
+        props: {
+            includeDisabledJobs: false
+        },
+        onLoaded($this) {
+            $this.on('selected', (event:any) => {
+                const job = event.data;
+                if (origin == 'fromSingleJobSelector'){
+                    dynamicData.value.listSelectedJobs = []; 
+                    addJobToList(job.code)
+                    invoice.value.job_code = job.code;
+                }else if (origin == 'fromMultiJobSelector'){
+                    dynamicData.value.listSelectedJobs = dynamicData.value.listSelectedJobs.map((item, index) => {
+                        if (index == data.index){
+                            item.job = job;
+                            return item;
+                        }
+                        return item;
+                    })
+                }
+            })
+            
+        },
+    })
+}
+
+
 onMounted(async () => {
     isLoading.value = false;
     setTimeout(() => {

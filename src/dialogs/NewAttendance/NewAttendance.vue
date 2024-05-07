@@ -23,10 +23,8 @@
                     <ion-label position="stacked">Fecha de Término</ion-label>
                     <IonDatetimeItem design="text" presentation="date" v-model="dynamicData.endDate" :disabled="isLoading" :value="dynamicData.endDate"></IonDatetimeItem>
                 </ion-item>
-                <ion-item>
-                    <ion-select label="Job" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Job" v-model="dynamicData.jobCode">
-                        <ion-select-option v-for="job in jobsAndExpenses.jobs" :value="job.code">{{job.code}} - {{ job.name }}</ion-select-option>
-                    </ion-select>
+                <ion-item button @click="openJobSelector">
+                    <ion-input :readonly="true" label="Job:" label-placement="stacked" placeholder="Selecciona el Job" v-model="dynamicData.jobCode"></ion-input>
                 </ion-item>
                 <ion-item>
                     <ion-select label="Expense" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Expense" v-model="dynamicData.expenseCode">
@@ -61,7 +59,7 @@
 import { IonPage, IonHeader, IonImg, IonSkeletonText, IonItemGroup, IonCheckbox, IonItemDivider, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController } from '@ionic/vue';
 import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
-import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
+import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { vMaska } from "maska";
 import { EMoneyType, EReportStatus, EReportType, IReport } from '@/interfaces/ReportInterfaces';
 import { DateTime } from 'luxon';
@@ -71,6 +69,7 @@ import { IReportResponse, StoredReports } from '@/utils/Stored/StoredReports';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { IJob, IExpense } from '../../interfaces/JobsAndExpensesInterfaces';
 import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
+import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -224,6 +223,21 @@ const loadJobsAndExpenses = async () => {
 
     const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
     jobsAndExpenses.value.expenses = expenses;
+}
+
+const openJobSelector = () => {
+    Dialog.show(JobSelector, {
+        props: {
+            includeDisabledJobs: false
+        },
+        onLoaded($this) {
+            $this.on('selected', (event:any) => {
+                const job = event.data;
+                dynamicData.value.jobCode = job.code;
+            })
+            
+        },
+    })
 }
 
 loadJobsAndExpenses();

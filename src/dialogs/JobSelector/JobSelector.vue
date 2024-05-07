@@ -42,7 +42,7 @@ import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 
 
-const isLoading = ref<boolean>(false);
+const isLoading = ref<boolean>(true);
 const props = defineProps({
     emitter: {
         type: DialogEventEmitter,
@@ -89,7 +89,8 @@ onMounted(async () => {
             return job.state == "Active"
         });
     }
-    
+
+    isLoading.value = false;
 });
 </script>
 

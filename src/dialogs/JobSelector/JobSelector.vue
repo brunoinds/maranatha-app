@@ -19,6 +19,9 @@
                         <h2>{{ job.name }}</h2>
                         <p>{{ job.code }}</p>
                     </ion-label>
+
+                    <ion-icon v-if="selectedJobCode && selectedJobCode == job.code" color="primary" :icon="checkmarkOutline" slot="end"></ion-icon>
+
                 </ion-item>
             </ion-list>
         </ion-content>
@@ -28,7 +31,7 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonImg, IonToolbar, IonSearchbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController } from '@ionic/vue';
 import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
-import { briefcaseOutline,  trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
+import { briefcaseOutline,  trashBinOutline, checkmarkOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { vMaska } from "maska";
 import { EReportType } from '@/interfaces/ReportInterfaces';
@@ -51,6 +54,10 @@ const props = defineProps({
     includeDisabledJobs: {
         type: Boolean,
         required: true
+    },
+    selectedJobCode: {
+        type: String,
+        required: false
     }
 });
 

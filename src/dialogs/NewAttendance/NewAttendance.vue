@@ -26,10 +26,9 @@
                 <ion-item button @click="openJobSelector">
                     <ion-input :readonly="true" label="Job:" label-placement="stacked" placeholder="Selecciona el Job" v-model="dynamicData.jobCode"></ion-input>
                 </ion-item>
-                <ion-item>
-                    <ion-select label="Expense" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Expense" v-model="dynamicData.expenseCode">
-                        <ion-select-option v-for="expense in jobsAndExpenses.expenses" :value="expense.code">{{ expense.code }} - {{ expense.name }}</ion-select-option>
-                    </ion-select>                  
+
+                <ion-item button @click="openExpenseSelector">
+                    <ion-input :readonly="true" label="Expense:" label-placement="stacked" placeholder="Selecciona el Expense" v-model="dynamicData.expenseCode"></ion-input>
                 </ion-item>
                 <ion-item>
                     <ion-label position="stacked">Descripción</ion-label>
@@ -70,6 +69,7 @@ import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { IJob, IExpense } from '../../interfaces/JobsAndExpensesInterfaces';
 import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
+import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -228,7 +228,8 @@ const loadJobsAndExpenses = async () => {
 const openJobSelector = () => {
     Dialog.show(JobSelector, {
         props: {
-            includeDisabledJobs: false
+            includeDisabledJobs: false,
+            selectedJobCode: dynamicData.value.jobCode
         },
         onLoaded($this) {
             $this.on('selected', (event:any) => {
@@ -236,6 +237,21 @@ const openJobSelector = () => {
                 dynamicData.value.jobCode = job.code;
             })
             
+        },
+    })
+}
+
+
+const openExpenseSelector = () => {
+    Dialog.show(ExpenseSelector, {
+        props: {
+            selectedExpenseCode: dynamicData.value.expenseCode
+        },
+        onLoaded($this) {
+            $this.on('selected', (event:any) => {
+                const expense = event.data;
+                dynamicData.value.expenseCode = expense.code;
+            })
         },
     })
 }

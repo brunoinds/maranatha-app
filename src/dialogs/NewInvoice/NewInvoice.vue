@@ -111,7 +111,7 @@
                                             <ion-item v-for="(jobItem, index) in dynamicData.listSelectedJobs" :key="jobItem.id">
                                                 <div slot="start"></div>
 
-                                                <ion-input @click="openJobSelector('fromMultiJobSelector', {index})" style="flex: 1 1 80%;max-width: 75%;min-width: 75%;" :readonly="true" :label="'Job ' + (index + 1) " label-placement="stacked" placeholder="Selecciona el Job" v-model="jobItem.job.name"></ion-input>
+                                                <ion-input @click="(e) => {openJobSelector('fromMultiJobSelector', {index}); e.stopPropagation();}" style="flex: 1 1 80%;max-width: 75%;min-width: 75%;" :readonly="true" :label="'Job ' + (index + 1) " label-placement="stacked" placeholder="Selecciona el Job" v-model="jobItem.job.name"></ion-input>
                                                 <ion-input min="0" max="100" style="flex: 30%; min-width: 85px; max-width: 85px;" :class="!selectedJobsPercentageIsCompleted ? 'jl-not-completed' : ''"  label="Porcentaje" label-placement="stacked" type="number" placeholder="100" v-model="jobItem.percentage" inputmode="decimal"></ion-input>
                                                 
                                                 <ion-button fill="clear" slot="end" @click="dynamicData.listSelectedJobs = dynamicData.listSelectedJobs.filter(e => e.id != jobItem.id); removeFromJobList()">
@@ -129,12 +129,9 @@
                                     </section>
                                 </ion-accordion>
                             </ion-accordion-group>
-
                             <ion-list>
-                                <ion-item>
-                                    <ion-select label="Expense" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Expense"  v-model="invoice.expense_code">
-                                        <ion-select-option v-for="expense in jobsAndExpensesSelector.expenses" :value="expense.code">{{ expense.code }} - {{ expense.name }}</ion-select-option>
-                                    </ion-select>                  
+                                <ion-item button @click="(e) => {openExpenseSelector(); e.stopPropagation()}">
+                                    <ion-input :readonly="true" label="Expense:" label-placement="stacked" placeholder="Selecciona el Expense" v-model="invoice.expense_code"></ion-input>
                                 </ion-item>
                             </ion-list>
                         </section>
@@ -189,6 +186,7 @@ import { CurrencyFly } from '@/utils/CurrencyFly/CurrencyFly';
 import { StoredReports } from '@/utils/Stored/StoredReports';
 import { IReport } from '@/interfaces/ReportInterfaces';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
+import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 
 
 const datetimeAccordionGroup = ref<any>(null);
@@ -877,6 +875,7 @@ const openJobSelector = (origin: string, data:any) => {
                     addJobToList(job.code)
                     invoice.value.job_code = job.code;
                 }else if (origin == 'fromMultiJobSelector'){
+                    invoice.value.job_code = job.code;
                     dynamicData.value.listSelectedJobs = dynamicData.value.listSelectedJobs.map((item, index) => {
                         if (index == data.index){
                             item.job = job;
@@ -887,6 +886,40 @@ const openJobSelector = (origin: string, data:any) => {
                 }
             })
             
+        },
+    })
+}
+
+let hasOpenExpenseSelector = false;
+const openExpenseSelector = () => {
+    if (hasOpenExpenseSelector){
+        return;
+    }
+
+    hasOpenExpenseSelector = true;
+    Dialog.show(ExpenseSelector, {
+        props: {
+            expensesFilterCallback: (expense: IExpense) => {
+                if (dynamicData.value.listSelectedJobs.length > 1){
+                    return true;
+                }
+                if (invoice.value.job_code.startsWith('000')){
+                    return expense.code.length == 3;
+                }else{
+                    return expense.code.length != 3;
+                }
+            },
+            selectedExpenseCode: invoice.value.expense_code
+        },
+        onLoaded($this) {
+            $this.on('selected', (event:any) => {
+                const expense = event.data;
+                invoice.value.expense_code = expense.code;
+            })
+            
+            $this.on('close', () => {
+                hasOpenExpenseSelector = false;
+            })
         },
     })
 }

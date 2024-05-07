@@ -98,10 +98,8 @@
                                 <ion-item button @click="openJobSelector('fromSingleJobSelector', {})">
                                     <ion-input :readonly="true" label="Job:" label-placement="stacked" placeholder="Selecciona el Job" v-model="invoice.job_code"></ion-input>
                                 </ion-item>
-                                <ion-item>
-                                    <ion-select  :disabled="readonly" label="Expense" label-placement="stacked" interface="action-sheet" placeholder="Selecciona el Expense"  v-model="invoice.expense_code">
-                                        <ion-select-option v-for="expense in jobsAndExpensesSelector.expenses" :value="expense.code">{{ expense.code }} - {{ expense.name }}</ion-select-option>
-                                    </ion-select>                  
+                                <ion-item button @click="(e) => {openExpenseSelector();}">
+                                    <ion-input :readonly="true" label="Expense:" label-placement="stacked" placeholder="Selecciona el Expense" v-model="invoice.expense_code"></ion-input>
                                 </ion-item>
                             </ion-list>
                         </section>
@@ -148,6 +146,7 @@ import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
 import { IReport } from '@/interfaces/ReportInterfaces';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
+import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 
 const onDatePickerChange = (event: CustomEvent) => {
     const date = event.detail.value.split('T')[0];
@@ -635,7 +634,8 @@ const loadImage = async () => {
 const openJobSelector = (origin: string, data:any) => {
     Dialog.show(JobSelector, {
         props: {
-            includeDisabledJobs: false
+            includeDisabledJobs: false,
+            selectedJobCode: invoice.value.job_code
         },
         onLoaded($this) {
             $this.on('selected', (event:any) => {
@@ -645,6 +645,27 @@ const openJobSelector = (origin: string, data:any) => {
                 }
             })
             
+        },
+    })
+}
+
+const openExpenseSelector = () => {
+    Dialog.show(ExpenseSelector, {
+        props: {
+            expensesFilterCallback(expense: IExpense){
+                if (invoice.value.job_code.startsWith('000')){
+                    return expense.code.length == 3;
+                }else{
+                    return expense.code.length != 3;
+                }
+            },
+            selectedExpenseCode: invoice.value.expense_code
+        },
+        onLoaded($this) {
+            $this.on('selected', (event:any) => {
+                const expense = event.data;
+                invoice.value.expense_code = expense.code;
+            })
         },
     })
 }

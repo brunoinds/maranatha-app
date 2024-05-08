@@ -336,6 +336,13 @@ const RecordsConfigs = {
                         options: jobsDropdownOptions
                     },
                     {
+                        id: 'job_zone',
+                        name: 'Zona de Job',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: jobsZonesDropdownOptions
+                    },
+                    {
                         id: 'expense_code',
                         name: 'Expense Code',
                         isRequired: false,
@@ -393,6 +400,13 @@ const RecordsConfigs = {
                         isRequired: false,
                         type: 'dropdown',
                         options: jobsDropdownOptions
+                    },
+                    {
+                        id: 'job_zone',
+                        name: 'Zona de Job',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: jobsZonesDropdownOptions
                     },
                     {
                         id: 'expense_code',

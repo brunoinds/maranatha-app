@@ -90,7 +90,7 @@ const app = createApp(App)
   .use(VuePdf)
   .use(router);
 
-if (Environment.environment() == 'prod'){
+/*if (Environment.environment() == 'prod'){
   const scriptTagToInjectOnHead = `
     <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -102,7 +102,7 @@ if (Environment.environment() == 'prod'){
   `;
 
   document.head.insertAdjacentHTML('beforeend', scriptTagToInjectOnHead);
-}
+}*/
 if (!Capacitor.isNativePlatform()){
     //Inject script tag on document:
     let scriptSrc = '/assets/dependencies/qrcode/instascan.min.js';

@@ -90,7 +90,19 @@ const app = createApp(App)
   .use(VuePdf)
   .use(router);
 
+if (Environment.environment() == 'prod'){
+  const scriptTagToInjectOnHead = `
+    <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "mbkk79nyb2");
+  </script>
+  `;
 
+  document.head.insertAdjacentHTML('beforeend', scriptTagToInjectOnHead);
+}
 if (!Capacitor.isNativePlatform()){
     //Inject script tag on document:
     let scriptSrc = '/assets/dependencies/qrcode/instascan.min.js';

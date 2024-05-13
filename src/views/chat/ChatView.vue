@@ -74,6 +74,7 @@ import ChatTailSender from '&/assets/icons/chat-tail-sender.svg';
 import ChatTailReceiver from '&/assets/icons/chat-tail-receiver.svg';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import imageCompression from 'browser-image-compression';
+import { sha256, sha224 } from 'js-sha256';
 
 const route = useRoute();
 
@@ -223,6 +224,21 @@ onMounted(() => {
 
     retrieveChatData()
 })
+
+
+class ChatTools{
+    public static getMessageHash(message: IChatMessage){
+        const messageString = JSON.stringify(message);
+        const sha =  sha256(messageString);
+        return sha.substring(0, 7);
+    }
+
+    public static getMessagesHash(messages: Array<IChatMessage>){
+        const messagesString = JSON.stringify(messages);
+        const sha =  sha256(messagesString);
+        return sha.substring(0, 7);
+    }
+}
 
 </script>
 

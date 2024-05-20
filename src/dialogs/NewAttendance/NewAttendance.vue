@@ -229,7 +229,10 @@ const openJobSelector = () => {
     Dialog.show(JobSelector, {
         props: {
             includeDisabledJobs: false,
-            selectedJobCode: dynamicData.value.jobCode
+            selectedJobCode: dynamicData.value.jobCode,
+            jobsFilterCallback(job: IJob){
+                return !job.code.startsWith('000');
+            }
         },
         onLoaded($this) {
             $this.on('selected', (event:any) => {

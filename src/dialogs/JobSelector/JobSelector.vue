@@ -58,6 +58,10 @@ const props = defineProps({
     selectedJobCode: {
         type: String,
         required: false
+    },
+    jobsFilterCallback: {
+        type: Function,
+        required: false
     }
 });
 
@@ -69,12 +73,19 @@ const selectJob = (job: IJob) => {
 }
 
 const jobs = computed<Array<IJob>>(() => {
-    let searchContent = dynamicData.value.search.toLowerCase().trim();
-    if (searchContent.length == 0){
-        return jobsDatas.value;
+    let jobsList = jobsDatas.value;
+    if (props.jobsFilterCallback){
+        jobsList = jobsList.filter((job) => {
+            return props.jobsFilterCallback(job);
+        });
     }
 
-    return jobsDatas.value.filter((job) => {
+    let searchContent = dynamicData.value.search.toLowerCase().trim();
+    if (searchContent.length == 0){
+        return jobsList;
+    }
+
+    return jobsList.filter((job) => {
         return job.name.toLowerCase().includes(searchContent) || job.code.toLowerCase().includes(searchContent);
     });
 });

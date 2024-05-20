@@ -11,10 +11,10 @@
                         <ion-icon :icon="addOutline"></ion-icon>
                     </ion-button>
                 </ion-buttons>
-                <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
             </ion-toolbar>
             <ion-toolbar>
                 <ion-searchbar v-model="dynamicData.search" :animated="true" placeholder="Buscar Expense"></ion-searchbar>
+                <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
             </ion-toolbar>
         </ion-header>
         <ion-content>

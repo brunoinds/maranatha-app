@@ -295,7 +295,14 @@ const indicators = computed<AccountantCurrentYearIndicators|null>(() => {
                         green: 'rgb(75, 192, 192)',
                         blue: 'rgb(54, 162, 235)',
                         purple: 'rgb(153, 102, 255)',
-                        grey: 'rgb(201, 203, 207)'
+                        grey: 'rgb(201, 203, 207)',
+                        cyan: 'rgb(0, 255, 255)',
+                        magenta: 'rgb(255, 0, 255)',
+                        lime: 'rgb(0, 255, 0)',
+                        pink: 'rgb(255, 105, 180)',
+                        teal: 'rgb(0, 128, 128)',
+                        lavender: 'rgb(230, 230, 250)',
+                        beige: 'rgb(245, 245, 220)'
                     }),
                     hoverOffset: 4
                 }

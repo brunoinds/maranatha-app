@@ -152,7 +152,7 @@
 import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle,IonButtons, IonThumbnail, IonAccordion, IonAccordionGroup, IonContent, IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, IonText, toastController, alertController, actionSheetController } from '@ionic/vue';
 import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { EInvoiceType, IInvoice, INewInvoice } from '../../interfaces/InvoiceInterfaces';
-import { IJob, IExpense } from '../../interfaces/JobsAndExpensesInterfaces';
+import { IJob, IExpense, EExpenseUses } from '../../interfaces/JobsAndExpensesInterfaces';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, arrowForward, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash, attachOutline, addOutline, removeCircleOutline } from 'ionicons/icons';
 
 import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
@@ -900,6 +900,10 @@ const openExpenseSelector = () => {
     Dialog.show(ExpenseSelector, {
         props: {
             expensesFilterCallback: (expense: IExpense) => {
+                if (!expense.uses.includes(EExpenseUses.Reports)){
+                    return false;
+                }
+
                 if (dynamicData.value.listSelectedJobs.length > 1){
                     return true;
                 }

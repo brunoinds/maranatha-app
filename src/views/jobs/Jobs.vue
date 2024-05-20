@@ -13,10 +13,13 @@
                 </ion-buttons>
                 <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
             </ion-toolbar>
+            <ion-toolbar>
+                <ion-searchbar v-model="dynamicData.search" :animated="true" placeholder="Buscar Job"></ion-searchbar>
+            </ion-toolbar>
         </ion-header>
         <ion-content>
             <ion-list v-if="!isLoading">
-                <ion-item v-for="job in jobs.filter(item => item.state == 'Active')" :key="job.id" @click="clickJob(job)" button>
+                <ion-item v-for="job in jobsUI.filter(item => item.state == 'Active')" :key="job.id" @click="clickJob(job)" button>
                     <ion-label>
                         <h2><b>{{ job.name }}</b></h2>
                         <p><b>Código: </b>{{job.code}}</p>
@@ -26,7 +29,7 @@
             </ion-list>
 
 
-            <ion-accordion-group v-if="!isLoading && jobs.filter(item => item.state == 'Inactive').length > 0">
+            <ion-accordion-group v-if="!isLoading && jobsUI.filter(item => item.state == 'Inactive').length > 0">
                     <ion-accordion>
                         <ion-item slot="header" color="light">
                             <ion-icon slot="start" :icon="powerOutline"></ion-icon>
@@ -34,7 +37,7 @@
                         </ion-item>
                         <section slot="content">
                             <ion-list v-if="!isLoading">
-                                <ion-item v-for="job in jobs.filter(item => item.state == 'Inactive')" :key="job.id" @click="clickJob(job)" button>
+                                <ion-item v-for="job in jobsUI.filter(item => item.state == 'Inactive')" :key="job.id" @click="clickJob(job)" button>
                                     <ion-label>
                                         <h2><b>{{ job.name }}</b></h2>
                                         <p><b>Código: </b>{{job.code}}</p>
@@ -50,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonButton, IonAccordionGroup, IonAccordion, IonContent, IonImg, IonAvatar, IonProgressBar,IonButtons, IonBackButton, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController, actionSheetController, toastController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonSearchbar, IonButton, IonAccordionGroup, IonAccordion, IonContent, IonImg, IonAvatar, IonProgressBar,IonButtons, IonBackButton, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController, actionSheetController, toastController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, ref } from 'vue';
 
@@ -60,6 +63,7 @@ import CreateJob from '@/dialogs/CreateJob/CreateJob.vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import EditJob from '@/dialogs/EditJob/EditJob.vue';
 import { powerOutline } from 'ionicons/icons';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 
 const jobsData = ref<Array<{
     id: number;
@@ -68,28 +72,37 @@ const jobsData = ref<Array<{
     zone: string;
     state: string;
 }>>([]);
+
+
+const jobsUI = computed(() => {
+    return jobsData.value.map((job) => {
+        return {
+            ...job,
+        }
+    }).filter((job) => {
+        let searchContent = dynamicData.value.search.toLowerCase().trim();
+        if (searchContent.length == 0){
+            return job;
+        }
+        return job.name.toLowerCase().includes(searchContent) || job.code.toLowerCase().includes(searchContent);
+    });
+})
+
+const dynamicData = ref<{
+    search: string;
+}>({
+    search: ''
+});
+
 const isLoading = ref<boolean>(true);
-const router = useRouter();
 const page = ref<HTMLElement|null>(null);
 
 const loadJobs = async () => {
     isLoading.value = true;
     jobsData.value = await RequestAPI.get('/jobs');
     isLoading.value = false;
+    JobsAndExpenses.refresh();
 }
-
-const jobs = computed(() => {
-    const data = jobsData.value.map((job) => {
-        return {
-            id: job.id,
-            name: job.name,
-            code: job.code,
-            zone: job.zone,
-            state: job.state
-        }
-    });
-    return data;
-});
 
 const addJob = async () => {
     Dialog.show(CreateJob, {
@@ -107,7 +120,6 @@ const addJob = async () => {
 const deleteJob = async (job:any) => {
     try {
         await RequestAPI.delete(`/jobs/${job.id}`);
-
         loadJobs();
         toastController.create({
             message: '✅ Job eliminado con éxito',

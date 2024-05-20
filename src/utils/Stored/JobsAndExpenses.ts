@@ -152,6 +152,16 @@ class JobsAndExpenses{
             })
         })
     }
+
+    public static refresh(): Promise<void>{
+        return new Promise((resolve, reject) => {
+            JobsAndExpenses.getContentsFromServer().then(() => {
+                resolve();
+            }).catch(() => {
+                reject();
+            })
+        })
+    }
 }
 
 

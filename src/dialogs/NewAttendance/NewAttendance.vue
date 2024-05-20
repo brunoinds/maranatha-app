@@ -66,7 +66,7 @@ import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
 import { IReportResponse, StoredReports } from '@/utils/Stored/StoredReports';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
-import { IJob, IExpense } from '../../interfaces/JobsAndExpensesInterfaces';
+import { IJob, IExpense, EExpenseUses } from '../../interfaces/JobsAndExpensesInterfaces';
 import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
@@ -245,7 +245,10 @@ const openJobSelector = () => {
 const openExpenseSelector = () => {
     Dialog.show(ExpenseSelector, {
         props: {
-            selectedExpenseCode: dynamicData.value.expenseCode
+            selectedExpenseCode: dynamicData.value.expenseCode,
+            expensesFilterCallback(expense: IExpense){
+                return expense.uses.includes(EExpenseUses.Attendances);
+            },
         },
         onLoaded($this) {
             $this.on('selected', (event:any) => {

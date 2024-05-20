@@ -13,13 +13,16 @@
                 </ion-buttons>
                 <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
             </ion-toolbar>
+            <ion-toolbar>
+                <ion-searchbar v-model="dynamicData.search" :animated="true" placeholder="Buscar Expense"></ion-searchbar>
+            </ion-toolbar>
         </ion-header>
         <ion-content>
             <ion-list v-if="!isLoading">
-                <ion-item v-for="expense in expensesData" :key="expense.id" @click="clickExpense(expense)" button>
+                <ion-item v-for="expense in expensesUI" :key="expense.id" @click="clickExpense(expense)" button>
                     <ion-label>
-                        <h2><b>{{ expense.name }}</b></h2>
-                        <p>{{expense.code}}</p>
+                        <h2><b>{{expense.code}}</b> - {{ expense.name }}</h2>
+                        <p>{{ expense.uses }}</p>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -28,88 +31,67 @@
 </template>
 
 <script setup lang="ts">
-import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
-import { ref } from 'vue';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonSearchbar, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { computed, ref } from 'vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { addOutline } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import CreateExpense from '@/dialogs/CreateExpense/CreateExpense.vue';
+import EditExpense from '@/dialogs/EditExpense/EditExpense.vue';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 
 const expensesData = ref<Array<{
     id: number;
     name: string;
-    code: string
+    code: string;
+    uses: Array<string>;
 }>>([]);
+
+
+const expensesUI = computed(() => {
+    return expensesData.value.map((expense) => {
+        return {
+            ...expense,
+            uses: expense.uses.join(', ')
+        }
+    }).filter((expense) => {
+        let searchContent = dynamicData.value.search.toLowerCase().trim();
+        if (searchContent.length == 0){
+            return expense;
+        }
+        return expense.name.toLowerCase().includes(searchContent) || expense.code.toLowerCase().includes(searchContent);
+    });
+})
 const isLoading = ref<boolean>(true);
 const router = useRouter();
 const page = ref<HTMLElement|null>(null);
+
+const dynamicData = ref<{
+    search: string;
+}>({
+    search: ''
+});
 
 const loadExpenses = async () => {
     isLoading.value = true;
     expensesData.value = await RequestAPI.get('/expenses');
     isLoading.value = false;
+    JobsAndExpenses.refresh();
 }
 
 const addExpense = async (prefiled:any = null) => {
-    const alert = await alertController.create({
-        header: 'Nuevo Expense',
-        inputs: [
-        {
-                type: 'text',
-                placeholder: 'Name',
-                value: prefiled ? prefiled.name : null
-            },
-            {
-                type: 'text',
-                placeholder: 'Code',
-                value: prefiled ? prefiled.code : null
-            }
-        ],
-        buttons: [
-            {
-                text: 'Cancelar',
-                role: 'cancel',
-                handler: () => {
-                    
-                },
-            },
-            {
-                text: 'Crear Expense',
-                role: 'confirm'
-            }
-        ]
-    });
-
-    await alert.present();
-    const { role, data } = await alert.onDidDismiss();
-
-    if (role == "confirm"){
-        const dataParsed = {
-            name: data.values[0],
-            code: data.values[1]
-        }
-
-        RequestAPI.post('/expenses', dataParsed).then((response) => {
-            alertController.create({
-                header: '¡Éxito!',
-                message: 'Expense creado exitosamente',
-                buttons: ['OK']
-            }).then(async (alert) => {
-                await alert.present();
-                await alert.onDidDismiss();
+    Dialog.show(CreateExpense, {
+        onLoaded($this) {
+            $this.on('created', (event:any) => {
                 loadExpenses();
-            });
-        }).catch((error) => {
-            alertController.create({
-                header: 'Oops...',
-                message: error.response.message,
-                buttons: ['OK']
-            }).then(async (alert) => {
-                await alert.present();
-                await alert.onDidDismiss();
-                addExpense(dataParsed);
-            });
-        });
-    }
+            })
+        },
+        modalControllerOptions: {
+            presentingElement: page,
+            showBackdrop: true,
+        }
+    })
 }
 const deleteExpense = async (job:any) => {
     try {
@@ -165,68 +147,21 @@ const clickExpense = async(expense:any) => {
 
 
 const editExpense = async (expense:any) => {
-    const alert = await alertController.create({
-        header: 'Editar Expense',
-        inputs: [
-        {
-                type: 'text',
-                placeholder: 'Name',
-                value: expense.name
-            },
-            {
-                type: 'text',
-                placeholder: 'Code',
-                value: expense.code
-            }
-        ],
-        buttons: [
-            {
-                text: 'Cancelar',
-                role: 'cancel',
-                handler: () => {
-                    
-                },
-            },
-            {
-                text: 'Guardar expense',
-                role: 'confirm'
-            }
-        ]
-    });
-
-    await alert.present();
-    const { role, data } = await alert.onDidDismiss();
-
-    if (role == "confirm"){
-        const dataParsed = {
-            id: expense.id,
-            name: data.values[0],
-            code: data.values[1]
-        }
-
-
-        RequestAPI.patch('/expenses/' + expense.id, dataParsed).then((response) => {
-            alertController.create({
-                header: '¡Éxito!',
-                message: 'Expense guardado exitosamente',
-                buttons: ['OK']
-            }).then(async (alert) => {
-                await alert.present();
-                await alert.onDidDismiss();
+    Dialog.show(EditExpense, {
+        onLoaded($this) {
+            $this.on('created', (event:any) => {
                 loadExpenses();
-            });
-        }).catch((error) => {
-            alertController.create({
-                header: 'Oops...',
-                message: error.response.message,
-                buttons: ['OK']
-            }).then(async (alert) => {
-                await alert.present();
-                await alert.onDidDismiss();
-                editExpense(expense);
-            });
-        });
-    }
+            })
+        },
+        modalControllerOptions: {
+            presentingElement: page,
+            showBackdrop: true,
+        },
+        props: {
+            expenseCode: expense.code,
+            expenseId: expense.id
+        }
+    })
 }
 
 loadExpenses();

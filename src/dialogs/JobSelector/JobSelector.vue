@@ -19,9 +19,7 @@
                         <h2>{{ job.name }}</h2>
                         <p>{{ job.code }}</p>
                     </ion-label>
-
                     <ion-icon v-if="selectedJobCode && selectedJobCode == job.code" color="primary" :icon="checkmarkOutline" slot="end"></ion-icon>
-
                 </ion-item>
             </ion-list>
         </ion-content>

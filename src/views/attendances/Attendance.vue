@@ -141,7 +141,7 @@ const workersAttendances = computed(() => {
     if (workersAttendancesItems.length > 0){
         return {items: workersAttendancesItems, days: workersAttendancesItems[0].days.map((day) => {
             return {
-                date: DateTime.fromISO(day.date).toFormat("dd/MM") as string,
+                date: DateTime.fromFormat(day.date.split('T')[0], 'yyyy-MM-dd').toFormat("dd/MM") as string,
                 status: day.status
             }
         })}

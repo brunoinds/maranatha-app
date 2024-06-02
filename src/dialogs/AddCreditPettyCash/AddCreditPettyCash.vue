@@ -302,5 +302,4 @@ const loadReceiptImage = async () => {
         background-color: #f4f4f4;
     }
 }
-</style>, actionSheetControllerimport { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
-import { Capacitor } from '@capacitor/core';
+</style>

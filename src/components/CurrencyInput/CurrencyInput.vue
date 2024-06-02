@@ -8,6 +8,7 @@
 </template>
 
 <script>
+import { onUnmounted } from 'vue';
 import { useCurrencyInput } from 'vue-currency-input';
 
 export default {
@@ -18,7 +19,7 @@ export default {
         disabled: Boolean,
     },
     setup(props) {
-        const { inputRef } = useCurrencyInput(props.options)
+        const { inputRef } = useCurrencyInput(props.options);
         return { inputRef }
     }
 }

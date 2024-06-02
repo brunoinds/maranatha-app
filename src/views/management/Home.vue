@@ -45,6 +45,7 @@
                         <Wallets v-if="segmentValue == 'wallets'"></Wallets>
                         <Attendances v-if="segmentValue == 'attendances'"></Attendances>
                         <Settings v-if="segmentValue == 'settings'"></Settings>
+                        <Workers v-if="segmentValue == 'workers'"></Workers>
                     </main>
                 </main>
             </article>
@@ -86,6 +87,7 @@ import Accounts from '@/views/management/accounts/Accounts.vue';
 import Records from '@/views/management/records/Records.vue';
 import Wallets from '@/views/management/wallets/Wallets.vue';
 import Attendances from '@/views/management/attendances/Attendances.vue';
+import Workers from '@/views/management/workers/Workers.vue';
 import Settings from '@/views/management/settings/Settings.vue';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import Graphs from '@/views/management/graphs/Graphs.vue';
@@ -135,6 +137,12 @@ const segments = [
         title: '📅 Asistencias',
         name: 'Asistencias',
         icon: '📅'
+    },
+    {
+        id: 'workers',
+        title: '👷 Trabajadores',
+        name: 'Trabajadores',
+        icon: '👷'
     },
     {
         id: 'wallets',

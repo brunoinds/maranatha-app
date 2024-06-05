@@ -273,8 +273,8 @@ onMounted(() => {
 }
 
 .version-toolbar{
-    --background: white;
-    --border-color: white;
+    --background: var(--ion-color-light);
+    --border-color: var(--ion-color-light);
     --border-style: none;
 }
 

@@ -6,7 +6,8 @@
             <section ref="holder" class="holder ion-padding">
                 <article style="">
                     <header>
-                        <ion-img :src="MaranathaLogo" style="width: 90%;margin: 0 auto;"></ion-img>
+                        <ion-img v-if="currentDeviceTheme == 'light'" :src="MaranathaLogo" style="width: 90%;margin: 0 auto;"></ion-img>
+                        <ion-img v-if="currentDeviceTheme == 'dark'" :src="MaranathaLogoDark" style="width: 90%;margin: 0 auto;"></ion-img>
                     </header>
                     <main>
                         <ion-list>
@@ -34,6 +35,8 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonImg, IonList, IonInput, IonItem, IonButton, IonProgressBar, alertController } from '@ionic/vue';
 import { computed, onMounted, ref } from 'vue';
 import MaranathaLogo from '&/assets/images/maranatha-logo.svg';
+import MaranathaLogoDark from '&/assets/images/maranatha-logo-dark.svg';
+
 import { Session } from '@/utils/Session/Session';
 import { useRouter } from 'vue-router';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
@@ -57,6 +60,10 @@ const loginData = ref({
 const enableLoginButton = computed(() => {
     return loginData.value.username.length > 0 && loginData.value.password.length >= 8;
 })
+const currentDeviceTheme = computed(() => {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    return prefersDark.matches ? 'dark' : 'light';
+});
 
 const isLoading = ref(false);
 const doLogin = () => {

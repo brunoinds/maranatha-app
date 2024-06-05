@@ -9,7 +9,6 @@
         </header>
         <main>
             <article v-if="segmentValue == 'workers'" class="content">
-                
                 <ion-progress-bar type="indeterminate" v-if="isLoading"></ion-progress-bar>
                 <main>
                     <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
@@ -145,11 +144,10 @@
             </article>
         </main>
     </section>
-    
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonSegment,IonSelect, IonSelectOption, IonButton, IonSegmentButton, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonCheckbox, IonSegment,IonSelect, IonSelectOption, IonButton, IonSegmentButton, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { computed, ref, watch } from 'vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
@@ -347,9 +345,10 @@ onMounted(() => {
     }
 }
 
-$color_1: #000000;
-$background-color_1: #eceff1;
-$background-color_2: #ffffff;
+$color_1: var(--ion-color-light-contrast);
+$background-color_1: var(--ion-color-light-shade);
+$background-color_2: var(--ion-color-light-tint);
+$background-color_3: var(--ion-color-dark);
 
 .attendance-table{
 	overflow: auto;
@@ -357,7 +356,7 @@ $background-color_2: #ffffff;
     position: relative;
     font-size: 12px;
 	table {
-		border: 1px solid #dededf;
+		border: 1px solid $background-color_2;
 		height: 100%;
 		width: 100%;
 		table-layout: fixed;
@@ -372,14 +371,14 @@ $background-color_2: #ffffff;
 	th {
         position: sticky;
         top: 0;
-		border: 1px solid #dededf;
-		background-color: $background-color_1;
+		border-bottom: 1px solid $background-color_1;
+		background-color: $background-color_2;
 		color: $color_1;
 		padding: 5px;
         z-index: 10;
 	}
 	td {
-		border: 1px solid #dededf;
+        border-bottom: 1px solid $background-color_1;
 		background-color: $background-color_2;
 		color: $color_1;
 		padding: 5px;

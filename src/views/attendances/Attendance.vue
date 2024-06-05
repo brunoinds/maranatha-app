@@ -401,16 +401,16 @@ loadAttendance();
 
 
 <style lang="scss" scoped>
-$color_1: #000000;
-$background-color_1: #eceff1;
-$background-color_2: #ffffff;
+$color_1: var(--ion-color-light-contrast);
+$background-color_1: var(--ion-color-light-shade);
+$background-color_2: var(--ion-color-light-tint);
 
 .attendance-table{
 	overflow: auto;
 	width: 100%;
     position: relative;
 	table {
-		border: 1px solid #dededf;
+		border: 1px solid $background-color_2;
 		height: 100%;
 		width: 100%;
 		table-layout: fixed;
@@ -425,14 +425,14 @@ $background-color_2: #ffffff;
 	th {
         position: sticky;
         top: 0;
-		border: 1px solid #dededf;
+		border: 1px solid $background-color_2;
 		background-color: $background-color_1;
 		color: $color_1;
 		padding: 5px;
         z-index: 10;
 	}
 	td {
-		border: 1px solid #dededf;
+		border: 1px solid $background-color_1;
 		background-color: $background-color_2;
 		color: $color_1;
 		padding: 5px;

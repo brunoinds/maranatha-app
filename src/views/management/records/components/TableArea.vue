@@ -5,6 +5,7 @@
         </header>
         <main>
             <v-data-table
+                :theme="currentDeviceTheme"
                 :headers="props.headers"
                 :items="props.items"
                 :search="search"
@@ -50,6 +51,11 @@ const props = defineProps({
     }
 })
 
+
+const currentDeviceTheme = computed(() => {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    return prefersDark.matches ? 'dark' : 'light';
+});
 
 const search = ref('');
 

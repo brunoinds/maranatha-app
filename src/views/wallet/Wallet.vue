@@ -727,8 +727,16 @@ onMounted(() => {
 <style scoped lang="scss">
 
 ion-content {
-    --background: #f2f3f7;
+    --background: var(--ion-color-light-tint);
 }
+
+@media (prefers-color-scheme: dark) {
+    ion-content {
+        --background: #161616;
+    }
+}
+
+
 
 
 .content{

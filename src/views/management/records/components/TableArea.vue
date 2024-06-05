@@ -28,6 +28,7 @@ import { IReport } from '@/interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import FiltersArea from '@/views/management/records/components/FiltersArea.vue';
 import { DateTime } from 'luxon';
+import { Theme } from '@/utils/Theme/Theme';
 
 
 const accountsData = ref<any>(null);
@@ -53,8 +54,7 @@ const props = defineProps({
 
 
 const currentDeviceTheme = computed(() => {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-    return prefersDark.matches ? 'dark' : 'light';
+    return Theme.getTheme();
 });
 
 const search = ref('');

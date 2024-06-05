@@ -170,12 +170,11 @@ import { onUnmounted } from 'vue';
 import { IWorker, IWorkerPayment } from '@/interfaces/WorkerInterfaces';
 import CreateWorker from '@/dialogs/CreateWorker/CreateWorker.vue';
 import CreateWorkerPayment from '@/dialogs/CreateWorkerPayment/CreateWorkerPayment.vue';
-
 import EditWorker from '@/dialogs/EditWorker/EditWorker.vue';
 
 
 const isLoading = ref<boolean>(true);
-const segmentValue = ref<string>('table');
+const segmentValue = ref<string>('workers');
 const workers = ref<IWorker[]>([]);
 const payments = ref<IWorkerPayment[]>([]);
 
@@ -223,20 +222,28 @@ const workersAndPaymentsTableUI = computed(() => {
     }
 })
 
-const configurationsData = ref<any>([
-    {
-        id: 'table',
-        title: 'Trabajadores e pagos'
-    },
-    {
-        id: 'workers',
-        title: 'Trabajadores'
-    },
-    {
-        id: 'payments',
-        title: 'Pagos'
-    }
-]);
+const configurationsData = computed(() => {
+    let items = [
+        {
+            id: 'table',
+            title: 'Trabajadores e pagos',
+            enabled: !Viewport.data.value.isScreenNarrow
+        },
+        {
+            id: 'workers',
+            title: 'Trabajadores',
+            enabled: true
+        },
+        {
+            id: 'payments',
+            title: 'Pagos',
+            enabled: true
+        }
+    ];
+
+
+    return items.filter((item) => item.enabled);
+});
 
 
 const loadWorkersAndPayments = async () => {

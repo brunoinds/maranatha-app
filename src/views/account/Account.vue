@@ -18,59 +18,66 @@
                             <p>{{ accountData.email }}</p>
                         </ion-label>
                     </ion-item>
+                    <ion-item @click="doLogout" button>
+                        <ion-icon color="danger" :icon="close" slot="start"></ion-icon>
+                        <ion-label color="danger">Terminar sesión</ion-label>
+                    </ion-item>
 
+                    
+                </ion-list>
+
+                <ion-list v-if="!isLoading" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                     <ion-item @click="allowNotifications" button v-if="isNotificationsNotAllowed">
                         <ion-icon slot="start" color="primary" :icon="notificationsCircle"></ion-icon>
                         <ion-label color="primary">
                             <h2>Autorizar notificaciones</h2>
                         </ion-label>
                     </ion-item>
-                    <ion-item @click="doLogout" button>
-                        <ion-icon color="danger" :icon="close" slot="start"></ion-icon>
-                        <ion-label color="danger">Terminar sesión</ion-label>
+                    <ion-item @click="() => {liveUpdates.state == 'NoUpdateAvailable' ? lookForUpdates() : undefined}" :button="liveUpdates.state == 'NoUpdateAvailable'">
+                        <ion-icon class="rotate" v-if="liveUpdates.state != 'ReadyToInstall' && liveUpdates.state != 'NoUpdateAvailable'" slot="start" color="medium" :icon="syncOutline"></ion-icon>
+                        <ion-icon v-if="liveUpdates.state == 'ReadyToInstall'" slot="start" color="medium" :icon="cloudDoneOutline"></ion-icon>
+                        <ion-icon v-if="liveUpdates.state == 'NoUpdateAvailable'" slot="start" color="medium" :icon="shieldCheckmarkOutline"></ion-icon>
+
+                        <ion-label color="medium" v-if="liveUpdates.state == 'Searching'">
+                            <h2>Actualización de seguridad</h2>
+                            <p>Buscando actualizaciones...</p>
+                        </ion-label>
+
+                        <ion-label color="medium" v-if="liveUpdates.state == 'NoUpdateAvailable'">
+                            <h2>Actualización de seguridad</h2>
+                            <p>Su aplicación está actualizada (v{{ Environment.version() }})</p>
+                            <p>Clic para buscar nuevas actualizaciones</p>
+                        </ion-label>
+
+                        <ion-label color="medium"  v-if="liveUpdates.state == 'Downloading'">
+                            <h2>Nueva actualización disponible</h2>
+                            <p>v{{ liveUpdates.availableUpdate?.version }} ({{ liveUpdates.availableUpdate.size }})</p>
+                            <p>Descargando actualización...</p>
+                        </ion-label>
+
+                        <ion-label color="medium"  v-if="liveUpdates.state == 'Installing'">
+                            <h2>Nueva actualización disponible</h2>
+                            <p>v{{ liveUpdates.availableUpdate?.version }} ({{ liveUpdates.availableUpdate.size }})</p>
+                            <p>Instalando actualización...</p>
+                        </ion-label>
+
+                        <ion-label color="medium"  v-if="liveUpdates.state == 'ReadyToInstall'">
+                            <h2>Nueva actualización disponible</h2>
+                            <p>v{{ liveUpdates.availableUpdate?.version }} ({{ liveUpdates.availableUpdate.size }})</p>
+                            <p>Listo para instalar actualización</p>
+                        </ion-label>
+
+
+                        <ion-button v-if="liveUpdates.state == 'ReadyToInstall'" @click="updateNow">Instalar ahora</ion-button>
                     </ion-item>
+
+                    
                 </ion-list>
             </section>
         </ion-content>
         <ion-footer>
             <ion-list>
-                <ion-item @click="() => {liveUpdates.state == 'NoUpdateAvailable' ? lookForUpdates() : undefined}" :button="liveUpdates.state == 'NoUpdateAvailable'">
-                    <ion-icon class="rotate" v-if="liveUpdates.state != 'ReadyToInstall' && liveUpdates.state != 'NoUpdateAvailable'" slot="start" color="medium" :icon="syncOutline"></ion-icon>
-                    <ion-icon v-if="liveUpdates.state == 'ReadyToInstall'" slot="start" color="medium" :icon="cloudDoneOutline"></ion-icon>
-                    <ion-icon v-if="liveUpdates.state == 'NoUpdateAvailable'" slot="start" color="medium" :icon="shieldCheckmarkOutline"></ion-icon>
-
-                    <ion-label color="medium" v-if="liveUpdates.state == 'Searching'">
-                        <h2>Actualización de seguridad</h2>
-                        <p>Buscando actualizaciones...</p>
-                    </ion-label>
-
-                    <ion-label color="medium" v-if="liveUpdates.state == 'NoUpdateAvailable'">
-                        <h2>Actualización de seguridad</h2>
-                        <p>Su aplicación está actualizada (v{{ Environment.version() }})</p>
-                        <p>Clic para buscar nuevas actualizaciones</p>
-                    </ion-label>
-
-                    <ion-label color="medium"  v-if="liveUpdates.state == 'Downloading'">
-                        <h2>Nueva actualización disponible</h2>
-                        <p>v{{ liveUpdates.availableUpdate?.version }} ({{ liveUpdates.availableUpdate.size }})</p>
-                        <p>Descargando actualización...</p>
-                    </ion-label>
-
-                    <ion-label color="medium"  v-if="liveUpdates.state == 'Installing'">
-                        <h2>Nueva actualización disponible</h2>
-                        <p>v{{ liveUpdates.availableUpdate?.version }} ({{ liveUpdates.availableUpdate.size }})</p>
-                        <p>Instalando actualización...</p>
-                    </ion-label>
-
-                    <ion-label color="medium"  v-if="liveUpdates.state == 'ReadyToInstall'">
-                        <h2>Nueva actualización disponible</h2>
-                        <p>v{{ liveUpdates.availableUpdate?.version }} ({{ liveUpdates.availableUpdate.size }})</p>
-                        <p>Listo para instalar actualización</p>
-                    </ion-label>
-
-
-                    <ion-button v-if="liveUpdates.state == 'ReadyToInstall'" @click="updateNow">Instalar ahora</ion-button>
-                </ion-item>
+                
             </ion-list>
             <ion-toolbar class="version-toolbar">
                 <section class="ion-padding">
@@ -82,17 +89,18 @@
 </template>
 
 <script setup lang="ts">
-import { IonAvatar, IonContent, IonFooter, IonHeader, IonIcon,IonButton, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { IonAvatar, IonContent, IonFooter, IonHeader, IonToggle, IonIcon,IonButton, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
 import { computed, onUnmounted, ref } from 'vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { Environment } from '@/utils/Environment/Environment';
 import { Notifications } from '@/utils/Notifications/Notifications';
 import { Session } from '@/utils/Session/Session';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { close, notificationsCircle, syncOutline, cloudDoneOutline, shieldCheckmarkOutline } from 'ionicons/icons';
+import { close, notificationsCircle, syncOutline, cloudDoneOutline, shieldCheckmarkOutline, moonOutline } from 'ionicons/icons';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { LiveUpdates } from '@/utils/LiveUpdates/LiveUpdates';
+import { Theme } from '@/utils/Theme/Theme';
 
 
 const aboutAppText = ref<string>(`  Code version: ${Environment.version()} \nNative version: ${Environment.storeVersioning().version} (${Environment.storeVersioning().build})`);
@@ -103,6 +111,11 @@ const page = ref<HTMLElement|null>(null);
 const isAdmin = ref<boolean>(false);
 const isNotificationsNotAllowed = ref<boolean>(false);
 
+const isDarkModeActive = ref<boolean>(Theme.getTheme() == 'dark');
+
+const changeTheme = () => {
+    Theme.setTheme(isDarkModeActive.value ? 'dark' : 'light');
+}
 
 const liveUpdates = computed(() => {
     return {

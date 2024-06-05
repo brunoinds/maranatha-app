@@ -296,10 +296,10 @@ const loadReceiptImage = async () => {
 <style scoped lang="scss">
 
 .deposit-camp{
-    background-color: #f7f7f7;
+    background-color: var(--ion-color-light-tint);
     border-radius: 19px;
     &:focus-within{
-        background-color: #f4f4f4;
+        background-color: var(--ion-color-light-shade);
     }
 }
 </style>

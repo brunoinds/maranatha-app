@@ -44,6 +44,7 @@ import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateUser from '@/dialogs/CreateUser/CreateUser.vue';
 import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
 import { Capacitor } from '@capacitor/core';
+import { Theme } from '@/utils/Theme/Theme';
 
 const page = ref<HTMLElement|null>(null);
 const holder = ref<HTMLElement|null>(null);
@@ -61,8 +62,7 @@ const enableLoginButton = computed(() => {
     return loginData.value.username.length > 0 && loginData.value.password.length >= 8;
 })
 const currentDeviceTheme = computed(() => {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-    return prefersDark.matches ? 'dark' : 'light';
+    return Theme.getTheme();
 });
 
 const isLoading = ref(false);

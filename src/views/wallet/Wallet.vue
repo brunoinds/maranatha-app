@@ -3,7 +3,7 @@
         <ion-header>
             <ion-toolbar>
                 <ion-title v-if="walletType == 'my-wallet'">Mi Billetera</ion-title>
-                <ion-title v-if="walletType == 'management'">Billetera de {{userBalance?.user.name}}</ion-title>
+                <ion-title v-if="walletType == 'management' && userBalance">Billetera de {{userBalance?.user.name}}</ion-title>
                 <ion-buttons>
                     <ion-back-button v-if="walletType == 'management'" defaultHref="/management/wallets"></ion-back-button>
                 </ion-buttons>
@@ -56,7 +56,11 @@
 
                             <ion-card style="margin: 5px; padding: 0; width: 100%" v-if="!isLoading">
                                 <ion-card-content>
-                                    <line-chart :height="200" :chart-data="chartData" :options="chartOptions"></line-chart>
+                                    <bar-chart v-if="showingGraphType == 'bar'" :height="200" :chart-data="chartData" :options="chartOptions"></bar-chart>
+                                    <line-chart v-if="showingGraphType == 'line'" :height="200" :chart-data="chartAccumulatedData" :options="chartAccumulatedOptions"></line-chart>
+                                    <ion-button size="small" v-if="showingGraphType == 'bar'" fill="clear" expand="block" @click="showingGraphType = 'line'">Cambiar a timeline</ion-button>
+                                    <ion-button size="small" v-if="showingGraphType == 'line'" fill="clear" expand="block" @click="showingGraphType = 'bar'">Cambiar a gastos</ion-button>
+
                                 </ion-card-content>
                             </ion-card>
                         </ion-row>
@@ -150,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonGrid, IonCard, IonListHeader, IonSkeletonText, IonButtons, IonBackButton, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonNote, IonRow, IonCol, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonIcon, IonList, IonItem, IonLabel, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { IonPage, IonHeader, IonGrid, IonCard, IonListHeader, IonSkeletonText, IonButtons, IonBackButton, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonNote, IonRow, IonButton, IonCol, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonIcon, IonList, IonItem, IonLabel, actionSheetController, alertController, toastController } from '@ionic/vue';
 import { computed, onUnmounted, ref } from 'vue';
 
 import { addCircleOutline, alertCircle, cardOutline, cashOutline, chevronBackCircleOutline, chevronForwardCircleOutline, downloadOutline, gitCompareOutline, removeCircleOutline, shareOutline } from 'ionicons/icons';
@@ -167,12 +171,12 @@ import Numeral from 'numeral';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 import { LineChart } from 'vue-chart-3';
+import { BarChart } from 'vue-chart-3';
+
 import { Dialog } from '@/utils/Dialog/Dialog';
 import AddCreditPettyCash from '@/dialogs/AddCreditPettyCash/AddCreditPettyCash.vue';
 import { Session } from '@/utils/Session/Session';
 import { Capacitor } from '@capacitor/core';
-import { Directory, Filesystem } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { useRoute } from 'vue-router';
 import { onMounted } from 'vue';
@@ -277,7 +281,18 @@ const userBalance = computed<UserBalanceComputed|null>(() => {
         chartData.value.labels = userBalanceData.value.items.map((item) => {
             return DateTime.fromISO(item.date).toUnixInteger()
         });
-        chartData.value.datasets[0].data = userBalanceData.value.items.map(d => d.amount)
+        chartData.value.datasets[0].data = userBalanceData.value.items.map(d => d.amount);
+
+
+        chartAccumulatedData.value.labels = userBalanceData.value.items.map((item) => {
+            return DateTime.fromISO(item.date).toUnixInteger()
+        });
+
+        let accumulated = 0;
+        chartAccumulatedData.value.datasets[0].data = userBalanceData.value.items.map(d => {
+            accumulated += d.amount;
+            return accumulated;
+        });
     };
 
     return userBalance;
@@ -285,22 +300,105 @@ const userBalance = computed<UserBalanceComputed|null>(() => {
 
 const walletType = ref(route.path.includes('my-wallet') ? 'my-wallet' : 'management')
 
+
+
+const showingGraphType = ref<'bar' | 'line'>('bar');
+
 const chartData = ref<any>({
+    type: 'bar',
+    labels: ['Amount'],
+    datasets: [
+        {
+            label: 'Amount',
+            data: [],
+            borderColor: '#3880FF',
+            backgroundColor: '#3880FF',
+            borderWidth: 0,
+            borderRadius: 100,
+        }
+    ]
+})
+const chartOptions = ref({
+    responsive: true,
+    plugins: {
+        legend: {
+            display: false,
+            position: 'top',
+        },
+        title: {
+            display: false,
+            text: 'Chart.js Doughnut Chart'
+        },
+        tooltip: {
+            callbacks: {
+                title: function(context: any) {
+                    const time = parseInt(context[0].label.replace(/,/g, ''));
+                    return DateTime.fromSeconds(time).toFormat('dd/MM/yyyy HH:mm');
+                },
+                label: function(context:any) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                        label += ': ';
+                    }
+                    if (context.parsed.y !== null) {
+                        label += '$' + Toolbox.moneyFormat(context.raw);
+                    }
+                    return label;
+                }
+            }
+        }
+    },
+    scales: {
+        x: {
+            grid: {
+                display: true,
+                lineWidth: 1,
+                drawBorder: false,
+                zeroLineColor:'transparent'
+            },
+            ticks: {
+                display: false,
+                callback: function(value: any, index: any, values: any) {
+                    //return DateTime.fromSeconds(value).toFormat('dd/MM');
+                }
+            },
+            
+        },
+        y: {
+            beginAtZero: true,
+            grid: {
+                lineWidth: 1,
+                drawBorder: false
+            },
+            ticks: {
+                display: true,
+                callback: function(value: any, index: any, values: any) {
+                    if (value >= 1000){
+                        return '$' + parseFloat(Toolbox.moneyFormat(value/1000)).toFixed(0) + 'K';
+                    }
+                    return '$' + Toolbox.moneyFormat(value);
+                }
+            }
+        }
+    },
+})
+
+const chartAccumulatedData = ref<any>({
     type: 'line',
     labels: [],
     datasets: [
         {
-            fill: false,
             label: 'Amount',
             data: [],
-            borderColor: '#3880FF',
-            backgroundColor: '#98eaea',
-            tension: 0.2
+            borderColor: '#ffc409',
+            backgroundColor: '#ffc409',
+            tension: 0.1,
+            fill: false,
+            
         }
     ]
 })
-
-const chartOptions = ref({
+const chartAccumulatedOptions = ref({
     responsive: true,
     plugins: {
         legend: {
@@ -354,12 +452,35 @@ const chartOptions = ref({
                 drawBorder: false
             },
             ticks: {
-                display: true
+                display: true,
+                callback: function(value: any, index: any, values: any) {
+                    if (value >= 1000){
+                        return '$' + parseFloat(Toolbox.moneyFormat(value/1000)).toFixed(0) + 'K';
+                    }
+                    return '$' + Toolbox.moneyFormat(value);
+                }
             }
         }
     },
 })
 
+
+const comboChartData = computed(() => {
+    return {
+        type: 'bar',
+        labels: ['Amount'],
+        datasets: [
+            {
+                ...chartData.value.datasets[0],
+            },
+            {
+                ...chartAccumulatedData.value.datasets[0],
+                type: 'line',
+                order: 0
+            }
+        ]
+    }
+})
 
 
 interface UserBalance{

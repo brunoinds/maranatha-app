@@ -18,7 +18,7 @@
                             <ion-card-content>
                                 <ion-grid name="content">
                                     <ion-row name="amount-area">
-                                        <ion-card-title name="amount" value="$" style="color: rgb(54, 162, 235); font-size: 60px">{{ indicators.spendings.total.value }}</ion-card-title>
+                                        <ion-card-title name="amount" value="$" style="color: rgb(54, 162, 235); font-size: 55px">{{ indicators.spendings.total.value }}</ion-card-title>
                                     </ion-row>
                                     <ion-row>
                                     </ion-row>

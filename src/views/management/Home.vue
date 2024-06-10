@@ -23,7 +23,7 @@
                     </article>
                 </aside>
                 <main>
-                    <header style="border-bottom: 1px solid gainsboro;" v-if="Viewport.data.value.deviceSetting != 'DesktopLandscape'">
+                    <header style="border-bottom: 1px solid var(--ion-color-light-shade);" v-if="Viewport.data.value.deviceSetting != 'DesktopLandscape'">
                         <ion-segment :scrollable="true" :value="segmentValue" v-model="segmentValue" mode="md">
                             <ion-segment-button v-for="segment in segments" :value="segment.id" :key="segment.id">
                                 <ion-label>{{ segment.title }}</ion-label>
@@ -61,7 +61,7 @@
     > aside {
         width: 300px;
         height: 100%;
-        border-right: 1px solid gainsboro;
+        border-right: 1px solid var(--ion-color-light-shade);
         background-color: var(--ion-color-light);
     }
     > main {

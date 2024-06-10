@@ -364,6 +364,7 @@ import { onMounted } from 'vue';
 
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { onUnmounted } from 'vue';
+import { Theme } from '@/utils/Theme/Theme';
 
 
 const isLoading = ref<boolean>(true);
@@ -957,22 +958,7 @@ const indicators = computed<AccountantPeriodComparisonIndicatorsComputed|null>((
                 {
                     label: 'Gastos por Usuário',
                     data: indicators.spendings.distributions.byUsers.map((distribution) => distribution.total.value),
-                    backgroundColor: Object.values({
-                        red: 'rgb(255, 99, 132)',
-                        orange: 'rgb(255, 159, 64)',
-                        yellow: 'rgb(255, 205, 86)',
-                        green: 'rgb(75, 192, 192)',
-                        blue: 'rgb(54, 162, 235)',
-                        purple: 'rgb(153, 102, 255)',
-                        grey: 'rgb(201, 203, 207)',
-                        cyan: 'rgb(0, 255, 255)',
-                        magenta: 'rgb(255, 0, 255)',
-                        lime: 'rgb(0, 255, 0)',
-                        pink: 'rgb(255, 105, 180)',
-                        teal: 'rgb(0, 128, 128)',
-                        lavender: 'rgb(230, 230, 250)',
-                        beige: 'rgb(245, 245, 220)'
-                    }),
+                    backgroundColor: Theme.getColorsForCharts(),
                     hoverOffset: 4
                 }
             ]
@@ -1019,23 +1005,9 @@ const indicators = computed<AccountantPeriodComparisonIndicatorsComputed|null>((
                 {
                     label: 'Gastos del Job',
                     data: indicators.spendings.distributions.byJobs.map((distribution) => distribution.total.value),
-                    backgroundColor: Object.values({
-                        red: 'rgb(255, 99, 132)',
-                        orange: 'rgb(255, 159, 64)',
-                        yellow: 'rgb(255, 205, 86)',
-                        green: 'rgb(75, 192, 192)',
-                        blue: 'rgb(54, 162, 235)',
-                        purple: 'rgb(153, 102, 255)',
-                        grey: 'rgb(201, 203, 207)',
-                        cyan: 'rgb(0, 255, 255)',
-                        magenta: 'rgb(255, 0, 255)',
-                        lime: 'rgb(0, 255, 0)',
-                        pink: 'rgb(255, 105, 180)',
-                        teal: 'rgb(0, 128, 128)',
-                        lavender: 'rgb(230, 230, 250)',
-                        beige: 'rgb(245, 245, 220)'
-                    }),
-                    hoverOffset: 4
+                    backgroundColor: Theme.getColorsForCharts(),
+                    hoverOffset: 4,
+                    borderRadius: 10
                 }
             ]
         },

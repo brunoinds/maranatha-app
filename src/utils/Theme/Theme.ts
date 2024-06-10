@@ -15,4 +15,21 @@ export class Theme{
             toggleDarkPalette(false);
         }
     }
+
+    public static getColorsForCharts(){
+        return Object.values({
+            red: 'rgb(255, 99, 132)',
+            orange: 'rgb(255, 159, 64)',
+            yellow: 'rgb(255, 205, 86)',
+            green: 'rgb(75, 192, 192)',
+            blue: 'rgb(54, 162, 235)',
+            purple: 'rgb(153, 102, 255)',
+            grey: 'rgb(201, 203, 207)',
+            greentwo: 'rgb(139 195 74)',
+            magenta: 'rgb(171 71 188)',
+            beige: 'rgb(231 187 121)',
+            brown: 'rgb(141 110 99)',
+            lime: 'rgb(205 220 57)'
+        })
+    }
 }

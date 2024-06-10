@@ -58,8 +58,8 @@
                                 <ion-card-content>
                                     <bar-chart v-if="showingGraphType == 'bar'" :height="200" :chart-data="chartData" :options="chartOptions"></bar-chart>
                                     <line-chart v-if="showingGraphType == 'line'" :height="200" :chart-data="chartAccumulatedData" :options="chartAccumulatedOptions"></line-chart>
-                                    <ion-button size="small" v-if="showingGraphType == 'bar'" fill="clear" expand="block" @click="showingGraphType = 'line'">Cambiar a timeline</ion-button>
-                                    <ion-button size="small" v-if="showingGraphType == 'line'" fill="clear" expand="block" @click="showingGraphType = 'bar'">Cambiar a gastos</ion-button>
+                                    <ion-button size="small" v-if="showingGraphType == 'bar'" fill="clear" expand="block" @click="showingGraphType = 'line'">Ver gastos sumados</ion-button>
+                                    <ion-button size="small" v-if="showingGraphType == 'line'" fill="clear" expand="block" @click="showingGraphType = 'bar'">Ver gastos en días</ion-button>
 
                                 </ion-card-content>
                             </ion-card>
@@ -314,7 +314,7 @@ const chartData = ref<any>({
             borderColor: '#3880FF',
             backgroundColor: '#3880FF',
             borderWidth: 0,
-            borderRadius: 100,
+            borderRadius: 10     
         }
     ]
 })

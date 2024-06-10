@@ -56,10 +56,25 @@
 
                             <ion-card style="margin: 5px; padding: 0; width: 100%" v-if="!isLoading">
                                 <ion-card-content>
-                                    <bar-chart v-if="showingGraphType == 'bar'" :height="200" :chart-data="chartData" :options="chartOptions"></bar-chart>
-                                    <line-chart v-if="showingGraphType == 'line'" :height="200" :chart-data="chartAccumulatedData" :options="chartAccumulatedOptions"></line-chart>
-                                    <ion-button size="small" v-if="showingGraphType == 'bar'" fill="clear" expand="block" @click="showingGraphType = 'line'">Ver gastos sumados</ion-button>
-                                    <ion-button size="small" v-if="showingGraphType == 'line'" fill="clear" expand="block" @click="showingGraphType = 'bar'">Ver gastos en días</ion-button>
+                                    <article>
+                                        <ion-segment v-model="showingGraphType">
+                                            <ion-segment-button value="expenses">Expenses</ion-segment-button>
+                                            <ion-segment-button value="days">Diário</ion-segment-button>
+                                            <ion-segment-button value="sums">Acumulado</ion-segment-button>
+                                        </ion-segment>
+                                    </article>
+
+                                    <br>
+
+                                    <bar-chart v-if="showingGraphType == 'days'" :height="200" :chart-data="chartData" :options="chartOptions"></bar-chart>
+                                    <line-chart v-if="showingGraphType == 'sums'" :height="200" :chart-data="chartAccumulatedData" :options="chartAccumulatedOptions"></line-chart>
+                                    <BarChart v-if="showingGraphType == 'expenses'" :height="200" :chart-data="chartJobsAndExpenses.expenses.data" :options="chartJobsAndExpenses.expenses.options"></BarChart>                                    
+                                    
+                                    
+                                    
+                                    <ion-button color="dark" v-if="showingGraphType == 'days'" expand="block" fill="clear" size="small" :readonly="true">Gastos en días</ion-button>
+                                    <ion-button color="dark" v-if="showingGraphType == 'sums'" expand="block" fill="clear" size="small" :readonly="true">Sumatória de gastos en el tiempo</ion-button>
+                                    <ion-button color="dark" v-if="showingGraphType == 'expenses'" expand="block" fill="clear" size="small" :readonly="true">Gastos por tipo de expense</ion-button>
 
                                 </ion-card-content>
                             </ion-card>
@@ -154,7 +169,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonGrid, IonCard, IonListHeader, IonSkeletonText, IonButtons, IonBackButton, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonNote, IonRow, IonButton, IonCol, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonIcon, IonList, IonItem, IonLabel, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { IonPage, IonHeader, IonGrid, IonCard, IonSegment, IonSegmentButton, IonListHeader, IonSkeletonText, IonButtons, IonBackButton, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonNote, IonRow, IonButton, IonCol, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonIcon, IonList, IonItem, IonLabel, actionSheetController, alertController, toastController } from '@ionic/vue';
 import { computed, onUnmounted, ref } from 'vue';
 
 import { addCircleOutline, alertCircle, cardOutline, cashOutline, chevronBackCircleOutline, chevronForwardCircleOutline, downloadOutline, gitCompareOutline, removeCircleOutline, shareOutline } from 'ionicons/icons';
@@ -170,8 +185,7 @@ import { DateTime } from 'luxon';
 import Numeral from 'numeral';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
-import { LineChart } from 'vue-chart-3';
-import { BarChart } from 'vue-chart-3';
+import { BarChart, DoughnutChart, LineChart } from 'vue-chart-3';
 
 import { Dialog } from '@/utils/Dialog/Dialog';
 import AddCreditPettyCash from '@/dialogs/AddCreditPettyCash/AddCreditPettyCash.vue';
@@ -180,6 +194,9 @@ import { Capacitor } from '@capacitor/core';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { useRoute } from 'vue-router';
 import { onMounted } from 'vue';
+import { Theme } from '@/utils/Theme/Theme';
+import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 const isLoading = ref<boolean>(true);
 const router = useRouter();
 const page = ref<HTMLElement|null>(null);
@@ -283,10 +300,18 @@ const userBalance = computed<UserBalanceComputed|null>(() => {
         });
         chartData.value.datasets[0].data = userBalanceData.value.items.map(d => d.amount);
 
+        if (userBalanceData.value.items.length < 5){
+            chartData.value.datasets[0].barThickness = 20;
+        }
+
 
         chartAccumulatedData.value.labels = userBalanceData.value.items.map((item) => {
             return DateTime.fromISO(item.date).toUnixInteger()
         });
+
+        if (userBalanceData.value.items.length < 5){
+            chartAccumulatedData.value.datasets[0].barThickness = 20;
+        }
 
         let accumulated = 0;
         chartAccumulatedData.value.datasets[0].data = userBalanceData.value.items.map(d => {
@@ -302,7 +327,7 @@ const walletType = ref(route.path.includes('my-wallet') ? 'my-wallet' : 'managem
 
 
 
-const showingGraphType = ref<'bar' | 'line'>('bar');
+const showingGraphType = ref<'sums' | 'days' | 'expenses'>('expenses');
 
 const chartData = ref<any>({
     type: 'bar',
@@ -341,7 +366,7 @@ const chartOptions = ref({
                         label += ': ';
                     }
                     if (context.parsed.y !== null) {
-                        label += '$' + Toolbox.moneyFormat(context.raw);
+                        label += 'S/.' + Toolbox.moneyFormat(context.raw);
                     }
                     return label;
                 }
@@ -374,9 +399,9 @@ const chartOptions = ref({
                 display: true,
                 callback: function(value: any, index: any, values: any) {
                     if (value >= 1000){
-                        return '$' + parseFloat(Toolbox.moneyFormat(value/1000)).toFixed(0) + 'K';
+                        return 'S/.' + parseFloat(Toolbox.moneyFormat(value/1000)).toFixed(0) + 'K';
                     }
-                    return '$' + Toolbox.moneyFormat(value);
+                    return 'S/.' + parseFloat(Toolbox.moneyFormat(value)).toFixed(0);
                 }
             }
         }
@@ -421,7 +446,7 @@ const chartAccumulatedOptions = ref({
                         label += ': ';
                     }
                     if (context.parsed.y !== null) {
-                        label += '$' + Toolbox.moneyFormat(context.raw);
+                        label += 'S/.' + Toolbox.moneyFormat(context.raw);
                     }
                     return label;
                 }
@@ -455,13 +480,153 @@ const chartAccumulatedOptions = ref({
                 display: true,
                 callback: function(value: any, index: any, values: any) {
                     if (value >= 1000){
-                        return '$' + parseFloat(Toolbox.moneyFormat(value/1000)).toFixed(0) + 'K';
+                        return 'S/.' + parseFloat(Toolbox.moneyFormat(value/1000)).toFixed(0) + 'K';
                     }
-                    return '$' + Toolbox.moneyFormat(value);
+                    return 'S/.' + parseFloat(Toolbox.moneyFormat(value)).toFixed(0);
                 }
             }
         }
     },
+})
+
+
+const chartJobsAndExpenses = computed(() => {
+    return {
+        jobs: {
+            data: {
+                labels: userBalance.value?.spendings.by_jobs.map((jobData) => jobData.code),
+                datasets: [
+                    {
+                        label: 'Gastos por Jobs',
+                        data: userBalance.value?.spendings.by_jobs.map((jobData) => jobData.amount),
+                        backgroundColor: Theme.getColorsForCharts(),
+                        hoverOffset: 4
+                    }
+                ]
+            },
+            options: {
+                type: 'doughnut',
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false,
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: false,
+                        text: 'Chart.js Doughnut Chart'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context:any) {
+                                const item = context[0];
+                                return item.label
+                            },
+                            label: function(context:any) {
+                                let label = context.dataset.label || '';
+                                label = 'Gastos';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += 'S/.' + Toolbox.moneyFormat(context.raw);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        expenses: {
+            data: {
+                labels: userBalance.value?.spendings.by_expenses.map((expenseData) => expenseData.code),
+                datasets: [
+                    {
+                        label: 'Gastos por Expenses',
+                        data: userBalance.value?.spendings.by_expenses.map((expenseData) => expenseData.amount),
+                        backgroundColor: Theme.getColorsForCharts(),
+                        hoverOffset: 4,
+                        borderRadius: 10,
+                        barThickness: (userBalance.value) ? userBalance.value?.spendings.by_expenses.length < 5 ? 20 : undefined : undefined,     
+                    }
+                ]
+            },
+            options: {
+                type: 'doughnut',
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false,
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: false,
+                        text: 'Chart.js Doughnut Chart'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context:any) {
+                                const item = context[0];
+
+                                const expenseCode = item.label;
+                                const expense = jobsAndExpenses.value?.expenses.find((expense) => expense.code == expenseCode);
+
+                                if (expense){
+                                    return `${expense.code} - ${expense.name}`;
+                                }
+                                return item.label
+                            },
+                            label: function(context:any) {
+                                let label = context.dataset.label || '';
+                                label = 'Gastos';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += 'S/.' + Toolbox.moneyFormat(context.raw);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: true,
+                            lineWidth: 1,
+                            drawBorder: false,
+                            zeroLineColor:'transparent'
+                        },
+                        ticks: {
+                            display: true,
+                            callback: function(value: any, index: any, values: any) {
+                            }
+                        },
+                        
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            lineWidth: 1,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            display: true,
+                            callback: function(value: any, index: any, values: any) {
+                                if (value >= 1000){
+                                    return 'S/.' + parseFloat(Toolbox.moneyFormat(value/1000)).toFixed(0) + 'K';
+                                }
+                                return 'S/.' + parseFloat(Toolbox.moneyFormat(value)).toFixed(0);
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    }
+    
 })
 
 
@@ -481,6 +646,8 @@ const comboChartData = computed(() => {
         ]
     }
 })
+
+const jobsAndExpenses = ref<{jobs: IJob[], expenses: IExpense[]}|null>(null);
 
 
 interface UserBalance{
@@ -553,6 +720,10 @@ interface UserBalance{
             };
         };
     };
+    spendings: {
+        by_jobs: {code: string, amount: number, count: number}[];
+        by_expenses: {code: string, amount: number, count: number}[];
+    }
 }
 interface UserBalanceComputed{
     user: {
@@ -654,6 +825,10 @@ interface UserBalanceComputed{
                 };
             };
         };
+    };
+    spendings: {
+        by_jobs: {code: string, amount: number, count: number}[];
+        by_expenses: {code: string, amount: number, count: number}[];
     };
 }
 const isAdmin = ref(false);
@@ -836,6 +1011,11 @@ onMounted(() => {
 
     const callbackId = AppEvents.on('all:reload', () => {
         loadUserBalanceYear();
+    })
+
+
+    JobsAndExpenses.getJobsAndExpenses().then((response) => {
+        jobsAndExpenses.value = response;
     })
 
     onUnmounted(() => {

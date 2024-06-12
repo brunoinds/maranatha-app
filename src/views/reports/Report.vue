@@ -810,7 +810,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                         iddle: false,
                         percentage: progress.percentage,
                         stage: {
-                            name: 'Generando PDF...',
+                            name: `Generando PDF (${progress.percentage.toFixed(0)}%)...`,
                             percentage: progress.percentage
                         }
                     }
@@ -835,7 +835,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                     iddle: false,
                     percentage: progress,
                     stage: {
-                        name: 'Descargando PDF...',
+                        name: `Descargando PDF (${progress.toFixed(0)}%)...`,
                         percentage: progress
                     }
                 }

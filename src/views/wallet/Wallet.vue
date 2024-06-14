@@ -295,26 +295,28 @@ const userBalance = computed<UserBalanceComputed|null>(() => {
     userBalance.petty_cash.reports.pending_reposition.currencies.soles.amount = Numeral(userBalance.petty_cash.reports.pending_reposition.currencies.soles.amount).format('0,0.00');
 
     if (userBalanceData.value){
-        chartData.value.labels = userBalanceData.value.items.map((item) => {
+        const debitsHistory = userBalanceData.value.items.filter((item) => item.type == 'Debit');
+
+        chartData.value.labels = debitsHistory.map((item) => {
             return DateTime.fromISO(item.date).toUnixInteger()
         });
-        chartData.value.datasets[0].data = userBalanceData.value.items.map(d => d.amount);
+        chartData.value.datasets[0].data = debitsHistory.map(d => d.amount);
 
-        if (userBalanceData.value.items.length < 5){
+        if (debitsHistory.length < 5){
             chartData.value.datasets[0].barThickness = 20;
         }
 
 
-        chartAccumulatedData.value.labels = userBalanceData.value.items.map((item) => {
+        chartAccumulatedData.value.labels = debitsHistory.map((item) => {
             return DateTime.fromISO(item.date).toUnixInteger()
         });
 
-        if (userBalanceData.value.items.length < 5){
+        if (debitsHistory.length < 5){
             chartAccumulatedData.value.datasets[0].barThickness = 20;
         }
 
         let accumulated = 0;
-        chartAccumulatedData.value.datasets[0].data = userBalanceData.value.items.map(d => {
+        chartAccumulatedData.value.datasets[0].data = debitsHistory.map(d => {
             accumulated += d.amount;
             return accumulated;
         });

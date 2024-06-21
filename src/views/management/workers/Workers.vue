@@ -10,6 +10,11 @@
         <main>
             <article v-if="segmentValue == 'workers'" class="content">
                 <ion-progress-bar type="indeterminate" v-if="isLoading"></ion-progress-bar>
+                <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
+                    <ion-fab-button @click="addWorker">
+                        <ion-icon :icon="addOutline"></ion-icon>
+                    </ion-fab-button>
+                </ion-fab>
                 <main>
                     <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                         <ion-item v-for="worker in workersAndPaymentsTableUI.workers" button @click="editWorker(worker as unknown as IWorker)">
@@ -22,11 +27,7 @@
                     </ion-list>
                     <br>
                 </main>
-                <footer class="ion-padding">
-                    <article>
-                        <ion-button expand="block" @click="addWorker">Nuevo trabajador</ion-button>
-                    </article>
-                </footer>
+                
             </article>
             <article v-if="segmentValue == 'table'">
                 <header class="ion-padding">

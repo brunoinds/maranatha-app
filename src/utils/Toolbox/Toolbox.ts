@@ -6,6 +6,7 @@ import Numeral  from "numeral";
 import sanitize from 'sanitize-filename';
 import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
 import { Environment } from "@/utils/Environment/Environment";
+import { ref } from "vue";
 
 class Toolbox{
     public static generateId(): string{
@@ -185,6 +186,17 @@ class Toolbox{
             const blob = new Blob(chunks);
             resolve(blob);
         });
+    }
+
+    public static useIsLoading(){
+        const isLoading = ref(false);
+        const startLoading = async (callback:Function) => {
+            isLoading.value = true;
+            await callback();
+            isLoading.value = false;
+        }
+
+        return {isLoading, startLoading};
     }
 }
 

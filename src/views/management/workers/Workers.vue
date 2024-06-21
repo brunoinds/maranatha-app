@@ -36,6 +36,12 @@
                     </ion-select>
                 </header>
                 <ion-progress-bar type="indeterminate" v-if="isLoading"></ion-progress-bar>
+                <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
+                    <ion-fab-button @click="createWorkersPayment">
+                        <ion-icon :icon="addOutline"></ion-icon>
+                    </ion-fab-button>
+                </ion-fab>
+
                 <main>
                     <article class="table-holder">
                         <table class="attendance-table">
@@ -171,6 +177,7 @@ import { onUnmounted } from 'vue';
 import { IWorker, IWorkerPayment } from '@/interfaces/WorkerInterfaces';
 import CreateWorker from '@/dialogs/CreateWorker/CreateWorker.vue';
 import CreateWorkerPayment from '@/dialogs/CreateWorkerPayment/CreateWorkerPayment.vue';
+import CreateWorkersPayment from '@/dialogs/CreateWorkerPayment/CreateWorkersPayment.vue';
 import EditWorker from '@/dialogs/EditWorker/EditWorker.vue';
 
 
@@ -281,6 +288,23 @@ const editWorker = async (worker:IWorker) => {
     })
 }
 
+const createWorkersPayment = async (worker:IWorker, month: number, year:number) => {
+    Dialog.show(CreateWorkersPayment, {
+        onLoaded($this) {
+            $this.on('updated', (event:any) => {
+                loadWorkersAndPayments();
+            })
+            $this.on('created', (event:any) => {
+                loadWorkersAndPayments();
+            })
+        },
+        props: {
+            month,
+            year,
+            worker
+        }
+    })
+}
 
 const changeWorkerPayment = async (worker:IWorker|null = null, payment: IWorkerPayment|null = null, month: number, year:number) => {
     Dialog.show(CreateWorkerPayment, {

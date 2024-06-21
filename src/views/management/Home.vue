@@ -78,7 +78,7 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonSegment, IonSegmentButton, IonTitle, IonRefresher, IonRefresherContent, IonContent,IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, sendOutline, closeCircleOutline, pencilOutline, home } from 'ionicons/icons';
 import { EReportStatus, IReport } from '../../interfaces/ReportInterfaces';
 import { useRouter, useRoute } from 'vue-router';
@@ -93,6 +93,7 @@ import { Viewport } from '@/utils/Viewport/Viewport';
 import Graphs from '@/views/management/graphs/Graphs.vue';
 import HomeGraphs from '@/views/management/graphs/HomeGraphs.vue';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { useManagementHtml } from '@/views/management/management';
 const router = useRouter();
 const route = useRoute();
 const page = ref<HTMLElement|null>(null);
@@ -167,4 +168,9 @@ const segments = [
 const currentSegment = computed(() => {
     return segments.find((s) => {return s.id == segmentValue.value});
 })
+
+onMounted(() => {
+    const {setPage} = useManagementHtml();
+    setPage(page.value);
+});
 </script>

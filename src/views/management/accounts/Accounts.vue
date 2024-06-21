@@ -17,13 +17,14 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonImg, IonAvatar,IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import EditUser from '@/dialogs/EditUser/EditUser.vue';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn } from 'ionicons/icons';
 import { IReport } from '@/interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
+import { useManagementHtml } from '@/views/management/management';
 const accountsData = ref<any>(null);
 const isLoading = ref<boolean>(true);
 const router = useRouter();
@@ -55,7 +56,13 @@ const updateUser = (account) => {
     })
 }
 
-loadAccounts()
+loadAccounts();
+
+
+onMounted(() => {
+    const info = useManagementHtml();
+    page.value = info.page.value;
+})
 </script>
 
 <style scoped lang="scss">

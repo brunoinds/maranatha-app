@@ -179,12 +179,14 @@ import CreateWorker from '@/dialogs/CreateWorker/CreateWorker.vue';
 import CreateWorkerPayment from '@/dialogs/CreateWorkerPayment/CreateWorkerPayment.vue';
 import CreateWorkersPayment from '@/dialogs/CreateWorkerPayment/CreateWorkersPayment.vue';
 import EditWorker from '@/dialogs/EditWorker/EditWorker.vue';
+import { useManagementHtml } from '@/views/management/management';
 
 
 const isLoading = ref<boolean>(true);
 const segmentValue = ref<string>('workers');
 const workers = ref<IWorker[]>([]);
 const payments = ref<IWorkerPayment[]>([]);
+const page = ref<HTMLElement|null>(null);
 
 const workersAndPaymentsTableUI = computed(() => {
     const year = yearDropdownChosen.value;
@@ -267,6 +269,10 @@ const addWorker = async () => {
             $this.on('created', (event:any) => {
                 loadWorkersAndPayments();
             })
+        },
+        modalControllerOptions: {
+            presentingElement: page,
+            showBackdrop: true,
         }
     })
 }
@@ -280,7 +286,10 @@ const editWorker = async (worker:IWorker) => {
             $this.on('updated', (event:any) => {
                 loadWorkersAndPayments();
             })
-
+        },
+        modalControllerOptions: {
+            presentingElement: page,
+            showBackdrop: true,
         },
         props: {
             worker: worker
@@ -297,6 +306,10 @@ const createWorkersPayment = async (worker:IWorker, month: number, year:number) 
             $this.on('created', (event:any) => {
                 loadWorkersAndPayments();
             })
+        },
+        modalControllerOptions: {
+            presentingElement: page,
+            showBackdrop: true,
         },
         props: {
             month,
@@ -318,6 +331,10 @@ const changeWorkerPayment = async (worker:IWorker|null = null, payment: IWorkerP
             $this.on('created', (event:any) => {
                 loadWorkersAndPayments();
             })
+        },
+        modalControllerOptions: {
+            presentingElement: page,
+            showBackdrop: true,
         },
         props: {
             workerPayment: payment,
@@ -354,6 +371,8 @@ onMounted(() => {
         AppEvents.off('all:reload', callbackId);
     })
     loadWorkersAndPayments();
+    const info = useManagementHtml();
+    page.value = info.page.value;
 })
 </script>
 

@@ -1,6 +1,5 @@
 <template>
     <ion-datetime
-      class="clink-date-time-range"
       presentation="date"
       locale="es-ES"
       multiple
@@ -15,6 +14,7 @@
   import { IonDatetimeCustomEvent, DatetimeHighlightCallback } from '@ionic/core';
   import { onMounted, ref } from 'vue';
   import { DateTime } from 'luxon';
+import { Theme } from '@/utils/Theme/Theme';
   
   interface ClinkDatetimeRange {
     start: string;
@@ -52,7 +52,7 @@
   
     if (isDateWhithinRange)
       return {
-        backgroundColor: '#e4edff',
+        backgroundColor: Theme.getTheme() == 'dark' ?  '#2f3640' : '#e4edff',
       };
   };
   

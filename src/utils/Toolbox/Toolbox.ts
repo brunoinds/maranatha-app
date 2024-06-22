@@ -74,11 +74,6 @@ class Toolbox{
         if (!options.includeFlag){
             return countryName as unknown as string;
         }
-
-        
-
-        
-
         return flags[countryType] + " " + countryName;
     }
 
@@ -197,6 +192,12 @@ class Toolbox{
         }
 
         return {isLoading, startLoading};
+    }
+
+    public static unProxy(val:any):any{
+        if (val instanceof Array) return val.map(Toolbox.unProxy)
+        if (val instanceof Object) return Object.fromEntries(Object.entries(Object.assign({},val)).map(([k,v])=>[k,Toolbox.unProxy(v)]))
+        return val
     }
 }
 

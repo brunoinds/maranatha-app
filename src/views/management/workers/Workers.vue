@@ -116,6 +116,11 @@
                     </ion-select>
                 </header>
                 <ion-progress-bar type="indeterminate" v-if="isLoading"></ion-progress-bar>
+                <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
+                    <ion-fab-button @click="createWorkersPayment">
+                        <ion-icon :icon="addOutline"></ion-icon>
+                    </ion-fab-button>
+                </ion-fab>
                 <main>
                     <ion-accordion-group style="margin-top:10px">
                         <ion-accordion v-for="worker in workersAndPaymentsTableUI.workers" :key="worker.id">
@@ -128,7 +133,7 @@
                             </ion-item>
                             <section slot="content">
                                 <ion-list>
-                                    <ion-item v-for="payment in worker.payments" :key="payment.id" button @click="changeWorkerPayment(worker as unknown as IWorker, (payment.hasPayment ? payment as unknown as IWorkerPayment : null), payment.month, payment.year)" :detail="true">
+                                    <ion-item v-for="payment in worker.payments.filter((payment) => {return payment.hasPayment})" :key="payment.id" button @click="changeWorkerPayment(worker as unknown as IWorker, (payment.hasPayment ? payment as unknown as IWorkerPayment : null), payment.month, payment.year)" :detail="true">
                                         <ion-label v-if="payment.hasPayment" color="success">
                                             <h2><b>{{payment.month }}/{{ payment.year }}</b></h2>
                                             <p>Pago realizado</p>
@@ -231,6 +236,7 @@ const workersAndPaymentsTableUI = computed(() => {
         workers: workersData
     }
 })
+
 
 const configurationsData = computed(() => {
     let items = [

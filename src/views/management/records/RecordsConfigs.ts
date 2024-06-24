@@ -115,7 +115,7 @@ const RecordsConfigs = {
         return [
             {
                 id: 'invoices-by-items',
-                title: 'Reporte General',
+                title: 'Boletas/Facturas',
                 filters: [
                     {
                         id: 'date_range',

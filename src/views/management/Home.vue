@@ -46,6 +46,7 @@
                         <Attendances v-if="segmentValue == 'attendances'"></Attendances>
                         <Settings v-if="segmentValue == 'settings'"></Settings>
                         <Workers v-if="segmentValue == 'workers'"></Workers>
+                        <Inventory v-if="segmentValue == 'inventory'"></Inventory>
                     </main>
                 </main>
             </article>
@@ -91,6 +92,7 @@ import Workers from '@/views/management/workers/Workers.vue';
 import Settings from '@/views/management/settings/Settings.vue';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import Graphs from '@/views/management/graphs/Graphs.vue';
+import Inventory from '@/views/management/inventory/Inventory.vue';
 import HomeGraphs from '@/views/management/graphs/HomeGraphs.vue';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { useManagementHtml } from '@/views/management/management';
@@ -150,6 +152,12 @@ const segments = [
         title: '💵 Billeteras',
         name: 'Billeteras',
         icon: '💵'
+    },
+    {
+        id: 'inventory',
+        title: '📦 Inventário',
+        name: 'Inventário',
+        icon: '📦'
     },
     {
         id: 'accounts',

@@ -70,8 +70,16 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/wallet/Wallet.vue')
   },
   {
-    path: '/chats/users/:userId',
-    component: () => import('@/views/chat/ChatView.vue')
+    path: '/inventory/warehouses',
+    component: () => import('@/views/inventory/warehouses/Warehouses.vue')
+  },
+  {
+    path: '/inventory/warehouses/:id',
+    component: () => import('@/views/inventory/warehouses/Warehouse.vue')
+  },
+  {
+    path: '/inventory/products',
+    component: () => import('@/views/inventory/products/Products.vue')
   },
 ]
 

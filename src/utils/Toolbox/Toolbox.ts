@@ -7,6 +7,7 @@ import sanitize from 'sanitize-filename';
 import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
 import { Environment } from "@/utils/Environment/Environment";
 import { ref } from "vue";
+import { EInventoryProductUnitType, productUnitTypes } from "@/interfaces/InventoryInterfaces";
 
 class Toolbox{
     public static generateId(): string{
@@ -47,6 +48,13 @@ class Toolbox{
             case EMoneyType.PYG:
                 return "Paraguayan Guaraníes";
         }
+    }
+
+    public static inventoryProductUnitName(unitType: EInventoryProductUnitType): string{
+        return productUnitTypes[unitType];
+    }
+    public static inventoryProductUnits(): EInventoryProductUnitType[]{
+        return Object.keys(productUnitTypes) as EInventoryProductUnitType[];
     }
 
     public static countryName(countryType: string, options: {includeFlag?: boolean, flagOnly?: boolean, language?: string} = {

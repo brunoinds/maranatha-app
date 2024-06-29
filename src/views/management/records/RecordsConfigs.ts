@@ -445,7 +445,7 @@ const RecordsConfigs = {
             },
             {
                 id: 'attendances-by-workers-jobs-expenses',
-                title: 'Asistencias x Trabajadores x Jobs x Expenses',
+                title: 'Gastos por Trabajadores en Planilla',
                 filters: [
                     {
                         id: 'date_range',

@@ -17,16 +17,17 @@
                     <ion-icon slot="end" :icon="arrowForwardCircleOutline"></ion-icon>
                     <ion-label>Generar Informe</ion-label>
                 </ion-button>
+                <ion-button color="success" @click="downloadExcel" fill="clear" size="default" expand="block" style="max-width: 200px; margin: 0 auto; width: 100%;">
+                    <ion-icon slot="end" :icon="cloudDownloadOutline"></ion-icon>
+                    Descargar Excel
+                </ion-button>
             </div>
         </header>
         <main>
             <table-area v-if="currentRecord.data.headers.length > 0 || currentRecord.data.isLoading" :headers="currentRecord.data.headers" :items="currentRecord.data.body" :is-loading="currentRecord.data.isLoading"></table-area>
         </main>
-        <footer v-if="currentRecord.data.headers.length > 0" class="ion-padding">
-            <ion-button color="success" @click="downloadExcel" fill="outline" size="small" expand="block" style="max-width: 200px; margin: 0 auto; width: 100%;">
-                <ion-icon slot="start" :icon="cloudDownloadOutline"></ion-icon>
-                Descargar Excel
-            </ion-button>
+        <footer  class="ion-padding">
+            
         </footer>
     </article>
 </template>
@@ -94,7 +95,13 @@ interface IRecordFilter{
     value?: any;
 }
 
-const downloadExcel = () => {
+const downloadExcel = async () => {
+    if (currentRecord.value.data.headers.length == 0){
+        await currentRecord.value.doSearch();
+    }
+
+
+
     if (currentRecord.value.configuration?.id == 'attendances-by-workers-jobs-expenses'){
         GenerateAttendancesByWorkersJobsExpenses.render(currentRecord.value.data).then((result) => {
             const fileTitle = 'Informe ' + currentRecord.value.configuration?.title
@@ -134,54 +141,57 @@ const currentRecord = ref<{
     };
     filters: any[];
     doSearch: () => void;
-}>({
-    configuration: null,
-    data: {
-        headers: [],
-        body: [],
-        query: {},
-        footer: null,
-        rules: null,
-        metadata: null,
-        isLoading: false
-    },
-    filters: [],
-    doSearch: () => {
-        currentRecord.value.data.isLoading = true;
+    }>({
+        configuration: null,
+        data: {
+            headers: [],
+            body: [],
+            query: {},
+            footer: null,
+            rules: null,
+            metadata: null,
+            isLoading: false
+        },
+        filters: [],
+        doSearch: () => {
+            return new Promise((resolve) => {
+                currentRecord.value.data.isLoading = true;
+                if (currentRecord.value.configuration?.filters)
 
-        if (currentRecord.value.configuration?.filters)
+                RequestAPI.get('/management/records/' + currentRecord.value.configuration?.endpoint, (() => {
+                    const query:any = {};
+                    currentRecord.value.filters.forEach((filter) => {
+                        query[filter.value.id] = filter.value.value;
 
-        RequestAPI.get('/management/records/' + currentRecord.value.configuration?.endpoint, (() => {
-            const query:any = {};
-            currentRecord.value.filters.forEach((filter) => {
-                query[filter.value.id] = filter.value.value;
+                        if (filter.value.id == 'date_range'){
+                            query['start_date'] = DateTime.fromFormat(filter.value.value.start, 'yyyy-MM-dd').toISO();
+                            query['end_date'] = DateTime.fromFormat(filter.value.value.end, 'yyyy-MM-dd').toISO()
+                        }
+                    });
 
-                if (filter.value.id == 'date_range'){
-                    query['start_date'] = DateTime.fromFormat(filter.value.value.start, 'yyyy-MM-dd').toISO();
-                    query['end_date'] = DateTime.fromFormat(filter.value.value.end, 'yyyy-MM-dd').toISO()
-                }
-            });
+                    query['date_range'] = undefined;
 
-            query['date_range'] = undefined;
+                    return query;
+                })())
+                .then((response) => {
+                    currentRecord.value.data.headers = response.data.headers;
+                    currentRecord.value.data.body = response.data.body;
+                    currentRecord.value.data.query = response.query;
+                    currentRecord.value.data.footer = response.data.footer || undefined;
+                    currentRecord.value.data.rules = response.data.rules || undefined;
+                    currentRecord.value.data.metadata = response.data.metadata || undefined;
 
-            return query;
-        })())
-        .then((response) => {
-            currentRecord.value.data.headers = response.data.headers;
-            currentRecord.value.data.body = response.data.body;
-            currentRecord.value.data.query = response.query;
-            currentRecord.value.data.footer = response.data.footer || undefined;
-            currentRecord.value.data.rules = response.data.rules || undefined;
-            currentRecord.value.data.metadata = response.data.metadata || undefined;
+                    if (currentRecord.value.configuration?.data?.body?.formatData){
+                        currentRecord.value.data.body = currentRecord.value.data.body.map((item:any) => {
+                            return currentRecord.value.configuration.data.body.formatData(item);
+                        })
+                    }
 
-            if (currentRecord.value.configuration?.data?.body?.formatData){
-                currentRecord.value.data.body = currentRecord.value.data.body.map((item:any) => {
-                    return currentRecord.value.configuration.data.body.formatData(item);
+                    currentRecord.value.data.isLoading = false;
+                    resolve()
                 })
-            }
-
-            currentRecord.value.data.isLoading = false;
         })
+        
     }
 })
 

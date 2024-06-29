@@ -215,7 +215,8 @@ const workersAndPaymentsTableUI = computed(() => {
                 month: date.month,
                 year: date.year,
                 hasPayment: !!workerPayment,
-                amountString: Toolbox.moneyFormat(workerPayment?.amount || 0, workerPayment?.currency as any || 'PEN')
+                amountString: Toolbox.moneyFormat(workerPayment?.amount || 0, workerPayment?.currency as any || 'PEN'),
+                divisions: workerPayment?.divisions || []
             };
         })
         return {

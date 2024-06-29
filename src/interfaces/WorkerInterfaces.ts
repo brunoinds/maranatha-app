@@ -22,4 +22,37 @@ export interface IWorkerPayment {
     amount: number;
     currency: string;
     description?: string;
+    divisions: IWorkerPaymentDivision[];
+}
+
+export interface IWorkerPaymentDivision{
+    id: string;
+    name: string;
+    amount: number;
+}
+
+
+export const generateWorkersPaymentDefaultDivisions = () => {
+    return [
+        {
+            id: Math.random().toString(36).substring(7),
+            name: "Mano de obra",
+            amount: 0
+        },
+        {
+            id: Math.random().toString(36).substring(7),
+            name: "EsSalud",
+            amount: 0
+        },
+        {
+            id: Math.random().toString(36).substring(7),
+            name: "AFP",
+            amount: 0
+        },
+        {
+            id: Math.random().toString(36).substring(7),
+            name: "Gratificación",
+            amount: 0
+        }
+    ]
 }

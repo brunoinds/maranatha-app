@@ -57,6 +57,7 @@ import RecordsConfigs from '@/views/management/records/RecordsConfigs';
 import {ExcelGenerator} from '@/utils/Records/ExcelGenerator';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { GenerateAttendancesByWorkersJobsExpenses } from '@/utils/ExcelExport/AttendancesByWorkersJobsExpenses';
 
 const isLoading = ref<boolean>(true);
 const router = useRouter();
@@ -81,6 +82,7 @@ interface IRecordConfiguration{
         },
         footer?: any;
         rules?: any;
+        metadata?: any;
     }
 }
 interface IRecordFilter{
@@ -93,6 +95,15 @@ interface IRecordFilter{
 }
 
 const downloadExcel = () => {
+    if (currentRecord.value.configuration?.id == 'attendances-by-workers-jobs-expenses'){
+        GenerateAttendancesByWorkersJobsExpenses.render(currentRecord.value.data).then((result) => {
+            const fileTitle = 'Informe ' + currentRecord.value.configuration?.title
+            Toolbox.share(fileTitle + '.xls', result as unknown as string)
+        })
+        return;
+    }
+
+
     ExcelGenerator.generateExcelFrom({
         data: {
             headers: currentRecord.value.data.headers,
@@ -118,6 +129,7 @@ const currentRecord = ref<{
         footer: any;
         rules: any;
         query: any;
+        metadata: any;
         isLoading: boolean;
     };
     filters: any[];
@@ -130,6 +142,7 @@ const currentRecord = ref<{
         query: {},
         footer: null,
         rules: null,
+        metadata: null,
         isLoading: false
     },
     filters: [],
@@ -159,7 +172,7 @@ const currentRecord = ref<{
             currentRecord.value.data.query = response.query;
             currentRecord.value.data.footer = response.data.footer || undefined;
             currentRecord.value.data.rules = response.data.rules || undefined;
-
+            currentRecord.value.data.metadata = response.data.metadata || undefined;
 
             if (currentRecord.value.configuration?.data?.body?.formatData){
                 currentRecord.value.data.body = currentRecord.value.data.body.map((item:any) => {

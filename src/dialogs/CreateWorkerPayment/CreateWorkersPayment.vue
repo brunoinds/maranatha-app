@@ -13,12 +13,10 @@
 
             <section class="ion-padding">
                 <article style="text-align: center;">
+                    <br><br>
                     <ion-icon :icon="receiptOutline" style="font-size: 94px;"></ion-icon>
                     <br><br>
                 </article>
-                <section class="ion-padding deposit-camp">
-                    <CurrencyInput ref="currencyInput" class="native-input sc-ion-input-ios" style="text-align: center; font-size: 48px;" v-if="currencyInputLifeCycleExists" v-model="dynamicData.amount" :options="{ currency: dynamicData.currency, autoDecimalDigits: false, currencyDisplay: 'narrowSymbol', locale: 'es-PE', hideCurrencySymbolOnFocus: false }"></CurrencyInput>
-                </section>
             </section>
 
             <ion-list :inset="true">
@@ -48,6 +46,40 @@
                 </ion-item>
             </ion-list>
 
+            <ion-list-header>Valores pagados</ion-list-header>
+            <section class="ion-padding">
+                <section class="ion-padding deposit-camp" v-if="dynamicData.divisions.length == 0">
+                    <CurrencyInput ref="currencyInput" class="native-input sc-ion-input-ios" style="text-align: center; font-size: 48px;" v-if="currencyInputLifeCycleExists" v-model="dynamicData.amount" :options="{ currency: dynamicData.currency, autoDecimalDigits: false, currencyDisplay: 'narrowSymbol', locale: 'es-PE', hideCurrencySymbolOnFocus: false }"></CurrencyInput>
+                </section>
+
+                <section class="ion-padding deposit-camp" v-if="dynamicData.divisions.length > 0">
+                    <p :data="divisionsValues" :readonly="true">{{Toolbox.moneyPrefix(dynamicData.currency as any)}} {{Toolbox.moneyFormat(dynamicData.amount)}}</p>
+                </section>
+            </section>
+            
+            <section class="ion-padding" style="display: flex;align-items: center;justify-content: center;margin-top: -29px;margin-bottom: -29px;">
+                <ion-button expand="block" size="default" fill="clear" style="width: 50%;" @click="addDivision" :disabled="isLoading" v-if="!workerPayment">
+                    <ion-icon :icon="addOutline" slot="end"></ion-icon>
+                    Agregar monto
+                </ion-button>
+            </section>
+            <ion-list :inset="true">
+                <ion-item v-for="(division, index) in dynamicData.divisions" :key="division.id">
+                    <div slot="start"></div>
+                    <ion-input style="flex: 1 1 80%;max-width: 75%;min-width: 75%;" label="Descripción" label-placement="stacked" placeholder="Descripción" v-model="division.name"></ion-input>
+
+                    <section style="display: flex; align-items: center;">
+                        <label style="align-self: flex-end; padding-bottom: 9px; padding-right: 3px;">{{ Toolbox.moneyPrefix(dynamicData.currency as any) }}</label>
+                        <ion-input min="0" max="100" style="flex: 30%; min-width: 85px; max-width: 85px;"  label="Monto" label-placement="stacked" type="number" :placeholder="'0.00'" v-model="division.amount" inputmode="decimal"></ion-input>
+                    </section>
+                    
+                    <ion-button fill="clear" slot="end" color="danger" @click="dynamicData.divisions = dynamicData.divisions.filter(e => e.id != division.id);">
+                        <ion-icon :icon="removeCircleOutline"></ion-icon>
+                    </ion-button>
+                </ion-item>
+            </ion-list>
+            
+
             <section class="ion-padding">
                 <ion-button color="success" expand="block" size="default" style="height: 50px" @click="createPayment" :disabled="isLoading" v-if="!workerPayment">
                     <ion-icon :icon="checkmarkCircleOutline" slot="end"></ion-icon>
@@ -60,15 +92,15 @@
 
 <script setup lang="ts">
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { IonButton, IonButtons, IonContent, IonHeader, IonLabel, IonInput,IonIcon, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
+import { IonButton, IonButtons, IonContent, IonHeader, IonLabel, IonListHeader, IonInput,IonIcon, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { computed, onMounted, ref, watch } from 'vue';
 import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
-import { arrowForwardCircleOutline, trashOutline, receiptOutline, checkmarkCircleOutline } from 'ionicons/icons';
-import { IWorker, IWorkerPayment } from '@/interfaces/WorkerInterfaces';
+import { arrowForwardCircleOutline, trashOutline, receiptOutline, addOutline, removeCircleOutline, checkmarkCircleOutline } from 'ionicons/icons';
+import { IWorker, IWorkerPayment, generateWorkersPaymentDefaultDivisions } from '@/interfaces/WorkerInterfaces';
 import CurrencyInput from '@/components/CurrencyInput/CurrencyInput.vue';
 import WorkersSelector from '@/dialogs/WorkersSelector/WorkersSelector.vue';
 import { DateTime } from 'luxon';
-
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
 
 
 const isLoading = ref<boolean>(false);
@@ -106,13 +138,15 @@ const dynamicData = ref<{
     amount: number;
     currency: string;
     description?: string;
+    divisions: Array<{id: string, name: string, amount: number}>;
 }>({
     workers: [],
     month: DateTime.now().minus({ months: 1 }).month,
     year: DateTime.now().year,
     amount: props.workerPayment ? props.workerPayment.amount : 0,
     currency: props.workerPayment ? props.workerPayment.currency : 'PEN',
-    description: props.workerPayment ? props.workerPayment.description : ''
+    description: props.workerPayment ? props.workerPayment.description : '',
+    divisions: []
 });
 
 const monthNamesAndValues = [
@@ -137,6 +171,21 @@ const selectedWorkersNames = computed(() => {
     return `${dynamicData.value.workers.map((worker) => worker.name).join('; ')}`;
 });
 
+const divisionsValues = computed(() => {
+    let sumValue = 0;
+    dynamicData.value.divisions.forEach((division) => {
+        if (isNaN(parseFloat(division.amount as any))){
+            sumValue += 0;
+        }else{
+            sumValue += parseFloat(division.amount as any);
+        }
+    });
+    if (dynamicData.value.divisions.length > 0){
+        dynamicData.value.amount = sumValue;
+    }
+
+    return sumValue;
+});
 
 const onCurrencyChange = () => {
     currencyInputLifeCycleExists.value = false;
@@ -186,7 +235,14 @@ const createPayment = async () => {
             year: dynamicData.value.year,
             amount: dynamicData.value.amount,
             currency: dynamicData.value.currency,
-            description: dynamicData.value.description
+            description: dynamicData.value.description,
+            divisions: dynamicData.value.divisions.map((division) => {
+                return {
+                    id: division.id,
+                    name: division.name,
+                    amount: parseFloat(division.amount as any)
+                }
+            })
         }
 
         RequestAPI.post('/workers-payments', dataParsed).then((response) => {
@@ -242,8 +298,18 @@ const openWorkersSelector = () => {
     })
 }
 
-onMounted(() => {
+const addDivision = () => {
+    dynamicData.value.divisions.push({
+        id: Math.random().toString(36).substring(7),
+        name: 'Monto sin nombre',
+        amount: (dynamicData.value.divisions.length == 0) ? dynamicData.value.amount : 0
+    });
+}
 
+onMounted(() => {
+    generateWorkersPaymentDefaultDivisions().map((division) => {
+        dynamicData.value.divisions.push(division);
+    });
 })
 </script>
 
@@ -253,6 +319,11 @@ onMounted(() => {
     border-radius: 19px;
     &:focus-within{
         background-color: var(--ion-color-light-shade);
+    }
+    > p{
+        text-align: center;
+        font-size: 48px;
+        margin: 0;
     }
 }
 </style>

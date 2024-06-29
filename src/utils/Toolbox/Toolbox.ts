@@ -202,6 +202,17 @@ class Toolbox{
         return {isLoading, startLoading};
     }
 
+    public static getStringBetweenStrings(strArray: Array<string>, search: string): string{
+        //Get the string between two strings:
+        const beginString = strArray[0];
+        const endString = strArray[1];
+
+        //Use regex to get the string between two strings:
+        const regex = new RegExp(`${beginString}(.*?)${endString}`);
+        const result = search.match(regex);
+        return result ? result[1] : '';
+    }
+
     public static unProxy(val:any):any{
         if (val instanceof Array) return val.map(Toolbox.unProxy)
         if (val instanceof Object) return Object.fromEntries(Object.entries(Object.assign({},val)).map(([k,v])=>[k,Toolbox.unProxy(v)]))

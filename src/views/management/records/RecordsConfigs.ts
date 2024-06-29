@@ -444,6 +444,72 @@ const RecordsConfigs = {
                 }
             },
             {
+                id: 'attendances-by-workers-jobs-expenses',
+                title: 'Asistencias x Trabajadores x Jobs x Expenses',
+                filters: [
+                    {
+                        id: 'date_range',
+                        name: 'Rango Fechas',
+                        isRequired: true,
+                        type: 'daterange',
+                        value: {
+                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
+                            end: DateTime.now().toFormat('yyyy-MM-dd')
+                        }
+                    },
+                    {
+                        id: 'job_code',
+                        name: 'Job',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: jobsDropdownOptions
+                    },
+                    {
+                        id: 'job_zone',
+                        name: 'Zona de Job',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: jobsZonesDropdownOptions
+                    },
+                    {
+                        id: 'expense_code',
+                        name: 'Expense Code',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: expensesDropdownOptions
+                    },
+                    {
+                        id: 'supervisor',
+                        name: 'Supervisor',
+                        isRequired: false,
+                        type: 'textbox',
+                        value: null
+                    },
+                    {
+                        id: 'worker_dni',
+                        name: 'DNI Trabajador',
+                        isRequired: false,
+                        type: 'textbox',
+                        value: null
+                    }
+                ],
+                endpoint: 'attendances/by-workers-jobs-expenses',
+                data: {
+                    body: {
+                        formatData: (item:any) => {
+                            Object.keys(item).forEach((key) => {
+                                if (key.endsWith('_money')){
+                                    item[key] = item[key].toFixed(2);
+                                }
+                            })
+                            return {
+                                ...item,
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 id: 'attendances-by-workers',
                 title: 'Asistencias x Trabajadores',
                 filters: [

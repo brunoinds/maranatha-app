@@ -21,6 +21,24 @@ interface IRecordData{
 }
 
 
+export class ExcelTools{
+    public static getExcelAlpha(index: number):string{
+        let excelAlpha = "";
+        let overflow = false;
+        let overflowIndex = 0;
+        while (index > 26){
+            overflow = true;
+            overflowIndex++;
+            index = index - 26;
+        }
+        if (overflow){
+            excelAlpha += String.fromCharCode(64 + overflowIndex);
+        }
+        excelAlpha += String.fromCharCode(64 + index);
+        return excelAlpha;
+    }
+}
+
 
 class ExcelGenerator{
     public static generateExcelFrom(options: {filters: IRecordFilter[], data: IRecordData, title: string}){
@@ -29,20 +47,7 @@ class ExcelGenerator{
         const worksheet = workbook.addWorksheet("Sheet 1");
         const maxColumns = options.data.headers.length;
         const getExcelAlpha = (index: number) => {
-            //Get excel column name from index, if overflow Z, then AA, AB, AC, etc.:
-            let excelAlpha = "";
-            let overflow = false;
-            let overflowIndex = 0;
-            while (index > 26){
-                overflow = true;
-                overflowIndex++;
-                index = index - 26;
-            }
-            if (overflow){
-                excelAlpha += String.fromCharCode(64 + overflowIndex);
-            }
-            excelAlpha += String.fromCharCode(64 + index);
-            return excelAlpha;
+            return ExcelTools.getExcelAlpha(index);
         }
         const getBodyRowExcelIndex = (index: number) => {
             return headingRowsCount + index;
@@ -236,6 +241,26 @@ class ExcelGenerator{
             });
         })
         
+    }
+
+
+    public static generateCustomExcelFrom(callback: Function){
+        return new Promise((resolve, reject) => {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet("Sheet 1");
+
+            callback(worksheet, workbook);
+
+            workbook.xlsx.writeBuffer().then(data => {
+                const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                //Convert to base64 content:
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = () => {
+                    resolve(reader.result?.split(',')[1]);
+                };
+            });
+        })
     }
 }
 

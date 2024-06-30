@@ -51,7 +51,7 @@ export const generateWorkersPaymentDefaultDivisions = () => {
         },
         {
             id: Math.random().toString(36).substring(7),
-            name: "Gratificación",
+            name: "CTS",
             amount: 0
         }
     ]

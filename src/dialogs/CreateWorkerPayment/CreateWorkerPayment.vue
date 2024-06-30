@@ -103,6 +103,7 @@ import { arrowForwardCircleOutline, trashOutline, receiptOutline,addOutline, rem
 import { IWorker, IWorkerPayment, generateWorkersPaymentDefaultDivisions } from '@/interfaces/WorkerInterfaces';
 import CurrencyInput from '@/components/CurrencyInput/CurrencyInput.vue';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import { DateTime } from 'luxon';
 
 
 
@@ -358,11 +359,40 @@ const addDivision = () => {
     });
 }
 
-onMounted(() => {
-    if (!props.workerPayment){
+const setupByPreviousPayments = async () => {
+    const response = await RequestAPI.get('/worker-payments');
+    const workerLastPayments = response.filter((payment: IWorkerPayment) => {
+        return payment.worker_id == props.worker.id;
+    }).sort((a: IWorkerPayment, b: IWorkerPayment) => {
+        const dateA = DateTime.fromObject({year: a.year, month: a.month}).toMillis();
+        const dateB = DateTime.fromObject({year: b.year, month: b.month}).toMillis();
+        return dateB - dateA;
+    });
+
+    if (workerLastPayments.length == 0){
         generateWorkersPaymentDefaultDivisions().map((division) => {
             dynamicData.value.divisions.push(division);
         });
+    }else{
+        dynamicData.value.amount = workerLastPayments[0].amount;
+        dynamicData.value.currency = workerLastPayments[0].currency;
+        workerLastPayments[0].divisions.map((division:any) => {
+            dynamicData.value.divisions.push({...division, id: Math.random().toString(36).substring(7)});
+        });
+
+        if (workerLastPayments[0].divisions.length == 0){
+            dynamicData.value.divisions.push({
+                id: Math.random().toString(36).substring(7),
+                name: 'Monto sin nombre',
+                amount: workerLastPayments[0].amount
+            });
+        }
+    }
+}
+
+onMounted(() => {
+    if (!props.workerPayment){
+        setupByPreviousPayments();
     }
     
 })

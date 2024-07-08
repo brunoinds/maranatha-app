@@ -14,6 +14,21 @@
             </ion-fab>
 
             <section class="content">
+                <article v-for="attendanceGrouped  in attendancesGroupedUI">
+                    <ion-list-header>{{ attendanceGrouped.monthYearText }}</ion-list-header>
+                    <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                        <ion-item v-for="attendance in attendanceGrouped.attendances" :key="attendance.id" button @click="openAttendance(attendance.id)" :detail="true">
+                            <ion-label>
+                                <h2><b>{{attendance.from_date }} - {{ attendance.to_date }}</b></h2>
+                                <p><b>Job:</b> {{ attendance.job_name }} ({{ attendance.job_code }})</p>
+                                <p><b>Expense: </b>{{ attendance.expense_name }} ({{ attendance.expense_code }})</p>
+                                <p><b>Reportado en:</b> {{ attendance.created_at }}</p>
+                            </ion-label>
+                        </ion-item>
+                    </ion-list>
+                </article>
+
+
                 <article>
                     <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                         <ion-item v-for="attendance in attendances" :key="attendance.id" button @click="openAttendance(attendance.id)" :detail="true">
@@ -39,7 +54,7 @@
 
 <script setup lang="ts">
 import AttendanceIcon from '&/assets/icons/attendance.svg';
-import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonImg, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
+import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonImg, IonItem, IonListHeader, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
@@ -82,6 +97,29 @@ const attendances = computed(() => {
 
     return attendanceItems
 })
+
+const attendancesGroupedUI = computed(() => {
+    //Group attendances by from_date month/year:
+    const groupedAttendances = attendances.value.reduce((acc, attendance) => {
+        const monthYear = DateTime.fromFormat(attendance.from_date, 'dd/MM/yyyy').toFormat('MM/yyyy');
+        if (!acc[monthYear]){
+            acc[monthYear] = [];
+        }
+        acc[monthYear].push(attendance);
+        return acc;
+    }, {} as {[key: string]: IAttendance[]});
+
+    const groupedAttendancesUI = Object.keys(groupedAttendances).map((key) => {
+        return {
+            monthYear: key,
+            monthYearText: DateTime.fromFormat(key, 'MM/yyyy').toFormat('MMMM yyyy'),
+            attendances: groupedAttendances[key]
+        }
+    })
+
+    return groupedAttendancesUI;
+})
+
 const loadUserAttendances = async () => {
     const attendancesFetched = await RequestAPI.get('/me/attendances');
     const jobsAndExpensesData = await JobsAndExpenses.getJobsAndExpenses();

@@ -30,6 +30,11 @@
                 <ion-item>
                     <ion-input label="Repetir Contraseña" label-placement="stacked"  v-model="dynamicData.repeatPassword" type="password" :disabled="isLoading"></ion-input>
                 </ion-item>
+                <ion-item>
+                    <ion-select label="Permisos" label-placement="stacked" v-model="dynamicData.permissions" :disabled="isLoading" :multiple="true">
+                        <ion-select-option v-for="permission in userPermissionsAvailable" :value="permission.id">{{ permission.name }}</ion-select-option>
+                    </ion-select>
+                </ion-item>
             </ion-list>
             <section class="ion-padding">
                 <ion-button expand="block" shape="round" size="default" color="danger" style="height: 50px" @click="deleteUser" :disabled="isLoading">
@@ -54,6 +59,7 @@ import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
 import * as EmailValidator from 'email-validator';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { userPermissionsAvailable } from '@/interfaces/UserInterfaces';
 
 
 const isLoading = ref<boolean>(false);
@@ -68,18 +74,23 @@ const props = defineProps({
     }
 });
 const dynamicData = ref<{
+    id: number,
     name: string,
     username: string,
     email: string,
     password: string,
-    repeatPassword: string
+    repeatPassword: string,
+    permissions: Array<string>,
+    roles: Array<string>
 }>({
     id: props.account.id,
     name: props.account.name,
     username: props.account.username,
     email: props.account.email,
     password: '',
-    repeatPassword: ''
+    repeatPassword: '',
+    permissions: props.account.permissions,
+    roles: props.account.roles
 });
 
 const onEvents = {
@@ -128,7 +139,9 @@ const updateAccount = async () => {
         name: dynamicData.value.name,
         username: dynamicData.value.username,
         email: dynamicData.value.email,
-        password: dynamicData.value.password
+        password: dynamicData.value.password,
+        permissions: dynamicData.value.permissions,
+        roles: dynamicData.value.roles
     }
 
     if (dataParsed.name == props.account.name){
@@ -143,6 +156,7 @@ const updateAccount = async () => {
     if (dataParsed.password == ''){
         delete dataParsed.password;
     }
+
 
     RequestAPI.patch('/users/' + props.account.id, dataParsed).then((response) => {
         alertController.create({

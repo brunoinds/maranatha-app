@@ -27,11 +27,11 @@
                     </ion-list>
                 </article>
 
-                <article v-if="!isLoading && attendances.length == 0" class="ion-padding" style="display: flex;flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                    <ion-img :src="AttendanceIcon" style="width: 90%;margin: 0 auto;"></ion-img>
-                    <h2>Aún no tienes asistencias</h2>
-                    <p class="ion-text-center">Crea tu primer listado de asistencia haciendo click en el botón "+" abajo</p>
-                </article>
+                <OnBoardingPanel v-if="!isLoading && attendances.length == 0"
+                    title="Aún no tienes asistencias"
+                    description="Crea tu primer listado de asistencia haciendo click en el botón '+' abajo"
+                    :icon="AttendanceIcon"
+                ></OnBoardingPanel>
             </section>
         </ion-content>
     </ion-page>
@@ -53,6 +53,7 @@ import { useRouter } from 'vue-router';
 import NewAttendance from '../../dialogs/NewAttendance/NewAttendance.vue';
 import { IAttendance } from '../../interfaces/AttendanceInterfaces';
 import { AppEvents } from '../../utils/AppEvents/AppEvents';
+import OnBoardingPanel from '@/components/OnBoardingPanel/OnBoardingPanel.vue';
 
 const attendancesData = ref<Array<IAttendance>>([]);
 const isLoading = ref<boolean>(true);

@@ -32,6 +32,9 @@
                         <ion-select-option value="US">EE. UU. 🇺🇸</ion-select-option>
                     </ion-select>
                 </ion-item>
+                <ion-item button @click="(e) => {openUserSelector(); e.stopPropagation()}">
+                    <ion-input :readonly="true" label="Administradores del Almacén:" label-placement="stacked" placeholder="Selecciona los usuarios" :value="ownersSelectedData.map((item) => item.name).join(', ')"></ion-input>
+                </ion-item>
             </ion-list>
 
             <datalist id="inventory-warehouses-zones-datatlist">
@@ -52,10 +55,12 @@
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonInput,IonIcon, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { computed, onMounted, ref } from 'vue';
-import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
+import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { arrowForwardCircleOutline, cubeOutline, storefrontOutline } from 'ionicons/icons';
 import { IWorker } from '@/interfaces/WorkerInterfaces';
 import { IWarehouse } from '@/interfaces/InventoryInterfaces';
+import UsersSelector from '@/dialogs/UsersSelector/UsersSelector.vue';
+import { IUser } from '@/interfaces/UserInterfaces';
 
 const zoneInput = ref<any | null>(null);
 
@@ -78,12 +83,17 @@ const props = defineProps({
 const dynamicData = ref<{
     name: string,
     zone: string,
-    country: string
+    country: string,
+    owners: Array<number>
 }>({
     name: '',
     zone: '',
-    country: 'PE'
+    country: 'PE',
+    owners: []
 });
+
+
+const ownersSelectedData = ref<Array<IUser>>([]);
 
 
 const createWarehouse = async () => {
@@ -107,7 +117,8 @@ const createWarehouse = async () => {
     const dataParsed = {
         name: dynamicData.value.name,
         zone: dynamicData.value.zone,
-        country: dynamicData.value.country
+        country: dynamicData.value.country,
+        owners: dynamicData.value.owners
     }
 
     RequestAPI.post('/inventory/warehouses', dataParsed).then((response) => {
@@ -157,6 +168,24 @@ const validateCamps = () => {
         isValid: errors.length == 0,
         errors: errors
     }
+}
+const openUserSelector  = () => {
+    Dialog.show(UsersSelector, {
+        props: {
+            selectedUsersIds: dynamicData.value.owners,
+            allowMultipleChoice: true
+        },
+        onLoaded($this) {
+            $this.on('selected', (event:any) => {
+                const users = event.data;
+                dynamicData.value.owners = users.map((user: any) => user.id);
+                ownersSelectedData.value = users;
+            })
+            
+            $this.on('close', () => {
+            })
+        },
+    })
 }
 
 onMounted(() => {

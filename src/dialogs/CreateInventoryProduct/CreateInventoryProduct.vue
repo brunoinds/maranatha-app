@@ -1,5 +1,5 @@
 <template>
-    <ion-page>
+    <ion-page ref="page">
         <ion-header>
             <ion-toolbar>
                 <ion-buttons slot="start">
@@ -11,15 +11,19 @@
         </ion-header>
         <ion-content>
             <section class="ion-padding">
-                <article style="text-align: center;">
+                <article class="header" style="text-align: center;">
                     <br><br>
-                    <ion-icon :icon="pricetagOutline" style="font-size: 94px;"></ion-icon>
-                    <br><br>
+                    <ion-icon :icon="pricetagOutline" style="font-size: 94px;"  v-if="dynamicData.image.length == 0"></ion-icon>
+                    <ion-avatar style="height: 128px; width: 128px;" aria-hidden="true" v-if="dynamicData.image.length > 0">
+                        <img alt="" :src="dynamicData.image" />
+                    </ion-avatar>
+                    <ion-button size="small" fill="clear" v-if="dynamicData.image.length > 0" @click="dynamicData.image = ''">Remover foto del producto</ion-button>
+                    <ion-button size="small" fill="clear" v-if="dynamicData.image.length == 0" @click="searchImage">Seleccionar foto del producto</ion-button>
                 </article>
             </section>
             <ion-list :inset="true">
                 <ion-item>
-                    <ion-input label="Nombre" placeholder="Ej.: Acero" label-placement="stacked" v-model="dynamicData.name" :disabled="isLoading"></ion-input>
+                    <ion-input label="Nombre" placeholder="Ej.: Acero" label-placement="stacked" v-model="dynamicData.name" :disabled="isLoading" @ion-blur="onBlurName"></ion-input>
                 </ion-item>
                 <ion-item>
                     <ion-input label="Descripción" placeholder="Ej.: Detalles opcionales del producto" label-placement="stacked" v-model="dynamicData.description" :disabled="isLoading"></ion-input>
@@ -65,18 +69,19 @@
 
 <script setup lang="ts">
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { IonButton, IonButtons, IonContent, IonHeader, IonInput,IonIcon, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
+import { IonButton, IonButtons, IonContent, IonHeader, IonInput,IonIcon, IonAvatar, IonLabel, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { computed, onMounted, ref } from 'vue';
-import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
-import { arrowForwardCircleOutline, cubeOutline, pricetagOutline } from 'ionicons/icons';
+import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
+import { arrowForwardCircleOutline, cubeOutline, cameraOutline, pricetagOutline } from 'ionicons/icons';
 import { IWorker } from '@/interfaces/WorkerInterfaces';
 import { EInventoryProductStatus, EInventoryProductUnitType, IProduct } from '@/interfaces/InventoryInterfaces';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import ImageSearch from '@/dialogs/ImageSearch/ImageSearch.vue';
 
 const categoryInput = ref<any | null>(null);
 const brandInput = ref<any | null>(null);
 const presentationInput = ref<any | null>(null);
-
+const page = ref<HTMLElement|null>(null);
 const listProducts = ref<Array<IProduct>>([]);
 
 const autocompletionUI = computed(() => {
@@ -105,7 +110,8 @@ const dynamicData = ref<{
     unit: EInventoryProductUnitType,
     code: string,
     status: EInventoryProductStatus,
-    image: string
+    image: string,
+    isLoadingImage: boolean
 }>({
     name: '',
     description: '',
@@ -115,10 +121,34 @@ const dynamicData = ref<{
     unit: EInventoryProductUnitType.Units,
     code: '',
     status: EInventoryProductStatus.Active,
-    image: ''
+    image: '',
+    isLoadingImage: false
 });
 
 
+const onBlurName = async () => {
+    if (dynamicData.value.image.length > 0){
+        return;
+    }
+
+    if (dynamicData.value.name.trim().length == 0){
+        return;
+    }
+
+    if (dynamicData.value.isLoadingImage){
+        return;
+    }
+
+    dynamicData.value.isLoadingImage = true;
+    const imageResult = await RequestAPI.get('/inventory/product-image-search', {
+        query: dynamicData.value.name
+    });
+    dynamicData.value.isLoadingImage = false;
+
+    if (imageResult.length > 0){
+        dynamicData.value.image = imageResult[0];
+    }
+}
 const createProduct = async () => {
     const validationResponse = validateCamps();
 
@@ -188,6 +218,23 @@ const validateCamps = () => {
     }
 }
 
+const searchImage = () => {
+    Dialog.show(ImageSearch, {
+        props: {
+            query: dynamicData.value.name
+        },
+        onLoaded($this) {
+            $this.on('choose-src', (event:any) => {
+                dynamicData.value.image = event.data
+            })
+        },
+        modalControllerOptions: {
+            presentingElement: page,
+            showBackdrop: true,
+        }
+    })
+}
+
 onMounted(() => {
     setTimeout(() => {
         categoryInput.value.$el.nativeInput.setAttribute('list', 'inventory-products-categories-datatlist');
@@ -200,4 +247,12 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+
+.header{
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 10px;
+}
 </style>

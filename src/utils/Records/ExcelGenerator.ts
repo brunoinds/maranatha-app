@@ -70,7 +70,7 @@ class ExcelGenerator{
         worksheet.getCell('A2').font = { size: 14, bold: true };
         worksheet.getCell('A2').alignment = {vertical: 'middle', horizontal: 'center'};
 
-        worksheet.addRows([["Country - Peru"]]);
+        worksheet.addRows([[""]]);
         worksheet.mergeCells('A3:'+getExcelAlpha(maxColumns)+'3');
         worksheet.getCell('A3').font = { size: 12, bold: true };
         worksheet.getCell('A3').alignment = {vertical: 'middle', horizontal: 'center'};
@@ -148,7 +148,6 @@ class ExcelGenerator{
                 return Object.keys(obj).map(key => obj[key]);
             }
             const items = getObjectValues(orderObjectKeys(row, options.data.headers.map((header) => header.key)));
-
             worksheet.addRows([items]);
             worksheet.getRow(worksheet.rowCount).eachCell((cell) => {
                 cell.border = {

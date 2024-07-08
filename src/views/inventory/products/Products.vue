@@ -16,6 +16,9 @@
             <section>
                 <ion-list>
                     <ion-item v-for="product in productsData" :key="product.id">
+                        <ion-avatar slot="start" v-if="product.image">
+                            <img :src="product.image" />
+                        </ion-avatar>
                         <ion-label>
                             <h2>{{ product.name }}</h2>
                             <p>{{ product.description }}</p>
@@ -30,14 +33,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonCheckbox, IonSegment, IonSelect, IonSelectOption, IonButton, IonSegmentButton, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonAvatar, IonCheckbox, IonSegment, IonSelect, IonSelectOption, IonButton, IonSegmentButton, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { addOutline } from 'ionicons/icons';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IProduct, IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateInventoryProduct from '@/dialogs/CreateInventoryProduct/CreateInventoryProduct.vue';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
-import CreateInventoryWarehouseIncome from '@/dialogs/CreateInventoryWarehouseIncome/CreateInventoryWarehouseIncome.vue';
 
 const page = ref<HTMLElement|null>(null);
 const isLoading = ref<boolean>(false);
@@ -45,10 +47,10 @@ const isLoading = ref<boolean>(false);
 const productsData = ref<IProduct[]>([]);
 
 const createNewProduct = () => {
-    Dialog.show(CreateInventoryWarehouseIncome, {
+    Dialog.show(CreateInventoryProduct, {
         onLoaded($this) {
             $this.on('created', (event:any) => {
-                loadWarehouses();
+                AppEvents.emit('inventory:reload');
             })
         },
         modalControllerOptions: {
@@ -60,7 +62,7 @@ const createNewProduct = () => {
 
 
 
-const loadWarehouses = async () => {
+const loadProducts = async () => {
     isLoading.value = true;
     const response = await RequestAPI.get('/inventory/products');
 
@@ -71,10 +73,10 @@ const loadWarehouses = async () => {
 
 
 onMounted(() => {
-    loadWarehouses();
+    loadProducts();
 
     const callbackId = AppEvents.on('inventory:reload', () => {
-        loadWarehouses();
+        loadProducts();
     })
     onUnmounted(() => {
         AppEvents.off('all:reload', callbackId);

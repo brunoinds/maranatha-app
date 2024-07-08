@@ -12,6 +12,10 @@ const routes: Array<RouteRecordRaw> = [
         redirect: '/login'
       },
       {
+        path: 'inventory',
+        component: () => import('@/views/inventory/Inventory.vue')
+      },
+      {
         path: 'my-wallet',
         component: () => import('@/views/wallet/Wallet.vue')
       },
@@ -76,6 +80,18 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/inventory/warehouses/:id',
     component: () => import('@/views/inventory/warehouses/Warehouse.vue')
+  },
+  {
+    path: '/inventory/warehouses/:warehouseId/stock',
+    component: () => import('@/views/inventory/stock/WarehouseStock.vue')
+  },
+  {
+    path: '/inventory/outcome-requests/:id',
+    component: () => import('@/views/inventory/outcome-requests/OutcomeRequest.vue')
+  },
+  {
+    path: '/inventory/outcome-requests/:id/chat',
+    component: () => import('@/views/inventory/outcome-requests/OutcomeRequestChat.vue')
   },
   {
     path: '/inventory/products',

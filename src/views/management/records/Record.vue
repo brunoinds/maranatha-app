@@ -1,6 +1,6 @@
 <template>
     <article>
-        <header class="content">
+        <header class="content-data">
             <ion-accordion-group value="first">
                 <ion-accordion value="first">
                     <ion-item slot="header">
@@ -11,7 +11,8 @@
                     </div>
                 </ion-accordion>
             </ion-accordion-group>
-            
+            <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
+
             <div class="ion-padding">
                 <ion-button expand="block" @click="currentRecord.doSearch">
                     <ion-icon slot="end" :icon="arrowForwardCircleOutline"></ion-icon>
@@ -26,14 +27,14 @@
         <main>
             <table-area v-if="currentRecord.data.headers.length > 0 || currentRecord.data.isLoading" :headers="currentRecord.data.headers" :items="currentRecord.data.body" :is-loading="currentRecord.data.isLoading"></table-area>
         </main>
-        <footer  class="ion-padding">
+        <footer class="ion-padding">
             
         </footer>
     </article>
 </template>
 
 <styles lang="scss" scoped>
-.content{
+.content-data{
     max-width: 600px;
     margin: 0 auto;
     width: 100%;
@@ -69,6 +70,11 @@ const props = defineProps({
     type: {
         type: String,
         required: true
+    },
+    preFilling: {
+        type: Object,
+        required: false,
+        default: () => ({})
     }
 })
 
@@ -197,12 +203,14 @@ const currentRecord = ref<{
 
 
 async function loadConfigurationById(id: string){
+    isLoading.value = true;
     const configs = await RecordsConfigs.getConfigurations();
     const configuration = configs.find((config) => config.id == id);
     if (configuration){
         currentRecord.value.configuration = configuration;
         currentRecord.value.filters = generateFiltersData(configuration.filters);
     }
+    isLoading.value = false;
 }
 
 
@@ -226,6 +234,13 @@ function generateFiltersData(filtersData:any){
 
 onMounted(async () => {
     await loadConfigurationById(props.type);
+
+    //Load prefilling data:
+    currentRecord.value.filters.forEach((filter) => {
+        if (props.preFilling[filter.value.id]){
+            filter.value.value = props.preFilling[filter.value.id];
+        }
+    })
 });
 
 onMounted(() => {

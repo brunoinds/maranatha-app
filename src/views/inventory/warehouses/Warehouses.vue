@@ -15,7 +15,7 @@
 
             <section>
                 <ion-list>
-                    <ion-item v-for="warehouse in warehousesData" :key="warehouse.id">
+                    <ion-item button v-for="warehouse in warehousesData" :key="warehouse.id" @click="openWarehouse(warehouse.id)">
                         <ion-label>
                             <h2>{{ warehouse.name }}</h2>
                             <p>{{ warehouse.zone }}</p>
@@ -37,10 +37,11 @@ import { IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateWarehouse from '@/dialogs/CreateWarehouse/CreateWarehouse.vue';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const page = ref<HTMLElement|null>(null);
 const isLoading = ref<boolean>(false);
-
 const warehousesData = ref<IWarehouse[]>([]);
 
 const createNewWarehouse = () => {
@@ -48,6 +49,7 @@ const createNewWarehouse = () => {
         onLoaded($this) {
             $this.on('created', (event:any) => {
                 loadWarehouses();
+                AppEvents.emit('inventory:reload');
             })
         },
         modalControllerOptions: {
@@ -66,6 +68,10 @@ const loadWarehouses = async () => {
     warehousesData.value = response;
 
     isLoading.value = false;
+}
+
+const openWarehouse = (id: number) => {
+    router.push(`/inventory/warehouses/${id}`);
 }
 
 

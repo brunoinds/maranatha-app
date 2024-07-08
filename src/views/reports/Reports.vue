@@ -92,11 +92,11 @@
                     </ion-list>
                 </article>
 
-                <article v-if="!isLoading && reportsData.length == 0" class="ion-padding" style="display: flex;flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                    <ion-img :src="ReportIcon" style="width: 90%;margin: 0 auto;"></ion-img>
-                    <h2>Aún no tienes reportes</h2>
-                    <p class="ion-text-center">Crea tu primer reporte haciendo click en el botón "+" abajo</p>
-                </article>
+                <OnBoardingPanel v-if="!isLoading && reportsData.length == 0"
+                    title="Aún no tienes reportes"
+                    description="Crea tu primer reporte haciendo click en el botón '+' abajo"
+                    :icon="ReportIcon"
+                ></OnBoardingPanel>
             </section>
         </ion-content>
     </ion-page>
@@ -124,6 +124,7 @@ import { onMounted } from 'vue';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
 import IonDateRange from '@/components/IonDateRange/IonDateRange.vue';
+import OnBoardingPanel from '@/components/OnBoardingPanel/OnBoardingPanel.vue';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
@@ -209,4 +210,4 @@ onMounted(() => {
     margin: 0 auto;
     width: 100%;
 }
-</style>@/utils/PDFtoImage/PDFModifier
+</style>

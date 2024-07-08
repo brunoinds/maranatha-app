@@ -5,8 +5,8 @@
                 <ion-select v-if="filter.value.type == 'dropdown'" :label="filter.value.name" v-model="filter.value.value">
                     <ion-select-option v-for="option in filter.value.options" :value="option.value">{{option.name}}</ion-select-option>
                 </ion-select>
-                <IonDateRangeItem :label="filter.value.name" :value="filter.value.value" v-if="filter.value.type == 'daterange'" v-model="filter.value.value"></IonDateRangeItem>
-                <IonDatetimeItem :label="filter.value.name" :value="filter.value.value" :presentation="filter.value.type" v-if="filter.value.type == 'date'" v-model="filter.value.value"></IonDatetimeItem>
+                <IonDateRangeItem v-if="filter.value.type == 'daterange'" :label="filter.value.name" :value="filter.value.value" v-model="filter.value.value"></IonDateRangeItem>
+                <IonDatetimeItem v-if="filter.value.type == 'date'" :label="filter.value.name" :value="filter.value.value" :presentation="filter.value.type"  v-model="filter.value.value"></IonDatetimeItem>
                 <ion-input v-if="filter.value.type == 'textbox'" :label="filter.value.name" v-model="filter.value.value"></ion-input>
             </ion-item>
         </ion-list>

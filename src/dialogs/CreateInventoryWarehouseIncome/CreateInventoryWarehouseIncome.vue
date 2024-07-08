@@ -3,7 +3,7 @@
         <ion-header>
             <ion-toolbar>
                 <ion-buttons slot="start">
-                    <ion-button :disabled="isLoading" @click="emitter.fire('close')">Cancelar</ion-button>
+                    <ion-button @click="emitter.fire('close')">Cancelar</ion-button>
                 </ion-buttons>
                 <ion-title>Ingreso de Productos</ion-title>
             </ion-toolbar>
@@ -14,11 +14,17 @@
                 <ion-accordion-group ref="accordionGroupEl">
                     <ion-accordion value="first">
                         <ion-item slot="header" color="light">
-                            <ion-label>1. Agregar productos</ion-label>
+                            <ion-label>
+                                <h2><b>1. Agregar productos</b></h2>
+                                <p>Selecciona los productos que deseas ingresar al almacén</p>
+                            </ion-label>
                         </ion-item>
-                        <section slot="content">
+                        <section slot="content" class="offwhite">
                             <ion-list :inset="true" v-for="product in dynamicData.productsListWithQuantity" :key="product.product.id">
                                 <ion-item>
+                                    <ion-avatar slot="start" v-if="product.product.image">
+                                        <img :src="product.product.image" />
+                                    </ion-avatar>
                                     <ion-label>
                                         <h2><b>{{ product.product.name }}</b></h2>
                                         <p>{{ product.product.brand }}</p>
@@ -40,7 +46,7 @@
                             </ion-list>
 
                             <section class="ion-padding">
-                                <ion-button @click="actions.addNewProduct" expand="block">
+                                <ion-button @click="actions.addNewProduct" expand="block" fill="outline">
                                     <ion-icon slot="end" :icon="bagAddOutline"></ion-icon>
                                     Agregar Produto</ion-button>
                             </section>
@@ -48,7 +54,10 @@
                     </ion-accordion>
                     <ion-accordion value="second">
                         <ion-item slot="header" color="light">
-                            <ion-label>2. Datos de la compra</ion-label>
+                            <ion-label>
+                                <h2><b>2. Datos de la compra</b></h2>
+                                <p>Ingresa los datos de la compra de estos productos</p>
+                            </ion-label>
                         </ion-item>
                         <section slot="content">
                             <header>
@@ -101,6 +110,12 @@
                                     </ion-accordion>
                                 </ion-accordion-group>
                                 <ion-item>
+                                    <ion-select label="Tipo de comprobante:" label-placement="stacked" placeholder="Elige el tipo de comprobante" v-model="warehouseIncome.ticket_type">
+                                        <ion-select-option value="Bill">Boleta</ion-select-option>
+                                        <ion-select-option value="Facture">Factura</ion-select-option>
+                                    </ion-select>
+                                </ion-item>
+                                <ion-item>
                                     <ion-input :label="'Código de boleta/factura:'" label-placement="stacked" placeholder="AAXX-XXXXXXXX" v-model="warehouseIncome.ticket_number"></ion-input>
                                 </ion-item>
                                 <ion-item>
@@ -120,14 +135,56 @@
                     </ion-accordion>
                     <ion-accordion value="third">
                         <ion-item slot="header" color="light">
-                            <ion-label>3. Confirmar valores</ion-label>
+                            <ion-label>
+                                <h2><b>3. Confirmar valores y productos</b></h2>
+                                <p>Verifica el valor final de la compra y los productos ingresados</p>
+                            </ion-label>
                         </ion-item>
-                        <section slot="content">
+                        <section slot="content" >
+                            
+                            <section v-if="incomeResume.count > 0">
+                                <article class="offwhite">
+                                    <ion-list-header>Productos</ion-list-header>
+                                    <ion-list :inset="true">
+                                        <ion-item v-for="product in dynamicData.productsListWithQuantity" :key="product.product.id">
+                                            <ion-avatar slot="start" v-if="product.product.image">
+                                                <img :src="product.product.image" />
+                                            </ion-avatar>
+                                            <ion-label>
+                                                <h2><b>{{ product.product.name }}</b></h2>
+                                                <p>{{ product.product.brand }}</p>
+                                            </ion-label>
+                                            <ion-label slot="end" class="ion-text-right" color="primary">
+                                                <h2><b>{{ Toolbox.moneyFormat(product.quantity * product.amount, warehouseIncome.currency as unknown as EMoneyType) }}</b></h2>
+                                                <p>{{ product.quantity }}x {{ Toolbox.moneyFormat(product.amount, warehouseIncome.currency as unknown as EMoneyType) }}</p>
+                                            </ion-label>
+                                        </ion-item>
+                                    </ion-list>
+                                </article>
+
+                                <ion-list-header>Costo final</ion-list-header>
+                                <br>
+
+                                <ion-list>
+                                    <ion-item>
+                                        <ion-label color="success" slot="end" class="ion-text-right">
+                                            <h1><b>{{ Toolbox.moneyFormat(incomeResume.price, incomeResume.currency as unknown as EMoneyType) }}</b></h1>
+                                            <p>{{ incomeResume.count }} productos</p>
+                                        </ion-label>
+                                    </ion-item>
+                                </ion-list>
+                            </section>
+
                             <section class="ion-padding">
-                                <ion-button color="success" @click="checkoutActions.createNewIncome" expand="block">
+                                <ion-button :disabled="incomeResume.count == 0" color="success" @click="checkoutActions.createNewIncome" expand="block">
                                     Confirmar e Ingresar Productos
                                     <ion-icon slot="end" :icon="checkmarkCircleOutline"></ion-icon>
                                 </ion-button>
+
+                                <ion-label class="ion-text-center" v-if="incomeResume.count == 0">
+                                    <br>
+                                    <p>Por favor, agrega al menos 1 producto para ingresar al almacén</p>
+                                </ion-label>
                             </section>
                         </section>
                     </ion-accordion>
@@ -138,7 +195,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonContent, IonDatetime, IonHeader, IonIcon, IonImg, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
+import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonContent, IonListHeader, IonAvatar, IonDatetime, IonHeader, IonIcon, IonImg, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { attachOutline, camera, qrCodeOutline, trashBinOutline, checkmarkCircleOutline, bagAddOutline } from 'ionicons/icons';
 import { computed, onMounted, ref } from 'vue';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
@@ -187,15 +244,34 @@ const warehouseIncome = ref<INewWarehouseIncome>({
     inventory_warehouse_id: props.warehouseId,
     description: "",
     date: DateTime.now().toFormat("dd/MM/yyyy").toString(),
+    ticket_type: "Bill",
     ticket_number: "",
     commerce_number: "",
-    amount: 0,
     currency: "PEN",
     qrcode_data: "",
     job_code: "",
     expense_code: "",
     image: ""
 });
+
+const incomeResume = computed(() => {
+    const price = dynamicData.value.productsListWithQuantity.reduce((acc, p) => acc + (p.quantity * p.amount), 0);
+    const currency = warehouseIncome.value.currency;
+    const quantity = (() => {
+        let countProducts = 0;
+        dynamicData.value.productsListWithQuantity.forEach((p) => {
+            countProducts += parseInt(p.quantity);
+        })
+        return countProducts;
+    })();
+
+
+    return {
+        price,
+        currency,
+        count: quantity
+    }
+})
 
 const validateData = async () => {
     const formErrors: Array<{field: string, message: string}> = [];
@@ -286,6 +362,7 @@ const cameraActions = {
         })
     },
     openCamera: async (forceFromGallery: boolean = false) => {
+        dynamicData.value.isLoadingImageCompression = true;
         const response = await ImagePicker.loadInvoiceDocument({
             forceFromGallery
         })
@@ -295,6 +372,7 @@ const cameraActions = {
         if (response.barcode){
             cameraActions.setBarcodeData(response.barcode);
         }
+        dynamicData.value.isLoadingImageCompression = false;
     },
     deleteImageFromCamera: () => {
         dynamicData.value.uploadedImageBase64 = null;
@@ -305,19 +383,36 @@ const actions = {
     addNewProduct: () => {
         Dialog.show(InventoryProductSelector, {
             props: {
-                contextWarehouseId: props.warehouseId,
                 allowMultipleSelection: true
             },
             onLoaded($this) {
                 $this.on('selected', (event:any) => {
                     const products = event.data;
-                    console.log(products)
                     products.forEach((product:IProduct) => {
+                        if (dynamicData.value.productsList.find((p) => p.id == product.id)){
+                            return;
+                        }
+
                         dynamicData.value.productsList.push(product);
                         dynamicData.value.productsListWithQuantity.push({
                             product,
                             quantity: 1,
-                            amount: 0
+                            amount: 10
+                        })
+                    })
+                })
+                $this.on('selected-with-quantity', (event:any) => {
+                    const products = event.data;
+                    products.forEach((product:any) => {
+                        //Check if the product is already in the list:
+                        if (dynamicData.value.productsList.find((p) => p.id == product.product.id)){
+                            return;
+                        }
+                        dynamicData.value.productsList.push(product.product);
+                        dynamicData.value.productsListWithQuantity.push({
+                            product: product.product,
+                            quantity: product.quantity,
+                            amount: 10
                         })
                     })
                 })
@@ -372,6 +467,7 @@ const checkoutActions = {
             }).then((alert) => {
                 alert.present();
             })
+            return;
         }
 
         isLoading.value = true;
@@ -441,5 +537,10 @@ onMounted(async () => {
         justify-content: center;
         background-color: var(--ion-color-light-tint);
     }
+}
+.offwhite{
+    background-color: var(--ion-color-light-tint);
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 </style>

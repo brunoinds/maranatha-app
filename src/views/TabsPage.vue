@@ -3,29 +3,9 @@
     <ion-tabs>
       <ion-router-outlet></ion-router-outlet>
       <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="tab2" href="/management" v-if="isAdmin && !isAndroid">
-          <ion-icon aria-hidden="true" :icon="speedometerOutline" />
-          <ion-label>Dashboard</ion-label>
-        </ion-tab-button>
-
-        <ion-tab-button tab="tab0" href="/my-wallet">
-          <ion-icon aria-hidden="true" :icon="walletOutline" />
-          <ion-label>Billetera</ion-label>
-        </ion-tab-button>
-        <ion-tab-button tab="tab1" href="/my-reports">
-          <ion-icon aria-hidden="true" :icon="fileTrayFullOutline" />
-          <ion-label>Reportes</ion-label>
-        </ion-tab-button>
-
-        <ion-tab-button tab="tab4" href="/my-attendances">
-          <ion-icon aria-hidden="true" :icon="checkmarkDoneOutline" />
-          <ion-label>Asistencias</ion-label>
-        </ion-tab-button>
-
-
-        <ion-tab-button tab="tab3" href="/account">
-          <ion-icon aria-hidden="true" :icon="personCircleOutline" />
-          <ion-label>Mi cuenta</ion-label>
+        <ion-tab-button v-for="tab in tabsUI" :tab="tab.tab" :href="tab.route">
+          <ion-icon :aria-hidden="true" :icon="tab.icon" />
+          <ion-label>{{ tab.name }}</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
@@ -36,28 +16,73 @@
 import { Session } from '@/utils/Session/Session';
 import { Capacitor } from '@capacitor/core';
 import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
-import { albumsOutline, checkmarkDoneOutline, fileTrayFullOutline, personCircleOutline, speedometerOutline, walletOutline } from 'ionicons/icons';
-import { computed, ref } from 'vue';
+import { albumsOutline, checkmarkDoneOutline,cubeOutline, fileTrayFullOutline, personCircleOutline, speedometerOutline, walletOutline } from 'ionicons/icons';
+import { computed, onMounted, ref } from 'vue';
 
 
-const isAdmin = ref(false);
-const isAndroid = ref(false);
+const isSessionInitialized = ref(false);
 
-const isAdminCheck = async () => {
-    const currentSession = await Session.getCurrentSession();
-    if (!currentSession){
-      return;
-    };
+const tabs = [
+  {
+    name: "Dashboard",
+    icon: speedometerOutline,
+    route: "/management",
+    permissions: ["all"],
+  },
+  {
+    name: "Inventário",
+    icon: cubeOutline,
+    route: "/inventory",
+    permissions: ["all", "view-inventory"],
+  },
+  {
+    name: "Billetera",
+    icon: walletOutline,
+    route: "/my-wallet",
+    permissions: ["all", "view-wallet"],
+  },
+  {
+    name: "Reportes",
+    icon: fileTrayFullOutline,
+    route: "/my-reports",
+    permissions: ["all", "view-reports"],
+  },
+  {
+    name: "Asistencias",
+    icon: checkmarkDoneOutline,
+    route: "/my-attendances",
+    permissions: ["all",  "view-attendances"]
+  },
+  {
+    name: "Mi cuenta",
+    icon: personCircleOutline,
+    route: "/account",
+    permissions: [],
+  }
+];
 
-    isAdmin.value = currentSession.roles().includes("admin");
-}
 
-const isAndroidCheck = async () => {
-    const platform = await Capacitor.getPlatform();
-    if (platform === "android"){
-      isAndroid.value = true;
+const tabsUI = computed(() => {
+  if (!isSessionInitialized.value) {
+    return [];
+  }
+
+  return tabs.filter((tab) => {
+    return tab.permissions.length === 0 || tab.permissions.some((permission) => Session.getCurrentSessionSync()?.permissions().includes(permission));
+  }).map((tab, i) => {
+    return {
+      ...tab,
+      tab: `tab${i}`
     }
-}
-isAdminCheck();
-isAndroidCheck();
+  });
+});
+
+
+onMounted(() => {
+  Session.waitForLogin().then(() => {
+    isSessionInitialized.value = true;
+  });
+});
+
+
 </script>

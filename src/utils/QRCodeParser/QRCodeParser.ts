@@ -28,6 +28,10 @@ class QRCodeParser{
             };
         }
 
+        if (qrCode.startsWith('|')){
+            qrCode = qrCode.substring(1);
+        }
+
         const parts = qrCode.split("|");
         let predifinedParts = {
             ruc: [0],

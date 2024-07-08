@@ -23,6 +23,7 @@ interface SessionUserData{
 class Session{
     private static session: Session|null = null;
     private static isInitialized: boolean = false;
+    private static isInitializing: boolean = false;
 
     public static router: Router|null = null;
     private sessionUserData: SessionUserData;
@@ -41,10 +42,10 @@ class Session{
         return this.sessionUserData.email;
     }
     public roles(){
-        return this.sessionUserData.roles;
+        return this.sessionUserData.roles || [];
     }
     public permissions(){
-        return this.sessionUserData.permissions;
+        return this.sessionUserData.permissions || [];
     }
     public token(){
         return this.sessionUserData.token;
@@ -53,6 +54,33 @@ class Session{
         return this.sessionUserData.id;
     }
 
+    private async refreshUserInformation(){
+        let response:any = null;
+        try {
+            response = await RequestAPI.get('/users/' + this.id());
+        } catch (error) {
+            //No internet connection
+        }
+
+        if (response == null){
+            return;
+        }
+
+        this.sessionUserData.email = response.email;
+        this.sessionUserData.name = response.name;
+        this.sessionUserData.username = response.username;
+        this.sessionUserData.roles = response.roles;
+        this.sessionUserData.permissions = response.permissions;
+
+
+        const sessionStorage = await TStorage.load("session", {
+            token: null,
+            userData: null
+        });
+
+        sessionStorage.data.userData = response;
+        await sessionStorage.save();
+    }
     
     public static async login(username:string, password:string){
         if (await Session.isLogged()){
@@ -120,10 +148,27 @@ class Session{
         await Session.init();
         return Session.session;
     }
+    public static getCurrentSessionSync()
+    {
+        return Session.session;
+    }
     public static async init(){
+        if (this.isInitializing){
+            return new Promise((resolve, reject) => {
+                const interval = setInterval(() => {
+                    if (this.isInitialized){
+                        clearInterval(interval);
+                        resolve({});
+                    }
+                }, 100);
+            })
+        }
+
         if (this.isInitialized){
             return;
         }
+
+        this.isInitializing = true;
         const sessionStorage = await TStorage.load("session", {
             token: null,
             userData: null
@@ -141,10 +186,14 @@ class Session{
             }
             Session.session = new Session(sessionData);
             ErrorTracking.linkToSession();
+
+            Session.session.refreshUserInformation();
+
         }else{
             Session.session = null;
         }
         this.isInitialized = true;
+
     }
     public static async isLogged(){
         await Session.init();

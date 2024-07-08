@@ -11,10 +11,19 @@ const contents:any = {
     usersDropdownOptions: null,
     jobsZonesDropdownOptions: null,
     moneyTypesDropdownOptions: null,
+    warehousesDropdownOptions: null,
+    productsDropdownOptions: null,
 }
+let isLoadingContents:boolean = false;
+let isLoadedContents:boolean = false;
+
 const load = async () => {
+    isLoadingContents = true;
+
     const jobs = await JobsAndExpenses.getJobs();
     const expenses = await JobsAndExpenses.getExpenses();
+    const warehouses = await RequestAPI.get('/inventory/warehouses');
+    const products = await RequestAPI.get('/inventory/products');
 
     const users = await (async () => {
         const users = await RequestAPI.get('/users');
@@ -94,23 +103,64 @@ const load = async () => {
         return items;
     })();
 
+    const warehousesDropdownOptions = (() => {
+        return warehouses.map((warehouse:any) => {
+            return {
+                id: warehouse.id,
+                name: warehouse.name,
+                value: warehouse.id
+            }
+        })
+    })();
+
+    const productsDropdownOptions = (() => {
+        return products.map((product:any) => {
+            return {
+                id: product.id,
+                name: product.name,
+                value: product.id
+            }
+        })
+    })();
+
+
     contents.jobsDropdownOptions = jobsDropdownOptions;
     contents.expensesDropdownOptions = expensesDropdownOptions;
     contents.usersDropdownOptions = usersDropdownOptions;
     contents.jobsZonesDropdownOptions = jobsZonesDropdownOptions;
     contents.moneyTypesDropdownOptions = moneyTypesDropdownOptions;
     contents.countryTypesDropdownOptions = countryTypesDropdownOptions;
-    contents.users = users;
+    contents.warehousesDropdownOptions = warehousesDropdownOptions;
+    contents.productsDropdownOptions = productsDropdownOptions;
+
+    isLoadingContents = false;
+    isLoadedContents = true;
+}
+
+const waitToLoadContents = async () => {
+    return new Promise((resolve) => {
+        if (isLoadedContents){
+            resolve({});
+        }else{
+            if (!isLoadedContents && !isLoadingContents){
+                load();
+            }
+            const interval = setInterval(() => {
+                if (isLoadedContents){
+                    clearInterval(interval);
+                    resolve({});
+                }
+            }, 100);
+        }
+    })
+    
 }
 
 const RecordsConfigs = {
     getConfigurations: async () => {
-        if (!contents.jobsDropdownOptions || !contents.jobsZonesDropdownOptions){
-            await load();
-        }
+        await waitToLoadContents();
 
-        const { jobsDropdownOptions, expensesDropdownOptions, usersDropdownOptions, jobsZonesDropdownOptions, moneyTypesDropdownOptions, countryTypesDropdownOptions } = contents;
-
+        const { jobsDropdownOptions, expensesDropdownOptions, usersDropdownOptions, jobsZonesDropdownOptions, moneyTypesDropdownOptions, countryTypesDropdownOptions, warehousesDropdownOptions, productsDropdownOptions } = contents;
 
         return [
             {
@@ -561,6 +611,149 @@ const RecordsConfigs = {
                                 
                             }
                         }
+                    }
+                }
+            },
+            {
+                id: 'inventory-by-products-kardex',
+                title: 'Kardex de Productos en Inventario',
+                filters: [
+                    {
+                        id: 'warehouse_id',
+                        name: 'Almacén',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: warehousesDropdownOptions
+                    },
+                    {
+                        id: 'job_code',
+                        name: 'Job',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: jobsDropdownOptions
+                    },
+                    {
+                        id: 'expense_code',
+                        name: 'Expense Code',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: expensesDropdownOptions
+                    },
+                    {
+                        id: 'product_id',
+                        name: 'Producto',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: productsDropdownOptions
+                    },
+                    {
+                        id: 'money_type',
+                        name: 'Moneda',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: moneyTypesDropdownOptions
+                    }
+                ],
+                endpoint: 'inventory/by-products-kardex',
+                data: {
+                    body: {
+                        formatData: (item:any) => {
+                            return {
+                                ...item,
+                                ticket_type: item.ticket_type === 'Bill' ? 'Boleta' : 'Factura',
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                id: 'inventory-by-products-balance',
+                title: 'Saldo de Productos en Inventario',
+                filters: [
+                    {
+                        id: 'warehouse_id',
+                        name: 'Almacén',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: warehousesDropdownOptions
+                    },
+                    {
+                        id: 'product_id',
+                        name: 'Producto',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: productsDropdownOptions
+                    },
+                    {
+                        id: 'money_type',
+                        name: 'Moneda',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: moneyTypesDropdownOptions
+                    }
+                ],
+                endpoint: 'inventory/by-products-balance',
+                data: {
+                    body: {
+                        
+                    }
+                }
+            },
+            {
+                id: 'inventory-by-products-stock',
+                title: 'Stock de Productos en Inventario',
+                filters: [
+                    {
+                        id: 'warehouse_id',
+                        name: 'Almacén',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: warehousesDropdownOptions
+                    },
+                    {
+                        id: 'product_id',
+                        name: 'Producto',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: productsDropdownOptions
+                    },
+                    {
+                        id: 'status',
+                        name: 'Activación',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: [
+                            {
+                                id: 'Active',
+                                name: 'Activo',
+                                value: 'Active'
+                            },
+                            {
+                                id: 'Inactive',
+                                name: 'Inactivo',
+                                value: 'Inactive'
+                            }
+                        ]
+                    },
+                    {
+                        id: 'brand',
+                        name: 'Marca',
+                        isRequired: false,
+                        type: 'textbox',
+                        value: null
+                    },
+                    {
+                        id: 'category',
+                        name: 'Categoría',
+                        isRequired: false,
+                        type: 'textbox',
+                        value: null
+                    }
+                ],
+                endpoint: 'inventory/by-products-stock',
+                data: {
+                    body: {
+                        
                     }
                 }
             }

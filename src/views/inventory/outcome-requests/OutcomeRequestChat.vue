@@ -44,7 +44,7 @@
         </ion-content>
         <ion-footer>
             <ion-toolbar>
-                <section ref="footerInnerEl" class="footer">
+                <section class="footer" :id="'footerOfChatId-' + outcomeRequestId">
                     <button @click="moreOptions.showOptions">
                         <ion-icon slot="icon-only" :icon="addOutline"></ion-icon>
                     </button>
@@ -96,7 +96,6 @@ import { useRoute } from 'vue-router';
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE')
 
-const footerInnerEl = ref<HTMLElement|null>(null);
 const route = useRoute();
 const page = ref<HTMLElement|null>(null);
 const isLoading = ref<boolean>(false);
@@ -332,13 +331,25 @@ Keyboard transition idea:
 
 
 */
+const getFooterInnerElement = () => {
+    const footerElement = document.getElementById('footerOfChatId-' + outcomeRequestId);
+    if (footerElement){
+        return footerElement;
+    }
+    return null;
+}
+
 if (Capacitor.isNativePlatform()){
+    
+
+
     Keyboard.addListener('keyboardWillShow', info => {
-        footerInnerEl.value.$el.style.paddingBottom = info.keyboardHeight + 'px';
+        console.log(getFooterInnerElement())
+        getFooterInnerElement().style.paddingBottom = info.keyboardHeight + 'px';
     });
 
     Keyboard.addListener('keyboardDidShow', info => {
-        footerInnerEl.value.$el.style.paddingBottom = '5px';
+        getFooterInnerElement().style.paddingBottom = '5px';
     });
 
     Keyboard.addListener('keyboardWillHide', () => {

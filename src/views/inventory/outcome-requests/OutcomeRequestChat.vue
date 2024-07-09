@@ -48,10 +48,6 @@
                     <button @click="moreOptions.showOptions">
                         <ion-icon slot="icon-only" :icon="addOutline"></ion-icon>
                     </button>
-                    <button @click="openKeyboard">
-                        <ion-icon slot="icon-only" :icon="addOutline"></ion-icon>
-                    </button>
-
 
                     <article class="send-area">
                         <section class="image-area" v-if="dynamicData.image || dynamicData.isLoadingImage">
@@ -91,11 +87,6 @@ import TimeAgo from 'javascript-time-ago';
 import es from 'javascript-time-ago/locale/es';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-//button :detail="false" @click="clickMessage(message.id)"
-//import { useTextareaAutosize } from '@vueuse/core'
-
-//const { textarea: autoResizeTextArea, input: autoResizeTextAreaInput } = useTextareaAutosize();
-
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE')
 
@@ -326,9 +317,6 @@ const timerShowGoBottomButton = setInterval(async () => {
     }
 }, 100);
 
-const openKeyboard = () => {
-    getFooterInnerElement()?.classList.add('keyboard-open');
-}
 
 /*
 Keyboard transition idea:
@@ -347,15 +335,12 @@ const getFooterInnerElement = () => {
 }
 
 if (Capacitor.isNativePlatform()){
-    
-
-
     Keyboard.addListener('keyboardWillShow', info => {
         getFooterInnerElement().style.paddingBottom = (info.keyboardHeight + 5) + 'px';
     });
 
     Keyboard.addListener('keyboardDidShow', info => {
-        //getFooterInnerElement().style.paddingBottom = '5px';
+        getFooterInnerElement().style.paddingBottom = (info.keyboardHeight + 5) + 'px';
     });
 
     Keyboard.addListener('keyboardWillHide', () => {
@@ -363,7 +348,7 @@ if (Capacitor.isNativePlatform()){
     });
 
     Keyboard.addListener('keyboardDidHide', () => {
-        
+        getFooterInnerElement().style.paddingBottom = '5px';
     });
 }
 
@@ -392,11 +377,6 @@ onUnmounted(() => {
 
 </script>
 
-<style lang="scss">
-.keyboard-open{
-    padding-bottom: 100px !important;
-}
-</style>
 
 <style scoped lang="scss">
 

@@ -20,9 +20,7 @@
             </section>
 
             <ion-list :inset="true">
-                <ion-item button @click="(e) => {openWorkersSelector(); e.stopPropagation()}">
-                    <ion-input :readonly="true" label="Trabajadores" label-placement="stacked" placeholder="Selecciona los trabajadores" v-model="selectedWorkersNames"></ion-input>
-                </ion-item>
+                <ion-item-choose-dialog :disabled="isLoading" @click="openWorkersSelector" placeholder="Selecciona los trabajadores" label="Trabajadores" :value="selectedWorkersNames"/>
                 <ion-item>
                     <ion-select label="Mes" label-placement="stacked" interface="action-sheet"  v-model="dynamicData.month">
                         <ion-select-option v-for="month in monthNamesAndValues" :value="month.value">{{ month.name }}</ion-select-option>
@@ -101,6 +99,7 @@ import CurrencyInput from '@/components/CurrencyInput/CurrencyInput.vue';
 import WorkersSelector from '@/dialogs/WorkersSelector/WorkersSelector.vue';
 import { DateTime } from 'luxon';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 
 
 const isLoading = ref<boolean>(false);

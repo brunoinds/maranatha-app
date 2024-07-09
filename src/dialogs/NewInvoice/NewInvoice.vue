@@ -97,9 +97,7 @@
                         </ion-item>
                         <section slot="content">
                             <ion-list>
-                                <ion-item v-if="dynamicData.listSelectedJobs.length == 0" button @click="openJobSelector('fromSingleJobSelector', {})">
-                                    <ion-input :readonly="true" label="Job:" label-placement="stacked" placeholder="Selecciona el Job" v-model="invoice.job_code"></ion-input>
-                                </ion-item>
+                                <ion-item-choose-dialog :disabled="isLoading" v-if="dynamicData.listSelectedJobs.length == 0" @click="openJobSelector('fromSingleJobSelector', {})" placeholder="Selecciona el Job" label="Job:" :value="invoice.job_code"/>
                             </ion-list>
                             <ion-accordion-group  v-if="dynamicData.listSelectedJobs.length > 0">
                                 <ion-accordion value="start" class="jobs-accordion">
@@ -130,9 +128,7 @@
                                 </ion-accordion>
                             </ion-accordion-group>
                             <ion-list>
-                                <ion-item button @click="(e) => {openExpenseSelector(); e.stopPropagation()}">
-                                    <ion-input :readonly="true" label="Expense:" label-placement="stacked" placeholder="Selecciona el Expense" v-model="invoice.expense_code"></ion-input>
-                                </ion-item>
+                                <ion-item-choose-dialog :disabled="isLoading" @click="openExpenseSelector()" placeholder="Selecciona el Expense" label="Expense:" :value="invoice.expense_code"/>
                             </ion-list>
                         </section>
                     </ion-accordion>
@@ -149,44 +145,34 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle,IonButtons, IonThumbnail, IonAccordion, IonAccordionGroup, IonContent, IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, IonText, toastController, alertController, actionSheetController } from '@ionic/vue';
-import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
+import { actionSheetController, alertController, IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonContent, IonDatetime, IonHeader, IonIcon, IonImg, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonText, IonTitle, IonToolbar, toastController } from '@ionic/vue';
+import { addOutline, arrowForwardCircleOutline, attachOutline, camera, checkmarkCircleOutline, qrCodeOutline, removeCircleOutline, trashBinOutline } from 'ionicons/icons';
+import { computed, onMounted, ref } from 'vue';
 import { EInvoiceType, IInvoice, INewInvoice } from '../../interfaces/InvoiceInterfaces';
-import { IJob, IExpense, EExpenseUses } from '../../interfaces/JobsAndExpensesInterfaces';
-import { briefcaseOutline, trashBinOutline, camera, cameraOutline, arrowForward, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash, attachOutline, addOutline, removeCircleOutline } from 'ionicons/icons';
+import { EExpenseUses, IExpense, IJob } from '../../interfaces/JobsAndExpensesInterfaces';
 
 import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
 //import { Money3Component } from 'v-money3';
-import { vMaska } from "maska";
-import { DateTime } from "luxon";
-import { QRCodeParser } from '@/utils/QRCodeParser/QRCodeParser';
 import CurrencyInput from '@/components/CurrencyInput/CurrencyInput.vue';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
+import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
+import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
+import { IReport } from '@/interfaces/ReportInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
-import { TStorage } from '@/utils/Toolbox/TStorage';
-
-import { BarcodeDetect }  from '@/utils/BarcodeDetect/BarcodeDetect';
-import {
-    BarcodeScanner,
-    BarcodeFormat,
-    LensFacing,
-} from '@capacitor-mlkit/barcode-scanning';
-import imageCompression from 'browser-image-compression';
-
-
-import { DocumentScanner } from 'capacitor-document-scanner'
-import { Capacitor } from '@capacitor/core';
-import { Session } from '@/utils/Session/Session';
+import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
+import { QRCodeParser } from '@/utils/QRCodeParser/QRCodeParser';
+import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
+import {
+    BarcodeScanner
+} from '@capacitor-mlkit/barcode-scanning';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
-import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
-import { CurrencyFly } from '@/utils/CurrencyFly/CurrencyFly';
-import { StoredReports } from '@/utils/Stored/StoredReports';
-import { IReport } from '@/interfaces/ReportInterfaces';
-import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
-import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
+import imageCompression from 'browser-image-compression';
+import { DocumentScanner } from 'capacitor-document-scanner';
+import { DateTime } from "luxon";
 
 
 const datetimeAccordionGroup = ref<any>(null);

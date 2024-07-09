@@ -39,12 +39,8 @@
                             </ion-list>
 
                             <ion-list>
-                                <ion-item button @click="(e) => {actions.openJobSelector(); e.stopPropagation()}">
-                                    <ion-input :disabled="isReadonly" :readonly="true" label="Job:" label-placement="stacked" placeholder="Selecciona el Job" v-model="warehouseOutcome.job_code"></ion-input>
-                                </ion-item>
-                                <ion-item button @click="(e) => {actions.openExpenseSelector(); e.stopPropagation()}">
-                                    <ion-input :disabled="isReadonly" :readonly="true" label="Expense:" label-placement="stacked" placeholder="Selecciona el Expense" v-model="warehouseOutcome.expense_code"></ion-input>
-                                </ion-item>
+                                <ion-item-choose-dialog :disabled="isLoading" @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
+                                <ion-item-choose-dialog :disabled="isLoading" @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
                             </ion-list>
                         </section>
                     </ion-accordion>
@@ -151,6 +147,7 @@ import { IonAccordion, IonAccordionGroup, IonAvatar, IonButton, IonButtons, IonC
 import { cloudDownloadOutline, trashBinOutline } from 'ionicons/icons';
 import { DateTime } from "luxon";
 import { PropType, computed, onMounted, ref } from 'vue';
+import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 
 const datetimeAccordionGroupEl = ref<any>(null);
 const accordionGroupEl = ref<any>(null);

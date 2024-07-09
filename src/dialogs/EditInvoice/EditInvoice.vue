@@ -95,12 +95,8 @@
                         </ion-item>
                         <section slot="content">
                             <ion-list>
-                                <ion-item button @click="openJobSelector('fromSingleJobSelector', {})">
-                                    <ion-input :readonly="true" label="Job:" label-placement="stacked" placeholder="Selecciona el Job" v-model="invoice.job_code"></ion-input>
-                                </ion-item>
-                                <ion-item button @click="(e) => {openExpenseSelector();}">
-                                    <ion-input :readonly="true" label="Expense:" label-placement="stacked" placeholder="Selecciona el Expense" v-model="invoice.expense_code"></ion-input>
-                                </ion-item>
+                                <ion-item-choose-dialog :disabled="isLoading" @click="openJobSelector('fromSingleJobSelector', {})" placeholder="Selecciona el Job" label="Job:" :value="invoice.job_code"/>
+                                <ion-item-choose-dialog :disabled="isLoading" @click="openExpenseSelector()" placeholder="Selecciona el Expense" label="Expense:" :value="invoice.expense_code"/>
                             </ion-list>
                         </section>
                     </ion-accordion>
@@ -135,6 +131,7 @@ import {
     LensFacing,
 } from '@capacitor-mlkit/barcode-scanning';
 import imageCompression from 'browser-image-compression';
+import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 
 
 import { DocumentScanner } from 'capacitor-document-scanner'

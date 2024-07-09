@@ -36,9 +36,7 @@
                         <ion-select-option value="US">EE. UU. 🇺🇸</ion-select-option>
                     </ion-select>
                 </ion-item>
-                <ion-item button @click="(e) => {openUserSelector(); e.stopPropagation()}">
-                    <ion-input :readonly="true" label="Administradores del Almacén:" label-placement="stacked" placeholder="Selecciona los usuarios" :value="usersUI.map((item) => item).join(', ')"></ion-input>
-                </ion-item>
+                <ion-item-choose-dialog :disabled="isLoading" @click="openUserSelector" placeholder="Selecciona los usuarios" label="Administradores del Almacén:" :value="usersUI.map((item) => item).join(', ')"/>
             </ion-list>
 
             <datalist id="inventory-warehouses-zones-datatlist">
@@ -65,6 +63,7 @@ import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import Warehouse from '@/views/inventory/warehouses/Warehouse.vue';
 import { IUser } from '@/interfaces/UserInterfaces';
 import UsersSelector from '@/dialogs/UsersSelector/UsersSelector.vue';
+import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 
 const zoneInput = ref<any | null>(null);
 

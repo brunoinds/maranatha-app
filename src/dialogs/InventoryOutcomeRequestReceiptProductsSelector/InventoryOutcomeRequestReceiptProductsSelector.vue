@@ -6,9 +6,6 @@
                     <ion-button @click="props.emitter.fire('close')">Cancelar</ion-button>
                 </ion-buttons>
                 <ion-title>Revisar Recibimiento de Productos</ion-title>
-                <ion-buttons slot="end">
-                    <ion-button v-if="!isLoading" @click="confirmReceipt">Confimar</ion-button>
-                </ion-buttons>
             </ion-toolbar>
             <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
@@ -39,6 +36,13 @@
                         <ion-input label="Cantidad Recibida" type="number" :min="1" v-model="product.received" class="ion-text-right"></ion-input>
                     </ion-item>
                 </ion-list>
+
+                <section class="ion-padding">
+                    <ion-button color="success" @click="confirmReceipt" :disabled="isLoading" expand="block">
+                        Confirmar recibimiento
+                        <ion-icon slot="end" :icon="checkmarkCircleOutline"></ion-icon>
+                    </ion-button>
+                </section>
             </section>
         </ion-content>
     </ion-page>
@@ -48,7 +52,7 @@
 import { IProduct, IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonListHeader, IonIcon, IonInput, IonItem,IonAvatar, IonLabel, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
-import { arrowForwardCircleOutline, storefrontOutline, alertOutline, trashOutline } from 'ionicons/icons';
+import { arrowForwardCircleOutline, storefrontOutline, alertOutline, trashOutline, checkmarkCircleOutline } from 'ionicons/icons';
 import { computed, onMounted, ref } from 'vue';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import Warehouse from '@/views/inventory/warehouses/Warehouse.vue';

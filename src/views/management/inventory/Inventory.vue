@@ -9,7 +9,7 @@
                 </ion-segment-button>
             </ion-segment>
         </header>
-        <main>
+        <main class="content">
             <section>
                 <main>
                     <article v-if="subSegmentValue == 'Almacenes'" class="limiter">
@@ -245,5 +245,10 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+.content{
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
 </style>
 

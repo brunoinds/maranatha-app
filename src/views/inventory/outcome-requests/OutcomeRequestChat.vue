@@ -253,17 +253,19 @@ const openImage = async (base64: string, imageId: string) => {
     Toolbox.share(imageId + '.png', base64 as unknown as string)
 }
 const moreOptions = {
-    openCamera: async (forceFromGallery: boolean = false) => {
+    openCamera: async () => {
         dynamicData.value.isLoadingImage = true;
-        const response = await ImagePicker.loadInvoiceDocument({
-            forceFromGallery
-        })
+        const response = await ImagePicker.loadImagesAndDocuments();
+
+        console.log('Response image:' , response)
 
         dynamicData.value.image = response.image;
         dynamicData.value.isLoadingImage = false;
     },
     showOptions: async () => {
         //Open the action sheet to select the image from the gallery or take a photo:
+        moreOptions.openCamera();
+        return;
         actionSheetController.create({
             buttons: [
                 {

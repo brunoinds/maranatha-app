@@ -347,8 +347,11 @@ const getFooterInnerElement = () => {
 }
 
 if (Capacitor.isNativePlatform()){
+    
+
+
     Keyboard.addListener('keyboardWillShow', info => {
-        getFooterInnerElement()?.classList.add('keyboard-open');
+        getFooterInnerElement().style.paddingBottom = (info.keyboardHeight + 5) + 'px';
     });
 
     Keyboard.addListener('keyboardDidShow', info => {
@@ -356,7 +359,7 @@ if (Capacitor.isNativePlatform()){
     });
 
     Keyboard.addListener('keyboardWillHide', () => {
-        getFooterInnerElement()?.classList.remove('keyboard-open');
+        getFooterInnerElement().style.paddingBottom = '5px';
     });
 
     Keyboard.addListener('keyboardDidHide', () => {
@@ -397,8 +400,6 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 
-
-
 .content{
     position: relative;
 }
@@ -421,7 +422,7 @@ onUnmounted(() => {
     column-gap: 5px;
     padding-top: 5px;
     padding-bottom: 5px;
-    transition: padding 1s ease-in-out;
+    transition: padding 0.3s cubic-bezier(0.1, 0.76, 0.55, 0.9);;
     > .send-area{
         display: flex;
         flex-direction: column;

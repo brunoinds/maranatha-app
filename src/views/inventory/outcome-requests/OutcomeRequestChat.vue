@@ -347,12 +347,8 @@ const getFooterInnerElement = () => {
 }
 
 if (Capacitor.isNativePlatform()){
-    
-
-
     Keyboard.addListener('keyboardWillShow', info => {
-        console.log(getFooterInnerElement())
-        getFooterInnerElement().style.paddingBottom = (info.keyboardHeight + 5) + 'px';
+        getFooterInnerElement()?.classList.add('keyboard-open');
     });
 
     Keyboard.addListener('keyboardDidShow', info => {
@@ -360,7 +356,7 @@ if (Capacitor.isNativePlatform()){
     });
 
     Keyboard.addListener('keyboardWillHide', () => {
-
+        getFooterInnerElement()?.classList.remove('keyboard-open');
     });
 
     Keyboard.addListener('keyboardDidHide', () => {

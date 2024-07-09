@@ -20,7 +20,7 @@
             </section>
 
             <ion-list :inset="true">
-                <ion-item-choose-dialog :disabled="isLoading" @click="openWorkersSelector" placeholder="Selecciona los trabajadores" label="Trabajadores" :value="selectedWorkersNames"/>
+                <ion-item-choose-dialog @click="openWorkersSelector" placeholder="Selecciona los trabajadores" label="Trabajadores" :value="selectedWorkersNames"/>
                 <ion-item>
                     <ion-select label="Mes" label-placement="stacked" interface="action-sheet"  v-model="dynamicData.month">
                         <ion-select-option v-for="month in monthNamesAndValues" :value="month.value">{{ month.name }}</ion-select-option>

@@ -60,6 +60,7 @@ import { IWorker } from '@/interfaces/WorkerInterfaces';
 import { IProduct, IProductWithWarehouseStock, IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import InventoryProductsPackSelector from '@/dialogs/InventoryProductsPackSelector/InventoryProductsPackSelector.vue';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -107,7 +108,7 @@ const productsUI = computed(() => {
 
 const loadProducts = async () => {
     isLoading.value = true;
-    const response = await RequestAPI.get('/inventory/products');
+    const response = await InventoryStore.getProducts();
 
     productsData.value = response;
     isLoading.value = false;

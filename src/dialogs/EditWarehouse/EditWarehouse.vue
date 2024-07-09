@@ -64,6 +64,7 @@ import Warehouse from '@/views/inventory/warehouses/Warehouse.vue';
 import { IUser } from '@/interfaces/UserInterfaces';
 import UsersSelector from '@/dialogs/UsersSelector/UsersSelector.vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 
 const zoneInput = ref<any | null>(null);
 
@@ -138,7 +139,8 @@ const saveWarehouse = async () => {
         owners: dynamicData.value.owners
     }
 
-    RequestAPI.put('/inventory/warehouses/' + props.warehouse.id , dataParsed).then((response) => {
+    RequestAPI.put('/inventory/warehouses/' + props.warehouse.id , dataParsed).then(async (response) => {
+        await InventoryStore.refreshWarehouses();
         props.emitter.fire('updated', {});
         props.emitter.fire('close');
         toastController.create({
@@ -173,7 +175,8 @@ const deleteWarehouse = async () => {
                 role: 'destructive',
                 handler: async () => {
                     isLoading.value = true;
-                    RequestAPI.delete('/inventory/warehouses/' + props.warehouse.id).then((response) => {
+                    RequestAPI.delete('/inventory/warehouses/' + props.warehouse.id).then(async (response) => {
+                        await InventoryStore.refreshWarehouses();
                         props.emitter.fire('deleted', {});
                         props.emitter.fire('close');
                         toastController.create({

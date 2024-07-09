@@ -80,10 +80,10 @@
                                     <CurrencyInput ref="currencyInput"  :disabled="readonly" class="native-input sc-ion-input-ios" v-model="invoice.amount" :options="{ currency: props.report.money_type, currencyDisplay: 'narrowSymbol', autoDecimalDigits: false, locale: 'es-PE', hideCurrencySymbolOnFocus: false, precision: 2 }"></CurrencyInput>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-input  :readonly="readonly" :label="'Código de ' + invoiceType + ':'" label-placement="stacked" placeholder="AAXX-XXXXXXXX" v-model="invoice.ticket_number"></ion-input>
+                                    <ion-input :readonly="readonly" :label="'Código de ' + invoiceType + ':'" label-placement="stacked" placeholder="AAXX-XXXXXXXX" v-model="invoice.ticket_number"></ion-input>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-input  :readonly="readonly" label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  inputmode="numeric"></ion-input>
+                                    <ion-input :readonly="readonly" label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  inputmode="numeric"></ion-input>
                                 </ion-item>
                             </ion-list>
                         </section>
@@ -95,8 +95,8 @@
                         </ion-item>
                         <section slot="content">
                             <ion-list>
-                                <ion-item-choose-dialog :disabled="isLoading" @click="openJobSelector('fromSingleJobSelector', {})" placeholder="Selecciona el Job" label="Job:" :value="invoice.job_code"/>
-                                <ion-item-choose-dialog :disabled="isLoading" @click="openExpenseSelector()" placeholder="Selecciona el Expense" label="Expense:" :value="invoice.expense_code"/>
+                                <ion-item-choose-dialog :disabled="readonly" @click="openJobSelector('fromSingleJobSelector', {})" placeholder="Selecciona el Job" label="Job:" :value="invoice.job_code"/>
+                                <ion-item-choose-dialog :disabled="readonly" @click="openExpenseSelector()" placeholder="Selecciona el Expense" label="Expense:" :value="invoice.expense_code"/>
                             </ion-list>
                         </section>
                     </ion-accordion>

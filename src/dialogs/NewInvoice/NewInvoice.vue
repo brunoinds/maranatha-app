@@ -97,7 +97,7 @@
                         </ion-item>
                         <section slot="content">
                             <ion-list>
-                                <ion-item-choose-dialog :disabled="isLoading" v-if="dynamicData.listSelectedJobs.length == 0" @click="openJobSelector('fromSingleJobSelector', {})" placeholder="Selecciona el Job" label="Job:" :value="invoice.job_code"/>
+                                <ion-item-choose-dialog v-if="dynamicData.listSelectedJobs.length == 0" @click="openJobSelector('fromSingleJobSelector', {})" placeholder="Selecciona el Job" label="Job:" :value="invoice.job_code"/>
                             </ion-list>
                             <ion-accordion-group  v-if="dynamicData.listSelectedJobs.length > 0">
                                 <ion-accordion value="start" class="jobs-accordion">
@@ -128,7 +128,7 @@
                                 </ion-accordion>
                             </ion-accordion-group>
                             <ion-list>
-                                <ion-item-choose-dialog :disabled="isLoading" @click="openExpenseSelector()" placeholder="Selecciona el Expense" label="Expense:" :value="invoice.expense_code"/>
+                                <ion-item-choose-dialog @click="openExpenseSelector()" placeholder="Selecciona el Expense" label="Expense:" :value="invoice.expense_code"/>
                             </ion-list>
                         </section>
                     </ion-accordion>

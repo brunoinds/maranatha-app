@@ -85,8 +85,8 @@
                             </ion-list>
 
                             <ion-list>
-                                <ion-item-choose-dialog :disabled="isLoading" @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
-                                <ion-item-choose-dialog :disabled="isLoading" @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
+                                <ion-item-choose-dialog @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
+                                <ion-item-choose-dialog @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
                             </ion-list>
                         </section>
                     </ion-accordion>

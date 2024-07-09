@@ -32,7 +32,7 @@
                         <ion-select-option value="US">EE. UU. 🇺🇸</ion-select-option>
                     </ion-select>
                 </ion-item>
-                <ion-item-choose-dialog :disabled="isLoading" @click="openUserSelector" placeholder="Selecciona los usuarios" label="Administradores del Almacén:" :value="ownersSelectedData.map((item) => item.name).join(', ')"/>
+                <ion-item-choose-dialog @click="openUserSelector" placeholder="Selecciona los usuarios" label="Administradores del Almacén:" :value="ownersSelectedData.map((item) => item.name).join(', ')"/>
             </ion-list>
 
             <datalist id="inventory-warehouses-zones-datatlist">
@@ -60,6 +60,7 @@ import { IWarehouse } from '@/interfaces/InventoryInterfaces';
 import UsersSelector from '@/dialogs/UsersSelector/UsersSelector.vue';
 import { IUser } from '@/interfaces/UserInterfaces';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 
 const zoneInput = ref<any | null>(null);
 
@@ -120,7 +121,8 @@ const createWarehouse = async () => {
         owners: dynamicData.value.owners
     }
 
-    RequestAPI.post('/inventory/warehouses', dataParsed).then((response) => {
+    RequestAPI.post('/inventory/warehouses', dataParsed).then(async (response) => {
+        await InventoryStore.refreshWarehouses();
         props.emitter.fire('created', {});
         props.emitter.fire('close');
 
@@ -143,7 +145,7 @@ const createWarehouse = async () => {
     });
 }
 const loadWarehouses = async () => {
-    listWarehouses.value = await RequestAPI.get('/inventory/warehouses');
+    listWarehouses.value = await InventoryStore.getWarehouses();
 }
 
 const validateCamps = () => {

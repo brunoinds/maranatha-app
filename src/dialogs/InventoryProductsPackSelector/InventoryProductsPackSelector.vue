@@ -30,6 +30,7 @@ import { IonButton, IonButtons, IonContent, IonIcon, IonHeader, IonItem, IonLabe
 import { onMounted, ref } from 'vue';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import {logoDropbox} from 'ionicons/icons';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -45,8 +46,8 @@ const productsData = ref<IProduct[]>([]);
 const loadProductsPacks = async () => {
     isLoading.value = true;
     try {
-        productsPacksData.value = await RequestAPI.get('/inventory/products-packs');
-        productsData.value = await RequestAPI.get('/inventory/products');
+        productsPacksData.value = await InventoryStore.getProductsPacks();
+        productsData.value = await InventoryStore.getProducts();
     } catch (error) {
     }
     isLoading.value = false;

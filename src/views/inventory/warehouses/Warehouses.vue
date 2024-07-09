@@ -38,6 +38,7 @@ import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateWarehouse from '@/dialogs/CreateWarehouse/CreateWarehouse.vue';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { useRouter } from 'vue-router';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 
 const router = useRouter();
 const page = ref<HTMLElement|null>(null);
@@ -63,7 +64,7 @@ const createNewWarehouse = () => {
 
 const loadWarehouses = async () => {
     isLoading.value = true;
-    const response = await RequestAPI.get('/inventory/warehouses');
+    const response = await InventoryStore.getWarehouses();
 
     warehousesData.value = response;
 

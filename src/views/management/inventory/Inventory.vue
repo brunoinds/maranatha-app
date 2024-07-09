@@ -88,6 +88,7 @@ import { IProduct, IProductsPack, IWarehouse } from '@/interfaces/InventoryInter
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonList, IonSegment, IonSegmentButton, IonProgressBar } from '@ionic/vue';
 import { addOutline, logoDropbox, storefrontOutline } from 'ionicons/icons';
@@ -200,7 +201,7 @@ const editProduct = (product: IProduct) => {
 const loadWarehouses = async () => {
     isLoading.value = true;
     try {
-        const response = await RequestAPI.get('/inventory/warehouses');
+        const response = await InventoryStore.getWarehouses();
         warehousesData.value = response;
 
     } catch (error) {
@@ -210,7 +211,7 @@ const loadWarehouses = async () => {
 const loadProducts = async () => {
     isLoading.value = true;
     try {
-        const response = await RequestAPI.get('/inventory/products');
+        const response = await InventoryStore.getProducts();
         productsData.value = response;
 
     } catch (error) {
@@ -220,7 +221,7 @@ const loadProducts = async () => {
 const loadProductsPacks = async () => {
     isLoading.value = true;
     try {
-        const response = await RequestAPI.get('/inventory/products-packs');
+        const response = await InventoryStore.getProductsPacks();
         productsPacksData.value = response;
     } catch (error) {
     }

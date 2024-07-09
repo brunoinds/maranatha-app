@@ -77,6 +77,7 @@ import { IWorker } from '@/interfaces/WorkerInterfaces';
 import { EInventoryProductStatus, EInventoryProductUnitType, IProduct } from '@/interfaces/InventoryInterfaces';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import ImageSearch from '@/dialogs/ImageSearch/ImageSearch.vue';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 
 const categoryInput = ref<any | null>(null);
 const brandInput = ref<any | null>(null);
@@ -179,7 +180,8 @@ const createProduct = async () => {
         image: dynamicData.value.image || null
     }
 
-    RequestAPI.post('/inventory/products', dataParsed).then((response) => {
+    RequestAPI.post('/inventory/products', dataParsed).then(async (response) => {
+        await InventoryStore.refreshProducts();
         props.emitter.fire('created', {});
         props.emitter.fire('close');
 
@@ -202,7 +204,7 @@ const createProduct = async () => {
     });
 }
 const loadProducts = async () => {
-    listProducts.value = await RequestAPI.get('/inventory/products');
+    listProducts.value = await InventoryStore.getProducts();
 }
 
 const validateCamps = () => {

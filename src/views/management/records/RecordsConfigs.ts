@@ -1,5 +1,6 @@
 import { ECountryType, EMoneyType } from "@/interfaces/ReportInterfaces";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
+import { InventoryStore } from "@/utils/Stored/InventoryStore";
 import { JobsAndExpenses } from "@/utils/Stored/JobsAndExpenses";
 import { Toolbox } from "@/utils/Toolbox/Toolbox";
 import { DateTime } from "luxon";
@@ -22,8 +23,8 @@ const load = async () => {
 
     const jobs = await JobsAndExpenses.getJobs();
     const expenses = await JobsAndExpenses.getExpenses();
-    const warehouses = await RequestAPI.get('/inventory/warehouses');
-    const products = await RequestAPI.get('/inventory/products');
+    const warehouses = await InventoryStore.getWarehouses();
+    const products = await InventoryStore.getProducts();
 
     const users = await (async () => {
         const users = await RequestAPI.get('/users');

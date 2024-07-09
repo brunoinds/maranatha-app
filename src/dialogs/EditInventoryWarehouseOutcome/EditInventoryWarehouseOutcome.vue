@@ -39,8 +39,8 @@
                             </ion-list>
 
                             <ion-list>
-                                <ion-item-choose-dialog :disabled="isLoading" @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
-                                <ion-item-choose-dialog :disabled="isLoading" @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
+                                <ion-item-choose-dialog :disabled="isReadonly" @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
+                                <ion-item-choose-dialog :disabled="isReadonly" @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
                             </ion-list>
                         </section>
                     </ion-accordion>
@@ -148,6 +148,7 @@ import { cloudDownloadOutline, trashBinOutline } from 'ionicons/icons';
 import { DateTime } from "luxon";
 import { PropType, computed, onMounted, ref } from 'vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 
 const datetimeAccordionGroupEl = ref<any>(null);
 const accordionGroupEl = ref<any>(null);
@@ -321,7 +322,6 @@ const actions = {
                         'Authorization': await RequestAPI.authHeader()
                     }
                 }, (progress) => {
-                    console.log(progress)
                 }).then((blob) => {
                     const reader = new FileReader();
                     reader.onload = () => {
@@ -458,7 +458,7 @@ const checkoutActions = {
 const loadOutcomeProducts = async () => {
     isLoading.value = true;
     const responseProductsItems = (await RequestAPI.get(`/inventory/warehouse-outcomes/${props.warehouseOutcome.id}/products`) as unknown as Array<IInventoryProductItem>);
-    const responseProducts = (await RequestAPI.get(`/inventory/products`) as unknown as Array<IProduct>);
+    const responseProducts = (await InventoryStore.getProducts() as unknown as Array<IProduct>);
 
     productsResume.value = responseProducts.map((product) => {
         const productItems = responseProductsItems.filter((item) => item.inventory_product_id == product.id);

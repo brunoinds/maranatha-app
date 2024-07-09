@@ -84,6 +84,7 @@ import InventoryProductSelector from '@/dialogs/InventoryProductSelector/Invento
 import { IProduct } from '@/interfaces/InventoryInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { IonAccordion, IonAccordionGroup, IonAvatar, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { bagAddOutline, checkmarkCircleOutline } from 'ionicons/icons';
 import { computed, onMounted, ref } from 'vue';
@@ -197,6 +198,7 @@ const checkoutActions = {
 
         try {
             const response = await RequestAPI.post(`/inventory/products-packs`, form)
+            await InventoryStore.refreshProductsPacks();
             props.emitter.fire('created', {});
             props.emitter.fire('close');
 
@@ -222,7 +224,7 @@ const productsData = ref<IProduct[]>([]);
 
 const loadProducts = async () => {
     isLoading.value = true;
-    const response = await RequestAPI.get('/inventory/products');
+    const response = await InventoryStore.getProducts();
     productsData.value = response;
     isLoading.value = false;
 }

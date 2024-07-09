@@ -142,6 +142,7 @@ import { AppEvents } from '../../utils/AppEvents/AppEvents';
 
 import EditInventoryProduct from '@/dialogs/EditInventoryProduct/EditInventoryProduct.vue';
 import EditInventoryProductsPack from '@/dialogs/EditInventoryProductsPack/EditInventoryProductsPack.vue';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE');
@@ -222,7 +223,7 @@ const openWarehouse = (warehouse: IWarehouse) => {
 const loadWarehouses = async () => {
     isLoading.value = true;
     try {
-        const response = await RequestAPI.get('/inventory/warehouses');
+        const response = await InventoryStore.getWarehouses();
         warehousesData.value = response;
 
     } catch (error) {
@@ -242,7 +243,7 @@ const loadOutcomeRequests = async () => {
 const loadProducts = async () => {
     isLoading.value = true;
     try {
-        const response = await RequestAPI.get('/inventory/products');
+        const response = await InventoryStore.getProducts();
         productsData.value = response;
 
     } catch (error) {
@@ -252,7 +253,7 @@ const loadProducts = async () => {
 const loadProductsPacks = async () => {
     isLoading.value = true;
     try {
-        const response = await RequestAPI.get('/inventory/products-packs');
+        const response = await InventoryStore.getProductsPacks();
         productsPacksData.value = response;
     } catch (error) {
     }

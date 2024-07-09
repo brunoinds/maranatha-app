@@ -40,6 +40,7 @@ import { IProduct, IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateInventoryProduct from '@/dialogs/CreateInventoryProduct/CreateInventoryProduct.vue';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 
 const page = ref<HTMLElement|null>(null);
 const isLoading = ref<boolean>(false);
@@ -64,7 +65,7 @@ const createNewProduct = () => {
 
 const loadProducts = async () => {
     isLoading.value = true;
-    const response = await RequestAPI.get('/inventory/products');
+    const response = await InventoryStore.getProducts();
 
     productsData.value = response;
 

@@ -84,6 +84,7 @@ import { pricetagOutline, trashOutline } from 'ionicons/icons';
 import { computed, onMounted, ref } from 'vue';
 import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { Session } from '@/utils/Session/Session';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 
 const categoryInput = ref<any | null>(null);
 const brandInput = ref<any | null>(null);
@@ -203,7 +204,8 @@ const save = async () => {
         image: dynamicData.value.image || null
     }
 
-    RequestAPI.put('/inventory/products/' + props.product.id , dataParsed).then((response) => {
+    RequestAPI.put('/inventory/products/' + props.product.id , dataParsed).then(async (response) => {
+        await InventoryStore.refreshProducts();
         props.emitter.fire('updated', {});
         props.emitter.fire('close');
 
@@ -240,7 +242,8 @@ const deleteProduct = async () => {
                 role: 'destructive',
                 handler: async () => {
                     isLoading.value = true;
-                    RequestAPI.delete('/inventory/products/' + props.product.id).then((response) => {
+                    RequestAPI.delete('/inventory/products/' + props.product.id).then(async (response) => {
+                        await InventoryStore.refreshProducts();
                         props.emitter.fire('deleted', {});
                         props.emitter.fire('close');
 
@@ -270,7 +273,7 @@ const deleteProduct = async () => {
 }
 const loadProducts = async () => {
     isLoading.value = true;
-    listProducts.value = await RequestAPI.get('/inventory/products');
+    listProducts.value = await InventoryStore.getProducts();
     isLoading.value = false;
 }
 

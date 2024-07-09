@@ -72,8 +72,8 @@
                                     </ion-select>
                                 </ion-item>
 
-                                <ion-item-choose-dialog :disabled="isLoading" @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
-                                <ion-item-choose-dialog :disabled="isLoading" @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
+                                <ion-item-choose-dialog @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
+                                <ion-item-choose-dialog @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
                             </ion-list>
 
                             <section class="ion-padding">
@@ -103,6 +103,7 @@ import { cartOutline, checkmarkCircleOutline, cart, bagAddOutline, constructOutl
 import { DateTime } from "luxon";
 import { onMounted, ref } from 'vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 
 const accordionGroupEl = ref<any>(null);
 const isLoading = ref<boolean>(true);
@@ -303,7 +304,7 @@ const checkoutActions = {
 
 const loadWarehouses = async () => {
     isLoading.value = true;
-    const response = await RequestAPI.get('/inventory/warehouses');
+    const response = await InventoryStore.getWarehouses();
     warehousesData.value = response;
     isLoading.value = false;
 }

@@ -123,7 +123,6 @@ class JobsAndExpenses{
         })
     }
 
-
     public static getJob(code: string): Promise<IJob>{
         return new Promise((resolve, reject) => {
             JobsAndExpenses.getJobs().then((jobs) => {

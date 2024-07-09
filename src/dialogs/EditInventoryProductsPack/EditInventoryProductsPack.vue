@@ -82,6 +82,7 @@ import InventoryProductSelector from '@/dialogs/InventoryProductSelector/Invento
 import { INewProductsPack, IProduct, IProductsPack } from '@/interfaces/InventoryInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { IonAccordion, IonAccordionGroup, IonAvatar, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { bagAddOutline, trashOutline } from 'ionicons/icons';
 import { computed, onMounted, ref } from 'vue';
@@ -201,6 +202,7 @@ const checkoutActions = {
 
         try {
             const response = await RequestAPI.put(`/inventory/products-packs/${props.productsPack.id}`, form)
+            await InventoryStore.refreshProductsPacks();
             props.emitter.fire('updated', {});
             props.emitter.fire('close');
 
@@ -247,7 +249,8 @@ const checkoutActions = {
         async function deletePack(){
             isLoading.value = true;
             try {
-                const response = await RequestAPI.delete(`/inventory/products-packs/${props.productsPack.id}`)
+                const response = await RequestAPI.delete(`/inventory/products-packs/${props.productsPack.id}`);
+                await InventoryStore.refreshProductsPacks();
                 props.emitter.fire('deleted', {});
                 props.emitter.fire('close');
 
@@ -272,7 +275,7 @@ const checkoutActions = {
 
 
 const loadProducts = async () => {
-    const response = await RequestAPI.get('/inventory/products');
+    const response = await InventoryStore.getProducts();
     productsData.value = response;
 }
 

@@ -356,7 +356,7 @@ if (Capacitor.isNativePlatform()){
     });
 
     Keyboard.addListener('keyboardDidShow', info => {
-        getFooterInnerElement().style.paddingBottom = '5px';
+        //getFooterInnerElement().style.paddingBottom = '5px';
     });
 
     Keyboard.addListener('keyboardWillHide', () => {

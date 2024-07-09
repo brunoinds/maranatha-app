@@ -48,6 +48,9 @@
                     <button @click="moreOptions.showOptions">
                         <ion-icon slot="icon-only" :icon="addOutline"></ion-icon>
                     </button>
+                    <button @click="openKeyboard">
+                        <ion-icon slot="icon-only" :icon="addOutline"></ion-icon>
+                    </button>
 
 
                     <article class="send-area">
@@ -323,6 +326,10 @@ const timerShowGoBottomButton = setInterval(async () => {
     }
 }, 100);
 
+const openKeyboard = () => {
+    getFooterInnerElement()?.classList.add('keyboard-open');
+}
+
 /*
 Keyboard transition idea:
 - onKeyboardWillOpen: get keyboard height, add this height as padding-bottom to the content element.
@@ -345,7 +352,7 @@ if (Capacitor.isNativePlatform()){
 
     Keyboard.addListener('keyboardWillShow', info => {
         console.log(getFooterInnerElement())
-        getFooterInnerElement().style.paddingBottom = info.keyboardHeight + 'px';
+        getFooterInnerElement().style.paddingBottom = (info.keyboardHeight + 5) + 'px';
     });
 
     Keyboard.addListener('keyboardDidShow', info => {
@@ -386,7 +393,15 @@ onUnmounted(() => {
 
 </script>
 
+<style lang="scss">
+.keyboard-open{
+    padding-bottom: 100px !important;
+}
+</style>
+
 <style scoped lang="scss">
+
+
 
 .content{
     position: relative;
@@ -410,6 +425,7 @@ onUnmounted(() => {
     column-gap: 5px;
     padding-top: 5px;
     padding-bottom: 5px;
+    transition: padding 1s ease-in-out;
     > .send-area{
         display: flex;
         flex-direction: column;
@@ -562,4 +578,4 @@ onUnmounted(() => {
 }
 
 
-</style>alarmOutline, checkmarkDoneOutline, checkmarkOutline, import { MessageStatus } from '@/interfaces/ChatInterfaces';
+</style>

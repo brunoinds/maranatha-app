@@ -44,7 +44,7 @@
         </ion-content>
         <ion-footer>
             <ion-toolbar>
-                <section class="footer">
+                <section ref="footerInnerEl" class="footer">
                     <button @click="moreOptions.showOptions">
                         <ion-icon slot="icon-only" :icon="addOutline"></ion-icon>
                     </button>
@@ -80,6 +80,8 @@ import { ImagePicker } from '@/utils/Camera/ImagePicker';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import { Capacitor } from '@capacitor/core';
+import { Keyboard } from '@capacitor/keyboard';
 import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader,IonImg, IonIcon, IonItem, IonItemSliding, IonList, IonPage, IonProgressBar, IonTextarea, IonTitle, IonToolbar, actionSheetController } from '@ionic/vue';
 import { addOutline, chevronDownCircleOutline, trashOutline, alarmOutline, checkmarkDoneOutline, checkmarkOutline, sendOutline, image } from 'ionicons/icons';
 import TimeAgo from 'javascript-time-ago';
@@ -94,6 +96,7 @@ import { useRoute } from 'vue-router';
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE')
 
+const footerInnerEl = ref<HTMLElement|null>(null);
 const route = useRoute();
 const page = ref<HTMLElement|null>(null);
 const isLoading = ref<boolean>(false);
@@ -318,6 +321,34 @@ const timerShowGoBottomButton = setInterval(async () => {
         newMessagesNotViewedByScroll.value = 0;
     }
 }, 100);
+
+/*
+Keyboard transition idea:
+- onKeyboardWillOpen: get keyboard height, add this height as padding-bottom to the content element.
+- onKeyboardWillClose: remove the padding-bottom from the content element.
+- onKeyboardDidOpen: remove the padding-bottom from content.
+
+
+*/
+if (Capacitor.isNativePlatform()){
+    Keyboard.addListener('keyboardWillShow', info => {
+        footerInnerEl.value.$el.style.paddingBottom = info.keyboardHeight + 'px';
+    });
+
+    Keyboard.addListener('keyboardDidShow', info => {
+        footerInnerEl.value.$el.style.paddingBottom = '5px';
+    });
+
+    Keyboard.addListener('keyboardWillHide', () => {
+
+    });
+
+    Keyboard.addListener('keyboardDidHide', () => {
+        
+    });
+}
+
+
 
 
 onMounted(async () => {

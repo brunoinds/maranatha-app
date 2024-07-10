@@ -35,11 +35,11 @@
             </header>
             
             <main class="content">
-                <article section="panel" v-if="isLoadingAreas.outcomeRequest" class="ion-padding" style="border-radius: 12px; overflow: hidden;">
+                <article section="panel" v-if="!outcomeRequestData" class="ion-padding" style="border-radius: 12px; overflow: hidden;">
                     <ion-skeleton-text animated style="height: 320px"></ion-skeleton-text>
                 </article>
 
-                <article section="panel" v-if="!isLoadingAreas.outcomeRequest">
+                <article section="panel" v-if="outcomeRequestData">
                     <article class="warehouse-requester" v-if="viewModeAs == 'Requester'">
                         <ion-card color="warning" v-if="outcomeRequestData?.status == EInventoryWarehouseOutcomeRequestStatus.Draft">
                             <ion-card-header>
@@ -55,7 +55,7 @@
                                 <br><br>
 
                                 <article>
-                                    <ion-button expand="block" color="success" @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Requested)">
+                                    <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" color="success" @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Requested)">
                                         <ion-icon slot="end" :icon="sendOutline"></ion-icon>
                                         Enviar mi pedido
                                     </ion-button>
@@ -80,7 +80,7 @@
                                 <br><br>
 
                                 <article>
-                                    <ion-button expand="block" color="light" @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Draft)">
+                                    <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" color="light" @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Draft)">
                                         <ion-label color="danger">
                                             Modificar mi pedido/cancelar
                                         </ion-label>
@@ -127,7 +127,7 @@
                                 Su pedido ha sido rechazado. Verifica el chat, los productos solicitados y vuelve a enviar el pedido.
                                 <br><br>
                                 <article>
-                                    <ion-button expand="block" color="light"  @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Draft)">
+                                    <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" color="light"  @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Draft)">
                                         Modificar mi pedido
                                         <ion-icon slot="end" :icon="pencilOutline"></ion-icon>
                                     </ion-button>
@@ -169,7 +169,7 @@
                                 Tus productos están en el transporte hacia tu dirección. <br><br> <b>Al recibirlos, Ud. debe marcar que han llegado.</b>
                                 <br><br>
                                 <article>
-                                    <ion-button expand="block" color="success"  @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Delivered)">
+                                    <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" color="success"  @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Delivered)">
                                         <ion-icon slot="end" :icon="checkmarkCircleOutline"></ion-icon>
                                         He recibido los productos
                                     </ion-button>
@@ -193,7 +193,7 @@
                                 <br><br> <b>Si algún producto falta o está dañado, notifícalo al almacén en el chat.</b>
                                 <br><br>
                                 <article>
-                                    <ion-button expand="block" color="success"  @click="openOutcomeRequestReceiptProductsSelector">
+                                    <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" color="success"  @click="openOutcomeRequestReceiptProductsSelector">
                                         <ion-icon slot="end" :icon="sendOutline"></ion-icon>
                                         Revisar productos recibidos ahora
                                     </ion-button>
@@ -201,7 +201,7 @@
                                         <ion-icon slot="end" :icon="chatbubbleEllipsesOutline"></ion-icon>
                                         Chatear con el almacén
                                     </ion-button>
-                                    <ion-button expand="block" fill="clear" color="danger"  @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.OnTheWay)">
+                                    <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" fill="clear" color="danger"  @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.OnTheWay)">
                                         <ion-icon slot="end" :icon="closeCircleOutline"></ion-icon>
                                         Cancelar recebimiento
                                     </ion-button>
@@ -228,7 +228,7 @@
                                     Chatear con el almacén
                                 </ion-button>
 
-                                <ion-button expand="block" fill="clear" @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Delivered)">
+                                <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" fill="clear" @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Delivered)">
                                     <ion-icon color="light" slot="end" :icon="closeCircleOutline"></ion-icon>
                                     <ion-label color="light">
                                         Deshacer finalización
@@ -273,13 +273,13 @@
 
                                 <article>
                                     <section style="display: flex; align-items: center; justify-content: space-between;">
-                                        <ion-button style="width: 100%" color="success" expand="block"  @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Approved)">
+                                        <ion-button :disabled="isLoadingAreas.outcomeRequest" style="width: 100%" color="success" expand="block"  @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Approved)">
                                             <ion-label>
                                                 Aprobar pedido
                                             </ion-label>
                                             <ion-icon slot="start" :icon="thumbsUpOutline"></ion-icon>
                                         </ion-button>
-                                        <ion-button  fill="outline" style="width: 100%" color="danger" expand="block"  @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Rejected)">
+                                        <ion-button  :disabled="isLoadingAreas.outcomeRequest" fill="outline" style="width: 100%" color="danger" expand="block"  @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Rejected)">
                                             <ion-label>
                                                 Rechazar
                                             </ion-label>
@@ -311,7 +311,7 @@
                                         <ion-icon slot="end" :icon="chatbubbleEllipsesOutline"></ion-icon>
                                         Chatear con el solicitante
                                     </ion-button>
-                                    <ion-button expand="block" fill="clear" color="light"  @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Requested)">
+                                    <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" fill="clear" color="light"  @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Requested)">
                                         <ion-icon slot="end" :icon="closeCircleOutline"></ion-icon>
                                         Cancelar rechazo
                                     </ion-button>
@@ -332,7 +332,7 @@
                                 Separa en el stock los productos que serán enviados al solicitante.
                                 <br><br>
                                 <article>
-                                    <ion-button expand="block" color="success" @click="createDispatch()">
+                                    <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" color="success" @click="createDispatch()">
                                         <ion-icon slot="end" :icon="sendOutline"></ion-icon>
                                         Separar productos ahora
                                     </ion-button>
@@ -365,7 +365,7 @@
                                 Los productos del pedido ya han sido separados. Ahora envíalos al solicitante por un medio de transporte.
                                 <br><br>
                                 <article>
-                                    <ion-button expand="block" color="success" @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.OnTheWay)">
+                                    <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" color="success" @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.OnTheWay)">
                                         <ion-icon slot="end" :icon="sendOutline"></ion-icon>
                                         Enviar productos ahora
                                     </ion-button>
@@ -374,7 +374,7 @@
                                         Chatear con el solicitante
                                     </ion-button>
 
-                                    <ion-button expand="block" fill="clear" color="dark" @click="undoDispatch()">
+                                    <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" fill="clear" color="dark" @click="undoDispatch()">
                                         <ion-icon slot="end"  color="danger" :icon="closeCircleOutline"></ion-icon>
                                         <ion-label color="danger">
                                             Cancelar separación de productos
@@ -397,13 +397,13 @@
                                 Los productos están en el transporte hacia el solicitante. Él te notificará cuando los reciba.
                                 <br><br>
                                 <article>
-                                    <ion-button expand="block" color="danger" @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Dispatched)">
-                                        <ion-icon slot="end" :icon="closeCircleOutline"></ion-icon>
-                                        Cancelar envío
-                                    </ion-button>
-                                    <ion-button expand="block" fill="clear" color="light" @click="openChat()">
+                                    <ion-button expand="block"  color="light" @click="openChat()">
                                         <ion-icon slot="end" :icon="chatbubbleEllipsesOutline"></ion-icon>
                                         Chatear con el solicitante
+                                    </ion-button>
+                                    <ion-button :disabled="isLoadingAreas.outcomeRequest" fill="clear" expand="block" color="danger" @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Dispatched)">
+                                        <ion-icon slot="end" :icon="closeCircleOutline"></ion-icon>
+                                        Cancelar envío
                                     </ion-button>
                                 </article>
                             </ion-card-content>

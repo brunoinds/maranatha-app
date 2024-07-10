@@ -40,7 +40,7 @@
                                         </ion-label>
                                     </ion-item>
                                     <ion-item :color="(product.quantity.length == 0 || product.quantity > product.product.stock.in_stock_count) ? 'warning': undefined">
-                                        <ion-input :disabled="product.product.stock.in_stock_count == 0" label="Cantidad" type="number" :min="product.product.stock.in_stock_count > 0 ? 1 : 0" :max="product.product.stock.in_stock_count" v-model="product.quantity" class="ion-text-right"></ion-input>
+                                        <ion-input :disabled="product.product.stock.in_stock_count == 0" label="Cantidad" type="number" inputmode="numeric" :min="product.product.stock.in_stock_count > 0 ? 1 : 0" :max="product.product.stock.in_stock_count" v-model="product.quantity" class="ion-text-right"></ion-input>
                                         <ion-icon v-if="(product.quantity.length == 0 || product.quantity > product.product.stock.in_stock_count)" slot="start" :icon="alertCircleOutline"></ion-icon>
                                     </ion-item>
 

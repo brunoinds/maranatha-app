@@ -30,10 +30,10 @@
                         </ion-label>
                     </ion-item>
                     <ion-item>
-                        <ion-input label="Cantidad Enviada" :disabled="true" type="number" :min="1" :readonly="true" v-model="product.sent" class="ion-text-right"></ion-input>
+                        <ion-input label="Cantidad Enviada" :disabled="true" type="number" inputmode="numeric" :min="1" :readonly="true" v-model="product.sent" class="ion-text-right"></ion-input>
                     </ion-item>
                     <ion-item :color="product.sent == product.received ? undefined : 'danger'">
-                        <ion-input label="Cantidad Recibida" type="number" :min="1" v-model="product.received" class="ion-text-right"></ion-input>
+                        <ion-input label="Cantidad Recibida" type="number" inputmode="numeric" :min="1" v-model="product.received" class="ion-text-right"></ion-input>
                     </ion-item>
                 </ion-list>
 

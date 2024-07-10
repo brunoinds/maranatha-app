@@ -108,6 +108,7 @@ const page = ref<HTMLElement|null>(null);
 const isLoading = ref<boolean>(false);
 const contentElement = ref<HTMLElement|null>(null);
 const textAreaElement = ref<HTMLElement|null>(null);
+const goToBottomButtonBottomHeight = ref<string>('100px');
 
 const outcomeRequestId = route.params.id as string;
 
@@ -192,7 +193,7 @@ const goToBottom = () => {
             Haptics.impact({
                 style: ImpactStyle.Light
             });
-        }, 400);
+        }, 350);
     }, 100);
     newMessagesNotViewedByScroll.value = 0;
 }
@@ -436,6 +437,7 @@ if (Capacitor.isNativePlatform()){
 
     Keyboard.addListener('keyboardDidShow', info => {
         getFooterInnerElement().style.paddingBottom = (info.keyboardHeight + 5) + 'px';
+        goToBottomButtonBottomHeight.value = (info.keyboardHeight + 100) + 'px';
     });
 
     Keyboard.addListener('keyboardWillHide', () => {
@@ -444,6 +446,7 @@ if (Capacitor.isNativePlatform()){
 
     Keyboard.addListener('keyboardDidHide', () => {
         getFooterInnerElement().style.paddingBottom = '5px';
+        goToBottomButtonBottomHeight.value = '100px';
     });
 }
 
@@ -481,7 +484,7 @@ onUnmounted(() => {
 
 .go-bottom-button{
     position: fixed;
-    bottom: 100px;
+    bottom: v-bind(goToBottomButtonBottomHeight);
     right: 20px;
     z-index: 1000;
 }

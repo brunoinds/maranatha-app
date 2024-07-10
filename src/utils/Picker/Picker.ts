@@ -56,18 +56,18 @@ export class Picker{
                     }
                     return array;
                 }
-                console.log(file, file.data, file.blob);
                 pdfBase64 = file.data as string;
                 sourcePDF = {data: convertDataURIToBinary(file.data as string)}
             }else{
                 const url = URL.createObjectURL(file.blob as Blob);
                 sourcePDF = url;
                 pdfBase64 = await base64FromBlob(file.blob as Blob);
+                pdfBase64 = pdfBase64.split(',')[1];
             }
             const pdf = await PDFModifier.loadPDF(sourcePDF);
             const imageBase64 = await pdf.extractPagesIntoSingleImageAsBase64();
             resolve({
-                base64: pdfBase64.split(',')[1],
+                base64: pdfBase64,
                 details: {
                     name: file.name,
                     pages: pdf.pagesCount(),

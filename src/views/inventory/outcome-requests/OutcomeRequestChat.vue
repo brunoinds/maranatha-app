@@ -646,12 +646,6 @@ const moreOptions = {
                     }
                 },
                 {
-                    text: 'Gabar audio',
-                    handler: () => {
-                        moreOptions.recordAudio();
-                    }
-                },
-                {
                     text: 'Cancel',
                     role: 'cancel',
                 }

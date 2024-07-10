@@ -574,15 +574,15 @@ const openDocument = async (message: IOutcomeChatMessage, base64: string) => {
 }
 const moreOptions = {
     openCamera: async () => {
-        const response = await ImagePicker.loadImagesAndDocuments({
-            onLoadingAttachment: () => {
+        const response = await Picker.pickPhoto({
+            isProcessingFile: () => {
                 dynamicData.value.isLoadingImage = true;
-            },
+            }
         });
         dynamicData.value.image = {
-            data: response.image,
+            data: response.base64,
             type: '.png',
-            size: 0
+            size: response.details.size
         };
         dynamicData.value.isLoadingImage = false;
     },

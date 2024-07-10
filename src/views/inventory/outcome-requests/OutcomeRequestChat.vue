@@ -188,6 +188,11 @@ const chatMessagesUI = computed(() => {
 const goToBottom = () => {
     setTimeout(() => {
         contentElement.value?.$el.scrollToBottom(400);
+        setTimeout(() => {
+            Haptics.impact({
+                style: ImpactStyle.Light
+            });
+        }, 400);
     }, 100);
     newMessagesNotViewedByScroll.value = 0;
 }
@@ -273,7 +278,7 @@ const sendMessage = async () => {
     textAreaElement.value?.$el.querySelector('textarea')?.focus();
 
     Haptics.impact({
-        style: ImpactStyle.Light
+        style: ImpactStyle.Medium
     });
 
     pauseTimer = false;

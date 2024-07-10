@@ -19,6 +19,32 @@ export class LiveUpdates{
     } = null;
     private static hasFetchedUpdates = false;
 
+
+    private static compareVersions(version1: string, comparison: '=' | '>' | '<' | '>=' | '<=', version2: string){
+        function compareVersions(v1:string, v2: string) {
+            const parts1 = v1.split('.').map(Number);
+            const parts2 = v2.split('.').map(Number);
+            
+            for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+                const part1 = parts1[i] || 0;
+                const part2 = parts2[i] || 0;
+                
+                if (part1 > part2) return 1;
+                if (part1 < part2) return -1;
+            }
+            
+            return 0;
+        }
+
+        const preResult = compareVersions(version1, version2);
+        if (comparison === '=') return preResult === 0;
+        if (comparison === '>') return preResult === 1;
+        if (comparison === '<') return preResult === -1;
+        if (comparison === '>=') return preResult >= 0;
+        if (comparison === '<=') return preResult <= 0;
+        return false;
+    }
+
     public static externalLabels = ref<{
         state: 'Searching' | 'Downloading' | 'ReadyToInstall' | 'Installing' | 'NoUpdateAvailable',
         availableUpdate: DownloadableBundle | null
@@ -41,7 +67,8 @@ export class LiveUpdates{
         };
 
         LiveUpdates.hasFetchedUpdates = true;
-
+        
+        //'1.2.9' > '1.2.100000000'
         const bundle = response.bundles.length > 0 ? response.bundles[0] : null;
 
         //alert(`🛜 Found new available update version: ${bundle?.version}, the device has version ${Environment.version()}.`)
@@ -50,14 +77,14 @@ export class LiveUpdates{
             return;
         }
 
-        const isUpdatableBundle = bundle.version > Environment.version();
+        const isUpdatableBundle = LiveUpdates.compareVersions(bundle.version, '>', Environment.version());
 
         if (!isUpdatableBundle){
             LiveUpdates.externalLabels.value.state = 'NoUpdateAvailable';
             return;
         }
 
-        const compatibleWithTheMinimalNativeVersion = (Environment.storeVersioning().version >= bundle.minimalVersion);
+        const compatibleWithTheMinimalNativeVersion = LiveUpdates.compareVersions(Environment.storeVersioning().version, '>=', bundle.minimalVersion);
         
         if (!compatibleWithTheMinimalNativeVersion){
             console.log(`🛜❌ The bundle is not compatible with the current native version. Bundle version: ${bundle.minimalVersion}, Native version: ${Environment.storeVersioning().version}`)

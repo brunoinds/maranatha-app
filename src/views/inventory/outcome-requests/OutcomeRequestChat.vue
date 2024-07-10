@@ -199,7 +199,24 @@ const getMessages = async () => {
         }, 100)
         
     }
-    chatMessagesData.value = response.sort((a:any, b:any) => {
+
+    //Before replace chatMessagesData with the new messages, we should include the messages that was not sent yet. To do that, we need to filter those messages and include them in the newChatMessages array:
+
+    const newChatMessages = response;
+
+    const notSentYetMessages = chatMessagesData.value.filter((message) => {
+        return message.sent_at === null;
+    }).filter((message) => {
+        return !newChatMessages.find((newMessage:any) => {
+            return (newMessage.written_at == message.written_at &&
+            newMessage.text == message.text &&
+            newMessage.user_id == message.user_id);
+        });
+    });
+
+    newChatMessages.push(...notSentYetMessages);
+
+    chatMessagesData.value = newChatMessages.sort((a:any, b:any) => {
         return new Date(a.written_at).getTime() - new Date(b.written_at).getTime();
     });
 }

@@ -56,6 +56,7 @@ export class Picker{
                     }
                     return array;
                 }
+                console.log(file, file.data, file.blob);
                 pdfBase64 = file.data as string;
                 sourcePDF = {data: convertDataURIToBinary(file.data as string)}
             }else{

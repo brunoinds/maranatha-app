@@ -438,9 +438,15 @@ const getMessages = async () => {
 
     newChatMessages.push(...notSentYetMessages);
 
-    chatMessagesData.value = newChatMessages.sort((a:any, b:any) => {
-        return new Date(a.written_at).getTime() - new Date(b.written_at).getTime();
-    });
+    //Check if has differences between the new messages and the current messages:
+    if (JSON.stringify(newChatMessages) !== JSON.stringify(chatMessagesData.value)){
+        //Now apply the changes. This is to avoid call the computed() function more than necessary:
+        chatMessagesData.value = newChatMessages.sort((a:any, b:any) => {
+            return new Date(a.written_at).getTime() - new Date(b.written_at).getTime();
+        });
+    }
+
+    
 }
 const sendMessage = async () => {
     if (dynamicData.value.audioRecording.isRecording){
@@ -639,12 +645,12 @@ const moreOptions = {
                         moreOptions.openDocument();
                     }
                 },
-                /*{
+                {
                     text: 'Gabar audio',
                     handler: () => {
                         moreOptions.recordAudio();
                     }
-                },*/
+                },
                 {
                     text: 'Cancel',
                     role: 'cancel',

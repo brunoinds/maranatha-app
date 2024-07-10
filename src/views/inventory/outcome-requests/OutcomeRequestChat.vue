@@ -12,14 +12,34 @@
         <ion-content ref="contentElement" class="content">
             <br>
             <ion-list :class="isLoading ? 'opacity-0' : undefined">
-                <ion-item-sliding v-for="message in chatMessagesUI" :id="message.id" >
-                    <ion-item lines="none">
+                <ion-item-sliding v-for="message in chatMessagesUI" :id="message.id" v-show="!message.react_to">
+                    <ion-item lines="none" :color="(dynamicData.highlightMessage && dynamicData.highlightMessage.id == message.id) ? 'light' : undefined">
                         <ion-button fill="clear" slot="end" color="danger" v-if="message.uploadingProgress?.error" @click="message.uploadingProgress?.error?.retry">
                             <ion-icon :icon="alertCircleOutline"></ion-icon>
                         </ion-button> 
                         <article  class="message-item" :is-me="message.isMe">
                             <img type="receiver" :src="ChatTailReceiver">
                             <section class="bubble">
+                                <button class="message-reply" v-if="message.replyData"  @click="goToMessage(message.replyData?.message.id as any)">
+                                    <article>
+                                        <header>
+                                            <ion-icon :icon="arrowUndoCircleOutline"></ion-icon>
+                                            <h2>Respondiendo a:</h2>
+                                        </header>
+                                        <main>
+                                            <p v-if="message.replyData?.message.text">{{ message.replyData?.message.text }}</p>
+                                            <p v-if="message.replyData.message.image">
+                                                🌅 Foto
+                                            </p>
+                                            <p v-if="message.replyData.message.document">
+                                                📄 {{ message.replyData.message.document.name }}
+                                            </p>
+
+                                            <ion-img v-if="message.replyData?.ui?.imageData?.isCompleted" :src="'data:image/png;base64,' + message.replyData.ui.imageData.base64"></ion-img>
+                                        </main>
+                                    </article>
+                                </button>
+
                                 <button class="message-image" v-if="message.imageData"  :isLoading="!message.imageData.isCompleted" @click="(message.imageData?.base64) ? openImage(message.imageData.base64, '') : undefined">
                                     <ion-progress-bar v-if="!message.imageData.isCompleted" color="secondary" type="indeterminate"></ion-progress-bar>
                                     <ion-img v-if="message.imageData.isCompleted" :src="'data:image/png;base64,' + message.imageData.base64"></ion-img>
@@ -45,13 +65,29 @@
                                     <span>{{ message.time }}</span>
                                     <ion-icon :icon="message.statusIcon" :color="message.statusIconColor"></ion-icon>
                                 </article>
+
+                                <article class="message-reaction" v-if="message.reactData">
+                                    <span>{{ message.reactData.text }}</span>
+                                </article>
                             </section>
                             <img type="sender" :src="ChatTailSender">
                         </article>
                     </ion-item>
 
+                    <ion-item-options side="start">
+                        <ion-item-option color="secondary" expandable @click="(ev) => {dynamicData.replyTo = chatMessagesData.find((chatMessage) => chatMessage.id === message.id); ev.srcElement.offsetParent.offsetParent.close()}">
+                            <ion-icon :icon="arrowUndoCircleOutline" slot="start"></ion-icon>
+                            <ion-label>Responder</ion-label>
+                        </ion-item-option>
+
+                        <ion-item-option color="warning" expandable @click="(ev) => {reactToMessage(chatMessagesData.find((chatMessage) => chatMessage.id === message.id) as unknown as any); ev.srcElement.offsetParent.offsetParent.close()}">
+                            <ion-icon :icon="sparklesOutline" slot="start"></ion-icon>
+                            <ion-label>Reaccionar</ion-label>
+                        </ion-item-option>
+                    </ion-item-options>
+
                     <ion-item-options side="end">
-                        <ion-item-option color="primary" @click="copyMessage(message)">
+                        <ion-item-option color="primary" @click="(ev) => {copyMessage(message); ev.srcElement.offsetParent.offsetParent.close()}">
                             <ion-icon :icon="copyOutline" slot="start"></ion-icon>
                             <ion-label>Copiar</ion-label>
                         </ion-item-option>
@@ -73,6 +109,34 @@
                     </button>
 
                     <article class="send-area">
+                        
+                        <section class="audio-area" v-if="dynamicData.audioRecording.isRecording">
+                            <canvas :id="'audioRecorderOfChatId-' + outcomeRequestId"></canvas>
+                            <span>{{dynamicData.audioRecording.durationText}}</span>
+                            <ion-button color="danger" size="small" fill="outline" @click="dynamicData.audioRecording.onStopRecording" style="margin-right: 10px;">
+                                <ion-icon :icon="trashOutline"></ion-icon>
+                            </ion-button>
+                        </section>
+
+                        <section class="reply-area" v-if="dynamicData.replyTo" @click="goToMessage(dynamicData.replyTo?.id as any)">
+                            <article>
+                                <header>
+                                    <ion-icon :icon="arrowUndoCircleOutline"></ion-icon>
+                                    <h2>Respondiendo a:</h2>
+                                </header>
+                                <main>
+                                    <h2>{{ dynamicData.replyTo?.text }}</h2>
+                                    <h2 v-if="dynamicData.replyTo?.image">🌅 Foto</h2>
+                                    <h2 v-if="dynamicData.replyTo?.document">📄 {{ dynamicData.replyTo?.document.name }}</h2>
+                                </main>
+                            </article>
+                            <aside>
+                                <ion-button color="danger"  size="small" fill="clear" @click="dynamicData.replyTo = null">
+                                    <ion-icon :icon="closeCircleOutline"></ion-icon>
+                                </ion-button>
+                            </aside>
+                        </section>
+
                         <section class="image-area" v-if="dynamicData.image || dynamicData.isLoadingImage">
                             <ion-img v-if="dynamicData.image" :src="'data:image/png;base64,' + dynamicData.image.data"></ion-img>
                             <ion-progress-bar v-if="dynamicData.isLoadingImage" color="secondary" type="indeterminate"></ion-progress-bar>
@@ -95,13 +159,7 @@
                                 <ion-icon :icon="trashOutline"></ion-icon>
                             </ion-button>
                         </section>
-                        <section class="audio-area" v-if="dynamicData.audioRecording.isRecording">
-                            <canvas :id="'audioRecorderOfChatId-' + outcomeRequestId"></canvas>
-                            <span>{{dynamicData.audioRecording.durationText}}</span>
-                            <ion-button color="danger" size="small" fill="outline" @click="dynamicData.audioRecording.onStopRecording" style="margin-right: 10px;">
-                                <ion-icon :icon="trashOutline"></ion-icon>
-                            </ion-button>
-                        </section>
+
                         <ion-textarea v-if="!dynamicData.audioRecording.isRecording" ref="textAreaElement" v-model="dynamicData.text" :auto-grow="true" :rows="1" placeholder="Escribe un mensaje"></ion-textarea>
                     </article>
                     <button @click="sendMessage" shape="round" size="small">
@@ -125,7 +183,7 @@ import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { Capacitor } from '@capacitor/core';
 import { Keyboard } from '@capacitor/keyboard';
 import { IonBackButton, IonSpinner, IonButton, IonButtons, IonContent, IonHeader,IonImg, IonIcon, IonItem, IonItemSliding, IonList, IonPage, IonProgressBar, IonTextarea, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
-import { addOutline, chevronDownCircleOutline, documentOutline, trashOutline, copyOutline, alarmOutline, alertCircleOutline, checkmarkDoneOutline, checkmarkOutline, sendOutline, image } from 'ionicons/icons';
+import { addOutline, chevronDownCircleOutline,closeCircleOutline, sparklesOutline, documentOutline, arrowUndoCircleOutline, trashOutline, copyOutline, alarmOutline, alertCircleOutline, checkmarkDoneOutline, checkmarkOutline, sendOutline, image } from 'ionicons/icons';
 import TimeAgo from 'javascript-time-ago';
 import es from 'javascript-time-ago/locale/es';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
@@ -198,7 +256,8 @@ const dynamicData = ref<{
             description: string,
             retry: () => void
         } | null
-    }>
+    }>,
+    highlightMessage: IOutcomeChatMessage|null
 }>({
     text: '',
     image: null,
@@ -214,7 +273,8 @@ const dynamicData = ref<{
         isRecording: false,
         durationText: '00:00',
         onStopRecording: () => {}
-    }
+    },
+    highlightMessage: null
 });
 
 const chatMessagesData = ref<IOutcomeChatMessage[]>([]);
@@ -377,6 +437,25 @@ const chatMessagesUI = computed(() => {
                 }
                 return null;
             })(),
+            replyData: (() => {
+                if (message.reply_to) {
+                    return {
+                        message: chatMessagesData.value.find((chatMessage) => chatMessage.id === message.reply_to) as unknown as IOutcomeChatMessage,
+                        ui: chatMessagesUI.value.find((chatMessage:any) => chatMessage.id === message.reply_to) as unknown as any
+                    }
+                }
+                return null
+            })(),
+            reactData: (() => {
+                const reactions = chatMessagesData.value.filter((chatMessage) => chatMessage.react_to === message.id);
+                if (reactions.length == 0){
+                    return null;
+                }
+
+                const reaction = reactions[reactions.length - 1];
+                
+                return reaction;
+            })(),
             uploadingProgress: (() => {
                 const uploading = dynamicData.value.uploadingProgress.find((progress) => progress.message.id === message.id);
                 if (uploading){
@@ -399,6 +478,19 @@ const goToBottom = () => {
         }, 350);
     }, 100);
     newMessagesNotViewedByScroll.value = 0;
+}
+const goToMessage = (messageId: string) => {
+    document.getElementById(messageId)?.scrollIntoView({behavior: 'smooth', block: 'center'});
+    setTimeout(() => {
+        dynamicData.value.highlightMessage = chatMessagesData.value.find((message) => message.id === messageId) as unknown as IOutcomeChatMessage;
+
+        Haptics.impact({
+            style: ImpactStyle.Light
+        });
+        setTimeout(() => {
+            dynamicData.value.highlightMessage = null;
+        }, 350);
+    }, 350);
 }
 
 const getMessages = async () => {
@@ -476,6 +568,8 @@ const sendMessage = async () => {
         video: dynamicData.value.video ?? undefined,
         document: dynamicData.value.document ?? undefined,
         audio: dynamicData.value.audio ?? undefined,
+        reply_to: dynamicData.value.replyTo?.id ?? undefined,
+        react_to: dynamicData.value.reactTo?.id ?? undefined,
         written_at: new Date().toISOString(),
         sent_at: null,
         received_at: null,
@@ -487,14 +581,19 @@ const sendMessage = async () => {
 
     chatMessagesData.value.push(message);
 
+    
+    if (!dynamicData.value.reactTo){
+        goToBottom();
+    }
+
+
     dynamicData.value.text = '';
     dynamicData.value.image = null;
     dynamicData.value.document = null;
     dynamicData.value.audio = null;
     dynamicData.value.video = null;
-
-
-    goToBottom();
+    dynamicData.value.replyTo = null;
+    dynamicData.value.reactTo = null;
 
     textAreaElement.value?.$el.querySelector('textarea')?.focus();
 
@@ -572,6 +671,66 @@ const openImage = async (base64: string, name: string) => {
 const openDocument = async (message: IOutcomeChatMessage, base64: string) => {
     Toolbox.share(message.document?.name as unknown as string, base64 as unknown as string)
 }
+const reactToMessage = (message: IOutcomeChatMessage) => {
+    actionSheetController.create({
+        buttons: [
+            {
+                text: '👍',
+                handler: () => {
+                    dynamicData.value.reactTo = message;
+                    dynamicData.value.text = '👍';
+                    sendMessage();
+                }
+            },
+            {
+                text: '❤️',
+                handler: () => {
+                    dynamicData.value.reactTo = message;
+                    dynamicData.value.text = '❤️';
+                    sendMessage();
+                }
+            },
+            {
+                text: '😂',
+                handler: () => {
+                    dynamicData.value.reactTo = message;
+                    dynamicData.value.text = '😂';
+                    sendMessage();
+                }
+            },
+            {
+                text: '😮',
+                handler: () => {
+                    dynamicData.value.reactTo = message;
+                    dynamicData.value.text = '😮';
+                    sendMessage();
+                }
+            },
+            {
+                text: '😢',
+                handler: () => {
+                    dynamicData.value.reactTo = message;
+                    dynamicData.value.text = '😢';
+                    sendMessage();
+                }
+            },
+            {
+                text: '😡',
+                handler: () => {
+                    dynamicData.value.reactTo = message;
+                    dynamicData.value.text = '😡';
+                    sendMessage();
+                }
+            },
+            {
+                text: 'Cancelar',
+                role: 'cancel'
+            }
+        ]
+    }).then((actionSheet) => {
+        actionSheet.present();
+    });
+}
 const moreOptions = {
     openCamera: async () => {
         const response = await Picker.pickPhoto({
@@ -599,8 +758,6 @@ const moreOptions = {
             type: '.pdf',
             size: response.details.size,
         }
-        console.log(response)
-
         dynamicData.value.isLoadingImage = false;
     },
     recordAudio: async () => {
@@ -679,7 +836,9 @@ const copyMessage = (message: IOutcomeChatMessage) => {
     });
     toastController.create({
         message: '📋 Mensaje copiado!',
-        duration: 2000
+        duration: 2000,
+        position: 'top',
+        translucent: true
     }).then((toast) => {
         toast.present();
     });
@@ -744,9 +903,6 @@ if (Capacitor.isNativePlatform()){
         goToBottomButtonBottomHeight.value = '150px';
     });
 }
-
-
-
 
 onMounted(async () => {
     isLoading.value = true;
@@ -896,6 +1052,47 @@ onUnmounted(() => {
 
             }
         }
+        > .reply-area{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            column-gap: 10px;
+
+            > article{
+                display: flex;
+                flex-direction: column;
+                background-color: var(--ion-color-primary);
+                width: 100%;
+                border-radius: 9px;
+                padding: 5px 10px;
+                row-gap: 5px;
+
+                > header{
+                    display: flex;
+                    align-items: center;
+                    column-gap: 5px;
+                    > ion-icon{
+                        font-size: 14px;
+                        color: white;
+                    }
+                    > h2{
+                        font-size: 12px;
+                        font-weight: 600;
+                        color: white;
+                        margin: 0;
+                    }
+                }
+                > main{
+                    > h2{
+                        font-size: 12px;
+                        font-weight: 400;
+                        color: white;
+                        margin: 0;
+                    }
+                }
+            }
+        }
         
         > ion-textarea{
             border: 1px solid var(--ion-color-medium);
@@ -930,10 +1127,15 @@ onUnmounted(() => {
     width: 100%;
     display: flex;
     padding: 5px 0px;
+
     &[is-me="true"]{
         justify-content: flex-end;
         .bubble{
             background-color: #E2FFD4;
+
+            .message-reaction{
+                left: -7px;
+            }
         }
         & > img[type="receiver"]{
             display: none;
@@ -950,6 +1152,9 @@ onUnmounted(() => {
                     display: none;
                 }
             }
+            .message-reaction{
+                right: -7px;
+            }
         }
     }
     .bubble{
@@ -959,6 +1164,7 @@ onUnmounted(() => {
         max-width: 68%;
         width: fit-content;
         box-shadow: 0px 0px 2px 0px rgb(0 0 0 / 23%);
+        position: relative;
         .message-body{
             color: black;
             user-select: text;
@@ -1036,7 +1242,7 @@ onUnmounted(() => {
             justify-content: center;
             background-color: transparent;
             height: 280px;
-            width: 224px;
+            min-width: 214px;           
             position: relative;
             border-radius: 5px;
             overflow: hidden;
@@ -1072,7 +1278,81 @@ onUnmounted(() => {
                 user-select: none;
             }
         }
+        .message-reply{
+            display: flex;
+            align-items: center;
+            column-gap: 10px;
+            background-color: #d9f4c9;
+            margin-bottom: 10px;
+            border-radius: 9px;
+            overflow: hidden;
+            width: 100%;
+            color: black;
+            > article{
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                position: relative;
 
+                > header{
+                    display: flex;
+                    align-items: center;
+                    column-gap: 5px;
+                    padding: 5px 10px;
+                    background-color: #cee9be;
+                    > ion-icon{
+                        font-size: 10px;
+                    }
+                    > h2{
+                        font-size: 8px;
+                        font-weight: 600;
+                        margin: 0;
+                    }
+                }
+                > main{
+                    padding: 8px 10px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    row-gap: 5px;
+                    min-height: 40px;
+                    &:has(ion-img){
+                        min-height: 50px;
+                    }
+
+                    > p{
+                        font-size: 10px;
+                        font-weight: 400;
+                        margin: 0;
+                        text-align: left;
+                    }
+                    > ion-img{
+                        border-radius: 8px;
+                        object-fit: cover;
+                        position: absolute;
+                        top: 20px;
+                        bottom: 0px;
+                        right: 0px;
+                    }
+                }
+            }
+
+            &:active{
+                opacity: 0.4;
+            }
+        }
+
+        
+        .message-reaction{
+            position: absolute;
+            bottom: -3px;
+            background-color: white;
+            padding: 2px 7px;
+            border-radius: 50px;
+            font-size: 10px;
+            box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.23);
+        }
+        
         .message-stats{
             display: flex;
             justify-content: flex-end;

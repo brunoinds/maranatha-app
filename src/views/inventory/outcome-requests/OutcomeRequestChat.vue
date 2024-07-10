@@ -71,7 +71,7 @@
                         </section>
                         <ion-textarea ref="textAreaElement" v-model="dynamicData.text" :auto-grow="true" :rows="1" placeholder="Type a message"></ion-textarea>
                     </article>
-                    <button @click="sendTextMessage" shape="round" size="small">
+                    <button @click="sendMessage" shape="round" size="small">
                         <ion-icon slot="icon-only" :icon="sendOutline"></ion-icon>
                     </button>
                 </section>
@@ -233,7 +233,7 @@ const getMessages = async () => {
         return new Date(a.written_at).getTime() - new Date(b.written_at).getTime();
     });
 }
-const sendTextMessage = async () => {
+const sendMessage = async () => {
     if (dynamicData.value.text.trim().length == 0 && dynamicData.value.image == null) {
         return;
     }
@@ -271,6 +271,10 @@ const sendTextMessage = async () => {
     goToBottom();
 
     textAreaElement.value?.$el.querySelector('textarea')?.focus();
+
+    Haptics.impact({
+        style: ImpactStyle.Light
+    });
 
     pauseTimer = false;
 
@@ -412,15 +416,6 @@ const timerShowGoBottomButton = setInterval(async () => {
     }
 }, 100);
 
-
-/*
-Keyboard transition idea:
-- onKeyboardWillOpen: get keyboard height, add this height as padding-bottom to the content element.
-- onKeyboardWillClose: remove the padding-bottom from the content element.
-- onKeyboardDidOpen: remove the padding-bottom from content.
-
-
-*/
 const getFooterInnerElement = () => {
     const footerElement = document.getElementById('footerOfChatId-' + outcomeRequestId);
     if (footerElement){

@@ -13,7 +13,10 @@
             <br>
             <ion-list :class="isLoading ? 'opacity-0' : undefined">
                 <ion-item-sliding v-for="message in chatMessagesUI" :id="message.id" >
-                    <ion-item lines="none" > 
+                    <ion-item lines="none">
+                        <ion-button fill="clear" slot="end" color="danger" v-if="message.error" @click="message.error.retry">
+                            <ion-icon :icon="alertCircleOutline"></ion-icon>
+                        </ion-button> 
                         <article  class="message-item" :is-me="message.isMe">
                             <img type="receiver" :src="ChatTailReceiver">
                             <section class="bubble">
@@ -81,8 +84,8 @@ import { Session } from '@/utils/Session/Session';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { Capacitor } from '@capacitor/core';
 import { Keyboard } from '@capacitor/keyboard';
-import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader,IonImg, IonIcon, IonItem, IonItemSliding, IonList, IonPage, IonProgressBar, IonTextarea, IonTitle, IonToolbar, actionSheetController } from '@ionic/vue';
-import { addOutline, chevronDownCircleOutline, trashOutline, alarmOutline, checkmarkDoneOutline, checkmarkOutline, sendOutline, image } from 'ionicons/icons';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader,IonImg, IonIcon, IonItem, IonItemSliding, IonList, IonPage, IonProgressBar, IonTextarea, IonTitle, IonToolbar, actionSheetController, alertController } from '@ionic/vue';
+import { addOutline, chevronDownCircleOutline, trashOutline, alarmOutline, alertCircleOutline, checkmarkDoneOutline, checkmarkOutline, sendOutline, image } from 'ionicons/icons';
 import TimeAgo from 'javascript-time-ago';
 import es from 'javascript-time-ago/locale/es';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
@@ -226,7 +229,13 @@ const sendTextMessage = async () => {
     }
 
     const message = {
-        text: dynamicData.value.text,
+        id: Math.random().toString(36).substring(7),
+        text: (() => {
+            if (dynamicData.value.text.trim().length == 0) {
+                return null;
+            }
+            return dynamicData.value.text.trim();
+        })(),
         image: dynamicData.value.image,
         written_at: new Date().toISOString(),
         sent_at: null,
@@ -237,7 +246,7 @@ const sendTextMessage = async () => {
     pauseTimer = true;
 
     chatMessagesData.value.push({
-        id: Math.random().toString(36).substring(7),
+        id: message.id,
         text: message.text,
         image: message.image,
         written_at: message.written_at,
@@ -255,9 +264,56 @@ const sendTextMessage = async () => {
 
     pauseTimer = false;
 
-    const response = await RequestAPI.post('/inventory/warehouse-outcome-requests/'+outcomeRequestId+'/chat', {
-        ...message
-    });
+    const sendMessageToServer = async () => {
+        try {
+            const response = await RequestAPI.post('/inventory/warehouse-outcome-requests/'+outcomeRequestId+'/chat', {
+                ...message,
+                id: undefined
+            });
+        } catch (error) {
+            onMessageErrorOnUpload('Error');
+        }
+    }
+
+    const onMessageErrorOnUpload = (errorDescription: string|null) => {
+        chatMessagesData.value = chatMessagesData.value.map((messageItem) => {
+            if (messageItem.id === message.id) {
+                messageItem.error = {
+                    description: errorDescription,
+                    retry: () => {
+                        alertController.create({
+                            header: 'Error al enviar',
+                            message: errorDescription + ' ¿Deseas reintentar el envío del mensaje?',
+                            buttons: [
+                                {
+                                    text: 'Cancelar',
+                                    role: 'cancel'
+                                },
+                                {
+                                    text: 'Reintentar',
+                                    role: 'destructive',
+                                    handler: () => {
+                                        chatMessagesData.value = chatMessagesData.value.map((messaging) => {
+                                            if (messaging.id === message.id) {
+                                                messaging.error = undefined;
+                                            }
+                                            return messaging;
+                                        });
+                                        sendMessageToServer();
+                                    }
+                                }
+                            ]
+                        }).then((alert) => {
+                            alert.present();
+                        });
+                    }
+                }
+            }
+            return messageItem;
+        });
+    }
+
+    await sendMessageToServer();
 }
 const openImage = async (base64: string, imageId: string) => {
     Toolbox.share(imageId + '.png', base64 as unknown as string)

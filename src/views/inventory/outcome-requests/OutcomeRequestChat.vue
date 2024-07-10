@@ -37,7 +37,6 @@
                                     </article>
                                 </button>
 
-
                                 <article class="message-body">
                                     <span>{{ message.text }}</span>
                                 </article>
@@ -82,7 +81,7 @@
                                 <ion-icon :icon="trashOutline"></ion-icon>
                             </ion-button>
                         </section>
-                        <section class="document-area" v-if="dynamicData.document || dynamicData.isLoadingImage">
+                        <section class="document-area" v-if="dynamicData.document">
                             <article>
                                 <ion-icon :icon="documentOutline"></ion-icon>
                                 <section>
@@ -134,6 +133,7 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useRoute } from 'vue-router';
 import { Picker } from '@/utils/Picker/Picker';
 import { AudioRecorder } from '@/utils/Recorder/AudioRecorder';
+import { KVSIndexedDB, kvsIndexedDB } from "@kvs/indexeddb";
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE')
@@ -292,10 +292,10 @@ const chatMessagesUI = computed(() => {
 
                         dynamicData.value.downloadingProgress.push(downloadingProgress);
 
-                        const response = await RequestAPI.get('/inventory/chat-attachments/' + message.image?.data);
+                        const attachment = await retrieveAttachmentData(message.image?.data as string);
                         dynamicData.value.downloadingProgress = dynamicData.value.downloadingProgress.map((progress) => {
                             if (progress.message.id === message.id){
-                                progress.response = response.attachment;
+                                progress.response = attachment;
                             }
                             return progress;
                         });
@@ -359,10 +359,10 @@ const chatMessagesUI = computed(() => {
 
                         dynamicData.value.downloadingProgress.push(downloadingProgress);
 
-                        const response = await RequestAPI.get('/inventory/chat-attachments/' + message.document?.data);
+                        const attachment = await retrieveAttachmentData(message.document?.data as string);
                         dynamicData.value.downloadingProgress = dynamicData.value.downloadingProgress.map((progress) => {
                             if (progress.message.id === message.id){
-                                progress.response = response.attachment;
+                                progress.response = attachment;
                             }
                             return progress;
                         });
@@ -656,6 +656,22 @@ const moreOptions = {
     }
 }
 
+
+const retrieveAttachmentData = async (attachmentId: string) => {
+    const storage = await kvsIndexedDB({
+        name: "outcome-requests-chat-attachments",
+        version: 1,
+    });
+
+    const attachment = await storage.get(attachmentId);
+    if (attachment){
+        return attachment;
+    }
+
+    const response = await RequestAPI.get('/inventory/chat-attachments/' + attachmentId);
+    await storage.set(attachmentId, response.attachment);
+    return response.attachment;
+}
 const copyMessage = (message: IOutcomeChatMessage) => {
     navigator.clipboard.writeText(message.text as string);
     Haptics.impact({
@@ -750,8 +766,6 @@ onUnmounted(() => {
     stopCreateTimer = true;
     clearTimeout(timerShowGoBottomButton);
 });
-
-
 </script>
 
 
@@ -959,6 +973,8 @@ onUnmounted(() => {
             justify-content: center;
             background-color: transparent;
             width: 100%;
+            margin-bottom: 10px;
+
             > article{
                 display: flex;
                 align-items: center;
@@ -1004,7 +1020,6 @@ onUnmounted(() => {
                 }
             }
             &[isLoading="true"]{
-                background-color: #00000029;
                 &:active{
                     opacity: 0.4;
                 }

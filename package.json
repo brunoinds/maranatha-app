@@ -46,6 +46,7 @@
     "@ionic/storage": "^4.0.0",
     "@ionic/vue": "^7.0.0",
     "@ionic/vue-router": "^7.0.0",
+    "@kvs/indexeddb": "^2.1.4",
     "@maskito/core": "^1.4.0",
     "@maskito/kit": "^1.4.0",
     "@maskito/vue": "^1.4.0",

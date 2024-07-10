@@ -68,7 +68,7 @@
 
                     <section style="display: flex; align-items: center;">
                         <label style="align-self: flex-end; padding-bottom: 9px; padding-right: 3px;">{{ Toolbox.moneyPrefix(dynamicData.currency as any) }}</label>
-                        <ion-input min="0" max="100" style="flex: 30%; min-width: 85px; max-width: 85px;"  label="Monto" label-placement="stacked" type="number" inputmode="numeric" :placeholder="'0.00'" v-model="division.amount" inputmode="decimal"></ion-input>
+                        <ion-input min="0" max="100" style="flex: 30%; min-width: 85px; max-width: 85px;"  label="Monto" label-placement="stacked" type="number" :placeholder="'0.00'" v-model="division.amount" inputmode="decimal"></ion-input>
                     </section>
                     
                     <ion-button fill="clear" slot="end" color="danger" @click="dynamicData.divisions = dynamicData.divisions.filter(e => e.id != division.id);">

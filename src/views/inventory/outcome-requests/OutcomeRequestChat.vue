@@ -108,7 +108,7 @@ const page = ref<HTMLElement|null>(null);
 const isLoading = ref<boolean>(false);
 const contentElement = ref<HTMLElement|null>(null);
 const textAreaElement = ref<HTMLElement|null>(null);
-const goToBottomButtonBottomHeight = ref<string>('100px');
+const goToBottomButtonBottomHeight = ref<string>('150px');
 
 const outcomeRequestId = route.params.id as string;
 
@@ -446,7 +446,7 @@ if (Capacitor.isNativePlatform()){
 
     Keyboard.addListener('keyboardDidHide', () => {
         getFooterInnerElement().style.paddingBottom = '5px';
-        goToBottomButtonBottomHeight.value = '100px';
+        goToBottomButtonBottomHeight.value = '150px';
     });
 }
 

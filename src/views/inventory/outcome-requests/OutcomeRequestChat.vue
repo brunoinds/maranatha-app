@@ -36,6 +36,14 @@
                             <img type="sender" :src="ChatTailSender">
                         </article>
                     </ion-item>
+
+                    <ion-item-options side="end">
+                        <ion-item-option color="primary" @click="copyMessage(message)">
+                            <ion-icon :icon="copyOutline" slot="start"></ion-icon>
+                            <ion-label>Copiar</ion-label>
+                        </ion-item-option>
+                    </ion-item-options>
+
                 </ion-item-sliding>
             </ion-list>
 
@@ -84,11 +92,13 @@ import { Session } from '@/utils/Session/Session';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { Capacitor } from '@capacitor/core';
 import { Keyboard } from '@capacitor/keyboard';
-import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader,IonImg, IonIcon, IonItem, IonItemSliding, IonList, IonPage, IonProgressBar, IonTextarea, IonTitle, IonToolbar, actionSheetController, alertController } from '@ionic/vue';
-import { addOutline, chevronDownCircleOutline, trashOutline, alarmOutline, alertCircleOutline, checkmarkDoneOutline, checkmarkOutline, sendOutline, image } from 'ionicons/icons';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader,IonImg, IonIcon, IonItem, IonItemSliding, IonList, IonPage, IonProgressBar, IonTextarea, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { addOutline, chevronDownCircleOutline, trashOutline, copyOutline, alarmOutline, alertCircleOutline, checkmarkDoneOutline, checkmarkOutline, sendOutline, image } from 'ionicons/icons';
 import TimeAgo from 'javascript-time-ago';
 import es from 'javascript-time-ago/locale/es';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+
 import { useRoute } from 'vue-router';
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE')
@@ -357,6 +367,18 @@ const moreOptions = {
     }
 }
 
+const copyMessage = (message: IChatMessage) => {
+    navigator.clipboard.writeText(message.text);
+    Haptics.impact({
+        style: ImpactStyle.Medium
+    });
+    toastController.create({
+        message: '📋 Mensaje copiado!',
+        duration: 2000
+    }).then((toast) => {
+        toast.present();
+    });
+}
 //Create a timer that recursively fetches the messages every 5 seconds to keep the chat updated:
 let currentTimer:any;
 let stopCreateTimer = false;
@@ -583,6 +605,10 @@ onUnmounted(() => {
             overflow: hidden;
             margin-bottom: 10px;
             user-select: none;
+            > ion-img{
+                user-select: none;
+                pointer-events: none;
+            }
             &[isLoading="true"]{
                 background-color: #00000029;
                 &:active{

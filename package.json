@@ -92,7 +92,8 @@
     "vue-virtual-scroller": "^2.0.0-beta.8",
     "vue3-pdfjs": "^0.1.6",
     "vuera": "^0.2.7",
-    "vuetify": "^3.4.9"
+    "vuetify": "^3.4.9",
+    "wavesurfer.js": "^7.8.1"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.4",

@@ -14,16 +14,30 @@
             <ion-list :class="isLoading ? 'opacity-0' : undefined">
                 <ion-item-sliding v-for="message in chatMessagesUI" :id="message.id" >
                     <ion-item lines="none">
-                        <ion-button fill="clear" slot="end" color="danger" v-if="message.error" @click="message.error.retry">
+                        <ion-button fill="clear" slot="end" color="danger" v-if="message.uploadingProgress?.error" @click="message.uploadingProgress?.error?.retry">
                             <ion-icon :icon="alertCircleOutline"></ion-icon>
                         </ion-button> 
                         <article  class="message-item" :is-me="message.isMe">
                             <img type="receiver" :src="ChatTailReceiver">
                             <section class="bubble">
-                                <button class="message-image" v-if="message.imageData"  :isLoading="message.imageData?.isLoading" @click="(message.imageData) ? openImage(message.imageData.base64, message.image) : undefined">
-                                    <ion-progress-bar v-if="message.imageData.isLoading" color="secondary" type="indeterminate"></ion-progress-bar>
-                                    <ion-img v-if="!message.imageData.isLoading" :src="'data:image/png;base64,' + message.imageData.base64"></ion-img>
+                                <button class="message-image" v-if="message.imageData"  :isLoading="!message.imageData.isCompleted" @click="(message.imageData?.base64) ? openImage(message.imageData.base64, '') : undefined">
+                                    <ion-progress-bar v-if="!message.imageData.isCompleted" color="secondary" type="indeterminate"></ion-progress-bar>
+                                    <ion-img v-if="message.imageData.isCompleted" :src="'data:image/png;base64,' + message.imageData.base64"></ion-img>
                                 </button>
+
+                                <button class="message-document" v-if="message.documentData"  :isLoading="!message.documentData.isCompleted" @click="(message.documentData?.base64) ? openDocument(message, message.documentData.base64) : undefined">
+                                    <article>
+                                        <ion-icon :icon="documentOutline"></ion-icon>
+                                        <section>
+                                            <h2>{{ message.document?.name }}</h2>
+                                            <h3>{{ message.document?.size }} bytes</h3>
+                                            <p>{{ message.document?.type }}</p>
+                                        </section>
+                                        <ion-spinner v-if="!message.documentData.isCompleted"  color="light"></ion-spinner>
+                                    </article>
+                                </button>
+
+
                                 <article class="message-body">
                                     <span>{{ message.text }}</span>
                                 </article>
@@ -43,7 +57,6 @@
                             <ion-label>Copiar</ion-label>
                         </ion-item-option>
                     </ion-item-options>
-
                 </ion-item-sliding>
             </ion-list>
 
@@ -62,14 +75,35 @@
 
                     <article class="send-area">
                         <section class="image-area" v-if="dynamicData.image || dynamicData.isLoadingImage">
-                            <ion-img v-if="dynamicData.image" :src="'data:image/png;base64,' + dynamicData.image"></ion-img>
+                            <ion-img v-if="dynamicData.image" :src="'data:image/png;base64,' + dynamicData.image.data"></ion-img>
                             <ion-progress-bar v-if="dynamicData.isLoadingImage" color="secondary" type="indeterminate"></ion-progress-bar>
 
                             <ion-button v-if="dynamicData.image" color="danger" size="small" fill="outline" @click="dynamicData.image = null">
                                 <ion-icon :icon="trashOutline"></ion-icon>
                             </ion-button>
                         </section>
-                        <ion-textarea ref="textAreaElement" v-model="dynamicData.text" :auto-grow="true" :rows="1" placeholder="Type a message"></ion-textarea>
+                        <section class="document-area" v-if="dynamicData.document || dynamicData.isLoadingImage">
+                            <article>
+                                <ion-icon :icon="documentOutline"></ion-icon>
+                                <section>
+                                    <h2>{{ dynamicData.document?.name }}</h2>
+                                    <h3>{{ dynamicData.document?.size }} bytes</h3>
+                                    <p>{{ dynamicData.document?.type }}</p>
+                                </section>
+                            </article>
+
+                            <ion-button v-if="dynamicData.document" color="danger" size="small" fill="outline" @click="dynamicData.document = null">
+                                <ion-icon :icon="trashOutline"></ion-icon>
+                            </ion-button>
+                        </section>
+                        <section class="audio-area" v-if="dynamicData.audioRecording.isRecording">
+                            <canvas :id="'audioRecorderOfChatId-' + outcomeRequestId"></canvas>
+                            <span>{{dynamicData.audioRecording.durationText}}</span>
+                            <ion-button color="danger" size="small" fill="outline" @click="dynamicData.audioRecording.onStopRecording" style="margin-right: 10px;">
+                                <ion-icon :icon="trashOutline"></ion-icon>
+                            </ion-button>
+                        </section>
+                        <ion-textarea v-if="!dynamicData.audioRecording.isRecording" ref="textAreaElement" v-model="dynamicData.text" :auto-grow="true" :rows="1" placeholder="Escribe un mensaje"></ion-textarea>
                     </article>
                     <button @click="sendMessage" shape="round" size="small">
                         <ion-icon slot="icon-only" :icon="sendOutline"></ion-icon>
@@ -83,7 +117,6 @@
 <script setup lang="ts">
 import ChatTailReceiver from '&/assets/icons/chat-tail-receiver.svg';
 import ChatTailSender from '&/assets/icons/chat-tail-sender.svg';
-import { IChatMessage } from '@/interfaces/ChatInterfaces';
 import { IOutcomeChatMessage } from '@/interfaces/InventoryInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { ImagePicker } from '@/utils/Camera/ImagePicker';
@@ -92,14 +125,16 @@ import { Session } from '@/utils/Session/Session';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { Capacitor } from '@capacitor/core';
 import { Keyboard } from '@capacitor/keyboard';
-import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader,IonImg, IonIcon, IonItem, IonItemSliding, IonList, IonPage, IonProgressBar, IonTextarea, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
-import { addOutline, chevronDownCircleOutline, trashOutline, copyOutline, alarmOutline, alertCircleOutline, checkmarkDoneOutline, checkmarkOutline, sendOutline, image } from 'ionicons/icons';
+import { IonBackButton, IonSpinner, IonButton, IonButtons, IonContent, IonHeader,IonImg, IonIcon, IonItem, IonItemSliding, IonList, IonPage, IonProgressBar, IonTextarea, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { addOutline, chevronDownCircleOutline, documentOutline, trashOutline, copyOutline, alarmOutline, alertCircleOutline, checkmarkDoneOutline, checkmarkOutline, sendOutline, image } from 'ionicons/icons';
 import TimeAgo from 'javascript-time-ago';
 import es from 'javascript-time-ago/locale/es';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-
 import { useRoute } from 'vue-router';
+import { Picker } from '@/utils/Picker/Picker';
+import { AudioRecorder } from '@/utils/Recorder/AudioRecorder';
+
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE')
 
@@ -109,23 +144,77 @@ const isLoading = ref<boolean>(false);
 const contentElement = ref<HTMLElement|null>(null);
 const textAreaElement = ref<HTMLElement|null>(null);
 const goToBottomButtonBottomHeight = ref<string>('150px');
-
 const outcomeRequestId = route.params.id as string;
-
 const showGoBottomButton = ref<boolean>(false);
 const newMessagesNotViewedByScroll = ref<number>(0);
 
 
 const dynamicData = ref<{
     text: string,
-    image: string|null,
+    image?: {
+        data: string,
+        type: string,
+        size: number
+    }|null,
+    video?: {
+        data: string,
+        type: string,
+        size: number,
+        duration: number
+    }|null,
+    document?: {
+        name: string,
+        data: string,
+        type: string,
+        size: number
+    }|null,
+    audio?: {
+        data: string,
+        type: string,
+        size: number,
+        duration: number
+    }|null,
+    replyTo?: IOutcomeChatMessage|null,
+    reactTo?: IOutcomeChatMessage|null,
     isLoadingImage: boolean,
-    loadedImages: Array<{id: string, base64: string, isLoading: boolean}>,
+    audioRecording: {
+        isRecording: boolean,
+        durationText: string,
+        onStopRecording: Function
+    },
+    downloadingProgress: Array<{
+        message: IOutcomeChatMessage,
+        progress: number|null,
+        error: {
+            description: string,
+            retry: () => void
+        } | null,
+        response: null|string
+    }>,
+    uploadingProgress: Array<{
+        message: IOutcomeChatMessage,
+        progress: number|null,
+        error: {
+            description: string,
+            retry: () => void
+        } | null
+    }>
 }>({
     text: '',
     image: null,
+    document: null,
+    video: null,
+    audio: null,
+    replyTo: null,
+    reactTo: null,
     isLoadingImage: false,
-    loadedImages: []
+    downloadingProgress: [],
+    uploadingProgress: [],
+    audioRecording: {
+        isRecording: false,
+        durationText: '00:00',
+        onStopRecording: () => {}
+    }
 });
 
 const chatMessagesData = ref<IOutcomeChatMessage[]>([]);
@@ -156,31 +245,145 @@ const chatMessagesUI = computed(() => {
             })(),
             imageData: (() => {
                 if (message.image) {
-                    if (message.image.endsWith('==')){
+                    //Check if it is uploading or downloading the image:
+                    const uploading = dynamicData.value.uploadingProgress.find((progress) => progress.message.id === message.id);
+                    const downloading = dynamicData.value.downloadingProgress.find((progress) => progress.message.id === message.id);
+
+                    if (message.image.data.length > 36){
                         return {
-                            id: message.image,
-                            base64: message.image,
-                            isLoading: false
+                            name: 'Uploading image',
+                            base64: message.image.data,
+                            progress: null,
+                            isCompleted: false
                         }
-                    }else{
-                        if (dynamicData.value.loadedImages.find((image) => image.id === message.image)){
-                            return dynamicData.value.loadedImages.find((image) => image.id === message.image);
+                    }else if (uploading){
+                        return {
+                            name: 'Uploading image',
+                            base64: uploading.message.image?.data,
+                            progress: uploading.progress,
+                            isCompleted: false
+                        }
+                    }else if (downloading){
+                        if (downloading.response){
+                            return {
+                                name: 'Image downloaded',
+                                base64: downloading.response,
+                                progress: null,
+                                isCompleted: true
+                            }
                         }else{
-                            dynamicData.value.loadedImages.push({
-                                id: message.image,
-                                base64: '',
-                                isLoading: true
-                            });
-                            (async () => {
-                                const response = await RequestAPI.get('/inventory/chat-images/' + message.image);
-                                dynamicData.value.loadedImages.find((image) => image.id === message.image)!.base64 = response.image;
-                                dynamicData.value.loadedImages.find((image) => image.id === message.image)!.isLoading = false;
-                            })();
-                            return dynamicData.value.loadedImages.find((image) => image.id === message.image);
+                            return {
+                                name: 'Downloading image',
+                                base64: null,
+                                progress: downloading.progress,
+                                isCompleted: false
+                            }
                         }
+                    }
+
+
+                    (async () => {
+                        const downloadingProgress = {
+                            message: message,
+                            progress: null,
+                            error: null,
+                            response: null
+                        }
+
+                        dynamicData.value.downloadingProgress.push(downloadingProgress);
+
+                        const response = await RequestAPI.get('/inventory/chat-attachments/' + message.image?.data);
+                        dynamicData.value.downloadingProgress = dynamicData.value.downloadingProgress.map((progress) => {
+                            if (progress.message.id === message.id){
+                                progress.response = response.attachment;
+                            }
+                            return progress;
+                        });
+                    })();
+
+                    return {
+                        name: 'Downloading image',
+                        base64: null,
+                        progress: null,
+                        isCompleted: false
                     }
                 }
                 return null;
+            })(),
+            documentData: (() => {
+                if (message.document) {
+                    //Check if it is uploading or downloading the image:
+                    const uploading = dynamicData.value.uploadingProgress.find((progress) => progress.message.id === message.id);
+                    const downloading = dynamicData.value.downloadingProgress.find((progress) => progress.message.id === message.id);
+
+                    if (message.document.data.length > 36){
+                        return {
+                            name: 'Uploading document',
+                            base64: message.document.data,
+                            progress: null,
+                            isCompleted: false
+                        }
+                    }else if (uploading){
+                        return {
+                            name: 'Uploading document',
+                            base64: uploading.message.document?.data,
+                            progress: uploading.progress,
+                            isCompleted: false
+                        }
+                    }else if (downloading){
+                        if (downloading.response){
+                            return {
+                                name: 'Document downloaded',
+                                base64: downloading.response,
+                                progress: null,
+                                isCompleted: true
+                            }
+                        }else{
+                            return {
+                                name: 'Downloading document',
+                                base64: null,
+                                progress: downloading.progress,
+                                isCompleted: false
+                            }
+                        }
+                    }
+
+
+                    (async () => {
+                        const downloadingProgress = {
+                            message: message,
+                            progress: null,
+                            error: null,
+                            response: null
+                        }
+
+                        dynamicData.value.downloadingProgress.push(downloadingProgress);
+
+                        const response = await RequestAPI.get('/inventory/chat-attachments/' + message.document?.data);
+                        dynamicData.value.downloadingProgress = dynamicData.value.downloadingProgress.map((progress) => {
+                            if (progress.message.id === message.id){
+                                progress.response = response.attachment;
+                            }
+                            return progress;
+                        });
+                    })();
+
+                    return {
+                        name: 'Downloading document',
+                        base64: null,
+                        progress: null,
+                        isCompleted: false
+                    }
+                }
+                return null;
+            })(),
+            uploadingProgress: (() => {
+                const uploading = dynamicData.value.uploadingProgress.find((progress) => progress.message.id === message.id);
+                if (uploading){
+                    return uploading;
+                }
+
+                return null
             })()
         }
     });
@@ -240,7 +443,18 @@ const getMessages = async () => {
     });
 }
 const sendMessage = async () => {
-    if (dynamicData.value.text.trim().length == 0 && dynamicData.value.image == null) {
+    if (dynamicData.value.audioRecording.isRecording){
+        const response = await dynamicData.value.audioRecording.onStopRecording();
+        dynamicData.value.audio = {
+            data: response.base64,
+            type: '.ogg',
+            size: response.base64.length,
+            duration: response.duration
+        }
+    }
+
+
+    if (dynamicData.value.text.trim().length == 0 && dynamicData.value.image == null && dynamicData.value.document == null && dynamicData.value.audio == null && dynamicData.value.video == null) {
         return;
     }
 
@@ -252,27 +466,27 @@ const sendMessage = async () => {
             }
             return dynamicData.value.text.trim();
         })(),
-        image: dynamicData.value.image,
+        image: dynamicData.value.image ?? undefined,
+        video: dynamicData.value.video ?? undefined,
+        document: dynamicData.value.document ?? undefined,
+        audio: dynamicData.value.audio ?? undefined,
         written_at: new Date().toISOString(),
         sent_at: null,
         received_at: null,
         read_at: null,
-    }
+        user_id: Session.getCurrentSessionSync()?.id() as number
+    } as IOutcomeChatMessage;
     
     pauseTimer = true;
 
-    chatMessagesData.value.push({
-        id: message.id,
-        text: message.text,
-        image: message.image,
-        written_at: message.written_at,
-        sent_at: message.sent_at,
-        received_at: message.received_at,
-        read_at: message.read_at,
-        user_id: Session.getCurrentSessionSync()?.id() as number,
-    });
+    chatMessagesData.value.push(message);
+
     dynamicData.value.text = '';
     dynamicData.value.image = null;
+    dynamicData.value.document = null;
+    dynamicData.value.audio = null;
+    dynamicData.value.video = null;
+
 
     goToBottom();
 
@@ -286,20 +500,30 @@ const sendMessage = async () => {
 
     const sendMessageToServer = async () => {
         try {
-            const response = await RequestAPI.post('/inventory/warehouse-outcome-requests/'+outcomeRequestId+'/chat', {
+            dynamicData.value.uploadingProgress.push({
+                message: message,
+                progress: null,
+                error: null
+            });
+
+            const response = await RequestAPI.post('/inventory/warehouse-outcome-requests/' + outcomeRequestId + '/chat', {
                 ...message,
                 id: undefined
             });
+
+            dynamicData.value.uploadingProgress = dynamicData.value.uploadingProgress.filter((progress) => {
+                return progress.message.id !== message.id;
+            });
         } catch (error) {
-            onMessageErrorOnUpload('Error');
+            onMessageErrorOnUpload((error as any).toString());
         }
     }
 
     const onMessageErrorOnUpload = (errorDescription: string|null) => {
-        chatMessagesData.value = chatMessagesData.value.map((messageItem) => {
-            if (messageItem.id === message.id) {
-                messageItem.error = {
-                    description: errorDescription,
+        dynamicData.value.uploadingProgress = dynamicData.value.uploadingProgress.map((progress) => {
+            if (progress.message.id == message.id){
+                progress.error = {
+                    description: errorDescription || '',
                     retry: () => {
                         alertController.create({
                             header: 'Error al enviar',
@@ -313,11 +537,11 @@ const sendMessage = async () => {
                                     text: 'Reintentar',
                                     role: 'destructive',
                                     handler: () => {
-                                        chatMessagesData.value = chatMessagesData.value.map((messaging) => {
-                                            if (messaging.id === message.id) {
-                                                messaging.error = undefined;
+                                        dynamicData.value.uploadingProgress = dynamicData.value.uploadingProgress.map((progress) => {
+                                            if (progress.message.id === message.id) {
+                                                progress.error = null;
                                             }
-                                            return messaging;
+                                            return progress;
                                         });
                                         sendMessageToServer();
                                     }
@@ -328,15 +552,19 @@ const sendMessage = async () => {
                         });
                     }
                 }
+                return progress;
             }
-            return messageItem;
+            return progress;
         });
     }
 
     await sendMessageToServer();
 }
-const openImage = async (base64: string, imageId: string) => {
-    Toolbox.share(imageId + '.png', base64 as unknown as string)
+const openImage = async (base64: string, name: string) => {
+    Toolbox.share('document.png', base64 as unknown as string)
+}
+const openDocument = async (message: IOutcomeChatMessage, base64: string) => {
+    Toolbox.share(message.document?.name as unknown as string, base64 as unknown as string)
 }
 const moreOptions = {
     openCamera: async () => {
@@ -345,27 +573,78 @@ const moreOptions = {
                 dynamicData.value.isLoadingImage = true;
             },
         });
-        dynamicData.value.image = response.image;
+        dynamicData.value.image = {
+            data: response.image,
+            type: '.png',
+            size: 0
+        };
         dynamicData.value.isLoadingImage = false;
     },
+    openDocument: async () => {
+        const response = await Picker.pickPdfDocument({
+            isProcessingFile: () => {
+                dynamicData.value.isLoadingImage = true;
+            }
+        });
+        
+        dynamicData.value.document = {
+            name: response.details.name,
+            data: response.base64,
+            type: '.pdf',
+            size: response.details.size,
+        }
+        console.log(response)
+
+        dynamicData.value.isLoadingImage = false;
+    },
+    recordAudio: async () => {
+        const audioRecorder = AudioRecorder.new();
+        dynamicData.value.audioRecording.isRecording = true;
+        await Toolbox.sleep(100);
+        audioRecorder.osciloscoperCanvas = document.querySelector('#audioRecorderOfChatId-' + outcomeRequestId) as HTMLCanvasElement;
+        await audioRecorder.startRecording();
+        let seconds = 0;
+        dynamicData.value.audioRecording.durationText = '00:00';
+        const timer = setInterval(() => {
+            seconds++;
+            const minutes = Math.floor(seconds / 60);
+            const secondsString = (seconds % 60).toString().padStart(2, '0');
+            const minutesString = minutes.toString().padStart(2, '0');
+            const time = minutesString + ':' + secondsString;
+            dynamicData.value.audioRecording.durationText = time;
+        }, 1000);
+
+        dynamicData.value.audioRecording.onStopRecording = async () => {
+            clearInterval(timer);
+            dynamicData.value.audioRecording.isRecording = false;
+            const response = await audioRecorder.stopRecording();
+            return {
+                ...response,
+                duration: seconds
+            };
+        }
+    },
     showOptions: async () => {
-        //Open the action sheet to select the image from the gallery or take a photo:
-        moreOptions.openCamera();
-        return;
         actionSheetController.create({
             buttons: [
                 {
                     text: 'Tomar foto',
                     handler: () => {
-                        moreOptions.openCamera(false);
+                        moreOptions.openCamera();
                     }
                 },
                 {
                     text: 'Subir documento',
                     handler: () => {
-                        moreOptions.openCamera(true);
+                        moreOptions.openDocument();
                     }
                 },
+                /*{
+                    text: 'Gabar audio',
+                    handler: () => {
+                        moreOptions.recordAudio();
+                    }
+                },*/
                 {
                     text: 'Cancel',
                     role: 'cancel',
@@ -377,8 +656,8 @@ const moreOptions = {
     }
 }
 
-const copyMessage = (message: IChatMessage) => {
-    navigator.clipboard.writeText(message.text);
+const copyMessage = (message: IOutcomeChatMessage) => {
+    navigator.clipboard.writeText(message.text as string);
     Haptics.impact({
         style: ImpactStyle.Medium
     });
@@ -526,6 +805,83 @@ onUnmounted(() => {
                 height: 130px;
             }
         }
+        > .document-area{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            border: 1px solid var(--ion-color-medium);
+            border-radius: 20px;
+            padding: 5px 10px;
+            column-gap: 10px;
+            position: relative;
+
+            > article{
+                display: flex;
+                align-items: center;
+                column-gap: 10px;
+                padding: 12px 10px;
+                width: 100%;
+                border-radius: 8px;
+                > section{
+                    display: flex;
+                    flex-direction: column;
+                    margin: 0;
+                    font-weight: 500;
+                    text-align: left;
+
+                    > h2{
+                        font-size: 12px;
+                        font-weight: 600;
+                        margin: 0;
+
+                    }
+                    > h3{
+                        font-size: 11px;
+                        font-weight: 400;
+                        margin: 0;
+
+                    }
+                    > p{
+                        font-size: 10px;
+                        font-weight: 400;
+                        margin: 0;
+                        margin-top: 5px;
+                    }
+                }
+            }
+            > ion-button{
+                position: absolute;
+                top: 5px;
+                right: 5px;
+            }
+        }
+        > .audio-area{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            border: 1px solid var(--ion-color-medium);
+            border-radius: 20px;
+            column-gap: 10px;
+            overflow: hidden;
+            position: relative;
+            height: 48px;
+            > canvas{
+                width: 100%;
+                height: 100%;
+                border-radius: 20px;
+            }
+            > span{
+                position: absolute;
+                top: 50%;
+                left: 10px;
+                transform: translateY(-110%);
+                font-size: 12px;
+                color: gray;
+
+            }
+        }
         
         > ion-textarea{
             border: 1px solid var(--ion-color-medium);
@@ -594,6 +950,69 @@ onUnmounted(() => {
             user-select: text;
             > span{
                 white-space: pre-line;
+            }
+        }
+        .message-document{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            width: 100%;
+            > article{
+                display: flex;
+                align-items: center;
+                column-gap: 10px;
+                background-color: #c5e5b3;
+                padding: 12px 10px;
+                width: 100%;
+                color: #000000ac;
+                border-radius: 8px;
+                > section{
+                    display: flex;
+                    flex-direction: column;
+                    margin: 0;
+                    font-weight: 500;
+                    text-align: left;
+
+                    > h2{
+                        font-size: 12px;
+                        font-weight: 600;
+                        margin: 0;
+
+                    }
+                    > h3{
+                        font-size: 11px;
+                        font-weight: 400;
+                        margin: 0;
+
+                    }
+                    > p{
+                        font-size: 10px;
+                        font-weight: 400;
+                        margin: 0;
+                        margin-top: 5px;
+                    }
+                }
+                
+                > ion-icon{
+                    font-size: 20px;
+                }
+                > ion-spinner{
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+            &[isLoading="true"]{
+                background-color: #00000029;
+                &:active{
+                    opacity: 0.4;
+                }
+            }
+            &[isLoading="false"]{
+                &:active{
+                    opacity: 0.4;
+                }
             }
         }
         .message-image{

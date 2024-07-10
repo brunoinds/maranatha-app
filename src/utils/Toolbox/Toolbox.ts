@@ -191,6 +191,11 @@ class Toolbox{
         });
     }
 
+    public static async sleep(ms: number){
+        return new Promise((resolve) => {
+            setTimeout(resolve, ms);
+        });
+    }
     public static useIsLoading(){
         const isLoading = ref(false);
         const startLoading = async (callback:Function) => {

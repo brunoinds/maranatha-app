@@ -141,7 +141,33 @@ export interface INewWarehouseOutcomeRequest extends Omit<IWarehouseOutcomeReque
 export interface IOutcomeChatMessage{
     id: string;
     text: string|null;
-    image: string|null;
+    image?: {
+        data: string;
+        size: number;
+        type: string;
+    }|null;
+    document?: {
+        data: string;
+        size: number;
+        type: string;
+        name: string;
+    }|null;
+    video?: {
+        data: string;
+        size: number;
+        duration: number;
+        type: string;
+    }|null;
+    audio?: {
+        data: string;
+        size: number;
+        duration: number;
+        type: string;
+    }|null;
+    location?: string|null;
+    reply_to?: string;
+    react_to?: string;
+
     written_at: string;
     sent_at: string|null;
     received_at: string|null;

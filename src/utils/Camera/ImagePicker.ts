@@ -258,7 +258,9 @@ export class ImagePicker{
         return response;
     }
 
-    public static async loadImagesAndDocuments() : Promise<{image: string, barcode: string}>{
+    public static async loadImagesAndDocuments(options: {
+        onLoadingAttachment?: Function
+    }) : Promise<{image: string, barcode: string}>{
         const openCamera = () => {
             return new Promise(async (resolve, reject) => {
                 const openImagePicker = () => {
@@ -331,6 +333,8 @@ export class ImagePicker{
                 }
 
                 const loadImageFrom = async (image: {path: string, webPath: string, details: {[key: string]:any}}, origin: "Web" | "Native" = "Native") => {
+                    options.onLoadingAttachment?.call(null, {});
+
                     const response = await fetch(image.webPath as unknown as string);
                     const blob = await response.blob();
                     const file = new File([blob], "image.jpg", {type: blob.type});

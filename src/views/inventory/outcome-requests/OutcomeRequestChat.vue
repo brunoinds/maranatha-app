@@ -247,11 +247,11 @@ const openImage = async (base64: string, imageId: string) => {
 }
 const moreOptions = {
     openCamera: async () => {
-        dynamicData.value.isLoadingImage = true;
-        const response = await ImagePicker.loadImagesAndDocuments();
-
-        console.log('Response image:' , response)
-
+        const response = await ImagePicker.loadImagesAndDocuments({
+            onLoadingAttachment: () => {
+                dynamicData.value.isLoadingImage = true;
+            },
+        });
         dynamicData.value.image = response.image;
         dynamicData.value.isLoadingImage = false;
     },
@@ -309,7 +309,7 @@ const timerShowGoBottomButton = setInterval(async () => {
     const element = (await contentElement.value?.$el.getScrollElement());
     const currentScrollPosition = element.scrollTop as number;
     const maximumScrollPosition = element.scrollHeight - element.clientHeight;
-    if (maximumScrollPosition - currentScrollPosition as number > 50) {
+    if (maximumScrollPosition - currentScrollPosition as number > 80) {
         showGoBottomButton.value = true;
     } else{
         showGoBottomButton.value = false;

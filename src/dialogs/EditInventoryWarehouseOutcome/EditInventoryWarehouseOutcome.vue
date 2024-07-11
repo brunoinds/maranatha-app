@@ -113,7 +113,7 @@
                 <section class="ion-padding">
                     <ion-button :disabled="isLoading" fill="outline" color="primary" @click="actions.downloadPDF" expand="block">
                         Imprimir comprobante
-                        <ion-icon slot="end" :icon="cloudDownloadOutline"></ion-icon>
+                        <ion-icon slot="end" :icon="printOutline"></ion-icon>
                     </ion-button>
                 </section>
 
@@ -144,7 +144,7 @@ import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { Capacitor } from '@capacitor/core';
 import { IonAccordion, IonAccordionGroup, IonAvatar, IonButton, IonButtons, IonContent, IonDatetime, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
-import { cloudDownloadOutline, trashBinOutline } from 'ionicons/icons';
+import { cloudDownloadOutline, printOutline, trashBinOutline } from 'ionicons/icons';
 import { DateTime } from "luxon";
 import { PropType, computed, onMounted, ref } from 'vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';

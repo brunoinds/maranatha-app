@@ -502,6 +502,13 @@
                         <section v-if="productListSegmentView == 'Requested'">
                             <ion-progress-bar v-if="isLoadingAreas.outcomeRequest" type="indeterminate"></ion-progress-bar>
 
+                            <article class="ion-padding" v-if="viewModeAs == 'Dispacher'">
+                                <ion-button :disabled="isLoading" fill="outline" color="primary" @click="downloadRequestedProductsPDF()" expand="block">
+                                    Imprimir pedido
+                                    <ion-icon slot="end" :icon="printOutline"></ion-icon>
+                                </ion-button>
+                            </article>
+
                             <ion-list v-if="!isLoadingAreas.outcomeRequest">
                                 <ion-item v-for="item in requestedItemsUI" :key="item.product?.id">
                                     <ion-avatar slot="start" v-if="item.product?.image">
@@ -593,8 +600,10 @@ import { EInventoryWarehouseOutcomeRequestStatus, IInventoryProductItem, IProduc
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { alertController, IonAvatar, IonBackButton, IonButton, IonButtons, IonSkeletonText, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/vue';
-import { airplaneOutline, alertCircleOutline, basketOutline, chatbubbleEllipsesOutline, checkmarkCircleOutline, closeCircleOutline, eyeOutline, pencilOutline, sendOutline, thumbsDownOutline, thumbsUpOutline, timeOutline, trashOutline } from 'ionicons/icons';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import { Capacitor } from '@capacitor/core';
+import { alertController, IonAvatar, IonBackButton, IonButton, IonButtons, IonSkeletonText, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar, toastController } from '@ionic/vue';
+import { airplaneOutline, alertCircleOutline, basketOutline, chatbubbleEllipsesOutline, printOutline, checkmarkCircleOutline, closeCircleOutline, eyeOutline, pencilOutline, sendOutline, thumbsDownOutline, thumbsUpOutline, timeOutline, trashOutline } from 'ionicons/icons';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -1383,6 +1392,60 @@ const deleteOutcomeRequest = async () => {
 const openChat = async () => {
     router.push('/inventory/outcome-requests/' + outcomeRequestId + '/chat');
 }
+
+
+const downloadRequestedProductsPDF = async () => {
+    const generatePDFDocument = async () => {
+        return new Promise(async (resolve, reject) => {
+            const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/inventory/warehouse-outcome-requests/${outcomeRequestId}/download-pdf`;
+
+            const pdfDocument = await Toolbox.fetchWithProgress(pdfDownloadUrl,  {
+                method: 'GET',
+                headers: {
+                    'Authorization': await RequestAPI.authHeader()
+                }
+            }, (progress) => {
+            }).then((blob) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    resolve({
+                        blobUrl: URL.createObjectURL(blob),
+                        base64: reader.result?.split(';base64,')[1] as unknown as string
+                    })
+                }
+                reader.onerror = () => {                
+                    
+                }
+                reader.readAsDataURL(blob);
+            }).catch((error) => {
+            }).finally(() => {
+            })
+        });
+    }
+    const shareDocument = (file:any, extention:string = ".zip") => {
+        toastController.create({
+            message: '✅ Documento generado con éxito!',
+            duration: 1500
+        }).then((toast) => {
+            toast.present();
+        })
+        if (Capacitor.isNativePlatform()){
+            Toolbox.openNative('Solicitud de Productos N00' + outcomeRequestId+ extention, file.base64);
+        }else{
+            let link = document.createElement('a');
+            link.href = file.blobUrl;
+            link.download = 'Solicitud de Productos N00' + outcomeRequestId+ extention;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+
+    isLoading.value = true;
+    const pdfDocument = await generatePDFDocument();
+    shareDocument(pdfDocument, '.pdf');
+    isLoading.value = false;
+}  
 
 
 const loadFormData = async () => {

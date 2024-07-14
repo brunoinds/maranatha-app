@@ -75,12 +75,12 @@
                     </ion-item>
 
                     <ion-item-options side="start">
-                        <ion-item-option color="secondary" expandable @click="(ev) => {dynamicData.replyTo = chatMessagesData.find((chatMessage) => chatMessage.id === message.id); ev.srcElement.offsetParent.offsetParent.close()}">
+                        <ion-item-option color="secondary" @click="(ev) => {dynamicData.replyTo = chatMessagesData.find((chatMessage) => chatMessage.id === message.id); ev.srcElement.offsetParent.offsetParent.close()}">
                             <ion-icon :icon="arrowUndoCircleOutline" slot="start"></ion-icon>
                             <ion-label>Responder</ion-label>
                         </ion-item-option>
 
-                        <ion-item-option color="warning" expandable @click="(ev) => {reactToMessage(chatMessagesData.find((chatMessage) => chatMessage.id === message.id) as unknown as any); ev.srcElement.offsetParent.offsetParent.close()}">
+                        <ion-item-option color="warning" @click="(ev) => {reactToMessage(chatMessagesData.find((chatMessage) => chatMessage.id === message.id) as unknown as any); ev.srcElement.offsetParent.offsetParent.close()}">
                             <ion-icon :icon="sparklesOutline" slot="start"></ion-icon>
                             <ion-label>Reaccionar</ion-label>
                         </ion-item-option>

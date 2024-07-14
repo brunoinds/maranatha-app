@@ -502,7 +502,7 @@
                         <section v-if="productListSegmentView == 'Requested'">
                             <ion-progress-bar v-if="isLoadingAreas.outcomeRequest" type="indeterminate"></ion-progress-bar>
 
-                            <article class="ion-padding" v-if="viewModeAs == 'Dispacher'">
+                            <article class="ion-padding">
                                 <ion-button :disabled="isLoading" fill="outline" color="primary" @click="downloadRequestedProductsPDF()" expand="block">
                                     Imprimir pedido
                                     <ion-icon slot="end" :icon="printOutline"></ion-icon>

@@ -230,7 +230,7 @@ onMounted(() => {
     z-index: 100000000;
     position: fixed;
     background: rgba( 255, 255, 255, 0.7 );
-    box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+    box-shadow: 0 8px 32px 0 rgb(73 73 73 / 37%);
     backdrop-filter: blur( 6px );
     -webkit-backdrop-filter: blur( 6px );
     border-radius: 10px;
@@ -243,11 +243,21 @@ onMounted(() => {
     justify-content: center;
     flex-direction: column;
     border-radius: 14px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     visibility: hidden;
     :slotted(button){
-        border-bottom: 0.55px solid var(--ion-tab-bar-border-color, var(--ion-border-color, var(--ion-color-step-150, rgba(0, 0, 0, 0.2))));
+        border-bottom-width: 0.55px;
+        border-style: solid;
+        border-color: var(--ion-tab-bar-border-color, var(--ion-border-color, var(--ion-color-step-150, rgba(0, 0, 0, 0.2))));
+
+
+
+        &[separate="true"]:not(:last-child){
+            border-bottom-width: 4px;
+        }
+        &[separate="true"]:last-child{
+            border-top-width: 4px;
+        }
         &:nth-last-child(1){
             border-bottom: unset;
         }
@@ -284,7 +294,7 @@ onMounted(() => {
 @media (prefers-color-scheme: dark) {
     .article{
         background: rgba( 36, 36, 36, 0.7 );
-        box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+        box-shadow: 0 8px 32px 0 rgb(73 73 73 / 37%);
         backdrop-filter: blur( 6px );
         -webkit-backdrop-filter: blur( 6px );
         border-radius: 10px;

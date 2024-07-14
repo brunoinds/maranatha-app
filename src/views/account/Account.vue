@@ -1,7 +1,7 @@
 <template>
     <ion-page ref="page">
         <IonContextMenu trigger="open-action-sheet">
-                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar" @click="console.log('There')"/>
+                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar" @click="console.log('There')" :separate="true"/>
                 <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
                 <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
                 <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar carneiros"/>
@@ -9,7 +9,7 @@
                 <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
                 <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
                 <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
-                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar" color="danger"/>
+                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar" color="danger" :separate="true"/>
             </IonContextMenu>
         <ion-header>
             <ion-toolbar>

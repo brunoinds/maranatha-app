@@ -1,9 +1,25 @@
 <template>
     <ion-page ref="page">
+        <IonContextMenu trigger="open-action-sheet">
+                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar" @click="console.log('There')"/>
+                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
+                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
+                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar carneiros"/>
+                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
+                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
+                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
+                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
+                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar" color="danger"/>
+            </IonContextMenu>
         <ion-header>
             <ion-toolbar>
                 <ion-title>Mi cuenta</ion-title>
                 <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
+                <ion-buttons slot="end">
+                    <ion-button  id="open-action-sheet">
+                        <ion-icon :icon="close"></ion-icon>
+                    </ion-button>
+                </ion-buttons>
             </ion-toolbar>
         </ion-header>
         <ion-content>
@@ -79,6 +95,7 @@
             <ion-list>
                 
             </ion-list>
+            
             <ion-toolbar class="version-toolbar">
                 <section class="ion-padding">
                     <pre style="font-size: 12px; color: darkgray; margin: 0">{{ aboutAppText }}</pre>
@@ -101,7 +118,8 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { LiveUpdates } from '@/utils/LiveUpdates/LiveUpdates';
 import { Theme } from '@/utils/Theme/Theme';
-
+import IonContextMenu from '@/components/IonContextMenu/IonContextMenu.vue';
+import IonContextMenuItem from '@/components/IonContextMenu/IonContextMenuItem.vue';
 
 const aboutAppText = ref<string>(`  Code version: ${Environment.version()} \nNative version: ${Environment.storeVersioning().version} (${Environment.storeVersioning().build})`);
 const accountData = ref<any>(null);
@@ -112,6 +130,7 @@ const isAdmin = ref<boolean>(false);
 const isNotificationsNotAllowed = ref<boolean>(false);
 
 const isDarkModeActive = ref<boolean>(Theme.getTheme() == 'dark');
+
 
 const changeTheme = () => {
     Theme.setTheme(isDarkModeActive.value ? 'dark' : 'light');

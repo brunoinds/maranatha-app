@@ -20,12 +20,16 @@ export class Picker{
         }
     }>{
         return new Promise(async (resolve, reject) => {
-            const result = await FilePicker.pickFiles({
-                types: ['application/pdf'],
-                multiple: false,
-                readData: true
-            });
-
+            let result;
+            try {
+                result = await FilePicker.pickFiles({
+                    types: ['application/pdf'],
+                    multiple: false,
+                    readData: true
+                });
+            } catch (error) {
+                return;
+            }
             if (result.files.length == 0){
                 return;
             }

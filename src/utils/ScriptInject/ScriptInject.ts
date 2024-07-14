@@ -13,4 +13,19 @@ export class ScriptInject{
             document.head.appendChild(script);
         });
     }
+
+    public static async injectHtml(html: string): Promise<void>{
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.innerHTML = html;
+            script.onload = () => {
+                resolve();
+            }
+            script.onerror = () => {
+                reject();
+            }
+            document.head.appendChild(script);
+        });
+    }
 }

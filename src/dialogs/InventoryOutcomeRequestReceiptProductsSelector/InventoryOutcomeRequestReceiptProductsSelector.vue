@@ -12,7 +12,7 @@
         <ion-content>
             <ion-list-header>
                 <ion-label>
-                    <h1><b>Productos</b></h1>
+                    <h1><b>Productos recibidos</b></h1>
                     <p>Revisa la cantidad de productos que has recibido</p>
                 </ion-label>
             </ion-list-header>

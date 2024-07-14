@@ -105,8 +105,11 @@
                             </ion-item>
                         </ion-list>
 
-
                         <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
+                            <ion-fab-button @click="openQrCodeScanner('Requester')">
+                                <ion-icon :icon="qrCodeOutline"></ion-icon>
+                            </ion-fab-button>
+                            <br>
                             <ion-fab-button @click="createWarehouseOutcomeRequest">
                                 <ion-icon :icon="addOutline"></ion-icon>
                             </ion-fab-button>
@@ -133,7 +136,7 @@ import CreateWarehouse from '@/dialogs/CreateWarehouse/CreateWarehouse.vue';
 import { IProduct, IProductsPack, IWarehouse, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
 import { Session } from '@/utils/Session/Session';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { addOutline, chatbubbleEllipsesOutline, logoDropbox, storefrontOutline } from 'ionicons/icons';
+import { addOutline, chatbubbleEllipsesOutline, logoDropbox, qrCodeOutline, storefrontOutline } from 'ionicons/icons';
 import TimeAgo from 'javascript-time-ago';
 import es from 'javascript-time-ago/locale/es';
 import { onMounted } from 'vue';
@@ -143,6 +146,7 @@ import { AppEvents } from '../../utils/AppEvents/AppEvents';
 import EditInventoryProduct from '@/dialogs/EditInventoryProduct/EditInventoryProduct.vue';
 import EditInventoryProductsPack from '@/dialogs/EditInventoryProductsPack/EditInventoryProductsPack.vue';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
+import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE');
@@ -218,6 +222,14 @@ const sections = computed(() => {
 
 const openWarehouse = (warehouse: IWarehouse) => {
     router.push(`/inventory/warehouses/${warehouse.id}`);
+}
+const openQrCodeScanner = (viewModeAs:string) => {
+    QRCodeScanner.open().onScan().then((content) => {
+        if (content.includes('app/inventory/outcome-requests/')){
+            const id = content.split('?view-mode')[0].split('/').pop();
+            router.push(`/inventory/outcome-requests/${id}?view-mode=${viewModeAs}`);
+        }
+    })
 }
 
 const loadWarehouses = async () => {

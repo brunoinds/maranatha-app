@@ -73,6 +73,7 @@
                     </ion-accordion>
                 </ion-accordion-group>
             </article>
+            <br><br><br><br>
         </ion-content>
     </ion-page>
 </template>

@@ -25,6 +25,10 @@
 
 
     <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
+        <ion-fab-button @click="openQrCodeScanner('Dispacher')">
+            <ion-icon :icon="qrCodeOutline"></ion-icon>
+        </ion-fab-button>
+        <br>
         <ion-fab-button @click="createWarehouseOutcomeRequest">
             <ion-icon :icon="addOutline"></ion-icon>
         </ion-fab-button>
@@ -39,7 +43,7 @@ import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
 import { IWarehouse, IWarehouseOutcome, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
-import { addOutline, chatbubbleEllipsesOutline } from 'ionicons/icons';
+import { addOutline, chatbubbleEllipsesOutline, qrCodeOutline } from 'ionicons/icons';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateInventoryWarehouseOutcome from '@/dialogs/CreateInventoryWarehouseOutcome/CreateInventoryWarehouseOutcome.vue';
 import EditInventoryWarehouseOutcome from '@/dialogs/EditInventoryWarehouseOutcome/EditInventoryWarehouseOutcome.vue';
@@ -52,6 +56,7 @@ import { IUser } from '@/interfaces/UserInterfaces';
 import { Session } from '@/utils/Session/Session';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE');
@@ -90,6 +95,15 @@ const loadOutcomes = async () => {
     usersData.value = await RequestAPI.get('/users');
     outcomesData.value = response;
     isLoading.value = false;
+}
+
+const openQrCodeScanner = (viewModeAs:string) => {
+    QRCodeScanner.open().onScan().then((content) => {
+        if (content.includes('app/inventory/outcome-requests/')){
+            const id = content.split('?view-mode')[0].split('/').pop();
+            router.push(`/inventory/outcome-requests/${id}?view-mode=${viewModeAs}`);
+        }
+    })
 }
 
 

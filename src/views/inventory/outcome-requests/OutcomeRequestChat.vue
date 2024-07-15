@@ -949,7 +949,7 @@ onUnmounted(() => {
     column-gap: 5px;
     padding-top: 5px;
     padding-bottom: 5px;
-    transition: padding 0.3s cubic-bezier(0.1, 0.76, 0.55, 0.9);;
+    transition: padding 0.3s cubic-bezier(0.1, 0.76, 0.55, 0.9);
     > .send-area{
         display: flex;
         flex-direction: column;

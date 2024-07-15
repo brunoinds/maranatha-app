@@ -284,10 +284,10 @@ onMounted(() => {
     }
 
     &.opening{
-        animation: openAnimation 0.3s ease-in-out;
+        animation: openAnimation 0.3s cubic-bezier(0.1, 0.76, 0.55, 0.9);
     }
     &.closing{
-        animation: closeAnimation 0.3s ease-in-out forwards;
+        animation: closeAnimation 0.3s cubic-bezier(0.1, 0.76, 0.55, 0.9) forwards;
     }
 }
 

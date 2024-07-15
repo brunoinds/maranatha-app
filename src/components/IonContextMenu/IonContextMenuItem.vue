@@ -3,7 +3,7 @@
         <ion-label :color="colorUI">
             {{ label }}
         </ion-label>
-        <ion-icon :icon="iconUI" :color="color"></ion-icon>
+        <ion-icon :icon="iconUI" :color="colorUI"></ion-icon>
     </button>
 </template>
 
@@ -55,7 +55,7 @@ const colorUI = computed(() => {
     if (props.color){
         return props.color;
     }else{
-        return undefined;
+        return 'dark';
     }
 })
 
@@ -77,8 +77,8 @@ button{
     display: flex;
     align-items: center;
     column-gap: 10px;
-    font-size: 16px;
-    padding: 11px 15px;
+    font-size: 17px;
+    padding: 12px 15px;
     width: 100%;
     justify-content: space-between;
     background: transparent;

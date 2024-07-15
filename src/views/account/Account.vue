@@ -1,23 +1,15 @@
 <template>
     <ion-page ref="page">
-        <IonContextMenu trigger="open-action-sheet">
-                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar" @click="console.log('There')" :separate="true"/>
-                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
-                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
-                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar carneiros"/>
-                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
-                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
-                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
-                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar"/>
-                <ion-context-menu-item :icon="cloudDoneOutline" label="Compartilhar" color="danger" :separate="true"/>
+        <IonContextMenu trigger="account-info-btn">
+                <ion-context-menu-item :icon="close" label="Terminar sesión" color="danger" @click="doLogout"/>
             </IonContextMenu>
         <ion-header>
             <ion-toolbar>
                 <ion-title>Mi cuenta</ion-title>
                 <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
                 <ion-buttons slot="end">
-                    <ion-button  id="open-action-sheet">
-                        <ion-icon :icon="close"></ion-icon>
+                    <ion-button id="account-info-btn">
+                        <ion-icon :icon="informationCircleOutline"></ion-icon>
                     </ion-button>
                 </ion-buttons>
             </ion-toolbar>
@@ -113,7 +105,7 @@ import { Environment } from '@/utils/Environment/Environment';
 import { Notifications } from '@/utils/Notifications/Notifications';
 import { Session } from '@/utils/Session/Session';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { close, notificationsCircle, syncOutline, cloudDoneOutline, shieldCheckmarkOutline, moonOutline } from 'ionicons/icons';
+import { close, notificationsCircle, syncOutline, cloudDoneOutline, shieldCheckmarkOutline, moonOutline, informationCircleOutline } from 'ionicons/icons';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { LiveUpdates } from '@/utils/LiveUpdates/LiveUpdates';

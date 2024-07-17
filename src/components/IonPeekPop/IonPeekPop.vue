@@ -2,19 +2,19 @@
     <button class="item" ref="itemEl" v-on-long-press="[onLongPressCallbackDirective, { delay: 500, modifiers: { stop: true, prevent: true } }]">
         <article class="item-protector" @click="onPressCallback"></article>
         <article ref="itemContentEl">
-            <ion-button id="open-custom-dialog" v-show="false">Peek</ion-button>
+            <ion-button :id="uniqueId" v-show="false">Peek</ion-button>
             <slot name="item"></slot>
         </article>
     </button>
     
     <article class="popover">
         <section class="popover-modal-holder" v-if="showModal">
-            <ion-modal class="modal" v-if="showModal" :showBackdrop="false" ref="modalEl" trigger="open-custom-dialog" :enter-animation="enterAnimation" :leave-animation="leaveAnimation" :keepContentsMounted="false">
+            <ion-modal class="modal" v-if="showModal" :showBackdrop="false" ref="modalEl" :trigger="uniqueId" :enter-animation="enterAnimation" :leave-animation="leaveAnimation" :keepContentsMounted="false">
                 <article class="item-mirror-area" ref="itemMirrorAreaEl">
                     <slot name="item"></slot>
                 </article>
                 <article class="popover-area">
-                    <article class="popover-content" ref="popoverContentEl" style="transform: translateX(-50%) translateY(-50%)">
+                    <article class="popover-content" global-register="ion-peek-pop-popover-content" :isReadyForMoveMoviments="isReadyForMoveMoviments" ref="popoverContentEl" style="transform: translateX(-50%) translateY(-50%)">
                         <article class="popover-slot">
                             <slot name="popover"></slot>
                         </article>
@@ -39,16 +39,19 @@
 
 <script setup lang="ts">
 
-import { onMounted, getCurrentInstance, ref, watch, nextTick } from 'vue';
+import { onMounted, getCurrentInstance, ref, watch, nextTick, onUnmounted } from 'vue';
 import { IonList, IonItem, IonLabel, IonBackdrop, IonPage, IonModal, createGesture, createAnimation } from '@ionic/vue';
 import { onLongPress, useMouseInElement } from '@vueuse/core'
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { OnLongPress } from '@vueuse/components'
 import { vOnLongPress } from '@vueuse/components'
 
+const generateRandomId = () => {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
 
 const backdropEl = ref<HTMLElement | null>(null);
-
+const uniqueId = ref(generateRandomId());
 const isBackdropVisible = ref(false);
 const modalEl = ref(null);
 const itemEl = ref<HTMLElement>();
@@ -88,15 +91,22 @@ const doPeek = async () => {
 
     await waitForNextTick();
 
-    document.querySelector('#open-custom-dialog').click();
+    document.getElementById(uniqueId.value).click();
     Haptics.impact({
         style: ImpactStyle.Heavy
     });
+
 
     setTimeout(() => {
         if (!popoverContentEl.value || !itemContentEl.value || !itemMirrorAreaEl.value){
             return;
         }
+
+
+        //Add a callable method into popoverContentEl:
+        popoverContentEl.value.doClosePeek = closePeek;
+
+        console.log(popoverContentEl.value);
 
         const popoverContentRect = popoverContentEl.value?.getBoundingClientRect();
         const itemContentRect = itemContentEl.value?.getBoundingClientRect();
@@ -230,7 +240,6 @@ const closePeek = async () => {
 }
 
 onMounted(() => {
-
     setTimeout(() => {
         const gesture = createGesture({
             el: itemEl.value?.closest('ion-app'),
@@ -238,8 +247,12 @@ onMounted(() => {
                 console.log('start');
             },
             onMove: (detail) => {
+                const popoverContentEl = ref(document.querySelector(`[global-register="ion-peek-pop-popover-content"]`));
+                const isReadyForMoveMoviments = ref(popoverContentEl.value?.getAttribute('isReadyForMoveMoviments') === 'true');
+
+                console.log(popoverContentEl)
+
                 if (!popoverContentEl.value || !isReadyForMoveMoviments.value){
-                    console.log('No popoverContentEl');
                     return;
                 }
 
@@ -278,7 +291,7 @@ onMounted(() => {
                 }
 
                 const calculateTranslationY = (currentMovementChangePercentageY:number) => {
-                    const windowPadding = (window.innerHeight - popoverContentEl.value?.getBoundingClientRect().height) / 2;
+                    const windowPadding = (window.innerHeight - popoverContentEl.value.getBoundingClientRect().height) / 2;
                     if (currentMovementChangePercentageY > 0){
                         return (currentMovementChangePercentageY * windowPadding) / 100;
                     }else{
@@ -351,14 +364,18 @@ onMounted(() => {
 
 
 
-                //console.log({newTag, currentMovementChangePercentageY, currentTranslationY, currentTranslateYPercentage});
+                console.log({newTag, currentMovementChangePercentageX});
                 if (currentMovementChangePercentageX > 80 || currentMovementChangePercentageX < -80){
-                    closePeek();
+                    popoverContentEl.value.doClosePeek();
                 }
 
             },
             onEnd: () => {
-                if (!isReadyForMoveMoviments.value){
+                const popoverContentEl = ref(document.querySelector(`[global-register="ion-peek-pop-popover-content"]`));
+                const isReadyForMoveMoviments = ref(popoverContentEl.value?.getAttribute('isReadyForMoveMoviments') === 'true');
+
+
+                if (!isReadyForMoveMoviments.value || !popoverContentEl.value){
                     return;
                 }
                 const newTag = `translateX(-50%) translateY(-50%)`;
@@ -369,11 +386,13 @@ onMounted(() => {
                     popoverContentEl.value.style.transform = newTag;
                 })
             },
-            gestureName: 'example',
+            gestureName: 'gestureId' + uniqueId.value,
         });
         gesture.enable();
-    }, 100)
-    
+    }, 100);
+})
+onUnmounted(() => {
+
 })
 
 window.oncontextmenu = function() { return false; }

@@ -15,9 +15,12 @@
                 </article>
                 <article class="popover-area">
                     <article class="popover-content" global-register="ion-peek-pop-popover-content" :isReadyForMoveMoviments="isReadyForMoveMoviments" ref="popoverContentEl" style="transform: translateX(-50%) translateY(-50%)">
-                        <article class="popover-slot">
-                            <slot name="popover"></slot>
-                        </article>
+                        <section class="popover-slot-container" ref="popoverSlotContainerEl">
+                            <article class="popover-slot">
+                                <slot name="popover"></slot>
+                            </article>
+                        </section>
+                        
                         <article class="popover-items">
                             <ion-list>
                                 <ion-item button>
@@ -61,7 +64,7 @@ const itemContentEl = ref<HTMLElement>();
 const itemMirrorAreaEl = ref<HTMLElement>();
 const isReadyForMoveMoviments = ref(false);
 const hasLongPress = ref(false);
-
+const popoverSlotContainerEl = ref<HTMLElement>();
 const showModal = ref(false);
 const gestureInstance = ref<null|Gesture>(null);
 let watchableBackdrop:any = null;
@@ -224,6 +227,7 @@ const doPeek = async () => {
 
 }
 const closePeek = async () => {
+    isReadyForMoveMoviments.value = false;
     setTimeout(() => {
         if (!popoverContentEl.value || !itemContentEl.value || !itemMirrorAreaEl.value){
             return;
@@ -234,7 +238,6 @@ const closePeek = async () => {
         const popoverContentRect = popoverContentEl.value?.getBoundingClientRect();
         const itemContentRect = itemContentEl.value?.getBoundingClientRect();
 
-        isReadyForMoveMoviments.value = false;
         itemMirrorAreaEl.value.style.position = 'fixed';
         itemMirrorAreaEl.value.style.top = `${popoverContentRect.top}px`;
         itemMirrorAreaEl.value.style.left = `${popoverContentRect.left}px`;
@@ -378,17 +381,24 @@ const gestureCallbacks = {
         const newTag = `translateX(${desiredTransform.translateX}%) translateY(${desiredTransform.translateY}%)`;
 
 
+
+        
+
+
         requestAnimationFrame(() => {
-            if (!popoverContentEl.value){
+            if (!popoverContentEl.value || !popoverSlotContainerEl.value){
                 return;
             }
             popoverContentEl.value.style.transform = newTag;
+            if (currentMovementChangePercentageY > 20){
+                popoverSlotContainerEl.value.style.transform = `scale(${scaleConvert(currentMovementChangePercentageY, [20, 100], [1, 0.2])})`;
+            }
         })
 
 
         if (currentMovementChangePercentageX > 80 || currentMovementChangePercentageX < -80){
             popoverContentEl.value.doClosePeek();
-        }else if (currentMovementChangePercentageY > 60 || currentMovementChangePercentageY < -30){
+        }else if (currentMovementChangePercentageY > 45 || currentMovementChangePercentageY < -30){
             popoverContentEl.value.doClosePeek();
         }
 
@@ -404,11 +414,12 @@ const gestureCallbacks = {
 
         const newTag = `translateX(-50%) translateY(-50%)`;
         requestAnimationFrame(() => {
-            if (!popoverContentEl.value){
+            if (!popoverContentEl.value || !popoverSlotContainerEl.value){
                 return;
             }
             popoverContentEl.value.style.transition = 'all 0.3s ease';
             popoverContentEl.value.style.transform = newTag;
+            popoverSlotContainerEl.value.style.transform = `scale(1)`;
 
             setTimeout(() => {
                 popoverContentEl.value.style.transition = 'unset';
@@ -533,14 +544,20 @@ ion-modal{
     bottom: 0;
 }
 .popover-content{
-    border-radius: 10px;
-    overflow: hidden;
-    background-color: gray;
+
     position: absolute;
     top: 50%;
     left: 50%;
     width: 90%;
-    box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+    
+
+    > .popover-slot-container{
+        border-radius: 10px;
+    overflow: hidden;
+
+        background-color: gray;
+        box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+    }
 }
 
 .item{

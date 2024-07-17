@@ -159,7 +159,7 @@ const doPeek = async () => {
                     if (!popoverContentEl.value || !itemMirrorAreaEl.value){
                         return;
                     }
-                    itemMirrorAreaEl.value.style.transition = 'unset';
+                    popoverContentEl.value.style.transition = 'unset';
                     popoverContentEl.value.style.position = 'absolute';
                     popoverContentEl.value.style.top = '50%';
                     popoverContentEl.value.style.left = '50%';
@@ -192,11 +192,9 @@ onMounted(() => {
             },
             onMove: (detail) => {
                 if (!popoverContentEl.value || !isReadyForMoveMoviments.value){
-                    console.log('No popoverContentEl');
                     return;
                 }
 
-                console.log('Details', detail)
                 const calculateMovementChangePercentageX = () => {
                     if (detail.deltaX > 0){
                         return (detail.currentX * 100) / window.innerWidth;

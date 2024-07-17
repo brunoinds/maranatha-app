@@ -1,5 +1,5 @@
 <template>
-    <button class="item" ref="itemEl" v-on-long-press.onMouseUp="onLongPressFinishCallbackDirective" v-on-long-press="[onLongPressStartCallbackDirective, { delay: 120, modifiers: { stop: true, prevent: true } }]">
+    <button class="item" ref="itemEl" v-on-long-press.onMouseUp="onLongPressFinishCallbackDirective" v-on-long-press="[onLongPressStartCallbackDirective, { delay: 100, modifiers: { stop: true, prevent: true } }]">
         <article class="item-protector" @click="onPressCallback"></article>
         <article ref="itemContentEl">
             <ion-button :id="uniqueId" v-show="false">Peek</ion-button>
@@ -107,7 +107,7 @@ const onShortPressCallbackDirective = (ev) => {
     }
 
     requestAnimationFrame(() => {
-        itemContentEl.value.style.transition = 'all 3s ease';
+        itemContentEl.value.style.transition = 'all 2s ease';
         requestAnimationFrame(() => {
             if (!itemContentEl.value){
                 return;
@@ -228,7 +228,9 @@ const closePeek = async () => {
         if (!popoverContentEl.value || !itemContentEl.value || !itemMirrorAreaEl.value){
             return;
         }
-
+        Haptics.impact({
+            style: ImpactStyle.Light
+        });
         const popoverContentRect = popoverContentEl.value?.getBoundingClientRect();
         const itemContentRect = itemContentEl.value?.getBoundingClientRect();
 
@@ -399,9 +401,7 @@ const gestureCallbacks = {
         if (!isReadyForMoveMoviments.value || !popoverContentEl.value){
             return;
         }
-        Haptics.impact({
-            style: ImpactStyle.Light
-        });
+
         const newTag = `translateX(-50%) translateY(-50%)`;
         requestAnimationFrame(() => {
             if (!popoverContentEl.value){

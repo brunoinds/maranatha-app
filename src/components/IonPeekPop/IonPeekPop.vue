@@ -13,7 +13,7 @@
                 <article class="item-mirror-area" ref="itemMirrorAreaEl">
                     <slot name="item"></slot>
                 </article>
-                <article class="popover-area">
+                <article class="popover-area" :is-open="isOpened">
                     <article class="popover-content" global-register="ion-peek-pop-popover-content" :isReadyForMoveMoviments="isReadyForMoveMoviments" ref="popoverContentEl" style="transform: translateX(-50%) translateY(-50%)">
                         <section class="popover-slot-container" ref="popoverSlotContainerEl">
                             <article class="popover-slot">
@@ -22,15 +22,8 @@
                         </section>
                         
                         <article class="popover-items">
-                            <ion-list>
-                                <ion-item button>
-                                    <ion-label>Item 1</ion-label>
-                                </ion-item>
-                                <ion-item>
-                                    <ion-label>Item 2</ion-label>
-                                </ion-item>
-                            </ion-list>
-                            </article>
+                            <slot name="contextmenu"></slot>
+                        </article>
                     </article>
                 </article>
             </ion-modal>
@@ -68,6 +61,7 @@ const popoverSlotContainerEl = ref<HTMLElement>();
 const showModal = ref(false);
 const gestureInstance = ref<null|Gesture>(null);
 let watchableBackdrop:any = null;
+const isOpened = ref(false);
 
 
 const props = defineProps({
@@ -207,6 +201,7 @@ const doPeek = async () => {
             popoverContentEl.value.style.transform = 'unset';
             popoverContentEl.value.style.zIndex = '1000';
             popoverContentEl.value.style.opacity = '1';
+
             setTimeout(() => {
                 requestAnimationFrame(() => {
                     if (!popoverContentEl.value || !itemMirrorAreaEl.value){
@@ -220,6 +215,9 @@ const doPeek = async () => {
                     isReadyForMoveMoviments.value = true;
                 })
             }, 300)
+            setTimeout(() => {
+                isOpened.value = true;
+            }, 100)
         })
 
         itemContentEl.value?.getBoundingClientRect()//Do not remove this line!
@@ -232,6 +230,8 @@ const closePeek = async () => {
         if (!popoverContentEl.value || !itemContentEl.value || !itemMirrorAreaEl.value){
             return;
         }
+        isOpened.value = false;
+
         Haptics.impact({
             style: ImpactStyle.Light
         });
@@ -542,6 +542,18 @@ ion-modal{
     left: 0;
     right: 0;
     bottom: 0;
+
+
+    &[is-open="true"]{
+        .popover-items{
+            scale: 100%
+        }
+    }
+    &[is-open="false"]{
+        .popover-items{
+            scale: 0%
+        }
+    }
 }
 .popover-content{
 
@@ -549,14 +561,56 @@ ion-modal{
     top: 50%;
     left: 50%;
     width: 90%;
-    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    row-gap: 10px;
 
     > .popover-slot-container{
-        border-radius: 10px;
-    overflow: hidden;
-
+        border-radius: 12px;
+        overflow: hidden;
         background-color: gray;
         box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+        border-radius: 0.55px solid gainsboro;
+    }
+}
+.popover-items{
+    z-index: 10000;
+    background: rgba( 255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px 0 rgb(73 73 73 / 37%);
+    backdrop-filter: blur( 6px );
+    -webkit-backdrop-filter: blur( 6px );
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 14px;
+    overflow: hidden;
+    max-width: 80%;
+    transition: scale 0.3s ease;
+    transform-origin: top center;
+    :slotted(button){
+        border-bottom-width: 0.55px;
+        border-style: solid;
+        border-color: var(--ion-tab-bar-border-color, var(--ion-border-color, var(--ion-color-step-150, rgba(0, 0, 0, 0.2))));
+
+
+        &[separate="true"]:not(:last-child){
+            border-bottom-width: 4px;
+        }
+        &[separate="true"]:last-child{
+            border-top-width: 4px;
+        }
+        &:nth-last-child(1){
+            border-bottom: unset;
+        }
+
+        &:active{
+            background: var(--ion-color-light);
+        }
     }
 }
 
@@ -579,6 +633,16 @@ ion-modal{
 }
 .popover-content{
     visibility: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+    .popover-items{
+        background: rgba( 36, 36, 36, 0.7 );
+        box-shadow: 0 8px 32px 0 rgb(73 73 73 / 37%);
+        backdrop-filter: blur( 6px );
+        -webkit-backdrop-filter: blur( 6px );
+        border-radius: 10px;
+    }
 }
 
 </style>

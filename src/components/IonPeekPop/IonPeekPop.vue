@@ -45,6 +45,7 @@ import { onLongPress, useMouseInElement } from '@vueuse/core'
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { OnLongPress } from '@vueuse/components'
 import { vOnLongPress } from '@vueuse/components'
+import { scaleConvert, useWatchTouch } from '@/components/IonPeekPop/useIonPeekPop';
 
 const generateRandomId = () => {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -63,7 +64,7 @@ const hasLongPress = ref(false);
 
 const showModal = ref(false);
 const gestureInstance = ref<null|Gesture>(null);
-
+let watchableBackdrop:any = null;
 
 
 const props = defineProps({
@@ -100,9 +101,6 @@ const onLongPressFinishCallbackDirective = (ev) => {
         onLongPressDone();
     }
 }
-
-
-
 const onShortPressCallbackDirective = (ev) => {
     if (!itemContentEl.value){
         return;
@@ -311,17 +309,7 @@ const gestureCallbacks = {
 
         const calculateMovementChangePercentageY = () => {
             if (detail.deltaY > 0){
-                /*
-                    (detail.currentY * 100) / window.innerHeight; is:
-                    window.innerHeight = 100%
-                    detail.currentY = x%
-                
-                */
-
-                //return +(100 - ((detail.currentY * 100) / detail.startY));
-
-                //Return the inverse of return -(100 - ((detail.currentY * 100) / detail.startY));
-                return (detail.currentY * 100) / window.innerHeight;
+                return (detail.deltaY * 100) / window.innerHeight;
             }else{
                 return -(100 - ((detail.currentY * 100) / detail.startY));
             }
@@ -380,12 +368,12 @@ const gestureCallbacks = {
         }
 
         if (currentTranslateYPercentage > 0){
-            //desiredTransform.translateY = ((-50) + currentTranslateYPercentage).toFixed(2).toString();
+            desiredTransform.translateY = ((-50) + currentTranslateYPercentage).toFixed(2).toString();
         }else{
-            //desiredTransform.translateY = ((-50) + currentTranslateYPercentage).toFixed(2).toString();
+            desiredTransform.translateY = ((-50) + currentTranslateYPercentage).toFixed(2).toString();
         }
 
-        desiredTransform.translateY = '-50'.toString();
+        //desiredTransform.translateY = '-50'.toString();
 
 
         const newTag = `translateX(${desiredTransform.translateX}%) translateY(${desiredTransform.translateY}%)`;
@@ -400,6 +388,8 @@ const gestureCallbacks = {
 
 
         if (currentMovementChangePercentageX > 80 || currentMovementChangePercentageX < -80){
+            popoverContentEl.value.doClosePeek();
+        }else if (currentMovementChangePercentageY > 80 || currentMovementChangePercentageY < -80){
             popoverContentEl.value.doClosePeek();
         }
 
@@ -421,9 +411,9 @@ const gestureCallbacks = {
         })
     }
 }
-
 onMounted(() => {
     setTimeout(() => {
+        return;
         gestureInstance.value = createGesture({
             el: itemEl.value?.closest('ion-app'),
             onStart: gestureCallbacks.onStart,
@@ -433,9 +423,39 @@ onMounted(() => {
         });
         gestureInstance.value.enable();
     }, 100);
+
+    watchableBackdrop = useWatchTouch(
+        itemEl.value?.closest('ion-app'),
+        (info) => {
+            gestureCallbacks.onStart();
+        },
+        (info) => {
+            const detail: GestureDetail = {
+                startX: info.startX,
+                startY: info.startY,
+                currentX: info.position.left,
+                currentY: info.position.top,
+                deltaX: info.offset.x,
+                deltaY: info.offset.y,
+                velocityX: info.velocityX,
+                velocityY: info.velocityY,
+                currentTime: 0,
+                event: {} as any,
+                data: {}
+            };
+            //console.log('move', detail)
+            gestureCallbacks.onMove(detail);
+        },
+        (info) => {
+            gestureCallbacks.onEnd();
+        }
+    );
+
+
 })
 onUnmounted(() => {
-    gestureInstance.value?.destroy();
+    //gestureInstance.value?.destroy();
+    watchableBackdrop();
 })
 
 window.oncontextmenu = function() { return false; }

@@ -1,168 +1,145 @@
-import { createGesture, Gesture } from "@ionic/vue";
-import { ref } from "vue";
 
 
 
-class IonPeekPop{
-    private static gesture: Gesture | null = null;
-    public static initialize(){
-        const gesture = createGesture({
-            el: document.getElementByTagName('ion-app'),
-            onStart: () => {
-                console.log('start');
-            },
-            onMove: (detail) => {
-                const popoverContentEl = ref(document.querySelector(`[global-register="ion-peek-pop-popover-content"]`));
-                const isReadyForMoveMoviments = ref(popoverContentEl.value?.getAttribute('isReadyForMoveMoviments') === 'true');
+export interface TouchInfo {
+    touch: boolean;
+    mouse: boolean;
+    position: { top: number; left: number };
+    direction: 'up' | 'down' | 'left' | 'right' | null;
+    isFirst: boolean;
+    isFinal: boolean;
+    duration: number;
+    startX: number;
+    startY: number;
+    distance: { x: number; y: number };
+    offset: { x: number; y: number };
+    delta: { x: number; y: number };
+}
+  
+export function useWatchTouch(
+    el: HTMLElement,
+    onStart: (info: TouchInfo) => void,
+    onMove: (info: TouchInfo) => void,
+    onEnd: (info: TouchInfo) => void
+  ) {
+    let startX: number, startY: number, lastX: number, lastY: number, startTime: number, lastMoveTime: number;
+  let isTouch: boolean;
 
-                console.log(popoverContentEl)
+  function getDirection(x: number, y: number): TouchInfo['direction'] {
+    const diffX = x - startX;
+    const diffY = y - startY;
+    const absDiffX = Math.abs(diffX);
+    const absDiffY = Math.abs(diffY);
 
-                if (!popoverContentEl.value || !isReadyForMoveMoviments.value){
-                    return;
-                }
-
-                const calculateMovementChangePercentageX = () => {
-                    if (detail.deltaX > 0){
-                        return (detail.currentX * 100) / window.innerWidth;
-                    }else{
-                        return -(100 - ((detail.currentX * 100) / detail.startX));
-                    }
-                }
-                const calculateTranslationX = (currentMovementChangePercentageX:number) => {
-                    const windowPadding = (window.innerWidth - popoverContentEl.value?.getBoundingClientRect().width) / 2;
-                    if (currentMovementChangePercentageX > 0){
-                        return (currentMovementChangePercentageX * windowPadding) / 100;
-                    }else{
-                        return -((currentMovementChangePercentageX * -1) * windowPadding) / 100;
-                    }
-                }
-
-                const calculateMovementChangePercentageY = () => {
-                    if (detail.deltaY > 0){
-                        /*
-                            (detail.currentY * 100) / window.innerHeight; is:
-                            window.innerHeight = 100%
-                            detail.currentY = x%
-                        
-                        */
-
-                        //return +(100 - ((detail.currentY * 100) / detail.startY));
-
-                        //Return the inverse of return -(100 - ((detail.currentY * 100) / detail.startY));
-                        return (detail.currentY * 100) / window.innerHeight;
-                    }else{
-                        return -(100 - ((detail.currentY * 100) / detail.startY));
-                    }
-                }
-
-                const calculateTranslationY = (currentMovementChangePercentageY:number) => {
-                    const windowPadding = (window.innerHeight - popoverContentEl.value.getBoundingClientRect().height) / 2;
-                    if (currentMovementChangePercentageY > 0){
-                        return (currentMovementChangePercentageY * windowPadding) / 100;
-                    }else{
-                        return -((currentMovementChangePercentageY * -1) * windowPadding) / 100;
-                    }
-                }
-
-
-                const getTranslateX = (element:HTMLElement) => {
-                    const regex = /translateX\(([^)]+)\)/;
-                    const style = element.style.transform;
-                    const match = regex.exec(style);
-                    return match[1];
-                }
-                const getTranslateY = (element:HTMLElement) => {
-                    const regex = /translateY\(([^)]+)\)/;
-                    const style = element.style.transform;
-                    const match = regex.exec(style);
-                    return match[1];
-                }
-
-
-
-                const currentMovementChangePercentageX = calculateMovementChangePercentageX();
-                const currentMovementChangePercentageY = calculateMovementChangePercentageY();
-                const currentTranslationX = calculateTranslationX(currentMovementChangePercentageX);
-                const currentTranslationY = calculateTranslationY(currentMovementChangePercentageY);
-
-                //Now with currentTranslationX px, the context is the element is top: 50%, left: 50% and current transform: translateX(-50%) translateY(-50%). So, calculate how much translateX should be added to the element in percentage:
-                const currentTranslateXPercentage = (currentTranslationX * 100) / popoverContentEl.value?.getBoundingClientRect().width;
-                const currentTranslateYPercentage = (currentTranslationY * 100) / popoverContentEl.value?.getBoundingClientRect().height;
-
-                //Get the current translateX value and translateY, save them and add the currentTranslationX value to the translateX value:
-
-                const currentTransform = {
-                    translateX: getTranslateX(popoverContentEl.value),
-                    translateY: getTranslateY(popoverContentEl.value)
-                }
-
-                let desiredTransform = {
-                    translateX: currentTransform.translateX,
-                    translateY: currentTransform.translateY
-                }
-
-                if (currentTranslateXPercentage > 0){
-                    desiredTransform.translateX = ((-50) + currentTranslateXPercentage).toFixed(2).toString();
-                }else{
-                    desiredTransform.translateX = ((-50) + currentTranslateXPercentage).toFixed(2).toString();
-                }
-
-                if (currentTranslateYPercentage > 0){
-                    //desiredTransform.translateY = ((-50) + currentTranslateYPercentage).toFixed(2).toString();
-                }else{
-                    //desiredTransform.translateY = ((-50) + currentTranslateYPercentage).toFixed(2).toString();
-                }
-
-                desiredTransform.translateY = '-50'.toString();
-
-
-                const newTag = `translateX(${desiredTransform.translateX}%) translateY(${desiredTransform.translateY}%)`;
-
-
-                requestAnimationFrame(() => {
-                    if (!popoverContentEl.value){
-                        return;
-                    }
-                    popoverContentEl.value.style.transform = newTag;
-                })
-
-
-
-
-                console.log({newTag, currentMovementChangePercentageX});
-                if (currentMovementChangePercentageX > 80 || currentMovementChangePercentageX < -80){
-                    closePeek();
-                }
-
-            },
-            onEnd: () => {
-                const popoverContentEl = ref(document.querySelector(`[global-register="ion-peek-pop-popover-content"]`));
-                const isReadyForMoveMoviments = ref(popoverContentEl.value?.getAttribute('isReadyForMoveMoviments') === 'true');
-
-
-                if (!isReadyForMoveMoviments.value || !popoverContentEl.value){
-                    return;
-                }
-                const newTag = `translateX(-50%) translateY(-50%)`;
-                requestAnimationFrame(() => {
-                    if (!popoverContentEl.value){
-                        return;
-                    }
-                    popoverContentEl.value.style.transform = newTag;
-                })
-            },
-            gestureName: 'gestureId' + uniqueId.value,
-        });
-        this.gesture = gesture;
-        this.gesture.enable();
+    if (absDiffX > absDiffY) {
+      return diffX > 0 ? 'right' : 'left';
+    } else if (absDiffY > absDiffX) {
+      return diffY > 0 ? 'down' : 'up';
     }
+    return null;
+  }
+
+  function createTouchInfo(
+    event: MouseEvent | Touch,
+    isFirst: boolean,
+    isFinal: boolean
+  ): TouchInfo {
+    const currentTime = Date.now();
+    const duration = currentTime - startTime;
+    const currentX = 'clientX' in event ? event.clientX : event.pageX;
+    const currentY = 'clientY' in event ? event.clientY : event.pageY;
+
+    const timeDelta = currentTime - lastMoveTime;
+    const velocityX = timeDelta > 0 ? (currentX - lastX) / timeDelta : 0;
+    const velocityY = timeDelta > 0 ? (currentY - lastY) / timeDelta : 0;
+
+    const info: TouchInfo = {
+      touch: isTouch,
+      mouse: !isTouch,
+      position: { top: currentY, left: currentX },
+      direction: getDirection(currentX, currentY),
+      isFirst,
+      isFinal,
+      duration,
+      distance: { x: currentX - startX, y: currentY - startY },
+      offset: { x: currentX - startX, y: currentY - startY },
+      delta: { x: currentX - lastX, y: currentY - lastY },
+      startX,
+      startY,
+      velocityX,
+      velocityY
+    };
+
+    lastX = currentX;
+    lastY = currentY;
+    lastMoveTime = currentTime;
+
+    return info;
+  }
+
+  function handleStart(event: MouseEvent | TouchEvent) {
+    isTouch = event.type.startsWith('touch');
+    const touchEvent = isTouch ? (event as TouchEvent).touches[0] : (event as MouseEvent);
+    startX = lastX = touchEvent.clientX;
+    startY = lastY = touchEvent.clientY;
+    startTime = lastMoveTime = Date.now();
+
+    const info = createTouchInfo(touchEvent, true, false);
+    onStart(info);
+
+    if (isTouch) {
+      document.addEventListener('touchmove', handleMove);
+      document.addEventListener('touchend', handleEnd);
+    } else {
+      document.addEventListener('mousemove', handleMove);
+      document.addEventListener('mouseup', handleEnd);
+    }
+  }
+
+  function handleMove(event: MouseEvent | TouchEvent) {
+    event.preventDefault();
+    const touchEvent = isTouch ? (event as TouchEvent).touches[0] : (event as MouseEvent);
+    const info = createTouchInfo(touchEvent, false, false);
+    onMove(info);
+  }
+
+  function handleEnd(event: MouseEvent | TouchEvent) {
+    const touchEvent = isTouch ? (event as TouchEvent).changedTouches[0] : (event as MouseEvent);
+    const info = createTouchInfo(touchEvent, false, true);
+    onEnd(info);
+
+    if (isTouch) {
+      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener('touchend', handleEnd);
+    } else {
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleEnd);
+    }
+  }
+
+  el.addEventListener('mousedown', handleStart);
+  el.addEventListener('touchstart', handleStart);
+
+  return () => {
+    el.removeEventListener('mousedown', handleStart);
+    el.removeEventListener('touchstart', handleStart);
+  };
 }
 
 
-
-
-
-
-export const useIonPeekPop = () => {
-
-}
+export function scaleConvert(
+    value: number,
+    originalScale: [number, number],
+    newScale: [number, number]
+  ): number {
+    const [originalMin, originalMax] = originalScale;
+    const [newMin, newMax] = newScale;
+  
+    // First, normalize the value on a 0-1 scale
+    const normalized = (value - originalMin) / (originalMax - originalMin);
+    
+    // Then, scale it to the new range
+    const newValue = normalized * (newMax - newMin) + newMin;
+    
+    return newValue;
+  }

@@ -373,9 +373,6 @@ const gestureCallbacks = {
             desiredTransform.translateY = ((-50) + currentTranslateYPercentage).toFixed(2).toString();
         }
 
-        //desiredTransform.translateY = '-50'.toString();
-
-
         const newTag = `translateX(${desiredTransform.translateX}%) translateY(${desiredTransform.translateY}%)`;
 
 
@@ -389,7 +386,7 @@ const gestureCallbacks = {
 
         if (currentMovementChangePercentageX > 80 || currentMovementChangePercentageX < -80){
             popoverContentEl.value.doClosePeek();
-        }else if (currentMovementChangePercentageY > 80 || currentMovementChangePercentageY < -80){
+        }else if (currentMovementChangePercentageY > 60 || currentMovementChangePercentageY < -30){
             popoverContentEl.value.doClosePeek();
         }
 
@@ -402,12 +399,20 @@ const gestureCallbacks = {
         if (!isReadyForMoveMoviments.value || !popoverContentEl.value){
             return;
         }
+        Haptics.impact({
+            style: ImpactStyle.Light
+        });
         const newTag = `translateX(-50%) translateY(-50%)`;
         requestAnimationFrame(() => {
             if (!popoverContentEl.value){
                 return;
             }
+            popoverContentEl.value.style.transition = 'all 0.3s ease';
             popoverContentEl.value.style.transform = newTag;
+
+            setTimeout(() => {
+                popoverContentEl.value.style.transition = 'unset';
+            }, 300)
         })
     }
 }

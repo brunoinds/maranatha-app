@@ -102,6 +102,14 @@
                         </template>
                     </IonPeekPop>
 
+                    <IonPeekPop v-if="!isLoading">
+                        <template v-slot:item>
+                            <img width="100" :src="'https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=0.752xw:1.00xh;0.175xw,0&resize=1200:*'">
+                        </template>
+                        <template v-slot:popover>
+                            <ion-img  :src="'https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=0.752xw:1.00xh;0.175xw,0&resize=1200:*'"></ion-img>
+                        </template>
+                    </IonPeekPop>
 
                     <IonPeekPop v-if="!isLoading">
                         <template v-slot:item>

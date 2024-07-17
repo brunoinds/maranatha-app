@@ -1,5 +1,5 @@
 <template>
-    <button class="item" ref="itemEl" v-on-long-press="[onLongPressCallbackDirective, { delay: 500, modifiers: { stop: true, prevent: true } }]">
+    <button class="item" ref="itemEl" v-on-long-press.onMouseUp="onLongPressFinishCallbackDirective" v-on-long-press="[onLongPressStartCallbackDirective, { delay: 140, modifiers: { stop: true, prevent: true } }]">
         <article class="item-protector" @click="onPressCallback"></article>
         <article ref="itemContentEl">
             <ion-button :id="uniqueId" v-show="false">Peek</ion-button>
@@ -40,7 +40,7 @@
 <script setup lang="ts">
 
 import { onMounted, getCurrentInstance, ref, watch, nextTick, onUnmounted } from 'vue';
-import { IonList, IonItem, IonLabel, IonBackdrop, IonPage, IonModal, createGesture, createAnimation } from '@ionic/vue';
+import { IonList, IonItem, IonLabel, IonBackdrop, IonPage, IonModal, createGesture, createAnimation, Gesture } from '@ionic/vue';
 import { onLongPress, useMouseInElement } from '@vueuse/core'
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { OnLongPress } from '@vueuse/components'
@@ -60,7 +60,11 @@ const itemContentEl = ref<HTMLElement>();
 const itemMirrorAreaEl = ref<HTMLElement>();
 const isReadyForMoveMoviments = ref(false);
 const hasLongPress = ref(false);
+
 const showModal = ref(false);
+const gestureInstance = ref<null|Gesture>(null);
+
+
 
 const props = defineProps({
     
@@ -79,10 +83,53 @@ const onPressCallback = (ev) => {
         return;
     }
 }
-const onLongPressCallbackDirective = (ev) => {
-    ev.stopPropagation();
+const onLongPressDone = () => {
     hasLongPress.value = true;
     doPeek();
+}
+const onLongPressStartCallbackDirective = (ev) => {
+    ev.stopPropagation();
+    
+    setTimeout(() => {
+        onLongPressDone();
+    }, 490)
+}
+const onLongPressFinishCallbackDirective = (ev) => {
+    onShortPressCallbackDirective(ev);
+    if (ev.duration > 500 && ev.duration < 600){
+        onLongPressDone();
+    }
+}
+
+
+
+const onShortPressCallbackDirective = (ev) => {
+    if (!itemContentEl.value){
+        return;
+    }
+
+    requestAnimationFrame(() => {
+        itemContentEl.value.style.transition = 'all 3s ease';
+        requestAnimationFrame(() => {
+            if (!itemContentEl.value){
+                return;
+            }
+            itemContentEl.value.style.scale = '2';
+
+            setTimeout(() => {
+                if (!itemContentEl.value){
+                    return;
+                }
+                itemContentEl.value.style.scale = '1';
+                requestAnimationFrame(() => {
+                    if (!itemContentEl.value){
+                        return;
+                    }
+                    itemContentEl.value.style.transition = 'unset';
+                })
+            }, 300)
+        })
+    })
 }
 
 
@@ -106,13 +153,8 @@ const doPeek = async () => {
         //Add a callable method into popoverContentEl:
         popoverContentEl.value.doClosePeek = closePeek;
 
-        console.log(popoverContentEl.value);
-
         const popoverContentRect = popoverContentEl.value?.getBoundingClientRect();
         const itemContentRect = itemContentEl.value?.getBoundingClientRect();
-
-        console.log('Prev', popoverContentRect);
-
 
         itemMirrorAreaEl.value.style.position = 'fixed';
         itemMirrorAreaEl.value.style.top = `${itemContentRect.top}px`;
@@ -179,8 +221,7 @@ const doPeek = async () => {
             }, 300)
         })
 
-
-        console.log(itemContentEl.value?.getBoundingClientRect());
+        itemContentEl.value?.getBoundingClientRect()//Do not remove this line!
     }, 100)
 
 }
@@ -241,7 +282,7 @@ const closePeek = async () => {
 
 onMounted(() => {
     setTimeout(() => {
-        const gesture = createGesture({
+        gestureInstance.value = createGesture({
             el: itemEl.value?.closest('ion-app'),
             onStart: () => {
                 console.log('start');
@@ -249,8 +290,6 @@ onMounted(() => {
             onMove: (detail) => {
                 const popoverContentEl = ref(document.querySelector(`[global-register="ion-peek-pop-popover-content"]`));
                 const isReadyForMoveMoviments = ref(popoverContentEl.value?.getAttribute('isReadyForMoveMoviments') === 'true');
-
-                console.log(popoverContentEl)
 
                 if (!popoverContentEl.value || !isReadyForMoveMoviments.value){
                     return;
@@ -362,9 +401,6 @@ onMounted(() => {
                 })
 
 
-
-
-                console.log({newTag, currentMovementChangePercentageX});
                 if (currentMovementChangePercentageX > 80 || currentMovementChangePercentageX < -80){
                     popoverContentEl.value.doClosePeek();
                 }
@@ -388,11 +424,11 @@ onMounted(() => {
             },
             gestureName: 'gestureId' + uniqueId.value,
         });
-        gesture.enable();
+        gestureInstance.value.enable();
     }, 100);
 })
 onUnmounted(() => {
-
+    gestureInstance.value?.destroy();
 })
 
 window.oncontextmenu = function() { return false; }

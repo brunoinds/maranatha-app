@@ -151,6 +151,7 @@ const doPeek = async () => {
             popoverContentEl.value.style.left = `${popoverContentRect.left}px`;
             popoverContentEl.value.style.width = `${popoverContentRect.width}px`;
             popoverContentEl.value.style.height = `${popoverContentRect.height}px`;
+            popoverContentEl.value.style.transform = 'unset';
             popoverContentEl.value.style.zIndex = '1000';
             popoverContentEl.value.style.opacity = '1';
             setTimeout(() => {
@@ -158,23 +159,12 @@ const doPeek = async () => {
                     if (!popoverContentEl.value || !itemMirrorAreaEl.value){
                         return;
                     }
-                    console.log('Gligh')
                     itemMirrorAreaEl.value.style.transition = 'unset';
-                    
-                    requestAnimationFrame(() => {
-                        if (!popoverContentEl.value || !itemMirrorAreaEl.value){
-                            return;
-                        }
-                        popoverContentEl.value.style.position = 'absolute';
-
-                        popoverContentEl.value.style.top = '50%';
-                        popoverContentEl.value.style.left = '50%';
-                        popoverContentEl.value.style.transform = 'translateX(-50%) translateY(-50%)';
-                        isReadyForMoveMoviments.value = true;
-                    })
-
-                    
-
+                    popoverContentEl.value.style.position = 'absolute';
+                    popoverContentEl.value.style.top = '50%';
+                    popoverContentEl.value.style.left = '50%';
+                    popoverContentEl.value.style.transform = 'translateX(-50%) translateY(-50%)';
+                    isReadyForMoveMoviments.value = true;
                 })
             }, 300)
         })
@@ -322,6 +312,9 @@ onMounted(() => {
 
             },
             onEnd: () => {
+                if (!isReadyForMoveMoviments.value){
+                    return;
+                }
                 const newTag = `translateX(-50%) translateY(-50%)`;
                 requestAnimationFrame(() => {
                     if (!popoverContentEl.value){

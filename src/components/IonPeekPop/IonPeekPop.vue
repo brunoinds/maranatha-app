@@ -9,7 +9,7 @@
     
     <article class="popover">
         <section class="popover-modal-holder" v-if="showModal">
-            <ion-modal class="modal" v-if="showModal" :showBackdrop="false" ref="modalEl" trigger="open-custom-dialog" :enter-animation="enterAnimation" :keepContentsMounted="false">
+            <ion-modal class="modal" v-if="showModal" :showBackdrop="false" ref="modalEl" trigger="open-custom-dialog" :enter-animation="enterAnimation" :leave-animation="leaveAnimation" :keepContentsMounted="false">
                 <article class="item-mirror-area" ref="itemMirrorAreaEl">
                     <slot name="item"></slot>
                 </article>
@@ -175,11 +175,58 @@ const doPeek = async () => {
 
 }
 const closePeek = async () => {
-    modalEl.value.$el.dismiss();
-    setTimeout(async () => {
-        await waitForNextTick();
-        showModal.value = false;
-    }, 300)
+    setTimeout(() => {
+        if (!popoverContentEl.value || !itemContentEl.value || !itemMirrorAreaEl.value){
+            return;
+        }
+
+        const popoverContentRect = popoverContentEl.value?.getBoundingClientRect();
+        const itemContentRect = itemContentEl.value?.getBoundingClientRect();
+
+        isReadyForMoveMoviments.value = false;
+        itemMirrorAreaEl.value.style.position = 'fixed';
+        itemMirrorAreaEl.value.style.top = `${popoverContentRect.top}px`;
+        itemMirrorAreaEl.value.style.left = `${popoverContentRect.left}px`;
+        itemMirrorAreaEl.value.style.width = `${popoverContentRect.width}px`;
+        itemMirrorAreaEl.value.style.height = `${popoverContentRect.height}px`;
+        itemMirrorAreaEl.value.style.zIndex = '1000';
+        itemMirrorAreaEl.value.style.opacity = '0';
+
+
+
+        //Animate to make the itemMirrorAreaEl to the popoverContentEl:
+        requestAnimationFrame(() => {
+            if (!popoverContentEl.value || !itemMirrorAreaEl.value){
+                return;
+            }
+
+            itemMirrorAreaEl.value.style.visibility = 'visible';
+            itemMirrorAreaEl.value.style.transition = 'all 0.3s ease';
+            itemMirrorAreaEl.value.style.top = `${itemContentRect.top}px`;
+            itemMirrorAreaEl.value.style.left = `${itemContentRect.left}px`;
+            itemMirrorAreaEl.value.style.width = `${itemContentRect.width}px`;
+            itemMirrorAreaEl.value.style.height = `${itemContentRect.height}px`;
+            itemMirrorAreaEl.value.style.zIndex = '1000';
+            itemMirrorAreaEl.value.style.opacity = '1';
+
+            popoverContentEl.value.style.visibility = 'visible';
+            popoverContentEl.value.style.transition = 'all 0.3s ease';
+            popoverContentEl.value.style.top = `${itemContentRect.top}px`;
+            popoverContentEl.value.style.left = `${itemContentRect.left}px`;
+            popoverContentEl.value.style.width = `${itemContentRect.width}px`;
+            popoverContentEl.value.style.height = `${itemContentRect.height}px`;
+            popoverContentEl.value.style.transform = 'unset';
+            popoverContentEl.value.style.zIndex = '1000';
+            popoverContentEl.value.style.opacity = '0';
+            setTimeout(() => {
+                modalEl.value.$el.dismiss();
+                setTimeout(async () => {
+                    await waitForNextTick();
+                    showModal.value = false;
+                }, 300)
+            }, 300)
+        })
+    }, 100);
 }
 
 onMounted(() => {
@@ -192,6 +239,7 @@ onMounted(() => {
             },
             onMove: (detail) => {
                 if (!popoverContentEl.value || !isReadyForMoveMoviments.value){
+                    console.log('No popoverContentEl');
                     return;
                 }
 
@@ -351,7 +399,26 @@ const enterAnimation = (baseEl: HTMLElement) => {
       .duration(300)
       .addAnimation([backdropAnimation, wrapperAnimation]);
 };
+const leaveAnimation = (baseEl: HTMLElement) => {
+    const root = baseEl.shadowRoot as unknown as any;
 
+    const backdropAnimation = createAnimation()
+      .addElement(root.querySelector('ion-backdrop'))
+      .fromTo('opacity', 'var(--backdrop-opacity)', '0');
+
+    const wrapperAnimation = createAnimation()
+      .addElement(root.querySelector('.modal-wrapper'))
+      .keyframes([
+        { offset: 0, opacity: '0.99', transform: 'scale(1)' },
+        { offset: 1, opacity: '0', transform: 'scale(1)' },
+      ]);
+
+    return createAnimation()
+      .addElement(baseEl)
+      .easing('ease-in')
+      .duration(300)
+      .addAnimation([backdropAnimation, wrapperAnimation]);
+};
 </script>
 
 

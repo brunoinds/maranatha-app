@@ -92,11 +92,11 @@ const onLongPressStartCallbackDirective = (ev) => {
     
     setTimeout(() => {
         onLongPressDone();
-    }, 380)
+    }, 490)
 }
 const onLongPressFinishCallbackDirective = (ev) => {
     onShortPressCallbackDirective(ev);
-    if (ev.duration > 500 && ev.duration < 600){
+    if (ev.duration > 500 && ev.duration < 700){
         onLongPressDone();
     }
 }

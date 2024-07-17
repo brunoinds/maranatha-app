@@ -80,9 +80,7 @@
                     
                 </ion-list>
 
-                <ion-list>
-                    
-
+                <ion-list v-if="false">
                     <br>
 
                     <IonPeekPop v-if="!isLoading">

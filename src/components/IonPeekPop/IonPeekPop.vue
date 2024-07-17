@@ -55,7 +55,7 @@ const itemEl = ref<HTMLElement>();
 const popoverContentEl = ref<HTMLElement>();
 const itemContentEl = ref<HTMLElement>();
 const itemMirrorAreaEl = ref<HTMLElement>();
-
+const isReadyForMoveMoviments = ref(false);
 const hasLongPress = ref(false);
 const showModal = ref(false);
 
@@ -122,8 +122,6 @@ const doPeek = async () => {
         popoverContentEl.value.style.transform = 'unset';
         popoverContentEl.value.style.opacity = '0';
 
-        console.log('Post', popoverContentEl.value?.getBoundingClientRect());
-
 
 
         //Animate to make the itemMirrorAreaEl to the popoverContentEl:
@@ -132,7 +130,6 @@ const doPeek = async () => {
                 return;
             }
 
-            console.log('Question', popoverContentRect)
             itemMirrorAreaEl.value.style.visibility = 'visible';
             itemMirrorAreaEl.value.style.transition = 'all 0.3s ease';
             itemMirrorAreaEl.value.style.top = `${popoverContentRect.top}px`;
@@ -165,6 +162,8 @@ const doPeek = async () => {
                     popoverContentEl.value.style.transform = 'translateX(-50%) translateY(-50%)';
                     popoverContentEl.value.style.top = '50%';
                     popoverContentEl.value.style.left = '50%';
+
+                    isReadyForMoveMoviments.value = true;
                 })
             }, 300)
         })
@@ -178,7 +177,6 @@ const closePeek = async () => {
     modalEl.value.$el.dismiss();
     setTimeout(async () => {
         await waitForNextTick();
-
         showModal.value = false;
     }, 300)
 }
@@ -192,7 +190,7 @@ onMounted(() => {
                 console.log('start');
             },
             onMove: (detail) => {
-                if (!popoverContentEl.value){
+                if (!popoverContentEl.value || !isReadyForMoveMoviments.value){
                     return;
                 }
 
@@ -366,6 +364,7 @@ ion-modal{
     --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
     --background: transparent;
     backdrop-filter: blur(1.5px);
+    -webkit-backdrop-filter: blur(1.5px);
 }
 
 .popover-area{

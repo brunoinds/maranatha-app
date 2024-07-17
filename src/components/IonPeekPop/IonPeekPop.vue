@@ -1,7 +1,7 @@
 <template>
     <button class="item" ref="itemEl" v-on-long-press.onMouseUp="onLongPressFinishCallbackDirective" v-on-long-press="[onLongPressStartCallbackDirective, { delay: 100, modifiers: { stop: true, prevent: true } }]">
         <article class="item-protector" @click="onPressCallback"></article>
-        <article ref="itemContentEl">
+        <article ref="itemContentEl" class="item-slot">
             <ion-button :id="uniqueId" v-show="false">Peek</ion-button>
             <slot name="item"></slot>
         </article>
@@ -16,12 +16,12 @@
                 <article class="popover-area" :is-open="isOpened">
                     <article class="popover-content" global-register="ion-peek-pop-popover-content" :isReadyForMoveMoviments="isReadyForMoveMoviments" ref="popoverContentEl" style="transform: translateX(-50%) translateY(-50%)">
                         <section class="popover-slot-container" ref="popoverSlotContainerEl">
-                            <article class="popover-slot">
+                            <article class="popover-slot"  @click="doPop">
                                 <slot name="popover"></slot>
                             </article>
                         </section>
                         
-                        <article class="popover-items">
+                        <article class="popover-items" @click="closePeek(true)">
                             <slot name="contextmenu"></slot>
                         </article>
                     </article>
@@ -30,7 +30,6 @@
         </section>
         
     </article>
-
 </template>
 
 <script setup lang="ts">
@@ -59,7 +58,6 @@ const isReadyForMoveMoviments = ref(false);
 const hasLongPress = ref(false);
 const popoverSlotContainerEl = ref<HTMLElement>();
 const showModal = ref(false);
-const gestureInstance = ref<null|Gesture>(null);
 let watchableBackdrop:any = null;
 const isOpened = ref(false);
 
@@ -67,6 +65,7 @@ const isOpened = ref(false);
 const props = defineProps({
     
 })
+
 const emit = defineEmits(['onPeek', 'onPop', 'onDismiss']);
 
 const waitForNextTick = async () => {
@@ -202,6 +201,7 @@ const doPeek = async () => {
             popoverContentEl.value.style.zIndex = '1000';
             popoverContentEl.value.style.opacity = '1';
 
+            emit('onPeek');
             setTimeout(() => {
                 requestAnimationFrame(() => {
                     if (!popoverContentEl.value || !itemMirrorAreaEl.value){
@@ -224,7 +224,7 @@ const doPeek = async () => {
     }, 100)
 
 }
-const closePeek = async () => {
+const closePeek = async (isDismiss: boolean) => {
     isReadyForMoveMoviments.value = false;
     setTimeout(() => {
         if (!popoverContentEl.value || !itemContentEl.value || !itemMirrorAreaEl.value){
@@ -235,43 +235,76 @@ const closePeek = async () => {
         Haptics.impact({
             style: ImpactStyle.Light
         });
-        const popoverContentRect = popoverContentEl.value?.getBoundingClientRect();
-        const itemContentRect = itemContentEl.value?.getBoundingClientRect();
-
-        itemMirrorAreaEl.value.style.position = 'fixed';
-        itemMirrorAreaEl.value.style.top = `${popoverContentRect.top}px`;
-        itemMirrorAreaEl.value.style.left = `${popoverContentRect.left}px`;
-        itemMirrorAreaEl.value.style.width = `${popoverContentRect.width}px`;
-        itemMirrorAreaEl.value.style.height = `${popoverContentRect.height}px`;
-        itemMirrorAreaEl.value.style.zIndex = '1000';
-        itemMirrorAreaEl.value.style.opacity = '0';
 
 
+        const doDismiss = () => {
+            const popoverContentRect = popoverContentEl.value?.getBoundingClientRect();
+            const itemContentRect = itemContentEl.value?.getBoundingClientRect();
 
-        //Animate to make the itemMirrorAreaEl to the popoverContentEl:
-        requestAnimationFrame(() => {
-            if (!popoverContentEl.value || !itemMirrorAreaEl.value){
-                return;
-            }
-
-            itemMirrorAreaEl.value.style.visibility = 'visible';
-            itemMirrorAreaEl.value.style.transition = 'all 0.3s ease';
-            itemMirrorAreaEl.value.style.top = `${itemContentRect.top}px`;
-            itemMirrorAreaEl.value.style.left = `${itemContentRect.left}px`;
-            itemMirrorAreaEl.value.style.width = `${itemContentRect.width}px`;
-            itemMirrorAreaEl.value.style.height = `${itemContentRect.height}px`;
+            itemMirrorAreaEl.value.style.position = 'fixed';
+            itemMirrorAreaEl.value.style.top = `${popoverContentRect.top}px`;
+            itemMirrorAreaEl.value.style.left = `${popoverContentRect.left}px`;
+            itemMirrorAreaEl.value.style.width = `${popoverContentRect.width}px`;
+            itemMirrorAreaEl.value.style.height = `${popoverContentRect.height}px`;
             itemMirrorAreaEl.value.style.zIndex = '1000';
-            itemMirrorAreaEl.value.style.opacity = '1';
+            itemMirrorAreaEl.value.style.opacity = '0';
 
-            popoverContentEl.value.style.visibility = 'visible';
-            popoverContentEl.value.style.transition = 'all 0.3s ease';
-            popoverContentEl.value.style.top = `${itemContentRect.top}px`;
-            popoverContentEl.value.style.left = `${itemContentRect.left}px`;
-            popoverContentEl.value.style.width = `${itemContentRect.width}px`;
-            popoverContentEl.value.style.height = `${itemContentRect.height}px`;
-            popoverContentEl.value.style.transform = 'unset';
-            popoverContentEl.value.style.zIndex = '1000';
-            popoverContentEl.value.style.opacity = '0';
+
+
+            //Animate to make the itemMirrorAreaEl to the popoverContentEl:
+            requestAnimationFrame(() => {
+                if (!popoverContentEl.value || !itemMirrorAreaEl.value){
+                    return;
+                }
+
+                itemMirrorAreaEl.value.style.visibility = 'visible';
+                itemMirrorAreaEl.value.style.transition = 'all 0.3s ease';
+                itemMirrorAreaEl.value.style.top = `${itemContentRect.top}px`;
+                itemMirrorAreaEl.value.style.left = `${itemContentRect.left}px`;
+                itemMirrorAreaEl.value.style.width = `${itemContentRect.width}px`;
+                itemMirrorAreaEl.value.style.height = `${itemContentRect.height}px`;
+                itemMirrorAreaEl.value.style.zIndex = '1000';
+                itemMirrorAreaEl.value.style.opacity = '1';
+
+                popoverContentEl.value.style.visibility = 'visible';
+                popoverContentEl.value.style.transition = 'all 0.3s ease';
+                popoverContentEl.value.style.top = `${itemContentRect.top}px`;
+                popoverContentEl.value.style.left = `${itemContentRect.left}px`;
+                popoverContentEl.value.style.width = `${itemContentRect.width}px`;
+                popoverContentEl.value.style.height = `${itemContentRect.height}px`;
+                popoverContentEl.value.style.transform = 'unset';
+                popoverContentEl.value.style.zIndex = '1000';
+                popoverContentEl.value.style.opacity = '0';
+                setTimeout(() => {
+                    modalEl.value.$el.dismiss();
+                    setTimeout(async () => {
+                        await waitForNextTick();
+                        showModal.value = false;
+                    }, 300)
+                }, 300)
+            })
+        }
+        const doPop = () => {
+            requestAnimationFrame(() => {
+                if (!popoverSlotContainerEl.value){
+                    return;
+                }
+
+                popoverSlotContainerEl.value.style.transition = 'all 0.2s ease';
+                popoverSlotContainerEl.value.style.scale = '2';
+                popoverSlotContainerEl.value.style.zIndex = '1000';
+                popoverSlotContainerEl.value.style.opacity = '0';
+                setTimeout(() => {
+                    modalEl.value.$el.dismiss();
+                    setTimeout(async () => {
+                        await waitForNextTick();
+                        showModal.value = false;
+                    }, 300)
+                }, 300)
+            })
+
+
+
             setTimeout(() => {
                 modalEl.value.$el.dismiss();
                 setTimeout(async () => {
@@ -279,14 +312,28 @@ const closePeek = async () => {
                     showModal.value = false;
                 }, 300)
             }, 300)
-        })
-    }, 100);
-}
+        }
 
+
+        if (isDismiss){
+            doDismiss()
+        }else{
+            doPop();
+        }
+
+        
+    }, 100);
+    if (isDismiss){
+        emit('onDismiss');
+    }
+}
+const doPop = async () => {
+    emit('onPop');
+    closePeek(false);
+}
 
 const gestureCallbacks = {
     onStart: () => {
-        console.log('start');
     },
     onMove: (detail: GestureDetail) => {
         const popoverContentEl = ref(document.querySelector(`[global-register="ion-peek-pop-popover-content"]`));
@@ -397,9 +444,9 @@ const gestureCallbacks = {
 
 
         if (currentMovementChangePercentageX > 80 || currentMovementChangePercentageX < -80){
-            popoverContentEl.value.doClosePeek();
+            popoverContentEl.value.doClosePeek(true);
         }else if (currentMovementChangePercentageY > 45 || currentMovementChangePercentageY < -30){
-            popoverContentEl.value.doClosePeek();
+            popoverContentEl.value.doClosePeek(true);
         }
 
     
@@ -428,18 +475,6 @@ const gestureCallbacks = {
     }
 }
 onMounted(() => {
-    setTimeout(() => {
-        return;
-        gestureInstance.value = createGesture({
-            el: itemEl.value?.closest('ion-app'),
-            onStart: gestureCallbacks.onStart,
-            onMove: gestureCallbacks.onMove,
-            onEnd: gestureCallbacks.onEnd,
-            gestureName: 'gestureXId' + uniqueId.value,
-        });
-        gestureInstance.value.enable();
-    }, 100);
-
     watchableBackdrop = useWatchTouch(
         itemEl.value?.closest('ion-app'),
         (info) => {
@@ -459,7 +494,6 @@ onMounted(() => {
                 event: {} as any,
                 data: {}
             };
-            //console.log('move', detail)
             gestureCallbacks.onMove(detail);
         },
         (info) => {
@@ -470,7 +504,6 @@ onMounted(() => {
 
 })
 onUnmounted(() => {
-    //gestureInstance.value?.destroy();
     watchableBackdrop();
 })
 
@@ -536,6 +569,13 @@ ion-modal{
     -webkit-backdrop-filter: blur(1.5px);
 }
 
+
+.item{
+    &:has(.item-slot > ion-item){
+        width: 100%;
+    }
+}
+
 .popover-area{
     position: absolute;
     top: 0;
@@ -556,7 +596,6 @@ ion-modal{
     }
 }
 .popover-content{
-
     position: absolute;
     top: 50%;
     left: 50%;

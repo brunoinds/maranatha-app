@@ -158,12 +158,23 @@ const doPeek = async () => {
                     if (!popoverContentEl.value || !itemMirrorAreaEl.value){
                         return;
                     }
-                    popoverContentEl.value.style.position = 'absolute';
-                    popoverContentEl.value.style.transform = 'translateX(-50%) translateY(-50%)';
-                    popoverContentEl.value.style.top = '50%';
-                    popoverContentEl.value.style.left = '50%';
+                    console.log('Gligh')
+                    itemMirrorAreaEl.value.style.transition = 'unset';
+                    
+                    requestAnimationFrame(() => {
+                        if (!popoverContentEl.value || !itemMirrorAreaEl.value){
+                            return;
+                        }
+                        popoverContentEl.value.style.position = 'absolute';
 
-                    isReadyForMoveMoviments.value = true;
+                        popoverContentEl.value.style.top = '50%';
+                        popoverContentEl.value.style.left = '50%';
+                        popoverContentEl.value.style.transform = 'translateX(-50%) translateY(-50%)';
+                        isReadyForMoveMoviments.value = true;
+                    })
+
+                    
+
                 })
             }, 300)
         })
@@ -191,9 +202,11 @@ onMounted(() => {
             },
             onMove: (detail) => {
                 if (!popoverContentEl.value || !isReadyForMoveMoviments.value){
+                    console.log('No popoverContentEl');
                     return;
                 }
 
+                console.log('Details', detail)
                 const calculateMovementChangePercentageX = () => {
                     if (detail.deltaX > 0){
                         return (detail.currentX * 100) / window.innerWidth;

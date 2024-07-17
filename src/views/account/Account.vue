@@ -2,7 +2,7 @@
     <ion-page ref="page">
         <IonContextMenu trigger="account-info-btn">
                 <ion-context-menu-item :icon="close" label="Terminar sesión" color="danger" @click="doLogout"/>
-            </IonContextMenu>
+        </IonContextMenu>
         <ion-header>
             <ion-toolbar>
                 <ion-title>Mi cuenta</ion-title>
@@ -30,8 +30,6 @@
                         <ion-icon color="danger" :icon="close" slot="start"></ion-icon>
                         <ion-label color="danger">Terminar sesión</ion-label>
                     </ion-item>
-
-                    
                 </ion-list>
 
                 <ion-list v-if="!isLoading" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
@@ -81,6 +79,37 @@
 
                     
                 </ion-list>
+
+                <ion-list>
+                    <IonPeekPop>
+                        <template v-slot:item>
+                            <ion-item>
+                                <ion-label>Peek Pop</ion-label>
+                            </ion-item>
+                        </template>
+                        <template v-slot:popover>
+                            <ion-img :src="'https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg'"></ion-img>
+                        </template>
+                    </IonPeekPop>
+
+
+                    <IonPeekPop v-if="!isLoading">
+                        <template v-slot:item>
+                            <ion-item button>
+                                <ion-avatar slot="start">
+                                    <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+                                </ion-avatar>
+                                <ion-label>
+                                    <h2>{{ accountData.name }}</h2>
+                                    <p>{{ accountData.email }}</p>
+                                </ion-label>
+                            </ion-item>
+                        </template>
+                        <template v-slot:popover>
+                            <ion-img :src="'https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=0.752xw:1.00xh;0.175xw,0&resize=1200:*'"></ion-img>
+                        </template>
+                    </IonPeekPop>
+                </ion-list>
             </section>
         </ion-content>
         <ion-footer>
@@ -98,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonAvatar, IonContent, IonFooter, IonHeader, IonToggle, IonIcon,IonButton, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { IonAvatar, IonContent, IonFooter, IonHeader, IonToggle, IonImg, IonIcon,IonButton, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
 import { computed, onUnmounted, ref } from 'vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { Environment } from '@/utils/Environment/Environment';
@@ -112,6 +141,7 @@ import { LiveUpdates } from '@/utils/LiveUpdates/LiveUpdates';
 import { Theme } from '@/utils/Theme/Theme';
 import IonContextMenu from '@/components/IonContextMenu/IonContextMenu.vue';
 import IonContextMenuItem from '@/components/IonContextMenu/IonContextMenuItem.vue';
+import IonPeekPop from '@/components/IonPeekPop/IonPeekPop.vue';
 
 const aboutAppText = ref<string>(`  Code version: ${Environment.version()} \nNative version: ${Environment.storeVersioning().version} (${Environment.storeVersioning().build})`);
 const accountData = ref<any>(null);
@@ -122,6 +152,7 @@ const isAdmin = ref<boolean>(false);
 const isNotificationsNotAllowed = ref<boolean>(false);
 
 const isDarkModeActive = ref<boolean>(Theme.getTheme() == 'dark');
+
 
 
 const changeTheme = () => {

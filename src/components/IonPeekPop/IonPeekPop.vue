@@ -1,6 +1,6 @@
 <template>
     <button class="item" ref="itemEl" v-on-long-press.onMouseUp="onLongPressFinishCallbackDirective" v-on-long-press="[onLongPressStartCallbackDirective, { delay: 100, modifiers: { stop: true, prevent: true } }]">
-        <article class="item-protector" @click="onPressCallback"></article>
+        <article class="item-protector" ref="itemProtectorEl" @click="onPressCallback"></article>
         <article ref="itemContentEl" class="item-slot">
             <ion-button :id="uniqueId" v-show="false">Peek</ion-button>
             <slot name="item"></slot>
@@ -20,8 +20,7 @@
                                 <slot name="popover"></slot>
                             </article>
                         </section>
-                        
-                        <article class="popover-items" @click="closePeek(true)">
+                        <article class="popover-items" @click="closePeek(false)">
                             <slot name="contextmenu"></slot>
                         </article>
                     </article>
@@ -57,32 +56,32 @@ const itemMirrorAreaEl = ref<HTMLElement>();
 const isReadyForMoveMoviments = ref(false);
 const hasLongPress = ref(false);
 const popoverSlotContainerEl = ref<HTMLElement>();
+const itemProtectorEl = ref<HTMLElement>();
 const showModal = ref(false);
 let watchableBackdrop:any = null;
 const isOpened = ref(false);
-
-
-const props = defineProps({
-    
-})
 
 const emit = defineEmits(['onPeek', 'onPop', 'onDismiss']);
 
 const waitForNextTick = async () => {
     await nextTick();
 }
-
 const onPressCallback = (ev) => {
     if (hasLongPress.value) {
         ev.stopPropagation();
         ev.preventDefault();
         hasLongPress.value = false;
+        itemProtectorEl.value.style.zIndex = '-1';
         return;
     }
 }
 const onLongPressDone = () => {
     hasLongPress.value = true;
     doPeek();
+    setTimeout(() => {
+        itemProtectorEl.value.style.zIndex = '-1';
+        hasLongPress.value = false;
+    }, 100)
 }
 const onLongPressStartCallbackDirective = (ev) => {
     ev.stopPropagation();
@@ -226,6 +225,7 @@ const doPeek = async () => {
 }
 const closePeek = async (isDismiss: boolean) => {
     isReadyForMoveMoviments.value = false;
+    hasLongPress.value = false;
     setTimeout(() => {
         if (!popoverContentEl.value || !itemContentEl.value || !itemMirrorAreaEl.value){
             return;
@@ -664,6 +664,7 @@ ion-modal{
         bottom: 0;
         background: transparent;
         z-index: 1;
+
     }
 }
 

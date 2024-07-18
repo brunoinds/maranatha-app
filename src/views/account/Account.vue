@@ -76,82 +76,10 @@
 
                         <ion-button v-if="liveUpdates.state == 'ReadyToInstall'" @click="updateNow">Instalar ahora</ion-button>
                     </ion-item>
-
-                    
-                </ion-list>
-
-                <ion-list v-if="true">
-                    <br>
-
-                    <IonPeekPop v-if="!isLoading">
-                        <template v-slot:item>
-                            <ion-item button>
-                                <ion-avatar slot="start">
-                                    <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
-                                </ion-avatar>
-                                <ion-label>
-                                    <h2>{{ accountData.name }}</h2>
-                                    <p>{{ accountData.email }}</p>
-                                </ion-label>
-                            </ion-item>
-                        </template>
-                        <template v-slot:popover>
-                            <ion-img :src="'https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=0.752xw:1.00xh;0.175xw,0&resize=1200:*'"></ion-img>
-                        </template>
-                    </IonPeekPop>
-
-                    <IonPeekPop v-if="!isLoading">
-                        <template v-slot:item>
-                            <img width="100" :src="'https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=0.752xw:1.00xh;0.175xw,0&resize=1200:*'">
-                        </template>
-                        <template v-slot:popover>
-                            <ion-img  :src="'https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=0.752xw:1.00xh;0.175xw,0&resize=1200:*'"></ion-img>
-                        </template>
-                    </IonPeekPop>
-
-                    <IonPeekPop v-if="!isLoading">
-                        <template v-slot:item>
-                            <ion-item button>
-                                <ion-avatar slot="start">
-                                    <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
-                                </ion-avatar>
-                                <ion-label>
-                                    <h2>{{ accountData.name }}</h2>
-                                    <p>{{ accountData.email }}</p>
-                                </ion-label>
-                            </ion-item>
-                        </template>
-                        <template v-slot:popover>
-                            <ion-img :src="'https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=0.752xw:1.00xh;0.175xw,0&resize=1200:*'"></ion-img>
-                        </template>
-                    </IonPeekPop>
-
-
-                    <IonPeekPop>
-                        <template v-slot:item>
-                            <ion-item>
-                                <ion-label>Peek Pop</ion-label>
-                            </ion-item>
-                        </template>
-                        <template v-slot:popover>
-                            <ion-img :src="'https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg'"></ion-img>
-                        </template>
-                        <template v-slot:contextmenu>
-                            <ion-context-menu-item :icon="close" label="Terminar sesión" color="danger" @click="() => {console.log('Click')}"/>
-                            <ion-context-menu-item :icon="close" label="Terminar sesión" color="danger" @click="() => {console.log('Click')}"/>
-                            <ion-context-menu-item :icon="close" label="Terminar sesión" color="danger" @click="() => {console.log('Click')}"/>
-                            <ion-context-menu-item :icon="close" label="Terminar sesión" color="danger" @click="() => {console.log('Click')}"/>
-                        </template>
-                    </IonPeekPop>
-
                 </ion-list>
             </section>
         </ion-content>
         <ion-footer>
-            <ion-list>
-                
-            </ion-list>
-            
             <ion-toolbar class="version-toolbar">
                 <section class="ion-padding">
                     <pre style="font-size: 12px; color: darkgray; margin: 0">{{ aboutAppText }}</pre>

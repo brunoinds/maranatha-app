@@ -89,20 +89,43 @@
                 <section v-if="segmentValue == 'Mis Pedidos'">
                     <article  class="limiter">
                         <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                            <ion-item v-for="outcome in outcomesUI" button @click="openWarehouseOutcomeRequest(outcome)">
-                                <ion-label>
-                                    <h2><b>Pedido #00{{ outcome.id }}</b></h2>
-                                    <p>{{ outcome.date_ago }}</p>
-                                    <p><b>{{ outcome.products_count }} ítems solicitados</b></p>
-                                </ion-label>
 
-                                <ion-button size="default" fill="clear" v-if="outcome.chat.unseen_messages_count" @click="openWarehouseOutcomeRequestChat(outcome)">
-                                    <ion-icon slot="start" :icon="chatbubbleEllipsesOutline"></ion-icon>
-                                    {{ outcome.chat.unseen_messages_count }}
-                                </ion-button>
-                                
-                                <OutcomeRequestStatusChip slot="end" :request="outcome" :view-mode="'Requester'" />
-                            </ion-item>
+                            <IonPeekPop v-for="outcome in outcomesUI" @onPop="openWarehouseOutcomeRequest(outcome)">
+                                <template v-slot:item>
+                                    <ion-item button @click="openWarehouseOutcomeRequest(outcome)">
+                                        <ion-label>
+                                            <h2><b>Pedido #00{{ outcome.id }}</b></h2>
+                                            <p>{{ outcome.date_ago }}</p>
+                                            <p><b>{{ outcome.products_count }} ítems solicitados</b></p>
+                                        </ion-label>
+
+                                        <ion-button size="default" fill="clear" v-if="outcome.chat.unseen_messages_count" @click="openWarehouseOutcomeRequestChat(outcome)">
+                                            <ion-icon slot="start" :icon="chatbubbleEllipsesOutline"></ion-icon>
+                                            {{ outcome.chat.unseen_messages_count }}
+                                        </ion-button>
+                                        
+                                        <OutcomeRequestStatusChip slot="end" :request="outcome" :view-mode="'Requester'" />
+                                    </ion-item>
+                                </template>
+                                <template v-slot:popover>
+                                    <ion-item>
+                                        <ion-label>
+                                            <h2><b>Pedido #00{{ outcome.id }}</b></h2>
+                                            <p>{{ outcome.date_ago }}</p>
+                                            <p><b>{{ outcome.products_count }} ítems solicitados</b></p>
+                                        </ion-label>
+                                        <OutcomeRequestStatusChip slot="end" :request="outcome" :view-mode="'Requester'" />
+                                    </ion-item>
+                                </template>
+                                <template v-slot:contextmenu>
+                                    <ion-peek-pop-context-menu-item :icon="openOutline" label="Ver pedido"  @click="openWarehouseOutcomeRequest(outcome)"/>
+                                    <ion-peek-pop-context-menu-item :icon="chatbubbleEllipsesOutline" :label="'Abrir chat (' + outcome.chat.unseen_messages_count + ')'"  @click="openWarehouseOutcomeRequestChat(outcome)"/>
+                                </template>
+                            </IonPeekPop>
+
+
+
+                            
                         </ion-list>
 
                         <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
@@ -136,7 +159,7 @@ import CreateWarehouse from '@/dialogs/CreateWarehouse/CreateWarehouse.vue';
 import { IProduct, IProductsPack, IWarehouse, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
 import { Session } from '@/utils/Session/Session';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { addOutline, chatbubbleEllipsesOutline, logoDropbox, qrCodeOutline, storefrontOutline } from 'ionicons/icons';
+import { addOutline, chatbubbleEllipsesOutline, logoDropbox, qrCodeOutline, storefrontOutline, openOutline } from 'ionicons/icons';
 import TimeAgo from 'javascript-time-ago';
 import es from 'javascript-time-ago/locale/es';
 import { onMounted } from 'vue';
@@ -147,6 +170,8 @@ import EditInventoryProduct from '@/dialogs/EditInventoryProduct/EditInventoryPr
 import EditInventoryProductsPack from '@/dialogs/EditInventoryProductsPack/EditInventoryProductsPack.vue';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
+import IonPeekPop from '@/components/IonPeekPop/IonPeekPop.vue';
+import IonPeekPopContextMenuItem from '@/components/IonPeekPop/IonPeekPopContextMenuItem.vue';
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE');

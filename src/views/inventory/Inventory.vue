@@ -40,16 +40,35 @@
 
                         <article v-if="subSegmentValue == 'Productos'" class="limiter">
                             <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                                <ion-item  button v-for="product in productsData" :key="product.id" @click="editProduct(product)">
-                                    <ion-avatar slot="start" v-if="product.image">
-                                        <img :src="product.image" />
-                                    </ion-avatar>
-                                    <ion-label>
-                                        <h2>{{ product.name }}</h2>
-                                        <p>{{ product.description }}</p>
-                                        <p>{{ product.brand }}</p>
-                                    </ion-label>
-                                </ion-item>
+                                <IonPeekPop v-for="product in productsData" :key="product.id" @onPop="editProduct(product)">
+                                    <template v-slot:item>
+                                        <ion-item  button @click="editProduct(product)">
+                                            <ion-avatar slot="start" v-if="product.image">
+                                                <img :src="product.image" />
+                                            </ion-avatar>
+                                            <ion-label>
+                                                <h2>{{ product.name }}</h2>
+                                                <p>{{ product.description }}</p>
+                                                <p>{{ product.brand }}</p>
+                                            </ion-label>
+                                        </ion-item>
+                                    </template>
+                                    <template v-slot:popover>
+                                        <ion-item>
+                                            <ion-avatar slot="start" v-if="product.image">
+                                                <img :src="product.image" />
+                                            </ion-avatar>
+                                            <ion-label>
+                                                <h2>{{ product.name }}</h2>
+                                                <p>{{ product.description }}</p>
+                                                <p>{{ product.brand }}</p>
+                                            </ion-label>
+                                        </ion-item>
+                                    </template>
+                                    <template v-slot:contextmenu>
+                                        <ion-peek-pop-context-menu-item :icon="openOutline" label="Ver produto"  @click="editProduct(product)"/>
+                                    </template>
+                                </IonPeekPop>
                             </ion-list>
 
                             <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
@@ -89,7 +108,6 @@
                 <section v-if="segmentValue == 'Mis Pedidos'">
                     <article  class="limiter">
                         <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-
                             <IonPeekPop v-for="outcome in outcomesUI" @onPop="openWarehouseOutcomeRequest(outcome)">
                                 <template v-slot:item>
                                     <ion-item button @click="openWarehouseOutcomeRequest(outcome)">
@@ -122,10 +140,6 @@
                                     <ion-peek-pop-context-menu-item :icon="chatbubbleEllipsesOutline" :label="'Abrir chat (' + outcome.chat.unseen_messages_count + ')'"  @click="openWarehouseOutcomeRequestChat(outcome)"/>
                                 </template>
                             </IonPeekPop>
-
-
-
-                            
                         </ion-list>
 
                         <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
@@ -170,8 +184,8 @@ import EditInventoryProduct from '@/dialogs/EditInventoryProduct/EditInventoryPr
 import EditInventoryProductsPack from '@/dialogs/EditInventoryProductsPack/EditInventoryProductsPack.vue';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
-import IonPeekPop from '@/components/IonPeekPop/IonPeekPop.vue';
-import IonPeekPopContextMenuItem from '@/components/IonPeekPop/IonPeekPopContextMenuItem.vue';
+import {IonPeekPop, IonPeekPopContextMenuItem} from 'ion-peek-pop';
+import 'ion-peek-pop/styles.css';
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE');

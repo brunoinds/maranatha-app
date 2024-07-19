@@ -41,6 +41,8 @@ import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateInventoryProduct from '@/dialogs/CreateInventoryProduct/CreateInventoryProduct.vue';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
+import {IonPeekPop, IonPeekPopContextMenuItem} from 'ion-peek-pop';
+import 'ion-peek-pop/styles.css';
 
 const page = ref<HTMLElement|null>(null);
 const isLoading = ref<boolean>(false);

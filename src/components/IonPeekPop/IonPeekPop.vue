@@ -500,14 +500,10 @@ onMounted(() => {
             gestureCallbacks.onEnd();
         }
     );
-
-
 })
 onUnmounted(() => {
     watchableBackdrop();
 })
-
-window.oncontextmenu = function() { return false; }
 
 
 const enterAnimation = (baseEl: HTMLElement) => {

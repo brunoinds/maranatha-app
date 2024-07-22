@@ -5,6 +5,8 @@
                 <ion-select v-if="filter.value.type == 'dropdown'" :label="filter.value.name" v-model="filter.value.value">
                     <ion-select-option v-for="option in filter.value.options" :value="option.value">{{option.name}}</ion-select-option>
                 </ion-select>
+                <IonDateRangeMonthItem v-if="filter.value.type == 'daterangemonth'" :label="filter.value.name" :value="filter.value.value" v-model="filter.value.value"></IonDateRangeMonthItem>
+
                 <IonDateRangeItem v-if="filter.value.type == 'daterange'" :label="filter.value.name" :value="filter.value.value" v-model="filter.value.value"></IonDateRangeItem>
                 <IonDatetimeItem v-if="filter.value.type == 'date'" :label="filter.value.name" :value="filter.value.value" :presentation="filter.value.type"  v-model="filter.value.value"></IonDatetimeItem>
                 <ion-input v-if="filter.value.type == 'textbox'" :label="filter.value.name" v-model="filter.value.value"></ion-input>
@@ -25,6 +27,8 @@ import { IReport } from '@/interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
 import IonDateRangeItem from '@/components/IonDateRangeItem/IonDateRangeItem.vue';
+import IonDateRangeMonthItem from '@/components/IonDateRangeMonthItem/IonDateRangeMonthItem.vue';
+
 const accountsData = ref<any>(null);
 const isLoading = ref<boolean>(true);
 const router = useRouter();

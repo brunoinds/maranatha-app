@@ -502,7 +502,7 @@ const RecordsConfigs = {
                         id: 'date_range',
                         name: 'Rango Fechas',
                         isRequired: true,
-                        type: 'daterange',
+                        type: 'daterangemonth',
                         value: {
                             start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
                             end: DateTime.now().toFormat('yyyy-MM-dd')

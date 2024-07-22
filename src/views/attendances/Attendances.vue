@@ -100,7 +100,9 @@ const attendances = computed(() => {
 
 const attendancesGroupedUI = computed(() => {
     //Group attendances by from_date month/year:
-    const groupedAttendances = attendances.value.reduce((acc, attendance) => {
+    const groupedAttendances = attendances.value.sort((a, b) => {
+        return DateTime.fromFormat(b.from_date, 'dd/MM/yyyy').toMillis() - DateTime.fromFormat(a.from_date, 'dd/MM/yyyy').toMillis();
+    }).reduce((acc, attendance) => {
         const monthYear = DateTime.fromFormat(attendance.from_date, 'dd/MM/yyyy').toFormat('MM/yyyy');
         if (!acc[monthYear]){
             acc[monthYear] = [];

@@ -250,9 +250,7 @@ const userBalance = computed<UserBalanceComputed|null>(() => {
         return item;
     })
     
-    userBalance.items.sort((a:any, b:any) => {
-        return DateTime.fromISO(b.date).toUnixInteger() - DateTime.fromISO(a.date).toUnixInteger();
-    });
+    userBalance.items = userBalance.items.reverse();
 
     userBalance.totals = {
         credit: {

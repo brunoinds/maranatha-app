@@ -200,30 +200,21 @@ onMounted(() => {
 @keyframes openAnimation{
     0%{
         scale: 0%;
-    }
-
-    50%{
-        scale: 100%;
-    }
-    70%{
-        scale: 120%;
+        opacity: 0;
     }
     100%{
         scale: 100%;
+        opacity: 1;
     }
 }
 @keyframes closeAnimation{
     0%{
         scale: 100%;
-    }
-    30%{
-        scale: 120%;
-    }
-    50%{
-        scale: 100%;
+        opacity: 1;
     }
     100%{
         scale: 0%;
+        opacity: 0;
     }
 }
 .article{
@@ -284,10 +275,10 @@ onMounted(() => {
     }
 
     &.opening{
-        animation: openAnimation 0.3s cubic-bezier(0.1, 0.76, 0.55, 0.9);
+        animation: openAnimation 0.2s cubic-bezier(0.1, 0.76, 0.55, 0.9);
     }
     &.closing{
-        animation: closeAnimation 0.3s cubic-bezier(0.1, 0.76, 0.55, 0.9) forwards;
+        animation: closeAnimation 0.2s cubic-bezier(0.1, 0.76, 0.55, 0.9) forwards;
     }
 }
 

@@ -161,7 +161,7 @@ const saveReport = async () => {
     isLoading.value = true;
 
     RequestAPI.patch(`/reports/${props.reportId}`, {
-        user_id: (await Session.getCurrentSession())?.id(),
+        user_id: dynamicData.value.user_id,
         title: dynamicData.value.title,
         type: dynamicData.value.type,
         money_type: dynamicData.value.moneyType,

@@ -88,14 +88,16 @@ const dynamicData = ref<{
     startDate: string,
     endDate: string,
     moneyType: EMoneyType,
-    country: ECountryType
+    country: ECountryType,
+    user_id: number
 }>({
     title: '',
     type: EReportType.Bill,
     moneyType: EMoneyType.PEN,
     startDate: (DateTime.now().set({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString(),
     endDate: (DateTime.now().set({ day: 1}).plus({ month: 1}).minus({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString(),
-    country: ECountryType.PE
+    country: ECountryType.PE,
+    user_id: Session.getCurrentSessionSync()?.id() as number
 });
 
 const deleteReport = async () => {
@@ -231,7 +233,8 @@ const loadReport = () => {
             moneyType: response.money_type,
             startDate: DateTime.fromISO(response.from_date).toFormat("dd/MM/yyyy"),
             endDate: DateTime.fromISO(response.to_date).toFormat("dd/MM/yyyy"),
-            country: response.country
+            country: response.country,
+            user_id: response.user_id
         }
 
     }).catch((error) => {

@@ -54,7 +54,7 @@
     </ion-page>
 </template>
 
-<styles lang="scss" scoped>
+<style lang="scss" scoped>
 .viewport {
     display: flex;
     flex-direction: row;
@@ -74,7 +74,7 @@
         }
     }
 }
-</styles>
+</style>
 
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonSegment, IonSegmentButton, IonTitle, IonRefresher, IonRefresherContent, IonContent,IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';

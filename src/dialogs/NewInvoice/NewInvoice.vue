@@ -531,7 +531,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                     }
                     return array;
                 }
-                console.log(file.data)
+                console.log(file.data, file, convertDataURIToBinary(file.data));
                 const blob = await fetch(`${convertDataURIToBinary(file.data)}`).then(res => res.blob());
                 sourcePDF = blob
             }else{

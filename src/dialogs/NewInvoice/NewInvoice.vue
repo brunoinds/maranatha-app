@@ -535,7 +535,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                     return new Blob([byteArray], { type: 'application/pdf' });
                 }
 
-                const blob = await fetch(`${convertBase64toBlob(file.data)}`).then(res => res.blob());
+                const blob = convertBase64toBlob(file.data);
                 sourcePDF = blob
             }else{
                 sourcePDF = file.blob as Blob;

@@ -346,7 +346,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                     }
                     return array;
                 }
-                const blob = await fetch(`${file.data}`).then(res => res.blob());
+                const blob = await fetch(`${convertDataURIToBinary(file.data)}`).then(res => res.blob());
                 sourcePDF = blob
             }else{
                 sourcePDF = file.blob as Blob;

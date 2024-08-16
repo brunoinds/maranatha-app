@@ -671,7 +671,7 @@ interface UserBalance{
         model: string;
         amount: number;
         balance_here: number;
-        receipt_image_url: string|null;
+        receipt_url: string|null;
     }>;
     petty_cash: {
         given_amount: number;
@@ -769,7 +769,8 @@ interface UserBalanceComputed{
         };
         icon: any;
         color: string;
-        receipt_image_url: string|null;
+        receipt_url: string|null;
+        receipt_type: string|null;
     }>;
     petty_cash: {
         given_amount: string;
@@ -895,18 +896,36 @@ const loadUserBalanceYear = async () => {
     }
 }
 
-const showBalanceReceiptImage = async (balance: UserBalanceComputed['items'][0]) => {
-    RequestAPI.get('/balances/' + balance.id + "/receipt-image").then((response) => {
-        const imageBase64 = "data:image/png;base64," + response.image;
+const showBalanceReceipt = async (balance: UserBalanceComputed['items'][0]) => {
+    RequestAPI.get('/balances/' + balance.id + "/receipt").then((response) => {
+        if (!response.has_receipt){
+            alertController.create({
+                header: 'Oops...',
+                message: 'No se encontró el voucher de depósito',
+                buttons: ['OK']
+            }).then((alert) => {
+                alert.present();
+            });
+            return;
+        }
 
-        const filename = `Voucher ${balance.description}.png`;
+        let filename = `Voucher ${balance.description}`;
+
+        let dataBase64 = '';
+        if (response.type == 'Image'){
+            dataBase64 = "data:image/png;base64," + response.data;
+            filename = filename + '.png';
+        }else{
+            dataBase64 = "data:application/pdf;base64," + response.data;
+            filename = filename + '.pdf';
+        }
 
         if (Capacitor.isNativePlatform()){
-            Toolbox.openNative(filename, response.image);
+            Toolbox.openNative(filename, response.data);
         }else{
             //Create blob file from base64 image:
-            const byteString = atob(imageBase64.split(',')[1]);
-            const mimeString = imageBase64.split(',')[0].split(':')[1].split(';')[0];
+            const byteString = atob(dataBase64.split(',')[1]);
+            const mimeString = dataBase64.split(',')[0].split(':')[1].split(';')[0];
             const ab = new ArrayBuffer(byteString.length);
             const dw = new DataView(ab);
             for (let i = 0; i < byteString.length; i++) {
@@ -921,7 +940,6 @@ const showBalanceReceiptImage = async (balance: UserBalanceComputed['items'][0])
             link.click();
             document.body.removeChild(link);
         }
-
     })
 }
 
@@ -936,13 +954,13 @@ const openBalance = async (balance: UserBalanceComputed['items'][0]) => {
         }
     ]
 
-    if (balance.receipt_image_url){
+    if (balance.receipt_url){
         buttons = [
             {
                 text: 'Ver voucher de depósito',
                 role: 'ok',
                 handler: () => {
-                    showBalanceReceiptImage(balance)
+                    showBalanceReceipt(balance)
                 }
             },
             ...buttons

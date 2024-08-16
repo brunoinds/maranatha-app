@@ -180,7 +180,7 @@
 
 
                                 <br><br>
-                                <ion-button expand="block" color="light" @click="downloadBalanceReceiptImage">
+                                <ion-button expand="block" color="light" @click="downloadBalanceReceipt">
                                     <ion-icon slot="start" :icon="documentTextOutline"></ion-icon>
                                     Ver comprobante de depósito
                                 </ion-button>
@@ -1028,7 +1028,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
         actionSheet.present();
     })
 }
-const downloadBalanceReceiptImage = async () => {
+const downloadBalanceReceipt = async () => {
     isLoading.value = true;
 
     const response = await RequestAPI.get('/balance/reports/' + report.value.id + '/balances');
@@ -1052,13 +1052,13 @@ const downloadBalanceReceiptImage = async () => {
         return;
     }
 
-    await showBalanceReceiptImage(restitutionBalance);
+    await showBalanceReceipt(restitutionBalance);
 
     isLoading.value = false;
-    async function showBalanceReceiptImage(balance: any){
-        const response = await RequestAPI.get('/balances/' + balance.id + "/receipt-image");
+    async function showBalanceReceipt(balance: any){
+        const response = await RequestAPI.get('/balances/' + balance.id + "/receipt");
 
-        if (!response.image){
+        if (!response.has_receipt){
             alertController.create({
                 header: 'Número de Transacción',
                 message: restitutionBalance.ticket_number,
@@ -1075,16 +1075,23 @@ const downloadBalanceReceiptImage = async () => {
         }
 
 
-        const imageBase64 = "data:image/png;base64," + response.image;
+        let filename = `Voucher ${balance.description}`;
 
-        const filename = `Voucher ${balance.description}.png`;
+        let dataBase64 = '';
+        if (response.type == 'Image'){
+            dataBase64 = "data:image/png;base64," + response.data;
+            filename = filename + '.png';
+        }else{
+            dataBase64 = "data:application/pdf;base64," + response.data;
+            filename = filename + '.pdf';
+        }
 
         if (Capacitor.isNativePlatform()){
-            Toolbox.openNative(filename, response.image);
+            Toolbox.openNative(filename, response.data);
         }else{
             //Create blob file from base64 image:
-            const byteString = atob(imageBase64.split(',')[1]);
-            const mimeString = imageBase64.split(',')[0].split(':')[1].split(';')[0];
+            const byteString = atob(dataBase64.split(',')[1]);
+            const mimeString = dataBase64.split(',')[0].split(':')[1].split(';')[0];
             const ab = new ArrayBuffer(byteString.length);
             const dw = new DataView(ab);
             for (let i = 0; i < byteString.length; i++) {

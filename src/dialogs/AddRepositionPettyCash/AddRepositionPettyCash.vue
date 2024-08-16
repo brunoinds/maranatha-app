@@ -13,6 +13,7 @@
             <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
         <ion-content>
+
             <section class="ion-padding">
                 <section class="ion-padding deposit-camp">
                     <CurrencyInput ref="currencyInput" class="native-input sc-ion-input-ios" style="text-align: center; font-size: 48px;" :disabled="true" v-model="dynamicData.amount" :options="{ currency: moneyType, autoDecimalDigits: false, currencyDisplay: 'narrowSymbol', locale: 'es-PE', hideCurrencySymbolOnFocus: false }"></CurrencyInput>
@@ -39,12 +40,16 @@
                 <section>
                     <ion-list v-if="dynamicData.receiptBase64 != null">
                         <ion-item>
-                            <ion-thumbnail slot="start">
+                            <ion-thumbnail slot="start" v-if="dynamicData.receiptType == 'Image'">
                                 <ion-img :src="'data:image/jpeg;base64,' + dynamicData.receiptBase64"></ion-img>
                             </ion-thumbnail>
-                            <ion-button fill="outline" color="danger" @click="dynamicData.receiptBase64 = null"> 
+
+                            <ion-icon  slot="start" v-if="dynamicData.receiptType == 'Pdf'" :icon="documentOutline"></ion-icon>
+                            <ion-label v-if="dynamicData.receiptType == 'Pdf'">Documento adjunto</ion-label>
+
+                            <ion-button fill="outline" color="danger" @click="dynamicData.receiptBase64 = null; dynamicData.receiptType = null;"> 
                                 <ion-icon slot="start" :icon="trashBinOutline"></ion-icon>
-                                Borrar Foto del Voucher
+                                Borrar Voucher
                             </ion-button>
                         </ion-item>
                     </ion-list>
@@ -65,7 +70,7 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController, actionSheetController } from '@ionic/vue';
 import { defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
-import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
+import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash, documentOutline, receipt } from 'ionicons/icons';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { vMaska } from "maska";
 import { DateTime } from 'luxon';
@@ -110,13 +115,15 @@ const dynamicData = ref<{
     amount: number,
     date: string,
     ticketNumber: string,
-    receiptBase64: string|null
+    receiptBase64: string|null,
+    receiptType: null|string
 }>({
     description: 'Reembolso de reporte "' + props.report.title + '"',
     amount: props.totalAmount,
     date: (DateTime.now().toFormat("dd/MM/yyyy") as unknown as string).toString(),
     ticketNumber: '',
-    receiptBase64: null
+    receiptBase64: null,
+    receiptType: null
 });
 
 const createDeposit = async () => {
@@ -152,7 +159,8 @@ const createDeposit = async () => {
                 minute: DateTime.now().minute,
                 second: DateTime.now().plus({ second: 1}).second,
             }).toISO(),
-            receipt_base64: dynamicData.value.receiptBase64
+            receipt_base64: dynamicData.value.receiptBase64,
+            receipt_type: dynamicData.value.receiptType,
         }).then((response) => {
             props.emitter.fire('created', {
                 ...response.balance
@@ -222,10 +230,11 @@ const loadReceiptImage = async () => {
         });
 
         return {
-            webPath: image.webPath as unknown as string
+            webPath: image.webPath as unknown as string,
+            type: 'Image'
         }
     }
-    const getPDFImage = async () => {
+    const getPDFFile = async () => {
         return new Promise(async (resolve, reject) => {
             const result = await FilePicker.pickFiles({
                 types: ['application/pdf'],
@@ -237,7 +246,7 @@ const loadReceiptImage = async () => {
                 return;
             }
             const file = result.files[0];
-            let sourcePDF = null;
+            let sourcePDF:null|Blob = null;
 
             if (Capacitor.isNativePlatform()){
                 function convertDataURIToBinary(base64:string) {
@@ -249,22 +258,16 @@ const loadReceiptImage = async () => {
                     }
                     return array;
                 }
-
-                sourcePDF = {data: convertDataURIToBinary(file.data as string)}
+                const blob = await fetch(`${file.data}`).then(res => res.blob());
+                sourcePDF = blob
             }else{
-                const url = URL.createObjectURL(file.blob as Blob);
-                sourcePDF = url;
+                sourcePDF = file.blob as Blob;
             }
-            const pdf = await PDFModifier.loadPDF(sourcePDF);
-
-            const imageBase64 = await pdf.extractPagesIntoSingleImageAsBase64();
-
-            //Convert base64image into objectUrl:
-            const blob = await fetch(`${imageBase64}`).then(res => res.blob());
-            const blobUrl = URL.createObjectURL(blob);
+            const blobUrl = URL.createObjectURL(sourcePDF);
             resolve({
                 path: blobUrl,
-                webPath: blobUrl
+                webPath: blobUrl,
+                type: 'PDF'
             })
         })
     }
@@ -284,8 +287,8 @@ const loadReceiptImage = async () => {
                     {
                         text: 'PDF',
                         handler: () => {
-                            getPDFImage().then((image) => {
-                                resolve(image)
+                            getPDFFile().then((pdf) => {
+                                resolve(pdf)
                             })
                         }
                     },
@@ -301,29 +304,57 @@ const loadReceiptImage = async () => {
         
     }
 
-    const image = await getImageOrPDF() as any;
+    const response = await getImageOrPDF() as any;
 
-    isLoadingImageCompression.value = true;
-    const response = await fetch(image.webPath as unknown as string);
-    const blob = await response.blob();
-    const file = new File([blob], "image.jpg", {type: blob.type});
+    const content = await fetch(response.webPath as unknown as string);
+    const contentBlob = await content.blob();
+
+    if (response.type == 'Image'){
+        isLoadingImageCompression.value = true;
+        const file = new File([contentBlob], "image.jpg", {type: contentBlob.type});
 
 
-    imageCompression(file, {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1024
-    }).then((compressedFile) => {
-        new Promise((resolve, reject) => {
+        imageCompression(file, {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1024
+        }).then((compressedFile) => {
+            new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(compressedFile);
+            }).then((base64ImagePre) => {
+                const base64Image = (base64ImagePre as string).split(";base64,")[1];
+                dynamicData.value.receiptBase64 = base64Image;
+                dynamicData.value.receiptType = 'Image';
+                isLoadingImageCompression.value = false;
+            })
+        })
+    }else{
+        const base64PdfPre = await (new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onloadend = () => resolve(reader.result);
             reader.onerror = reject;
-            reader.readAsDataURL(compressedFile);
-        }).then((base64ImagePre) => {
-            const base64Image = (base64ImagePre as string).split(";base64,")[1];
-            dynamicData.value.receiptBase64 = base64Image;
+            reader.readAsDataURL(contentBlob);
+        }))
+
+        const base64Pdf = (base64PdfPre as string).split(";base64,")[1];
+        const pdfSize = (base64Pdf.length * (3/4)) / 1000000;
+
+        if (pdfSize >= 4){
+            alertController.create({
+                header: "Oops...",
+                message: "El archivo PDF es muy pesado, por favor, suba un documento más ligero (límite de 4MB)",
+                buttons: ["OK"]
+            }).then((alert) => {
+                alert.present();
+            })
             isLoadingImageCompression.value = false;
-        })
-    })
+            return;
+        }
+        dynamicData.value.receiptType = 'Pdf';
+        dynamicData.value.receiptBase64 = base64Pdf;
+    }
 }
 </script>
 

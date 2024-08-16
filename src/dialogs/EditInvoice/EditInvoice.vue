@@ -29,7 +29,6 @@
 
 
                             <ion-img v-if="dynamicData.uploadedImageBase64" :src="'data:image/jpeg;base64,' + dynamicData.uploadedImageBase64"></ion-img>
-
                             <ion-list v-if="dynamicData.uploadedImageBase64">
                                 <ion-item button @click="deleteImageFromCamera" v-if="!readonly"> 
                                     <ion-icon  color="danger" slot="start" :icon="trashBinOutline"></ion-icon>
@@ -38,7 +37,22 @@
                                     </ion-label>
                                 </ion-item>
                             </ion-list>
-                            <section class="ion-padding" v-if="!dynamicData.uploadedImageBase64 && !isLoadingImageCompression" style="display: flex; align-content: center; justify-content: space-between;">
+
+                            <ion-list v-if="dynamicData.uploadedPdfBase64">
+                                <ion-item button @click="previewPdfFile"> 
+                                    <ion-icon color="primary" slot="start" :icon="documentOutline"></ion-icon>
+                                    <ion-label>
+                                        <h2>Archivo PDF</h2>
+                                        <p>Tamaño de {{ pdfUI.size }}</p>
+                                    </ion-label>
+                                    <ion-button color="danger" slot="end" @click="deletePdfFromStore">
+                                        <ion-icon slot="icon-only" :icon="trashBinOutline"></ion-icon>
+                                    </ion-button>
+                                </ion-item>
+                            </ion-list> 
+
+
+                            <section class="ion-padding" v-if="(!dynamicData.uploadedImageBase64 && !dynamicData.uploadedPdfBase64) && !isLoadingImageCompression" style="display: flex; align-content: center; justify-content: space-between;">
                                 <ion-button expand="block" fill="outline" @click="openCamera()" style="width: 100%;"> 
                                     <ion-icon slot="start" :icon="camera"></ion-icon>
                                     Tomar Foto de la {{invoiceType}}
@@ -107,43 +121,34 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle,IonButtons, IonThumbnail, IonAccordion, IonAccordionGroup, IonContent, IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController, actionSheetController } from '@ionic/vue';
-import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
-import { EInvoiceType, IInvoice } from '../../interfaces/InvoiceInterfaces';
-import { IJob, IExpense, EExpenseUses } from '../../interfaces/JobsAndExpensesInterfaces';
-import { briefcaseOutline, trashBinOutline, camera, cameraOutline, arrowForward, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash, attachOutline } from 'ionicons/icons';
+import { actionSheetController, alertController, IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonContent, IonDatetime, IonHeader, IonIcon, IonImg, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, toastController } from '@ionic/vue';
+import { attachOutline, camera, checkmarkCircleOutline, documentOutline, qrCodeOutline, trashBinOutline } from 'ionicons/icons';
+import { computed, onMounted, ref } from 'vue';
+import { IInvoice } from '../../interfaces/InvoiceInterfaces';
+import { EExpenseUses, IExpense, IJob } from '../../interfaces/JobsAndExpensesInterfaces';
 
-import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
-//import { Money3Component } from 'v-money3';
-import { vMaska } from "maska";
-import { DateTime } from "luxon";
-import { QRCodeParser } from '@/utils/QRCodeParser/QRCodeParser';
 import CurrencyInput from '@/components/CurrencyInput/CurrencyInput.vue';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
-import { TStorage } from '@/utils/Toolbox/TStorage';
-
-import { BarcodeDetect }  from '@/utils/BarcodeDetect/BarcodeDetect';
-import {
-    BarcodeScanner,
-    BarcodeFormat,
-    LensFacing,
-} from '@capacitor-mlkit/barcode-scanning';
-import imageCompression from 'browser-image-compression';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
+import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
+import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
+import { QRCodeParser } from '@/utils/QRCodeParser/QRCodeParser';
+import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import imageCompression from 'browser-image-compression';
+import { DateTime } from "luxon";
 
 
-import { DocumentScanner } from 'capacitor-document-scanner'
-import { Capacitor } from '@capacitor/core';
-import { Session } from '@/utils/Session/Session';
-import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
-import { StoredInvoices } from '@/utils/Stored/StoredInvoices';
-import { FilePicker } from '@capawesome/capacitor-file-picker';
-import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
-import { IReport } from '@/interfaces/ReportInterfaces';
-import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
+import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
+import { IReport } from '@/interfaces/ReportInterfaces';
+import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import { Capacitor } from '@capacitor/core';
+import { FilePicker } from '@capawesome/capacitor-file-picker';
+import { DocumentScanner } from 'capacitor-document-scanner';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import humanFormat from 'human-format';
 
 const onDatePickerChange = (event: CustomEvent) => {
     const date = event.detail.value.split('T')[0];
@@ -158,15 +163,19 @@ const isLoadingImageCompression = ref<boolean>(true);
 const dynamicData = ref<{
     uploadedImageBase64: null | string,
     originalImageBase64: null | string,
+    uploadedPdfBase64: null | string,
+    originalPdfBase64: null | string,
     formErrors: Array<{field: string, message: string}>,
     status: "idle" | "uploading-image" | "creating-invoice" | "success" | "error",
     datetimePickerDate: string
 }>({
     uploadedImageBase64: null,
     originalImageBase64: null,
+    uploadedPdfBase64: null,
+    originalPdfBase64: null,
     formErrors: [],
     status: "idle",
-    datetimePickerDate: DateTime.now().toISO()
+    datetimePickerDate: DateTime.now().toISO() as unknown as string
 })
 const props = defineProps({
     invoice: {
@@ -190,41 +199,28 @@ const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
     jobs: [],
     expenses: []
 });
-const jobsAndExpensesSelector = computed(() => {
-    return {
-        jobs: jobsAndExpenses.value.jobs,
-        expenses: (() => {
-            if (invoice.value.job_code.startsWith('000')){
-                return jobsAndExpenses.value.expenses.filter((expense) => {
-                    return expense.code.length == 3;
-                })
-            }else{
-                return jobsAndExpenses.value.expenses.filter((expense) => {
-                    return expense.code.length != 3;
-                })
-            }
-        })()
-    }
-})
-
-
 const invoice = ref<IInvoice>({
     ...props.invoice,
     date: DateTime.fromISO(props.invoice.date).toFormat("dd/MM/yyyy").toString(),
 });
-
-
 const invoiceType = computed(() => {
     return invoice.value.type === "Bill" ? "Boleta" : "Factura";
 })
 const stepsChecks = computed(() => {
     return {
-        first: dynamicData.value.uploadedImageBase64 !== null ? true : false,
+        first: (dynamicData.value.uploadedImageBase64 !== null || dynamicData.value.uploadedPdfBase64 !== null) ? true : false,
         second: (invoice.value.description.length !== 0 && invoice.value.date.length !== 0 && invoice.value.ticket_number.length !== 0 && invoice.value.commerce_number.length !== 0 && invoice.value.amount !== 0) ? true : false,
         third: (invoice.value.job_code.length !== 0 && invoice.value.expense_code.length !== 0) ? true : false
     }
 })
-
+const pdfUI = computed(() => {
+    const pdfSize = (dynamicData.value.uploadedPdfBase64) ? dynamicData.value.uploadedPdfBase64.length : 0;
+    //As the file is a base64, the real file size is 4/3 of the base64 size:
+    const pdfSizeInBytes = (pdfSize * 3) / 4;
+    return {
+        size: humanFormat(pdfSizeInBytes, {unit: 'B', decimals: 2}),
+    }
+})
 
 
 const setBarcodeData = (qrCodeContent:string) => {
@@ -338,7 +334,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 return;
             }
             const file = result.files[0];
-            let sourcePDF = null;
+            let sourcePDF:null|Blob = null;
 
             if (Capacitor.isNativePlatform()){
                 function convertDataURIToBinary(base64:string) {
@@ -350,19 +346,25 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                     }
                     return array;
                 }
-
-                sourcePDF = {data: convertDataURIToBinary(file.data as string)}
+                const blob = await fetch(`${file.data}`).then(res => res.blob());
+                sourcePDF = blob
             }else{
-                const url = URL.createObjectURL(file.blob as Blob);
-                sourcePDF = url;
+                sourcePDF = file.blob as Blob;
             }
+            const blobUrl = URL.createObjectURL(sourcePDF);
+            resolve({
+                path: blobUrl,
+                webPath: blobUrl,
+            })
+
+
+            return;
             const pdf = await PDFModifier.loadPDF(sourcePDF);
 
             const imageBase64 = await pdf.extractPagesIntoSingleImageAsBase64();
 
             //Convert base64image into objectUrl:
             const blob = await fetch(`${imageBase64}`).then(res => res.blob());
-            const blobUrl = URL.createObjectURL(blob);
             resolve({
                 path: blobUrl,
                 webPath: blobUrl,
@@ -443,6 +445,45 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             
         })
     }
+    const loadPdfFrom = async (pdf: {path: string, webPath: string}) => {
+        isLoadingImageCompression.value = true;
+        const response = await fetch(pdf.webPath as unknown as string);
+        const blob = await response.blob();
+
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        }).then((base64PdfPre) => {
+            const base64Pdf = (base64PdfPre as string).split(";base64,")[1];
+            const pdfSize = (base64Pdf.length * (3/4)) / 1000000;
+
+            if (pdfSize >= 4){
+                alertController.create({
+                    header: "Oops...",
+                    message: "El archivo PDF es muy pesado, por favor, suba un documento más ligero (límite de 4MB)",
+                    buttons: ["OK"]
+                }).then((alert) => {
+                    alert.present();
+                })
+                isLoadingImageCompression.value = false;
+                return;
+            }
+            dynamicData.value.uploadedPdfBase64 = base64Pdf;
+            accordionGroup.value.$el.value = "second";
+        }).catch((error) => {
+            isLoadingImageCompression.value = false;
+            alertController.create({
+                header: "Oops...",
+                message: "No se pudo cargar el PDF",
+                buttons: ["OK"]
+            }).then((alert) => {
+                alert.present();
+            })
+        })
+        isLoadingImageCompression.value = false;
+    }
 
     if (forceFromGallery){
         actionSheetController.create({
@@ -451,8 +492,8 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 {
                     text: "Subir PDF",
                     handler: () => {
-                        openPDFPicker().then(async (image) => {
-                            await loadImageFrom(image as unknown as any, "Web");
+                        openPDFPicker().then(async (pdf) => {
+                            await loadPdfFrom(pdf as unknown as any);
                         })
                     }
                 },
@@ -485,11 +526,14 @@ const openCamera = async (forceFromGallery: boolean = false) => {
 const deleteImageFromCamera = () => {
     dynamicData.value.uploadedImageBase64 = null;
 }
+const deletePdfFromStore = () => {
+    dynamicData.value.uploadedPdfBase64 = null;
+}
 
 const validateData = async () => {
     const formErrors: Array<{field: string, message: string}> = [];
 
-    if (!dynamicData.value.uploadedImageBase64){
+    if (!dynamicData.value.uploadedImageBase64 && !dynamicData.value.uploadedPdfBase64){
         formErrors.push({
             field: "image",
             message: "La foto de la " + invoiceType + " es requerida"
@@ -579,6 +623,7 @@ const saveInvoice = async () => {
             id: 0,
             date: DateTime.fromFormat(invoice.value.date, "dd/MM/yyyy").toISO(),
             image_base64: dynamicData.value.originalImageBase64 == dynamicData.value.uploadedImageBase64 ? null : dynamicData.value.uploadedImageBase64,
+            pdf_base64: dynamicData.value.originalPdfBase64 == dynamicData.value.uploadedPdfBase64 ? null : dynamicData.value.uploadedPdfBase64
         } as unknown as IInvoice;
 
 
@@ -628,6 +673,19 @@ const loadImage = async () => {
     isLoading.value = false;
 }
 
+const loadPdf = async () => {
+    isLoadingImageCompression.value = true;
+    isLoading.value = true;
+    const response = await RequestAPI.get("/invoices/" + invoice.value.id + "/pdf");
+
+    if (response.pdf){
+        dynamicData.value.uploadedPdfBase64 = response.pdf;
+        dynamicData.value.originalPdfBase64 = response.pdf;
+    }
+    isLoading.value = false;
+    isLoadingImageCompression.value = false;
+}
+
 const openJobSelector = (origin: string, data:any) => {
     Dialog.show(JobSelector, {
         props: {
@@ -670,17 +728,53 @@ const openExpenseSelector = () => {
     })
 }
 
+const previewPdfFile = () => {
+    if (!dynamicData.value.uploadedPdfBase64){
+        return;
+    }
+    if (Capacitor.isNativePlatform()){
+        Toolbox.openNative('archivo-pdf.pdf', dynamicData.value.uploadedPdfBase64 as string);
+    }else{
+        function base64ToBlob(base64, mimeType = 'application/pdf') {
+            const byteCharacters = atob(base64);
+            const byteNumbers = new Array(byteCharacters.length);
+            
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            
+            const byteArray = new Uint8Array(byteNumbers);
+            return new Blob([byteArray], { type: mimeType });
+        }
+        //Generate a Blob from the base64:
+        const base64 = dynamicData.value.uploadedPdfBase64 as string;
+        const blob = base64ToBlob(base64);
+
+        //Create a URL from the Blob:
+        const blobUrl = URL.createObjectURL(blob);
+
+        let link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = 'archivo-pdf.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+}
+
 onMounted(async () => {
     isLoading.value = false;
     setTimeout(() => {
         accordionGroup.value.$el.value = "first";
     }, 100);
     loadJobsAndExpenses();
-    loadImage();
+    dynamicData.value.datetimePickerDate = DateTime.fromISO(props.invoice.date).toISODate()?.toString() as unknown as string;
 
-    dynamicData.value.datetimePickerDate = DateTime.fromISO(props.invoice.date).toISODate()?.toString();
-
-
+    if (props.invoice.image){
+        loadImage();
+    }else if (props.invoice.pdf){
+        loadPdf();
+    }
 })
 </script>
 

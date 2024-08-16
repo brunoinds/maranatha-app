@@ -18,7 +18,9 @@ value: any;
     amount: number,
     qrcode_data: string,
     image: string|null,
-    image_size: number|null
+    image_size: number|null,
+    pdf: string|null,
+    pdf_size: number|null,
 }
 
 interface INewInvoice{
@@ -32,7 +34,8 @@ interface INewInvoice{
     expense_code: string,
     amount: number,
     qrcode_data: string,
-    image: string|null
+    image: string|null,
+    pdf: string|null,
 }
 
 

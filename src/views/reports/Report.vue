@@ -426,7 +426,7 @@ const addInvoice = async () => {
     const checkExtrapolatePdfSize = () => {
         //Sum invoices.image_size (bytes), check if the sum is greater than 22MB:
         const sum = invoices.value.reduce((total, invoice) => {
-            return total + (invoice.image_size || 0);
+            return total + (invoice.image_size || 0) + (invoice.pdf_size || 0);
         }, 0);
 
         const isExtrapolatePdfSize = (sum > 22000000); // 22000000

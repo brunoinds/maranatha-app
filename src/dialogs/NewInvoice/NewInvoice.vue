@@ -522,7 +522,6 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             let sourcePDF:null|Blob = null;
 
             if (Capacitor.isNativePlatform()){
-                //Convert base64 to blob:
                 const convertBase64toBlob = (base64: string) => {
                     const byteCharacters = atob(base64);
                     const byteNumbers = new Array(byteCharacters.length);

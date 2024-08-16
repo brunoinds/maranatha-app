@@ -522,17 +522,20 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             let sourcePDF:null|Blob = null;
 
             if (Capacitor.isNativePlatform()){
-                function convertDataURIToBinary(base64:string) {
-                    const raw = window.atob(base64);
-                    const rawLength = raw.length;
-                    const array = new Uint8Array(new ArrayBuffer(rawLength));
-                    for(let i = 0; i < rawLength; i++) {
-                        array[i] = raw.charCodeAt(i);
+                //Convert base64 to blob:
+                const convertBase64toBlob = (base64: string) => {
+                    const byteCharacters = atob(base64);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
                     }
-                    return array;
+                    
+                    const byteArray = new Uint8Array(byteNumbers);
+                    return new Blob([byteArray], { type: 'application/pdf' });
                 }
-                console.log(file.data, file, convertDataURIToBinary(file.data));
-                const blob = await fetch(`${convertDataURIToBinary(file.data)}`).then(res => res.blob());
+
+                const blob = await fetch(`${convertBase64toBlob(file.data)}`).then(res => res.blob());
                 sourcePDF = blob
             }else{
                 sourcePDF = file.blob as Blob;

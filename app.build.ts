@@ -353,6 +353,8 @@ class CapacitorDeployer{
 
 
 class CLI{
+
+    //run: npm run cli cap build ios
     public static commands = [
         'cap build',
         'cap open',

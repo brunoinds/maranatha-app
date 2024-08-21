@@ -49,18 +49,20 @@
                     </ion-label>
                 </ion-item>
                 <section slot="content">
-                    <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                        <ion-item v-for="report in userReports.reports" :key="report.id" button @click="openReport(report.id)" :detail="true">
-                            <ion-label>
-                                    <h2><b>{{ report.title }}</b></h2>
-                                    <p>{{report.reportType}}</p>
-                                    <p>{{report.reportDates}}</p>
-                                    <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
-
-                                </ion-label>
-                                <ReportStatusChip :report="report"></ReportStatusChip>
-                        </ion-item>
-                    </ion-list>
+                    <article v-for="monthYearReports  in userReports.reports">
+                        <ion-list-header>{{ monthYearReports.monthYearText }}</ion-list-header>
+                        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                            <ion-item v-for="report in monthYearReports.reports" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                                <ion-label>
+                                        <h2><b>{{ report.title }}</b></h2>
+                                        <p>{{report.reportType}}</p>
+                                        <p>{{report.reportDates}}</p>
+                                        <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
+                                    </ion-label>
+                                    <ReportStatusChip :report="report"></ReportStatusChip>
+                            </ion-item>
+                        </ion-list>
+                    </article>
                 </section>
             </ion-accordion>
         </ion-accordion-group>
@@ -113,10 +115,38 @@ const usersReports = computed(() => {
     //Convert this key-value object to an array of objects, please:
 
     const reportsGroupedByUserArray = Object.keys(reportsGroupedByUser).map((key) => {
+        const usersReportsMonths = reportsGroupedByUser[key].reduce((acc: any, report: IReport) => {
+            const monthYear = DateTime.fromISO(report.from_date).toFormat('yyyy MM');
+            if (!acc[monthYear]){
+                acc[monthYear] = [];
+            }
+            acc[monthYear].push(report);
+            return acc;
+        }, {});
+
+        const usersReportsMonthsArrayOfObjects = Object.keys(usersReportsMonths).map((key) => {
+            return {
+                monthYear: key,
+                monthYearText: DateTime.fromFormat(key, 'yyyy MM').toFormat('MMMM yyyy'),
+                reports: usersReportsMonths[key].toSorted((a: IReport, b: IReport) => {
+                    return DateTime.fromISO(b.created_at).toMillis() - DateTime.fromISO(a.created_at).toMillis();
+                })
+            }
+        }).toSorted((a: any, b: any) => {
+            return DateTime.fromFormat(b.monthYear, 'yyyy MM').toMillis() - DateTime.fromFormat(a.monthYear, 'yyyy MM').toMillis();
+        });
+
+
+
         return {
             user: reportsGroupedByUser[key][0].user,
-            reports: reportsGroupedByUser[key].map((report:IReport) => {
-                return parseReport(report)
+            reports: usersReportsMonthsArrayOfObjects.map((monthYear) => {
+                return {
+                    ...monthYear,
+                    reports: monthYear.reports.map((report) => {
+                        return parseReport(report);
+                    })
+                }
             })
         }
     });

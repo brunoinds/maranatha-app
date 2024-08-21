@@ -18,11 +18,15 @@ const props = defineProps({
         type: Object as PropType<IReport>,
         required: true
     },
+    minimalText: {
+        type: Boolean,
+        default: false
+    }
 });
 
 
 const statusText = computed(() => {
-    return (() => {
+    const text = (() => {
         if (props.report.status == EReportStatus.Draft){
             return 'Borrador';
         }else if (props.report.status == EReportStatus.Submitted){
@@ -36,7 +40,13 @@ const statusText = computed(() => {
         }else{
             return 'Borrador';
         }
-    })()
+    })();
+
+    if (props.minimalText){
+        return text.slice(0, 1);
+    }
+
+    return text;
 });
 const statusIcon = computed(() => {
     return (() => {

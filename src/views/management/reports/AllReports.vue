@@ -1,11 +1,14 @@
 <template>
     <article class="content">
+        <ion-searchbar v-model="dynamicData.search" :animated="true" placeholder="Buscar Reporte"></ion-searchbar>
+
+
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
 
-        <section v-if="pendingReports.length > 0">
-            <ion-list-header>Esperando aprobación</ion-list-header>
+        <article class="search" v-show="dynamicData.search.trim().length > 0">
+            <ion-list-header>Resultados de la búsqueda</ion-list-header>
             <ion-list style="margin-top:10px"  :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                <ion-item v-for="report in pendingReports" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                <ion-item v-for="report in searchResults" :key="report.id" button @click="openReport(report.id)" :detail="true">
                     <ion-label>
                             <h2><b>{{ report.title }}</b></h2>
                             <h3>{{ report.user.name }}</h3>
@@ -18,59 +21,103 @@
                         <ReportStatusChip :report="report"></ReportStatusChip>
                 </ion-item>
             </ion-list>
-        </section>
 
-        <section v-if="pendingRestitutionReports.length > 0">
-            <ion-list-header>Esperando restitución</ion-list-header>
-            <ion-list style="margin-top:10px" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                <ion-item v-for="report in pendingRestitutionReports" :key="report.id" button @click="openReport(report.id)" :detail="true">
-                    <ion-label>
-                            <h2><b>{{ report.title }}</b></h2>
-                            <h3>{{ report.user.name }}</h3>
+            <ion-label class="ion-text-center" v-if="dynamicData.search.trim().length > 0 && searchResults.length == 0">
+                <p>No se encontró resultados para tu búsqueda</p>
+                <br>
+            </ion-label>
+        </article>
 
-                            <p>{{report.reportType}}</p>
-                            <p>{{report.reportDates}}</p>
-                            <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
+        <article class="normal" v-show="dynamicData.search.trim().length == 0">
+            <section v-if="pendingReports.length > 0">
+                <ion-list-header>Esperando aprobación</ion-list-header>
+                <ion-list style="margin-top:10px"  :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                    <ion-item v-for="report in pendingReports" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                        <ion-label>
+                                <h2><b>{{ report.title }}</b></h2>
+                                <h3>{{ report.user.name }}</h3>
 
-                        </ion-label>
-                        <ReportStatusChip :report="report"></ReportStatusChip>
-                </ion-item>
-            </ion-list>
-        </section>
+                                <p>{{report.reportType}}</p>
+                                <p>{{report.reportDates}}</p>
+                                <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
 
-        <ion-list-header>Todos usuarios</ion-list-header>
+                            </ion-label>
+                            <ReportStatusChip :report="report"></ReportStatusChip>
+                    </ion-item>
+                </ion-list>
+            </section>
 
-        <ion-accordion-group style="margin-top:10px"  :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-            <ion-accordion v-for="userReports in usersReports" :key="userReports.user.id">
-                <ion-item slot="header" color="light">
-                    <ion-label>
-                        <h2>{{ userReports.user.name }}</h2>
-                        <p>@{{ userReports.user.username }}</p>
-                    </ion-label>
-                </ion-item>
-                <section slot="content">
-                    <article v-for="monthYearReports  in userReports.reports">
-                        <ion-list-header>{{ monthYearReports.monthYearText }}</ion-list-header>
-                        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                            <ion-item v-for="report in monthYearReports.reports" :key="report.id" button @click="openReport(report.id)" :detail="true">
-                                <ion-label>
-                                        <h2><b>{{ report.title }}</b></h2>
-                                        <p>{{report.reportType}}</p>
-                                        <p>{{report.reportDates}}</p>
-                                        <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
-                                    </ion-label>
-                                    <ReportStatusChip :report="report"></ReportStatusChip>
-                            </ion-item>
-                        </ion-list>
-                    </article>
-                </section>
-            </ion-accordion>
-        </ion-accordion-group>
+            <section v-if="pendingRestitutionReports.length > 0">
+                <ion-list-header>Esperando restitución</ion-list-header>
+                <ion-list style="margin-top:10px" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                    <ion-item v-for="report in pendingRestitutionReports" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                        <ion-label>
+                                <h2><b>{{ report.title }}</b></h2>
+                                <h3>{{ report.user.name }}</h3>
+
+                                <p>{{report.reportType}}</p>
+                                <p>{{report.reportDates}}</p>
+                                <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
+
+                            </ion-label>
+                            <ReportStatusChip :report="report"></ReportStatusChip>
+                    </ion-item>
+                </ion-list>
+            </section>
+
+            <section v-if="!isLoading && !dynamicData.showAllUsersReports" class="ion-padding">
+                <ion-button expand="block" @click="dynamicData.showAllUsersReports = true">
+                    <ion-icon slot="start" :icon="albumsOutline"></ion-icon>
+                    Ver todos los usuarios
+                </ion-button>
+            </section>
+
+            <section v-if="dynamicData.showAllUsersReports">
+                <ion-list-header>Todos usuarios</ion-list-header>
+                <ion-accordion-group style="margin-top:10px"  :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                    <ion-accordion v-for="userReports in usersReports" :key="userReports.user.id">
+                        <ion-item slot="header" color="light">
+                            <ion-label>
+                                <h2>{{ userReports.user.name }}</h2>
+                                <p>@{{ userReports.user.username }}</p>
+                            </ion-label>
+                        </ion-item>
+                        <section slot="content">
+                            <ion-accordion-group :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                                <ion-accordion v-for="monthYearReports  in userReports.reports">
+                                    <ion-item slot="header" color="light">
+                                        <ion-label>
+                                            <p>&nbsp;&nbsp;{{ monthYearReports.monthYearText }}</p>
+                                        </ion-label>
+                                        <div slot="end" style="display: flex; align-items: center;">
+                                            <ReportStatusChip v-for="badge in monthYearReports.badges" :report="{status: badge}" :minimalText="true"></ReportStatusChip>
+                                        </div>
+                                    </ion-item>
+                                    <section slot="content">
+                                        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                                            <ion-item v-for="report in monthYearReports.reports" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                                                <ion-label>
+                                                        <h2><b>{{ report.title }}</b></h2>
+                                                        <p>{{report.reportType}}</p>
+                                                        <p>{{report.reportDates}}</p>
+                                                        <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
+                                                    </ion-label>
+                                                    <ReportStatusChip :report="report"></ReportStatusChip>
+                                            </ion-item>
+                                        </ion-list>
+                                    </section>
+                                </ion-accordion>
+                            </ion-accordion-group>
+                        </section>
+                    </ion-accordion>
+                </ion-accordion-group>
+            </section>
+        </article>
     </article>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent,IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonButton, IonTitle, IonContent, IonSearchbar, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { computed, onUnmounted, ref } from 'vue';
 import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, sendOutline, closeCircleOutline, pencilOutline } from 'ionicons/icons';
@@ -87,6 +134,11 @@ const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);
 const router = useRouter();
 const page = ref<HTMLElement|null>(null);
+
+const dynamicData = ref({
+    search: '',
+    showAllUsersReports: false
+})
 
 const parseReport = (report:IReport) => {
     return{
@@ -128,6 +180,17 @@ const usersReports = computed(() => {
             return {
                 monthYear: key,
                 monthYearText: DateTime.fromFormat(key, 'yyyy MM').toFormat('MMMM yyyy'),
+                badges: (() => {
+                    const badges:Array<EReportStatus> = []; 
+                    usersReportsMonths[key].forEach((report: IReport) => {
+                        if (badges.includes(report.status)){
+                            return;
+                        }else{
+                            badges.push(report.status);
+                        }
+                    })
+                    return badges;
+                })(),
                 reports: usersReportsMonths[key].toSorted((a: IReport, b: IReport) => {
                     return DateTime.fromISO(b.created_at).toMillis() - DateTime.fromISO(a.created_at).toMillis();
                 })
@@ -177,6 +240,46 @@ const openReport = (reportId: number) => {
     router.push(`/reports/${reportId}`);
 }
 
+const stringsMatches = (stringOne: string, stringTwo: string) => {
+    //Should check if %stringOne% matches %stringTwo%, it means that %stringOne% is included in %stringTwo% or %stringTwo% is included in %stringOne%, independently if the word are in the middle of the string, but respecting the order of the words, please:
+    return stringOne.toLowerCase().includes(stringTwo.toLowerCase()) || stringTwo.toLowerCase().includes(stringOne.toLowerCase());
+}
+
+
+const searchResults = computed(() => {
+    if (dynamicData.value.search.trim().length < 3){
+        return [];
+    }
+
+
+    const reportsFound = reportsData.value.filter((report) => {
+        const matches = {
+            titleMatches: () => stringsMatches(report.title, dynamicData.value.search),
+            userMatches: () => stringsMatches(report.user.name, dynamicData.value.search),
+            moneyTypeMatches: () => stringsMatches(report.money_type, dynamicData.value.search),
+            countryMatches: () => stringsMatches(report.country, dynamicData.value.search),
+            totalAmountMatches: () => stringsMatches(report.invoices.total_amount.toString(), dynamicData.value.search),
+        };
+        let hasMatch = false;
+        Object.keys(matches).forEach((key) => {
+            if (hasMatch){
+                return;
+            }
+
+            if (matches[key]()){
+                hasMatch = true;
+                return;
+            }
+        });
+
+        return hasMatch;
+    }).map((report) => {
+        return parseReport(report);
+    });
+
+
+    return reportsFound;
+})
 
 loadAllReports();
 

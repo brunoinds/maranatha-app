@@ -45,7 +45,7 @@
                                         <h2>Archivo PDF</h2>
                                         <p>Tamaño de {{ pdfUI.size }}</p>
                                     </ion-label>
-                                    <ion-button color="danger" slot="end" @click="deletePdfFromStore">
+                                    <ion-button color="danger" slot="end" @click="deletePdfFromStore" v-if="!readonly">
                                         <ion-icon slot="icon-only" :icon="trashBinOutline"></ion-icon>
                                     </ion-button>
                                 </ion-item>

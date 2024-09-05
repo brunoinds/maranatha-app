@@ -33,6 +33,8 @@
                                     </ion-label>
                                 </ion-item>
                             </ion-list>
+
+                            <ion-img v-if="dynamicData.currentPdfThumbnailBase64" :src="dynamicData.currentPdfThumbnailBase64"></ion-img>
                             <ion-list v-if="dynamicData.uploadedPdfBase64">
                                 <ion-item button @click="previewPdfFile"> 
                                     <ion-icon color="primary" slot="start" :icon="documentOutline"></ion-icon>
@@ -207,6 +209,7 @@ const isRepeatedTicket = ref<boolean>(false);
 const dynamicData = ref<{
     uploadedImageBase64: null | string,
     uploadedPdfBase64: null | string,
+    currentPdfThumbnailBase64: null | string,
     formErrors: Array<{field: string, message: string}>,
     status: "idle" | "uploading-image" | "creating-invoice" | "success" | "error",
     datetimePickerDate: string,
@@ -214,6 +217,7 @@ const dynamicData = ref<{
 }>({
     uploadedImageBase64: null,
     uploadedPdfBase64: null,
+    currentPdfThumbnailBase64: null,
     formErrors: [],
     status: "idle",
     datetimePickerDate: DateTime.now().toISODate() as unknown as string,
@@ -539,26 +543,15 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             }else{
                 sourcePDF = file.blob as Blob;
             }
+
             const blobUrl = URL.createObjectURL(sourcePDF);
-            resolve({
-                path: blobUrl,
-                webPath: blobUrl,
-            })
-
-
-            return;
-            const pdf = await PDFModifier.loadPDF(sourcePDF);
-
+            const pdf = await PDFModifier.loadPDF(blobUrl);
             const imageBase64 = await pdf.extractPagesIntoSingleImageAsBase64();
+            dynamicData.value.currentPdfThumbnailBase64 = imageBase64;
 
-            //Convert base64image into objectUrl:
-            const blob = await fetch(`${imageBase64}`).then(res => res.blob());
             resolve({
                 path: blobUrl,
                 webPath: blobUrl,
-                details: {
-                    pages: pdf.pagesCount()
-                }
             })
         })
     }
@@ -717,6 +710,7 @@ const deleteImageFromCamera = () => {
 }
 const deletePdfFromStore = () => {
     dynamicData.value.uploadedPdfBase64 = null;
+    dynamicData.value.currentPdfThumbnailBase64 = null;
 }
 const previewPdfFile = () => {
     if (!dynamicData.value.uploadedPdfBase64){

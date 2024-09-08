@@ -552,6 +552,22 @@
                                     </ion-label>
                                 </ion-item>
                             </ion-list>
+
+                            <ion-list v-if="!isLoadingAreas.loanedProducts">
+                                <ion-item v-for="item in loanedItemsUI" :key="item.product?.id" button @click="openLoanProduct(item.loanId)">
+                                    <ion-avatar slot="start" v-if="item.product?.image">
+                                        <img :src="item.product?.image" />
+                                    </ion-avatar>
+                                    <ion-label>
+                                        <h2>{{ item.product?.name }}</h2>
+                                        <p>{{ item.product?.description }}</p>
+                                        <p>{{ item.product?.brand }}</p>
+                                    </ion-label>
+                                    <ion-label slot="end" color="warning" class="ion-text-right">
+                                        <h2><b>Préstamo</b></h2>
+                                    </ion-label>
+                                </ion-item>
+                            </ion-list>
                         </section>
 
                         <section v-if="productListSegmentView == 'Received'">
@@ -594,9 +610,10 @@
 import OutcomeRequestStatusChip from '@/components/OutcomeRequestStatusChip/OutcomeRequestStatusChip.vue';
 import VerticalTimeline from '@/components/VerticalTimeline/VerticalTimeline.vue';
 import CreateInventoryWarehouseOutcome from '@/dialogs/CreateInventoryWarehouseOutcome/CreateInventoryWarehouseOutcome.vue';
+import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
 import EditInventoryWarehouseOutcome from '@/dialogs/EditInventoryWarehouseOutcome/EditInventoryWarehouseOutcome.vue';
 import InventoryOutcomeRequestReceiptProductsSelector from '@/dialogs/InventoryOutcomeRequestReceiptProductsSelector/InventoryOutcomeRequestReceiptProductsSelector.vue';
-import { EInventoryWarehouseOutcomeRequestStatus, IInventoryProductItem, IProductWithWarehouseStock, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
+import { EInventoryWarehouseOutcomeRequestStatus, IInventoryProductItem, IProduct, IProductWithWarehouseStock, IWarehouseOutcomeRequest, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
@@ -614,7 +631,8 @@ const page = ref<HTMLElement|null>(null);
 const isLoadingAreas = ref({
     outcomeRequest: false,
     products: false,
-    dispachedProducts: false
+    dispachedProducts: false,
+    loanedProducts: false
 });
 const isLoading = ref<boolean>(false);
 const outcomeRequestId = route.params.id as string;
@@ -622,6 +640,7 @@ const outcomeRequestId = route.params.id as string;
 const outcomeRequestData = ref<IWarehouseOutcomeRequest|null>(null);
 const productsData = ref<Array<IProductWithWarehouseStock>>([]);
 const dispachedProductsItemsData = ref<Array<IInventoryProductItem>>([]);
+const loanedProductsItemsData = ref<Array<IWarehouseProductItemLoan>>([]);
 
 const viewModeAs = ref<'Requester'|'Dispacher'>('Requester');
 const isDeleted = ref(false);
@@ -658,8 +677,31 @@ const dispachedItemsUI = computed(() => {
 
     return products;
 })
+const loanedItemsUI = computed(() => {
+    let products:Array<{
+        product: IProduct,
+        loanId: number,
+        quantity: number
+    }> = [];
+
+    loanedProductsItemsData.value.forEach((item) => {
+        const product = products.find((product) => product.product.id === item.product_item?.product.id);
+
+        if (product){
+            product.quantity++;
+        } else {
+            products.push({
+                loanId: item.id,
+                product: productsData.value.find((product) => product.id === item.product_item?.product.id) as IProduct,
+                quantity: 1
+            })
+        }
+    })
+
+    return products;
+})
 const receivedItemsUI = computed(() => {
-    return dispachedItemsUI.value.map((item) => {
+    return dispachedItemsUI.value.concat(loanedItemsUI.value).map((item) => {
         const sent = item.quantity;
         const received = (() => {
             const prod = outcomeRequestData.value?.received_products.find((si) => si.product_id == item.product.id);
@@ -1176,6 +1218,7 @@ const loadOutcomeRequest = async () => {
     isLoadingAreas.value.outcomeRequest = true;
     isLoadingAreas.value.products = true;
     isLoadingAreas.value.dispachedProducts = true;
+    isLoadingAreas.value.loanedProducts = true;
 
     const response = await RequestAPI.get('/inventory/warehouse-outcome-requests/' + outcomeRequestId);
 
@@ -1184,7 +1227,11 @@ const loadOutcomeRequest = async () => {
 
     if (outcomeRequestData.value?.inventory_warehouse_outcome_id){
         await loadDispachedProductsItems();
+    }else{
+        isLoadingAreas.value.dispachedProducts = false;
     }
+
+    await loadLoanedProductsItems();
 
     isLoading.value = false;
     isLoadingAreas.value.outcomeRequest = false;
@@ -1207,6 +1254,15 @@ const loadDispachedProductsItems = async () => {
     dispachedProductsItemsData.value = response;
     isLoading.value = false;
     isLoadingAreas.value.dispachedProducts = false;
+}
+const loadLoanedProductsItems = async () => {
+    isLoading.value = true;
+    isLoadingAreas.value.loanedProducts = true;
+    const response = await RequestAPI.get('/inventory/warehouse-outcome-requests/' + outcomeRequestData.value?.id + '/loans');
+
+    loanedProductsItemsData.value = response;
+    isLoading.value = false;
+    isLoadingAreas.value.loanedProducts = false;
 }
 
 const changeRequestStatus = async (status: EInventoryWarehouseOutcomeRequestStatus) => {
@@ -1247,7 +1303,13 @@ const openOutcomeRequestReceiptProductsSelector  = async () => {
                     sent: item.quantity,
                     received: item.quantity
                 }
-            })
+            }).concat(loanedItemsUI.value.map((item) => {
+                return {
+                    product: item.product as IProductWithWarehouseStock,
+                    sent: 1,
+                    received: 1
+                }
+            }))
         },
         onLoaded($this) {
             $this.on('received-all', (event:any) => {
@@ -1282,6 +1344,20 @@ const openOutcomeRequestReceiptProductsSelector  = async () => {
         }
     })
 }
+const openLoanProduct = async (loadId:number) => {
+    Dialog.show(EditInventoryWarehouseLoan, {
+        props: {
+            productItemLoan: loanedProductsItemsData.value.find((item) => item.id === loadId),
+        },
+        onLoaded($this) {
+            
+        },
+        modalControllerOptions: {
+            presentingElement: page,
+            showBackdrop: true,
+        }
+    })
+} 
 const createDispatch = async () => {
     Dialog.show(CreateInventoryWarehouseOutcome, {
         props: {

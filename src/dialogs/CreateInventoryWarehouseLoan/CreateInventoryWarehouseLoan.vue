@@ -5,7 +5,7 @@
                 <ion-buttons slot="start">
                     <ion-button :disabled="isLoading" @click="emitter.fire('close')">Cancelar</ion-button>
                 </ion-buttons>
-                <ion-title>Salida de Productos</ion-title>
+                <ion-title>Préstamo de Productos</ion-title>
             </ion-toolbar>
             <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
@@ -15,8 +15,8 @@
                     <ion-accordion value="first">
                         <ion-item slot="header" color="light">
                             <ion-label>
-                                <h2><b>1. Agregar productos a despachar</b></h2>
-                                <p>Selecciona los productos que deseas despachar</p>
+                                <h2><b>1. Agregar productos a prestar</b></h2>
+                                <p>Selecciona los productos que deseas prestar</p>
                             </ion-label>
                         </ion-item>
                         <section slot="content">
@@ -65,19 +65,21 @@
                     <ion-accordion value="second">
                         <ion-item slot="header" color="light">
                             <ion-label>
-                                <h2><b>2. Datos de la venta</b></h2>
-                                <p>Completa los datos de la venta</p>
+                                <h2><b>2. Datos del préstamo</b></h2>
+                                <p>Completa los datos del préstamo</p>
                             </ion-label>
                         </ion-item>
                         <section slot="content">
                             <ion-list>
                                 <ion-item>
-                                    <ion-input label="Observaciones:" label-placement="stacked" placeholder="Ej.: material para construcción" v-model="warehouseOutcome.description"></ion-input>
+                                    <ion-input label="Observaciones:" label-placement="stacked" placeholder="Ej.: material para construcción" v-model="loanRequest.description"></ion-input>
                                 </ion-item>
+                                <ion-item-choose-dialog @click="openUserSelector" placeholder="Selecciona un usuario" label="Prestar a:" :value="dynamicData.loanToUser?.name"/>
+
                                 <ion-accordion-group ref="datetimeAccordionGroupEl">
                                     <ion-accordion value="start" ref="datetimeAccordion" class="datetime-accordion">
                                         <ion-item lines="inset" slot="header">
-                                            <ion-input label="Fecha de despacho del stock:" label-placement="stacked" placeholder="10/10/2023" v-model="warehouseOutcome.date" :readonly="true"></ion-input>
+                                            <ion-input label="Fecha de despacho del stock:" label-placement="stacked" placeholder="10/10/2023" v-model="loanRequest.loaned_at" :readonly="true"></ion-input>
                                         </ion-item>
                                         <ion-datetime slot="content" presentation="date" v-model="dynamicData.datetimePickerDate" @ion-change="onEvents.onDatePickerChange"></ion-datetime>
                                     </ion-accordion>
@@ -85,16 +87,16 @@
                             </ion-list>
 
                             <ion-list>
-                                <ion-item-choose-dialog @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
-                                <ion-item-choose-dialog @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
+                                <ion-item-choose-dialog @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="loanRequest.job_code"/>
+                                <ion-item-choose-dialog @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="loanRequest.expense_code"/>
                             </ion-list>
                         </section>
                     </ion-accordion>
                     <ion-accordion value="third">
                         <ion-item slot="header" color="light">
                             <ion-label>
-                                <h2><b>3. Confirmar precios</b></h2>
-                                <p>Revisa los valores y confirma el despacho del stock</p>
+                                <h2><b>3. Confirmar items</b></h2>
+                                <p>Revisa productos y confirma el despacho del stock</p>
                             </ion-label>
                         </ion-item>
                         <section slot="content">
@@ -111,48 +113,24 @@
                                             <p>{{ product.product.description }}</p>
                                             <p>{{ product.product.brand }}</p>
                                         </ion-label>
-                                        <ion-label slot="end" class="ion-text-right" color="primary"  v-if="product.product.category != 'Herramientas'">
-                                            <h2 v-for="price in productsResume.find((i) => i.product == product.product)?.prices"><b>+{{ Toolbox.moneyFormat(price.amount, price.currency as unknown as EMoneyType) }}</b></h2>
-                                            <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ price.count }} unidades en {{ price.currency }}</p>
-                                        </ion-label>
-                                        <ion-label slot="end" class="ion-text-right" color="primary"  v-if="product.product.category == 'Herramientas'">
-                                            <h2><b>Préstamo</b></h2>
-                                            <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ price.count }} unidades</p>
-                                        </ion-label>
                                     </ion-item>
 
-                                    <ion-item v-for="item in productsResume.find((i) => i.product == product.product)?.itemsAggregated" v-if="product.product.category != 'Herramientas'">
+                                    <ion-item v-for="item in productsResume.find((i) => i.product == product.product)?.itemsAggregated">
                                         <ion-label>
                                             <h3>{{ item.count }} unidades</h3>
-                                            <p style="font-size: 11px;">por {{Toolbox.moneyFormat(item.unitAmount, item.currency as unknown as EMoneyType)}} cada</p>
-                                        </ion-label>
-                                        <ion-label slot="end" class="ion-text-right" color="medium">
-                                            <h2 style="font-size: 14px;"><b>{{ Toolbox.moneyFormat(item.totalAmount, item.currency as unknown as EMoneyType) }}</b></h2>
-                                            <p>{{ item.count }}x {{ Toolbox.moneyFormat(item.unitAmount, item.currency as unknown as EMoneyType) }}</p>
                                         </ion-label>
                                     </ion-item>
                                 </ion-list>
                             </section>
 
-                            <ion-list-header>Costo final</ion-list-header>
-                            <br><br>
-
-                            <ion-list>
-                                <ion-item v-for="(price, index) in outcomeResume.prices" :key="price.currency">
-                                    <ion-label color="success" slot="end" class="ion-text-right">
-                                        <h1><b v-if="index != 0">+</b><b>{{ Toolbox.moneyFormat(price.amount, price.currency as unknown as EMoneyType) }}</b></h1>
-                                        <p>{{ price.count }} productos en {{ price.currency }}</p>
-                                    </ion-label>
-                                </ion-item>
-                            </ion-list>
                             <section class="ion-padding">
-                                <ion-button :disabled="outcomeResume.prices.length == 0" color="success" @click="checkoutActions.createNewOutcome" expand="block">
-                                    Confirmar Salida de Productos
+                                <ion-button :disabled="outcomeResume.prices.length == 0" color="success" @click="checkoutActions.createNewLoan" expand="block">
+                                    Confirmar Préstamo de Productos
                                     <ion-icon slot="end" :icon="checkmarkCircleOutline"></ion-icon>
                                 </ion-button>
                                 <ion-label class="ion-text-center" v-if="outcomeResume.prices.length == 0">
                                     <br>
-                                    <p>Por favor, agrega al menos 1 producto para despachar</p>
+                                    <p>Por favor, agrega al menos 1 producto para prestar</p>
                                 </ion-label>
                             </section>
                         </section>
@@ -176,12 +154,13 @@ import { EMoneyType } from '@/interfaces/ReportInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { QRCodeParser } from '@/utils/QRCodeParser/QRCodeParser';
 import { DateTime } from "luxon";
-import { EInventoryProductItemStatus, IInventoryProductItem, INewWarehouseOutcome, IProduct, IProductWithWarehouseStock } from '@/interfaces/InventoryInterfaces';
+import { EInventoryProductItemStatus, IInventoryProductItem, INewWarehouseOutcome, INewWarehouseProductItemLoan, IProduct, IProductWithWarehouseStock } from '@/interfaces/InventoryInterfaces';
 import { ImagePicker } from '@/utils/Camera/ImagePicker';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import UsersSelector from '@/dialogs/UsersSelector/UsersSelector.vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
+import { IUser } from '@/interfaces/UserInterfaces';
 
 const datetimeAccordionGroupEl = ref<any>(null);
 const accordionGroupEl = ref<any>(null);
@@ -216,11 +195,13 @@ const props = defineProps({
 const dynamicData = ref<{
     outcomeRequestId: number|null,
     datetimePickerDate: string,
-    productsListWithQuantity: Array<{product: IProductWithWarehouseStock, quantity: number}>
+    productsListWithQuantity: Array<{product: IProductWithWarehouseStock, quantity: number}>,
+    loanToUser: IUser|null,
 }>({
     outcomeRequestId: null,
     datetimePickerDate: DateTime.now().toISODate() as unknown as string,
-    productsListWithQuantity: []
+    productsListWithQuantity: [],
+    loanToUser: null
 })
 
 const productsResume = computed(() => {
@@ -256,7 +237,6 @@ const productsResume = computed(() => {
 
         const currenciesFound = itemsChoosenToSell.map((item) => item.buy_currency).filter((value, index, self) => self.indexOf(value) === index);
 
-
         return {
             product: p.product,
             quantity: p.quantity,
@@ -280,19 +260,14 @@ const outcomeResume = computed(() => {
             const items = productsResume.value.reduce((acc, product) => {
                 product.items.forEach((item) => {
                     const key = item.buy_currency;
-                    const itemData = JSON.parse(JSON.stringify(item));
-                    if (product.product.category == 'Herramientas'){
-                        itemData.buy_amount = 0;
-                    }
-
                     if (!acc[key]){
                         acc[key] = {
-                            currency: itemData.buy_currency,
-                            amount: itemData.buy_amount,
+                            currency: item.buy_currency,
+                            amount: item.buy_amount,
                             count: 1
                         }
                     }else{
-                        acc[key].amount += itemData.buy_amount;
+                        acc[key].amount += item.buy_amount;
                         acc[key].count++;
                     }
                 })
@@ -304,38 +279,47 @@ const outcomeResume = computed(() => {
             return productsResume.value.reduce((acc, product) => {
                 return acc.concat(product.items)
             }, [])
-        })(),
-        itemsToLoan: (() => {
-            return productsResume.value.filter(product => product.product.category == 'Herramientas').reduce((acc, product) => {
-                return acc.concat(product.items)
-            }, [])
-        })(),
-        itemsToSell: (() => {
-            return productsResume.value.filter(product => product.product.category != 'Herramientas').reduce((acc, product) => {
-                return acc.concat(product.items)
-            }, [])
         })()
     }
 })
 
-const warehouseOutcome = ref<INewWarehouseOutcome>({
+const loanRequest = ref<INewWarehouseProductItemLoan>({
     inventory_warehouse_id: props.warehouseId,
-    description: "",
-    date: DateTime.now().toFormat("dd/MM/yyyy").toString(),
     job_code: "",
     expense_code: "",
+    products_items_ids: [],
+    loaned_to_user_id: 0,
+    loaned_at: DateTime.now().toFormat("dd/MM/yyyy").toString(),
 });
+
+const openUserSelector  = () => {
+    Dialog.show(UsersSelector, {
+        props: {
+            selectedUsersIds: [dynamicData.value.loanToUser?.id],
+            allowMultipleChoice: false
+        },
+        onLoaded($this) {
+            $this.on('selected', (event:any) => {
+                const user = event.data as unknown as IUser;
+                dynamicData.value.loanToUser = user;
+            })
+            
+            $this.on('close', () => {
+            })
+        },
+    })
+}
 
 const validateData = async () => {
     const formErrors: Array<{field: string, message: string}> = [];
 
-    if (!warehouseOutcome.value.date){
+    if (!loanRequest.value.loaned_at){
         formErrors.push({
             field: "date",
             message: "La fecha de compra es requerida"
         })
     }else{
-        const dt = DateTime.fromFormat(warehouseOutcome.value.date, "dd/MM/yyyy");
+        const dt = DateTime.fromFormat(loanRequest.value.loaned_at, "dd/MM/yyyy");
         if (!dt.isValid){
             formErrors.push({
                 field: "date",
@@ -369,10 +353,10 @@ const onEvents = {
         const date = event.detail.value.split('T')[0];
         const formatted = DateTime.fromFormat(date, "yyyy-MM-dd").toFormat("dd/MM/yyyy").toString();
 
-        const previousDate = DateTime.fromFormat(warehouseOutcome.value.date, "dd/MM/yyyy");
+        const previousDate = DateTime.fromFormat(loanRequest.value.loaned_at as string, "dd/MM/yyyy");
         const newDate = DateTime.fromFormat(formatted, "dd/MM/yyyy");
 
-        warehouseOutcome.value.date = formatted;
+        loanRequest.value.loaned_at = formatted;
 
         if (previousDate.day == newDate.day){
             return;
@@ -387,7 +371,8 @@ const actions = {
         Dialog.show(InventoryProductSelector, {
             props: {
                 contextWarehouseId: props.warehouseId,
-                allowMultipleSelection: true
+                allowMultipleSelection: true,
+                onlyLoanable: true
             },
             onLoaded($this) {
                 $this.on('selected', (event:any) => {
@@ -428,7 +413,7 @@ const actions = {
             onLoaded($this) {
                 $this.on('selected', (event:any) => {
                     const job = event.data;
-                    warehouseOutcome.value.job_code = job.code;
+                    loanRequest.value.job_code = job.code;
                 })
                 
             },
@@ -437,12 +422,12 @@ const actions = {
     openExpenseSelector: () => {
         Dialog.show(ExpenseSelector, {
             props: {
-                selectedExpenseCode: warehouseOutcome.value.expense_code
+                selectedExpenseCode: loanRequest.value.expense_code
             },
             onLoaded($this) {
                 $this.on('selected', (event:any) => {
                     const expense = event.data;
-                    warehouseOutcome.value.expense_code = expense.code;
+                    loanRequest.value.expense_code = expense.code;
                 })
                 
                 $this.on('close', () => {
@@ -453,12 +438,12 @@ const actions = {
     openUserSelector: () => {
         Dialog.show(UsersSelector, {
             props: {
-                selectedUserId: warehouseOutcome.value.user_id
+                selectedUserId: loanRequest.value.user_id
             },
             onLoaded($this) {
                 $this.on('selected', (event:any) => {
                     const user = event.data;
-                    warehouseOutcome.value.user_id = user.id;
+                    loanRequest.value.user_id = user.id;
                 })
                 
                 $this.on('close', () => {
@@ -469,7 +454,7 @@ const actions = {
 }
 
 const checkoutActions = {
-    createNewOutcome: async () => {
+    createNewLoan: async () => {
         const validationResponse = validateData();
         if (!(await validationResponse).isValid){
             alertController.create({
@@ -484,49 +469,19 @@ const checkoutActions = {
         }
 
         isLoading.value = true;
+        const form = {
+            ...loanRequest.value,
 
-
-        const createOutomeRequest = async() => {
-            if (outcomeResume.value.itemsToSell.length == 0){
-                return;
-            }
-
-            const form = {
-                ...warehouseOutcome.value,
-                inventory_warehouse_id: props.warehouseId,
-                date: DateTime.fromFormat(warehouseOutcome.value.date, "dd/MM/yyyy").toISO(),
-                products_items: outcomeResume.value.itemsToSell.map((item: IInventoryProductItem) => {
-                    return {
-                        id: item.id
-                    }
-                }),
-                outcome_request_id: dynamicData.value.outcomeRequestId
-            }
-            const response = await RequestAPI.post(`/inventory/warehouse-outcomes`, form)
+            loaned_at: DateTime.fromFormat(loanRequest.value.loaned_at as string, "dd/MM/yyyy").toISO(),
+            products_items_ids: outcomeResume.value.items.map((item: IInventoryProductItem) => {
+                return item.id
+            }),
+            outcome_request_id: dynamicData.value.outcomeRequestId
         }
-        const createWarehouseLoans = async () => {
-            if (outcomeResume.value.itemsToLoan.length == 0){
-                return;
-            }
 
-            const form = {
-                ...warehouseOutcome.value,
-                inventory_warehouse_id: props.warehouseId,
-                loaned_at: DateTime.fromFormat(warehouseOutcome.value.date, "dd/MM/yyyy").toISO(),
-                products_items_ids: outcomeResume.value.itemsToLoan.map((item: IInventoryProductItem) => {
-                    return item.id
-                }),
-                loaned_to_user_id: props.targets?.userId,
-                inventory_warehouse_outcome_request_id: parseInt(dynamicData.value.outcomeRequestId as any)
-            }
-            const response = await RequestAPI.post(`/inventory/warehouse-loans`, form)
-            return response;
-        }
-        
+
         try {
-            const createWarehouseLoansResponse = await createWarehouseLoans();
-            const createOutomeResponse = await createOutomeRequest();
-
+            const response = await RequestAPI.post(`/inventory/warehouse-loans`, form)
             props.emitter.fire('created', {});
             props.emitter.fire('close');
 
@@ -558,9 +513,9 @@ onMounted(async () => {
 
 
     if (props.targets){
-        warehouseOutcome.value.job_code = props.targets.jobCode || "";
-        warehouseOutcome.value.expense_code = props.targets.expenseCode || "";
-        warehouseOutcome.value.user_id = props.targets.userId || null;
+        loanRequest.value.job_code = props.targets.jobCode || "";
+        loanRequest.value.expense_code = props.targets.expenseCode || "";
+        loanRequest.value.user_id = props.targets.userId || null;
         dynamicData.value.productsListWithQuantity = props.targets.products.map((p) => {
             return {
                 product: p.product,

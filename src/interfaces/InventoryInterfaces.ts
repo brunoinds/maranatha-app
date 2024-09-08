@@ -1,4 +1,5 @@
 import { ECountryType, EMoneyType } from "@/interfaces/ReportInterfaces";
+import { IUser } from "@/interfaces/UserInterfaces";
 
 
 export const productUnitTypes = {
@@ -95,6 +96,53 @@ export interface IWarehouseOutcome{
 }
 export interface INewWarehouseOutcome extends Omit<IWarehouseOutcome, 'id' | 'created_at' | 'updated_at' | 'user_id'> {}
 
+
+export interface IWarehouseProductItemLoan{
+    id: number,
+    created_at: string,
+    updated_at: string,
+    loaned_to_user_id: number,
+    loaned_by_user_id: number,
+    loaned_at: string|null,
+    received_at: string|null,
+    returned_at: string|null,
+    confirm_returned_at: string|null,
+    status: EInventoryWarehouseProductItemLoanStatus,
+    loaned_by?: IUser,
+    loaned_to?: IUser,
+    movements: Array<{
+        id: string,
+        user_id: number,
+        job_code: string,
+        expense_code: string,
+        date: string,
+        description: string
+    }>,
+    intercurrences: Array<{
+        id: string,
+        user_id: number,
+        date: string,
+        description: string
+    }>,
+    inventory_product_item_id: number,
+    inventory_warehouse_id: number,
+    inventory_warehouse_outcome_request_id?: number|null,
+    product_item?: IInventoryProductItem extends {product: IProduct} ? IInventoryProductItem : IInventoryProductItem & {product: IProduct}
+}
+export interface INewWarehouseProductItemLoan extends Omit<IWarehouseProductItemLoan, 'id' | 'created_at' | 'updated_at' |  'received_at' | 'returned_at' | 'confirm_returned_at' | 'status' | 'movements' | 'intercurrences' | 'loaned_by_user_id' | 'inventory_product_item_id'> {
+    job_code: string,
+    expense_code: string,
+    products_items_ids: Array<number>
+}
+
+
+
+export enum EInventoryWarehouseProductItemLoanStatus{
+    SendingToLoan = 'SendingToLoan',
+    OnLoan = 'OnLoan',
+    ReturningToWarehouse = 'ReturningToWarehouse',
+    Returned = 'Returned'
+}
 
 
 export enum EInventoryWarehouseOutcomeRequestStatus{

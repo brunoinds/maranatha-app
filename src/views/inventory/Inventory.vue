@@ -107,6 +107,7 @@
 
                 <section v-if="segmentValue == 'Mis Pedidos'">
                     <article  class="limiter">
+                        <ion-list-header>Pedidos</ion-list-header>
                         <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                             <IonPeekPop v-for="outcome in outcomesUI" @onPop="openWarehouseOutcomeRequest(outcome)">
                                 <template v-slot:item>
@@ -142,6 +143,22 @@
                             </IonPeekPop>
                         </ion-list>
 
+                        <ion-list-header>Préstamos</ion-list-header>
+                        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                            <ion-item v-for="loan in loansUI" button @click="openLoan(loan)">
+                                <ion-avatar slot="start" >
+                                    <img :src="loan.product_item?.product.image" />
+                                </ion-avatar>
+                                <ion-label>
+                                    <h2><b>{{ loan.product_item?.product.name }}</b></h2>
+                                    <p>{{ loan.product_item?.product.description }}</p>
+                                    <p>{{ loan.product_item?.product.brand }}</p>
+                                </ion-label>
+
+                                <ProductItemLoanStatusChip slot="end" :request="loan" />
+                            </ion-item>
+                        </ion-list>
+
                         <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
                             <ion-fab-button @click="openQrCodeScanner('Requester')">
                                 <ion-icon :icon="qrCodeOutline"></ion-icon>
@@ -170,7 +187,7 @@ import CreateInventoryProduct from '@/dialogs/CreateInventoryProduct/CreateInven
 import CreateInventoryProductsPack from '@/dialogs/CreateInventoryProductsPack/CreateInventoryProductsPack.vue';
 import CreateInventoryWarehouseOutcomeRequest from '@/dialogs/CreateInventoryWarehouseOutcomeRequest/CreateInventoryWarehouseOutcomeRequest.vue';
 import CreateWarehouse from '@/dialogs/CreateWarehouse/CreateWarehouse.vue';
-import { IProduct, IProductsPack, IWarehouse, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
+import { IProduct, IProductsPack, IWarehouse, IWarehouseOutcomeRequest, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
 import { Session } from '@/utils/Session/Session';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { addOutline, chatbubbleEllipsesOutline, logoDropbox, qrCodeOutline, storefrontOutline, openOutline } from 'ionicons/icons';
@@ -186,6 +203,8 @@ import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
 import {IonPeekPop, IonPeekPopContextMenuItem} from 'ion-peek-pop';
 import 'ion-peek-pop/styles.css';
+import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/ProductItemLoanStatusChip.vue';
+import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE');
@@ -198,6 +217,7 @@ const subSegmentValue = ref<string>('Almacenes');
 
 const warehousesData = ref<IWarehouse[]>([]);
 const outcomeRequestsData = ref<IWarehouseOutcomeRequest[]>([]);
+const loansData = ref<IWarehouseProductItemLoan[]>([]);
 const productsData = ref<IProduct[]>([]);
 const productsPacksData = ref<IProductsPack[]>([]);
 
@@ -230,6 +250,14 @@ const outcomesUI = computed(() => {
                 unseen_messages_count: outcome.messages.filter(message => message.user_id != Session.getCurrentSessionSync()?.id() && message.read_at == null).length
             },
             original: outcome
+        }
+    }).sort((a, b) => b.id - a.id);
+});
+const loansUI = computed(() => {
+    return loansData.value.map((loan) => {
+        return {
+            ...loan,
+            date: timeAgo.format(new Date(loan.created_at))
         }
     }).sort((a, b) => b.id - a.id);
 });
@@ -291,6 +319,16 @@ const loadOutcomeRequests = async () => {
     }
     isLoading.value = false;
 }
+const loadLoans = async () => {
+    isLoading.value = true;
+    try {
+        const response = await RequestAPI.get('/inventory/me/loans');
+        loansData.value = response;
+
+    } catch (error) {
+    }
+    isLoading.value = false;
+}
 const loadProducts = async () => {
     isLoading.value = true;
     try {
@@ -319,7 +357,16 @@ const openWarehouseOutcomeRequest = (outcome: IWarehouseOutcomeRequest) => {
 const openWarehouseOutcomeRequestChat = (warehouseOutcomeRequest: IWarehouseOutcomeRequest) => {
     router.push(`/inventory/outcome-requests/${warehouseOutcomeRequest.id}/chat`);
 }
-
+const openLoan = (loan: IWarehouseProductItemLoan) => {
+    Dialog.show(EditInventoryWarehouseLoan, {
+        props: {
+            productItemLoanId: loan.id
+        },
+        onLoaded($this) {
+            
+        }
+    })
+}
 const createWarehouseOutcomeRequest = () => {
     Dialog.show(CreateInventoryWarehouseOutcomeRequest, {
         props: {
@@ -423,13 +470,14 @@ onMounted(() => {
     loadOutcomeRequests();
     loadProducts();
     loadProductsPacks();
-
+    loadLoans();
 
     const callbackId = AppEvents.on('inventory:reload', () => {
         loadWarehouses();
         loadOutcomeRequests();
         loadProducts();
         loadProductsPacks();
+        loadLoans();
     })
     onUnmounted(() => {
         AppEvents.off('inventory:reload', callbackId);

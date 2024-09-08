@@ -77,6 +77,11 @@ const props = defineProps({
         type: Boolean,
         required: false,
         default: false
+    },
+    onlyLoanable: {
+        type: Boolean,
+        required: false,
+        default: false
     }
 });
 
@@ -103,6 +108,11 @@ const productsUI = computed(() => {
         return  product.name.toLowerCase().includes(dynamicData.value.search.toLowerCase()) || 
                 product.description?.toLowerCase().includes(dynamicData.value.search.toLowerCase()) || 
                 product.brand?.toLowerCase().includes(dynamicData.value.search.toLowerCase());
+    }).filter((product) => {
+        if (props.onlyLoanable){
+            return product.category == 'Herramientas'
+        }
+        return true;
     });
 })
 

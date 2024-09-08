@@ -97,6 +97,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/inventory/products',
     component: () => import('@/views/inventory/products/Products.vue')
   },
+
+  {
+    path: '/inventory/loans/:id',
+    component: () => import('@/views/inventory/loans/Loan.vue')
+  },
 ]
 
 const router = createRouter({

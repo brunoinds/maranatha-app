@@ -67,6 +67,8 @@
                         <WarehouseOutcomes v-if="segmentValue == 'outcomes' && warehouseData" :warehouse="warehouseData"/>
                         <WarehouseStock v-if="segmentValue == 'stock' && warehouseData" :warehouse="warehouseData"/>
                         <WarehouseOutcomeRequests v-if="segmentValue == 'requests' && warehouseData" :warehouse="warehouseData"/>
+                        <WarehouseProductItemLoans v-if="segmentValue == 'loans' && warehouseData" :warehouse="warehouseData"/>
+
                         <Records v-if="segmentValue == 'informs' && warehouseData" location="InventoryManagement" :preFilling="{
                             warehouse_id: warehouseData.id
                         }"></Records>
@@ -98,6 +100,7 @@ import WarehouseOutcomeRequests from '@/views/inventory/warehouses/sections/Ware
 import EditWarehouse from '@/dialogs/EditWarehouse/EditWarehouse.vue';
 import Records from '@/views/management/records/Records.vue';
 import { Session } from '@/utils/Session/Session';
+import WarehouseProductItemLoans from '@/views/inventory/warehouses/sections/WarehouseProductItemLoans.vue';
 
 
 const route = useRoute();
@@ -136,6 +139,12 @@ const segments = [
         title: '📤 Salidas',
         name: 'Salidas',
         icon: '📤'
+    },
+    {
+        id: 'loans',
+        title: '🗄️ Préstamos',
+        name: 'Préstamos',
+        icon: '🗄️'
     },
     {
         id: 'informs',

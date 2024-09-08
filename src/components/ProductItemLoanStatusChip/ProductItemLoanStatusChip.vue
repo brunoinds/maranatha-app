@@ -24,7 +24,7 @@ const statusData = computed(() => {
     return (() => {
         if (props.request.status == EInventoryWarehouseProductItemLoanStatus.SendingToLoan){
             return {
-                text: 'Enviando',
+                text: 'En camino',
                 icon: airplaneOutline,
                 color: 'medium'
             };

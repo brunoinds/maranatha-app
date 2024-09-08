@@ -235,7 +235,8 @@ export interface IProduct{
     unit: EInventoryProductUnitType,
     code?: string,
     status: EInventoryProductStatus,
-    image?: string
+    image?: string,
+    is_loanable: boolean,
 }
 
 export interface IProductWithWarehouseStock extends IProduct {

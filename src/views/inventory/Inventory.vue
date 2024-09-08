@@ -143,7 +143,7 @@
                             </IonPeekPop>
                         </ion-list>
 
-                        <ion-list-header>Préstamos</ion-list-header>
+                        <ion-list-header v-if="loansUI.length > 0">Préstamos</ion-list-header>
                         <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                             <ion-item v-for="loan in loansUI" button @click="openLoan(loan)">
                                 <ion-avatar slot="start" >

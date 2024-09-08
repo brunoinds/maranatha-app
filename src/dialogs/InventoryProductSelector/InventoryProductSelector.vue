@@ -110,7 +110,7 @@ const productsUI = computed(() => {
                 product.brand?.toLowerCase().includes(dynamicData.value.search.toLowerCase());
     }).filter((product) => {
         if (props.onlyLoanable){
-            return product.category == 'Herramientas'
+            return product.is_loanable
         }
         return true;
     });

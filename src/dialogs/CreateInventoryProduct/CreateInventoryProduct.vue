@@ -45,6 +45,10 @@
                         <ion-select-option v-for="unit in Toolbox.inventoryProductUnits()" :value="unit">{{ Toolbox.inventoryProductUnitName(unit) }}</ion-select-option>
                     </ion-select>
                 </ion-item>
+                <ion-item>
+                    <ion-input label="¿Es prestable?" label-placement="stacked" :readonly="true" :value="dynamicData.is_loanable ? 'Sí' : 'No'" :disabled="isLoading"></ion-input>
+                    <ion-toggle slot="end" :enable-on-off-labels="true" v-model="dynamicData.is_loanable" :disabled="isLoading"></ion-toggle>
+                </ion-item>
             </ion-list>
 
             <datalist id="inventory-products-categories-datatlist">
@@ -72,7 +76,7 @@
 
 <script setup lang="ts">
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { IonButton, IonButtons, IonContent, IonHeader, IonInput,IonIcon, IonAvatar, IonLabel, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
+import { IonButton, IonButtons, IonContent, IonHeader, IonToggle, IonInput,IonIcon, IonAvatar, IonLabel, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { computed, onMounted, ref } from 'vue';
 import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { arrowForwardCircleOutline, cubeOutline, cameraOutline, pricetagOutline } from 'ionicons/icons';
@@ -115,7 +119,8 @@ const dynamicData = ref<{
     code: string,
     status: EInventoryProductStatus,
     image: string,
-    isLoadingImage: boolean
+    isLoadingImage: boolean,
+    is_loanable: boolean
 }>({
     name: '',
     description: '',
@@ -126,7 +131,8 @@ const dynamicData = ref<{
     code: '',
     status: EInventoryProductStatus.Active,
     image: '',
-    isLoadingImage: false
+    isLoadingImage: false,
+    is_loanable: false
 });
 
 
@@ -180,7 +186,8 @@ const createProduct = async () => {
         unit: dynamicData.value.unit,
         code: dynamicData.value.code || null,
         status: dynamicData.value.status,
-        image: dynamicData.value.image || null
+        image: dynamicData.value.image || null,
+        is_loanable: dynamicData.value.is_loanable
     }
 
     RequestAPI.post('/inventory/products', dataParsed).then(async (response) => {

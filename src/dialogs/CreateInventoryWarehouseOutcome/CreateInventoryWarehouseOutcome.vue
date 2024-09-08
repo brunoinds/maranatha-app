@@ -111,17 +111,17 @@
                                             <p>{{ product.product.description }}</p>
                                             <p>{{ product.product.brand }}</p>
                                         </ion-label>
-                                        <ion-label slot="end" class="ion-text-right" color="primary"  v-if="product.product.category != 'Herramientas'">
+                                        <ion-label slot="end" class="ion-text-right" color="primary"  v-if="!product.product.is_loanable">
                                             <h2 v-for="price in productsResume.find((i) => i.product == product.product)?.prices"><b>+{{ Toolbox.moneyFormat(price.amount, price.currency as unknown as EMoneyType) }}</b></h2>
                                             <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ price.count }} unidades en {{ price.currency }}</p>
                                         </ion-label>
-                                        <ion-label slot="end" class="ion-text-right" color="primary"  v-if="product.product.category == 'Herramientas'">
+                                        <ion-label slot="end" class="ion-text-right" color="primary"  v-if="product.product.is_loanable">
                                             <h2><b>Préstamo</b></h2>
                                             <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ price.count }} unidades</p>
                                         </ion-label>
                                     </ion-item>
 
-                                    <ion-item v-for="item in productsResume.find((i) => i.product == product.product)?.itemsAggregated" v-if="product.product.category != 'Herramientas'">
+                                    <ion-item v-for="item in productsResume.find((i) => i.product == product.product)?.itemsAggregated" v-if="!product.product.is_loanable">
                                         <ion-label>
                                             <h3>{{ item.count }} unidades</h3>
                                             <p style="font-size: 11px;">por {{Toolbox.moneyFormat(item.unitAmount, item.currency as unknown as EMoneyType)}} cada</p>
@@ -281,7 +281,7 @@ const outcomeResume = computed(() => {
                 product.items.forEach((item) => {
                     const key = item.buy_currency;
                     const itemData = JSON.parse(JSON.stringify(item));
-                    if (product.product.category == 'Herramientas'){
+                    if (product.product.is_loanable){
                         itemData.buy_amount = 0;
                     }
 
@@ -306,12 +306,12 @@ const outcomeResume = computed(() => {
             }, [])
         })(),
         itemsToLoan: (() => {
-            return productsResume.value.filter(product => product.product.category == 'Herramientas').reduce((acc, product) => {
+            return productsResume.value.filter(product => product.product.is_loanable).reduce((acc, product) => {
                 return acc.concat(product.items)
             }, [])
         })(),
         itemsToSell: (() => {
-            return productsResume.value.filter(product => product.product.category != 'Herramientas').reduce((acc, product) => {
+            return productsResume.value.filter(product => !product.product.is_loanable).reduce((acc, product) => {
                 return acc.concat(product.items)
             }, [])
         })()

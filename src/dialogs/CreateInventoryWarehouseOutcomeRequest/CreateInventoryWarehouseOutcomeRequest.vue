@@ -106,6 +106,7 @@ import { DateTime } from "luxon";
 import { onMounted, ref } from 'vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
+import { IExpense, EExpenseUses } from '@/interfaces/JobsAndExpensesInterfaces';
 
 const accordionGroupEl = ref<any>(null);
 const isLoading = ref<boolean>(true);
@@ -238,6 +239,16 @@ const actions = {
     openExpenseSelector: () => {
         Dialog.show(ExpenseSelector, {
             props: {
+                expensesFilterCallback(expense: IExpense){
+                    if (!expense.uses.includes(EExpenseUses.Inventory)){
+                        return false;
+                    }
+                    if (warehouseOutcome.value.job_code?.startsWith('000')){
+                        return expense.code.length == 3;
+                    }else{
+                        return expense.code.length != 3;
+                    }
+                },
                 selectedExpenseCode: warehouseOutcome.value.expense_code
             },
             onLoaded($this) {

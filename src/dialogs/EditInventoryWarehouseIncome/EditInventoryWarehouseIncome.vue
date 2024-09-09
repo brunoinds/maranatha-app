@@ -182,6 +182,7 @@ import { attachOutline, camera, qrCodeOutline, trashBinOutline } from 'ionicons/
 import { DateTime } from "luxon";
 import { computed, onMounted, PropType, ref } from 'vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
+import { IExpense, EExpenseUses } from '@/interfaces/JobsAndExpensesInterfaces';
 
 const datetimeAccordionGroupEl = ref<any>(null);
 const accordionGroupEl = ref<any>(null);
@@ -377,6 +378,16 @@ const actions = {
     openExpenseSelector: () => {
         Dialog.show(ExpenseSelector, {
             props: {
+                expensesFilterCallback(expense: IExpense){
+                    if (!expense.uses.includes(EExpenseUses.Inventory)){
+                        return false;
+                    }
+                    if (warehouseIncome.value.job_code?.startsWith('000')){
+                        return expense.code.length == 3;
+                    }else{
+                        return expense.code.length != 3;
+                    }
+                },
                 selectedExpenseCode: warehouseIncome.value.expense_code
             },
             onLoaded($this) {

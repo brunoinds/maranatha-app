@@ -21,6 +21,7 @@
                     <ion-select label="Uso"  label-placement="stacked" v-model="dynamicData.uses" :disabled="isLoading" :multiple="true">
                         <ion-select-option :value="EExpenseUses.Attendances">Asistencias</ion-select-option>
                         <ion-select-option :value="EExpenseUses.Reports">Reportes</ion-select-option>
+                        <ion-select-option :value="EExpenseUses.Inventory">Inventário</ion-select-option>
                     </ion-select>
                 </ion-item>
             </ion-list>

@@ -40,12 +40,9 @@
 </template>
 
 <script setup lang="ts">
-import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
-import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
-import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
-import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
+import { DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { Session } from '@/utils/Session/Session';
-import { IonAccordion, IonAccordionGroup, IonButton, IonTextarea, IonButtons, IonContent, IonDatetime, IonHeader, IonIcon, IonInput, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController } from '@ionic/vue';
+import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonContent, IonDatetime, IonHeader, IonIcon, IonInput, IonItem, IonList, IonPage, IonProgressBar, IonTextarea, IonTitle, IonToolbar, alertController } from '@ionic/vue';
 import { checkmarkCircleOutline } from 'ionicons/icons';
 import { DateTime } from "luxon";
 import { onMounted, ref } from 'vue';

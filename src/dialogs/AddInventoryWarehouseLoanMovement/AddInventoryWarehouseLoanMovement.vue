@@ -47,6 +47,7 @@
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
+import { IExpense, EExpenseUses } from '@/interfaces/JobsAndExpensesInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { Session } from '@/utils/Session/Session';
 import { IonAccordion, IonAccordionGroup, IonButton, IonTextarea, IonButtons, IonContent, IonDatetime, IonHeader, IonIcon, IonInput, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController } from '@ionic/vue';
@@ -176,6 +177,16 @@ const actions = {
     openExpenseSelector: () => {
         Dialog.show(ExpenseSelector, {
             props: {
+                expensesFilterCallback(expense: IExpense){
+                    if (!expense.uses.includes(EExpenseUses.Inventory)){
+                        return false;
+                    }
+                    if (movement.value.job_code?.startsWith('000')){
+                        return expense.code.length == 3;
+                    }else{
+                        return expense.code.length != 3;
+                    }
+                },
                 selectedExpenseCode: movement.value.expense_code
             },
             onLoaded($this) {

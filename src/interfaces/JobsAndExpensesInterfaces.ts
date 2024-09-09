@@ -7,6 +7,7 @@ interface IJob{
 export enum EExpenseUses{
     Reports = 'Reports',
     Attendances = 'Attendances',
+    Inventory = 'Inventory',
 }
 interface IExpense{
     name: string;

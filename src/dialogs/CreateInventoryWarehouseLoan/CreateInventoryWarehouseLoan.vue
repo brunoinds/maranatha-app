@@ -161,6 +161,7 @@ import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import UsersSelector from '@/dialogs/UsersSelector/UsersSelector.vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import { IUser } from '@/interfaces/UserInterfaces';
+import { IExpense, EExpenseUses } from '@/interfaces/JobsAndExpensesInterfaces';
 
 const datetimeAccordionGroupEl = ref<any>(null);
 const accordionGroupEl = ref<any>(null);
@@ -422,6 +423,16 @@ const actions = {
     openExpenseSelector: () => {
         Dialog.show(ExpenseSelector, {
             props: {
+                expensesFilterCallback(expense: IExpense){
+                    if (!expense.uses.includes(EExpenseUses.Inventory)){
+                        return false;
+                    }
+                    if (loanRequest.value.job_code?.startsWith('000')){
+                        return expense.code.length == 3;
+                    }else{
+                        return expense.code.length != 3;
+                    }
+                },
                 selectedExpenseCode: loanRequest.value.expense_code
             },
             onLoaded($this) {

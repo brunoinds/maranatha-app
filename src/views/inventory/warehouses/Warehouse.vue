@@ -142,9 +142,9 @@ const segments = [
     },
     {
         id: 'loans',
-        title: '🗄️ Préstamos',
+        title: '🤝 Préstamos',
         name: 'Préstamos',
-        icon: '🗄️'
+        icon: '🤝'
     },
     {
         id: 'informs',

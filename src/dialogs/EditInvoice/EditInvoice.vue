@@ -621,14 +621,14 @@ const saveInvoice = async () => {
             pdf_base64: dynamicData.value.originalPdfBase64 == dynamicData.value.uploadedPdfBase64 ? null : dynamicData.value.uploadedPdfBase64
         } as unknown as IInvoice;
 
-        if (invoiceDocument.pdf_base64 || invoiceDocument.pdf){
+        if ((invoiceDocument as any).pdf_base64 || invoiceDocument.pdf){
             invoiceDocument.image = null;
-            invoiceDocument.image_base64 = null;
+            (invoiceDocument as any).image_base64 = null;
         }
 
-        if (invoiceDocument.image_base64 || invoiceDocument.image){
+        if ((invoiceDocument as any).image_base64 || invoiceDocument.image){
             invoiceDocument.pdf = null;
-            invoiceDocument.pdf_base64 = null;
+            (invoiceDocument as any).pdf_base64 = null;
         }
 
 

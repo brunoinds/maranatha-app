@@ -32,6 +32,9 @@ export enum EInventoryProductStatus{
 export enum EInventoryProductItemStatus{
     InStock = 'InStock',
     Sold = 'Sold',
+    Loaned = 'Loaned',
+    InRepair = 'InRepair',
+    WriteOff = 'WriteOff'
 }
 
 export interface IWarehouse{
@@ -58,7 +61,15 @@ export interface IInventoryProductItem{
     inventory_product_id: number,
     inventory_warehouse_id: number,
     inventory_warehouse_income_id: number,
-    inventory_warehouse_outcome_id?: number|null
+    inventory_warehouse_outcome_id?: number|null,
+
+
+
+    product?: IProduct
+    loans?: Array<IWarehouseProductItemLoan>,
+    warehouse?: IWarehouse,
+    income?: IWarehouseIncome,
+    outcome?: IWarehouseOutcome
 }
 
 
@@ -116,13 +127,15 @@ export interface IWarehouseProductItemLoan{
         job_code: string,
         expense_code: string,
         date: string,
-        description: string
+        description: string,
+        user?: IUser
     }>,
     intercurrences: Array<{
         id: string,
         user_id: number,
         date: string,
-        description: string
+        description: string,
+        user?: IUser
     }>,
     inventory_product_item_id: number,
     inventory_warehouse_id: number,

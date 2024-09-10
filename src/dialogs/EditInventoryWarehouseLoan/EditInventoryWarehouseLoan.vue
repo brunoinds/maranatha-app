@@ -11,6 +11,42 @@
         </ion-header>
         <ion-content>
             <article v-if="loan && dataUI">
+                <ion-list-header>Producto</ion-list-header>
+                <ion-list :inset="true">
+                    <ion-item button @click="openProductItemView">
+                        <ion-avatar slot="start" v-if="loan.product_item?.product.image">
+                            <img :src="loan.product_item?.product.image" />
+                        </ion-avatar>
+                        <ion-label>
+                            <h2><b>{{ loan.product_item?.product.name }}</b></h2>
+                            <p>{{ loan.product_item?.product.description }}</p>
+                            <p>{{ loan.product_item?.product.brand }}</p>
+                            <p>S/N: {{ loan.product_item?.batch }}</p>
+                        </ion-label>
+                        <ProductItemLoanStatusChip slot="end" :request="loan" />
+                    </ion-item>
+
+
+                    <ion-item button @click="seeOutcomeRequest" v-if="loan.inventory_warehouse_outcome_request_id">
+                        <ion-icon color="primary" slot="start" :icon="fileTrayFullOutline"></ion-icon>
+                        <ion-label color="primary" >
+                            <h2>Ver pedido</h2>
+                        </ion-label>
+                    </ion-item>
+
+                    <ion-item button @click="openProductItemView"  v-if="dataUI.isMeLoaner">
+                        <ion-icon color="primary" slot="start" :icon="albumsOutline"></ion-icon>
+                        <ion-label color="primary" >
+                            <h2>Ver producto en stock</h2>
+                        </ion-label>
+                    </ion-item>
+                </ion-list>
+                
+
+
+
+
+
                 <ion-accordion-group ref="accordionGroupEl">
                     <ion-accordion value="first">
                         <ion-item slot="header" color="light">
@@ -20,65 +56,37 @@
                             </ion-label>
                         </ion-item>
                         <section slot="content">
-                            <ion-list>
+                            <ion-list :inset="true">
                                 <ion-item v-if="dataUI.loaned_at">
+                                    <ion-icon slot="start" :icon="personOutline"></ion-icon>
                                     <ion-input label="Prestado por:" label-placement="stacked" placeholder="Descripcion" :value="dataUI.loaned_by.name" :readonly="true"></ion-input>
                                 </ion-item>
                                 <ion-item v-if="dataUI.received_at">
+                                    <ion-icon slot="start" :icon="peopleOutline"></ion-icon>
                                     <ion-input label="Prestado para:" label-placement="stacked" placeholder="Descripcion" :value="dataUI.loaned_to.name" :readonly="true"></ion-input>
                                 </ion-item>
                             </ion-list>
 
-                            <ion-list>
+                            <ion-list :inset="true">
                                 <ion-item v-if="dataUI.loaned_at">
+                                    <ion-icon slot="start" :icon="exitOutline"></ion-icon>
                                     <ion-input label="Prestado el:" label-placement="stacked" placeholder="Descripcion" :value="dataUI.loaned_at" :readonly="true"></ion-input>
                                 </ion-item>
                                 <ion-item v-if="dataUI.received_at">
+                                    <ion-icon slot="start" :icon="checkmarkDoneOutline"></ion-icon>
                                     <ion-input label="Recibido por el prestatario:" label-placement="stacked" placeholder="Descripcion" :value="dataUI.received_at" :readonly="true"></ion-input>
                                 </ion-item>
                                 <ion-item v-if="dataUI.returned_at">
+                                    <ion-icon slot="start" :icon="arrowUndoOutline"></ion-icon>
                                     <ion-input label="Devuelto por el prestatario:" label-placement="stacked" placeholder="Descripcion" :value="dataUI.returned_at" :readonly="true"></ion-input>
                                 </ion-item>
                                 <ion-item v-if="dataUI.confirm_returned_at">
+                                    <ion-icon slot="start" :icon="enterOutline"></ion-icon>
                                     <ion-input label="Recibido por el almacén:" label-placement="stacked" placeholder="Descripcion" :value="dataUI.confirm_returned_at" :readonly="true"></ion-input>
                                 </ion-item>
                             </ion-list>
 
                             <br>
-
-                            <ion-list-header>Producto</ion-list-header>
-
-                            <br>
-
-                            <ion-list>
-                                <ion-item>
-                                    <ion-avatar slot="start" v-if="loan.product_item?.product.image">
-                                        <img :src="loan.product_item?.product.image" />
-                                    </ion-avatar>
-                                    <ion-label>
-                                        <h2><b>{{ loan.product_item?.product.name }}</b></h2>
-                                        <p>{{ loan.product_item?.product.description }}</p>
-                                        <p>{{ loan.product_item?.product.brand }}</p>
-                                    </ion-label>
-                                    <ProductItemLoanStatusChip slot="end" :request="loan" />
-                                </ion-item>
-
-                                <ion-item button @click="showLoanRegestry">
-                                    <ion-icon slot="start" :icon="documentTextOutline"></ion-icon>
-                                    <ion-label>
-                                        <h2>Registro de préstamos</h2>
-                                        <p>Ver registro de todos los préstamos de este producto</p>
-                                    </ion-label>
-                                </ion-item>
-
-                                <ion-item button @click="seeOutcomeRequest" v-if="loan.inventory_warehouse_outcome_request_id">
-                                    <ion-icon slot="start" :icon="fileTrayFullOutline"></ion-icon>
-                                    <ion-label>
-                                        <h2>Ver pedido</h2>
-                                    </ion-label>
-                                </ion-item>
-                            </ion-list>
-                            
                         </section>
                     </ion-accordion>
                     <ion-accordion value="second">
@@ -89,13 +97,14 @@
                             </ion-label>
                         </ion-item>
                         <section slot="content">
-                            <ion-list>
+                            <ion-list  :inset="true">
                                 <ion-item v-for="moviment in movimentsUI" :key="moviment.id">
-                                    <ion-icon slot="start" :icon="swapVerticalOutline"></ion-icon>
+                                    <ion-icon color="primary" slot="start" :icon="swapVerticalOutline"></ion-icon>
                                     <ion-label>
-                                        <h2><b>{{ moviment.date }}</b></h2>
-                                        <p>{{ moviment.description }}</p>
+                                        <h2><b>{{ moviment.user.name }}</b></h2>
+                                        <h3>{{ moviment.date }}</h3>
                                         <h3><b>Job: </b> {{ moviment.job_code }} <b>Expense: </b> {{ moviment.expense_code }}</h3>
+                                        <p>{{ moviment.description }}</p>
                                     </ion-label>
                                     <ion-button fill="clear" color="danger" @click="actions.deleteMoviment(moviment.id)">
                                         <ion-icon slot="icon-only" :icon="removeCircleOutline"></ion-icon>
@@ -104,7 +113,7 @@
                             </ion-list>
 
                             <section class="ion-padding">
-                                <ion-button @click="actions.addNewMoviment" expand="block" fill="outline">
+                                <ion-button @click="actions.addNewMoviment" expand="block" >
                                     <ion-icon slot="end" :icon="addCircleOutline"></ion-icon>
                                     Nuevo Movimiento
                                 </ion-button>
@@ -120,11 +129,12 @@
                             </ion-label>
                         </ion-item>
                         <section slot="content">
-                            <ion-list>
+                            <ion-list  :inset="true">
                                 <ion-item v-for="intercurrency in intercurrencesUI" :key="intercurrency.id">
                                     <ion-icon color="warning" slot="start" :icon="warningOutline"></ion-icon>
                                     <ion-label>
-                                        <h2><b>{{ intercurrency.date }}</b></h2>
+                                        <h2><b>{{ intercurrency.user.name }}</b></h2>
+                                        <h3>{{ intercurrency.date }}</h3>
                                         <p>{{ intercurrency.description }}</p>
                                     </ion-label>
                                     <ion-button fill="clear" color="danger" @click="actions.deleteIntercurrence(intercurrency.id)">
@@ -133,7 +143,7 @@
                                 </ion-item>
                             </ion-list>
                             <section class="ion-padding">
-                                <ion-button @click="actions.addNewIntercurrence" expand="block" fill="outline">
+                                <ion-button @click="actions.addNewIntercurrence" expand="block">
                                     <ion-icon slot="end" :icon="addCircleOutline"></ion-icon>
                                     Nueva Intercurrencia
                                 </ion-button>
@@ -143,7 +153,7 @@
                 </ion-accordion-group>
 
                 <br>
-                <section class="ion-padding" v-if="!isReadonly">
+                <section class="ion-padding">
                     <ion-button :disabled="isLoading" v-if="loan.status == EInventoryWarehouseProductItemLoanStatus.OnLoan && dataUI.isMeLoanee" color="warning" @click="actions.changeStatus(EInventoryWarehouseProductItemLoanStatus.ReturningToWarehouse)" expand="block">
                         Devolver producto al almacén
                         <ion-icon slot="start" :icon="arrowUndoOutline"></ion-icon>
@@ -179,8 +189,10 @@
 
 <script setup lang="ts">
 import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/ProductItemLoanStatusChip.vue';
+import ProductItemStatusChip from '@/components/ProductItemStatusChip/ProductItemStatusChip.vue';
 import AddInventoryWarehouseLoanIntercurrency from '@/dialogs/AddInventoryWarehouseLoanIntercurrency/AddInventoryWarehouseLoanIntercurrency.vue';
 import AddInventoryWarehouseLoanMovement from '@/dialogs/AddInventoryWarehouseLoanMovement/AddInventoryWarehouseLoanMovement.vue';
+import EditInventoryProductItem from '@/dialogs/EditInventoryProductItem/EditInventoryProductItem.vue';
 import ShowInventoryWarehouseProductItemLoans from '@/dialogs/ShowInventoryWarehouseProductItemLoans/ShowInventoryWarehouseProductItemLoans.vue';
 import { EInventoryWarehouseProductItemLoanStatus, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
 import { IUser } from '@/interfaces/UserInterfaces';
@@ -189,7 +201,7 @@ import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
 import { alertController, IonAccordion, IonAccordionGroup, IonInput, IonListHeader, IonAvatar, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
-import { addCircleOutline, arrowUndoOutline, checkmarkCircleOutline, closeCircleOutline, documentTextOutline, fileTrayFullOutline, removeCircleOutline, swapVerticalOutline, trashBinOutline, warningOutline } from 'ionicons/icons';
+import { addCircleOutline, albumsOutline, arrowUndoOutline, checkmarkCircleOutline, checkmarkDoneOutline, closeCircleOutline, documentTextOutline, enterOutline, exitOutline, fileTrayFullOutline, peopleOutline, personOutline, removeCircleOutline, swapVerticalOutline, trashBinOutline, warningOutline } from 'ionicons/icons';
 import { DateTime } from "luxon";
 import { computed, onMounted, PropType, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -230,12 +242,23 @@ const dynamicData = ref<{
 
 
 
+const openProductItemView = () => {
+    Dialog.show(EditInventoryProductItem, {
+        props: {
+            productItemId: loan.value?.product_item?.id
+        },
+        onLoaded($this) {
+            
+        }
+    })
+}
+
 
 const movimentsUI = computed(() => {
     return dynamicData.value.movements.map((moviment: any) => {
         return {
             ...moviment,
-            date: DateTime.fromISO(moviment.date).toFormat("dd/MM/yyyy"),
+            date: DateTime.fromISO(moviment.date).toFormat("dd/MM/yyyy HH:mm"),
         }
     }) as IWarehouseProductItemLoan['movements'];
 })
@@ -243,7 +266,7 @@ const intercurrencesUI = computed(() => {
     return dynamicData.value.intercurrences.map((intercurrence: any) => {
         return {
             ...intercurrence,
-            date: DateTime.fromISO(intercurrence.date).toFormat("dd/MM/yyyy"),
+            date: DateTime.fromISO(intercurrence.date).toFormat("dd/MM/yyyy HH:mm"),
         }
     }) as IWarehouseProductItemLoan['intercurrences'];
 })
@@ -251,10 +274,10 @@ const intercurrencesUI = computed(() => {
 const dataUI = computed(() => {
     return {
         ...loan.value,
-        loaned_at: loan.value?.loaned_at ? DateTime.fromJSDate(new Date(loan.value?.loaned_at)).toFormat("dd/MM/yyyy") : null,
-        received_at: loan.value?.received_at ? DateTime.fromJSDate(new Date(loan.value?.received_at)).toFormat("dd/MM/yyyy") : null,
-        returned_at: loan.value?.returned_at ? DateTime.fromJSDate(new Date(loan.value?.returned_at)).toFormat("dd/MM/yyyy") : null,
-        confirm_returned_at: loan.value?.confirm_returned_at ? DateTime.fromJSDate(new Date(loan.value?.confirm_returned_at)).toFormat("dd/MM/yyyy") : null,
+        loaned_at: loan.value?.loaned_at ? DateTime.fromJSDate(new Date(loan.value?.loaned_at)).toFormat("dd/MM/yyyy HH:mm") : null,
+        received_at: loan.value?.received_at ? DateTime.fromJSDate(new Date(loan.value?.received_at)).toFormat("dd/MM/yyyy HH:mm") : null,
+        returned_at: loan.value?.returned_at ? DateTime.fromJSDate(new Date(loan.value?.returned_at)).toFormat("dd/MM/yyyy HH:mm") : null,
+        confirm_returned_at: loan.value?.confirm_returned_at ? DateTime.fromJSDate(new Date(loan.value?.confirm_returned_at)).toFormat("dd/MM/yyyy HH:mm") : null,
         isMeLoaner: loan.value?.loaned_by_user_id == Session.getCurrentSessionSync()?.id(),
         isMeLoanee: loan.value?.loaned_to_user_id == Session.getCurrentSessionSync()?.id(),
     }

@@ -11,7 +11,7 @@
         </ion-header>
         <ion-content>
             <ion-list>
-                <ion-item v-if="loansRegistryUI.length > 0">
+                <ion-item v-if="loansRegistryUI.length > 0" button @click="openProductItemView">
                     <ion-avatar slot="start" >
                         <img :src="loansRegistryUI[0].product_item?.product.image" />
                     </ion-avatar>
@@ -19,6 +19,7 @@
                         <h2><b>{{ loansRegistryUI[0].product_item?.product.name }}</b></h2>
                         <p>{{ loansRegistryUI[0].product_item?.product.description }}</p>
                         <p>{{ loansRegistryUI[0].product_item?.product.brand }}</p>
+                        <p>S/N: {{ loansRegistryUI[0].product_item?.batch }}</p>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -27,7 +28,6 @@
             <br>
 
             <ion-list>
-
                 <ion-item v-for="loan in loansRegistryUI" :key="loan.id" button @click="showLoan(loan)">
                     <ion-label>
                         <h2><b>{{ loan.date }}</b></h2>
@@ -43,6 +43,7 @@
 
 <script setup lang="ts">
 import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/ProductItemLoanStatusChip.vue';
+import EditInventoryProductItem from '@/dialogs/EditInventoryProductItem/EditInventoryProductItem.vue';
 import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
 import { IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
@@ -87,6 +88,17 @@ const showLoan = (loan: IWarehouseProductItemLoan) => {
     Dialog.show(EditInventoryWarehouseLoan, {
         props: {
             productItemLoanId: loan.id
+        },
+        onLoaded($this) {
+            
+        }
+    })
+}
+
+const openProductItemView = () => {
+    Dialog.show(EditInventoryProductItem, {
+        props: {
+            productItemId: props.productItemId
         },
         onLoaded($this) {
             

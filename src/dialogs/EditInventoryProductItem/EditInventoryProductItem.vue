@@ -11,7 +11,7 @@
         </ion-header>
         <ion-content>
 
-            <ion-list :inset="true">
+            <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'"  v-if="productItemData">
                 <ion-item>
                     <ion-avatar slot="start" v-if="productItemData?.product">
                         <img :src="productItemData?.product?.image" />
@@ -28,7 +28,7 @@
                 </ion-item>
             </ion-list>
 
-            <ion-list :inset="true" v-if="productItemData">
+            <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'" v-if="productItemData">
                 <ion-item button @click="showIncome">
                     <ion-icon color="primary" :icon="enterOutline" slot="start"></ion-icon>
                     <ion-label color="primary">
@@ -46,8 +46,8 @@
             </ion-list>
 
 
-            <ion-list-header v-if="productItemData?.loans && productItemData.loans.length > 0">Historial de Préstamos</ion-list-header>
-            <ion-list :inset="true" v-if="productItemData">
+            <ion-list-header v-if="productItemData?.loans && productItemData.loans.length > 0" :style="Viewport.data.value.deviceSetting != 'DesktopLandscape' ? 'margin-bottom: 10px;' : undefined">Historial de Préstamos</ion-list-header>
+            <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'" v-if="productItemData">
                 <ion-item v-for="loan in productItemData.loans" :key="loan.id" button @click="showLoan(loan)">
                     <ion-label>
                         <h2><b>{{ DateTime.fromJSDate(new Date(loan.loaned_at as any)).toFormat('dd/MM/yyyy') }}</b></h2>
@@ -58,8 +58,8 @@
                 </ion-item>
             </ion-list>
 
-            <ion-list-header v-if="productItemData?.loans && productItemData.loans.length > 0 && intercurrencesUI.length > 0">Historial de Intercurrencias</ion-list-header>
-            <ion-list :inset="true" v-if="productItemData && intercurrencesUI.length > 0">
+            <ion-list-header v-if="productItemData?.loans && productItemData.loans.length > 0 && intercurrencesUI.length > 0"  :style="Viewport.data.value.deviceSetting != 'DesktopLandscape' ? 'margin-bottom: 10px;' : undefined">Historial de Intercurrencias</ion-list-header>
+            <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'" v-if="productItemData && intercurrencesUI.length > 0">
                 <ion-item v-for="intercurrency in intercurrencesUI" :key="intercurrency.id" button @click="showLoan(intercurrency.loan)">
                     <ion-icon color="warning" slot="start" :icon="warningOutline"></ion-icon>
                     <ion-label>
@@ -70,8 +70,8 @@
                 </ion-item>
             </ion-list>
 
-            <ion-list-header v-if="productItemData?.loans && productItemData.loans.length > 0 && movementsUI.length > 0">Historial de Movimientos</ion-list-header>
-            <ion-list :inset="true" v-if="productItemData && movementsUI.length > 0">
+            <ion-list-header v-if="productItemData?.loans && productItemData.loans.length > 0 && movementsUI.length > 0"  :style="Viewport.data.value.deviceSetting != 'DesktopLandscape' ? 'margin-bottom: 10px;' : undefined">Historial de Movimientos</ion-list-header>
+            <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'" v-if="productItemData && movementsUI.length > 0">
                 <ion-item v-for="movement in movementsUI" :key="movement.id" button @click="showLoan(movement.loan)">
                     <ion-icon color="primary" slot="start" :icon="swapVerticalOutline"></ion-icon>
                     <ion-label>
@@ -84,8 +84,8 @@
             </ion-list>
 
 
-            <ion-list-header v-if="productItemData?.loans && productItemData.loans.length > 0">Opciones</ion-list-header>
-            <ion-list :inset="true" v-if="productItemData && allowEdits && productItemData.product?.is_loanable">
+            <ion-list-header v-if="productItemData?.loans && productItemData.loans.length > 0"  :style="Viewport.data.value.deviceSetting != 'DesktopLandscape' ? 'margin-bottom: 10px;' : undefined">Opciones</ion-list-header>
+            <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'" v-if="productItemData && allowEdits && productItemData.product?.is_loanable">
                 <ion-item  button v-if="productItemData.status == EInventoryProductItemStatus.InStock" @click="setInRepair()">
                     <ion-icon color="warning" :icon="buildOutline" slot="start"></ion-icon>
                     <ion-label color="warning">Hacer mantenimiento</ion-label>
@@ -105,23 +105,22 @@
 </template>
 
 <script setup lang="ts">
-import ImageSearch from '@/dialogs/ImageSearch/ImageSearch.vue';
-import { EInventoryProductItemStatus, EInventoryProductStatus, EInventoryProductUnitType, IInventoryProductItem, IProduct, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
+import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/ProductItemLoanStatusChip.vue';
+import ProductItemStatusChip from '@/components/ProductItemStatusChip/ProductItemStatusChip.vue';
+import EditInventoryWarehouseIncome from '@/dialogs/EditInventoryWarehouseIncome/EditInventoryWarehouseIncome.vue';
+import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
+import EditInventoryWarehouseOutcome from '@/dialogs/EditInventoryWarehouseOutcome/EditInventoryWarehouseOutcome.vue';
+import { EInventoryProductItemStatus, IInventoryProductItem, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { Toolbox } from '@/utils/Toolbox/Toolbox';
-import { IonAvatar, IonButton, IonButtons, IonContent, IonHeader, IonListHeader, IonToggle, IonIcon, IonLabel, IonInput, IonItem, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
-import { arrowUndoOutline, buildOutline, enterOutline, exitOutline, pricetagOutline, removeCircleOutline, swapVerticalOutline, trashOutline, warningOutline } from 'ionicons/icons';
-import { computed, onMounted, ref } from 'vue';
-import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { Session } from '@/utils/Session/Session';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
-import ProductItemStatusChip from '@/components/ProductItemStatusChip/ProductItemStatusChip.vue';
-import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
-import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/ProductItemLoanStatusChip.vue';
+import { Viewport } from '@/utils/Viewport/Viewport';
+import { IonAvatar, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
+import { arrowUndoOutline, buildOutline, enterOutline, exitOutline, removeCircleOutline, swapVerticalOutline, warningOutline } from 'ionicons/icons';
 import { DateTime } from 'luxon';
-import EditInventoryWarehouseIncome from '@/dialogs/EditInventoryWarehouseIncome/EditInventoryWarehouseIncome.vue';
-import EditInventoryWarehouseOutcome from '@/dialogs/EditInventoryWarehouseOutcome/EditInventoryWarehouseOutcome.vue';
-import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { computed, onMounted, ref } from 'vue';
+import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 
 
 const page = ref<HTMLElement|null>(null);

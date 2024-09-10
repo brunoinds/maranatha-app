@@ -1347,7 +1347,7 @@ const openOutcomeRequestReceiptProductsSelector  = async () => {
 const openLoanProduct = async (loadId:number) => {
     Dialog.show(EditInventoryWarehouseLoan, {
         props: {
-            productItemLoan: loanedProductsItemsData.value.find((item) => item.id === loadId),
+            productItemLoanId: loanedProductsItemsData.value.find((item) => item.id === loadId)?.id,
         },
         onLoaded($this) {
             

@@ -11,8 +11,8 @@
         </ion-header>
         <ion-content>
             <article v-if="loan && dataUI">
-                <ion-list-header>Producto</ion-list-header>
-                <ion-list :inset="true">
+                <ion-list-header  :style="Viewport.data.value.deviceSetting != 'DesktopLandscape' ? 'margin-bottom: 10px;' : undefined">Producto</ion-list-header>
+                <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                     <ion-item button @click="openProductItemView">
                         <ion-avatar slot="start" v-if="loan.product_item?.product.image">
                             <img :src="loan.product_item?.product.image" />
@@ -42,7 +42,7 @@
                     </ion-item>
                 </ion-list>
                 
-
+                <br>
 
 
 
@@ -56,7 +56,7 @@
                             </ion-label>
                         </ion-item>
                         <section slot="content">
-                            <ion-list :inset="true">
+                            <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                                 <ion-item v-if="dataUI.loaned_at">
                                     <ion-icon slot="start" :icon="personOutline"></ion-icon>
                                     <ion-input label="Prestado por:" label-placement="stacked" placeholder="Descripcion" :value="dataUI.loaned_by.name" :readonly="true"></ion-input>
@@ -67,7 +67,7 @@
                                 </ion-item>
                             </ion-list>
 
-                            <ion-list :inset="true">
+                            <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                                 <ion-item v-if="dataUI.loaned_at">
                                     <ion-icon slot="start" :icon="exitOutline"></ion-icon>
                                     <ion-input label="Prestado el:" label-placement="stacked" placeholder="Descripcion" :value="dataUI.loaned_at" :readonly="true"></ion-input>
@@ -97,7 +97,7 @@
                             </ion-label>
                         </ion-item>
                         <section slot="content">
-                            <ion-list  :inset="true">
+                            <ion-list  :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                                 <ion-item v-for="moviment in movimentsUI" :key="moviment.id">
                                     <ion-icon color="primary" slot="start" :icon="swapVerticalOutline"></ion-icon>
                                     <ion-label>
@@ -129,7 +129,7 @@
                             </ion-label>
                         </ion-item>
                         <section slot="content">
-                            <ion-list  :inset="true">
+                            <ion-list  :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                                 <ion-item v-for="intercurrency in intercurrencesUI" :key="intercurrency.id">
                                     <ion-icon color="warning" slot="start" :icon="warningOutline"></ion-icon>
                                     <ion-label>
@@ -200,6 +200,7 @@ import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
+import { Viewport } from '@/utils/Viewport/Viewport';
 import { alertController, IonAccordion, IonAccordionGroup, IonInput, IonListHeader, IonAvatar, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
 import { addCircleOutline, albumsOutline, arrowUndoOutline, checkmarkCircleOutline, checkmarkDoneOutline, closeCircleOutline, documentTextOutline, enterOutline, exitOutline, fileTrayFullOutline, peopleOutline, personOutline, removeCircleOutline, swapVerticalOutline, trashBinOutline, warningOutline } from 'ionicons/icons';
 import { DateTime } from "luxon";

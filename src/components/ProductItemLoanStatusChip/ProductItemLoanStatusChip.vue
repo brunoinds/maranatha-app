@@ -36,7 +36,7 @@ const statusData = computed(() => {
             }
         }else if (props.request.status == EInventoryWarehouseProductItemLoanStatus.ReturningToWarehouse){
             return {
-                text: 'Esperando devolución',
+                text: 'Devolviendo a almacén',
                 icon: swapVerticalOutline,
                 color: 'danger'
             }

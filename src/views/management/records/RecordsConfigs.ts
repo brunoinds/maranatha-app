@@ -1,3 +1,4 @@
+import { IProduct } from "@/interfaces/InventoryInterfaces";
 import { ECountryType, EMoneyType } from "@/interfaces/ReportInterfaces";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { InventoryStore } from "@/utils/Stored/InventoryStore";
@@ -124,6 +125,23 @@ const load = async () => {
         })
     })();
 
+    const productsCategoriesDropdownOptions = (() => {
+        let categories:Array<string> = [];
+        products.forEach((product:IProduct) => {
+            if (product.category && !categories.includes(product.category)){
+                categories.push(product.category);
+            }
+        })
+
+        return categories.map((category:string) => {
+            return {
+                id: category,
+                name: category,
+                value: category
+            }
+        })
+    })();
+
 
     contents.jobsDropdownOptions = jobsDropdownOptions;
     contents.expensesDropdownOptions = expensesDropdownOptions;
@@ -133,6 +151,7 @@ const load = async () => {
     contents.countryTypesDropdownOptions = countryTypesDropdownOptions;
     contents.warehousesDropdownOptions = warehousesDropdownOptions;
     contents.productsDropdownOptions = productsDropdownOptions;
+    contents.productsCategoriesDropdownOptions = productsCategoriesDropdownOptions;
 
     isLoadingContents = false;
     isLoadedContents = true;
@@ -161,7 +180,7 @@ const RecordsConfigs = {
     getConfigurations: async () => {
         await waitToLoadContents();
 
-        const { jobsDropdownOptions, expensesDropdownOptions, usersDropdownOptions, jobsZonesDropdownOptions, moneyTypesDropdownOptions, countryTypesDropdownOptions, warehousesDropdownOptions, productsDropdownOptions } = contents;
+        const { jobsDropdownOptions, expensesDropdownOptions, usersDropdownOptions, jobsZonesDropdownOptions, moneyTypesDropdownOptions, countryTypesDropdownOptions, warehousesDropdownOptions, productsDropdownOptions, productsCategoriesDropdownOptions } = contents;
 
         return [
             {
@@ -747,8 +766,8 @@ const RecordsConfigs = {
                         id: 'category',
                         name: 'Categoría',
                         isRequired: false,
-                        type: 'textbox',
-                        value: null
+                        type: 'dropdown',
+                        options: productsCategoriesDropdownOptions
                     }
                 ],
                 endpoint: 'inventory/by-products-stock',
@@ -757,7 +776,43 @@ const RecordsConfigs = {
                         
                     }
                 }
-            }
+            },
+            {
+                id: 'inventory-by-products-loans-kardex',
+                title: 'Kardex de Préstamos en Inventario',
+                filters: [
+                    {
+                        id: 'warehouse_id',
+                        name: 'Almacén',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: warehousesDropdownOptions
+                    },
+                    {
+                        id: 'product_id',
+                        name: 'Producto',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: productsDropdownOptions
+                    },
+                    {
+                        id: 'date_range',
+                        name: 'Rango Fechas',
+                        isRequired: true,
+                        type: 'daterange',
+                        value: {
+                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
+                            end: DateTime.now().toFormat('yyyy-MM-dd')
+                        }
+                    },
+                ],
+                endpoint: 'inventory/by-products-loans-kardex',
+                data: {
+                    body: {
+                        
+                    }
+                }
+            },
         ];
     }
 }

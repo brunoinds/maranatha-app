@@ -37,7 +37,7 @@
                     <ion-item button @click="openProductItemView"  v-if="dataUI.isMeLoaner">
                         <ion-icon color="primary" slot="start" :icon="albumsOutline"></ion-icon>
                         <ion-label color="primary" >
-                            <h2>Ver producto en stock</h2>
+                            <h2>Ver ítem en stock</h2>
                         </ion-label>
                     </ion-item>
                 </ion-list>
@@ -182,7 +182,7 @@
                     </ion-label>
                 </section>
             </article>
-            <br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br>
         </ion-content>
     </ion-page>
 </template>

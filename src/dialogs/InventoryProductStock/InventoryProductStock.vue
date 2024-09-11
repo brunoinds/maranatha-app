@@ -108,9 +108,9 @@
             <article v-if="viewSegment == 'Ítems'">
                 <ion-list>
                     <ion-list-header>Ítems</ion-list-header>
-                    <ion-item v-for="item in productWithStock.stock.items" :key="item.id" button @click="showProductItem(item.id)">
+                    <ion-item v-for="(item,index) in productWithStock.stock.items" :key="item.id" button @click="showProductItem(item.id)">
                         <ion-label>
-                            <h2><b>#{{ item.order }}</b></h2>
+                            <h2><b>#{{ index + 1 }}</b></h2>
                             <p v-if="item.batch">S/N: {{ item.batch }}</p>
                         </ion-label>
                         <ProductItemStatusChip slot="end" :request="item" />

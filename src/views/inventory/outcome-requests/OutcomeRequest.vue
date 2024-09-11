@@ -25,7 +25,7 @@
                     <ion-item>
                         <ion-label>
                             <h1><b>Pedido #00{{ outcomeRequestId }}</b></h1>
-                            <p><b>Solicitado por {{ outcomeRequestData?.user_id }}</b></p>
+                            <p><b>Solicitado por {{ requestedByUser?.name }}</b></p>
                             <p>{{ outcomeRequestData?.requested_products.length }} productos</p>
                         </ion-label>
                         <OutcomeRequestStatusChip v-if="outcomeRequestData" :request="outcomeRequestData" :viewMode="viewModeAs" />
@@ -55,6 +55,10 @@
                                 <br><br>
 
                                 <article>
+                                    <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" fill="outline" :color="currentDeviceTheme == 'dark' ? 'light' : 'dark'" @click="showEditOutcomeRequest()">
+                                        <ion-icon slot="end" :icon="bagHandleOutline"></ion-icon>
+                                        Cambiar productos solicitados
+                                    </ion-button>
                                     <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" color="success" @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Requested)">
                                         <ion-icon slot="end" :icon="sendOutline"></ion-icon>
                                         Enviar mi pedido
@@ -82,7 +86,7 @@
                                 <article>
                                     <ion-button :disabled="isLoadingAreas.outcomeRequest" expand="block" color="light" @click="changeRequestStatus(EInventoryWarehouseOutcomeRequestStatus.Draft)">
                                         <ion-label color="danger">
-                                            Modificar mi pedido/cancelar
+                                            Modificar mi pedido
                                         </ion-label>
                                         <ion-icon slot="end" color="danger" :icon="pencilOutline"></ion-icon>
                                     </ion-button>
@@ -612,15 +616,19 @@ import VerticalTimeline from '@/components/VerticalTimeline/VerticalTimeline.vue
 import CreateInventoryWarehouseOutcome from '@/dialogs/CreateInventoryWarehouseOutcome/CreateInventoryWarehouseOutcome.vue';
 import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
 import EditInventoryWarehouseOutcome from '@/dialogs/EditInventoryWarehouseOutcome/EditInventoryWarehouseOutcome.vue';
+import EditInventoryWarehouseOutcomeRequest from '@/dialogs/EditInventoryWarehouseOutcomeRequest/EditInventoryWarehouseOutcomeRequest.vue';
 import InventoryOutcomeRequestReceiptProductsSelector from '@/dialogs/InventoryOutcomeRequestReceiptProductsSelector/InventoryOutcomeRequestReceiptProductsSelector.vue';
 import { EInventoryWarehouseOutcomeRequestStatus, IInventoryProductItem, IProduct, IProductWithWarehouseStock, IWarehouseOutcomeRequest, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
+import { IUser } from '@/interfaces/UserInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { UsersStore } from '@/utils/Stored/UsersStore';
+import { Theme } from '@/utils/Theme/Theme';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { Capacitor } from '@capacitor/core';
 import { alertController, IonAvatar, IonBackButton, IonButton, IonButtons, IonSkeletonText, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar, toastController } from '@ionic/vue';
-import { airplaneOutline, alertCircleOutline, basketOutline, chatbubbleEllipsesOutline, printOutline, checkmarkCircleOutline, closeCircleOutline, eyeOutline, pencilOutline, sendOutline, thumbsDownOutline, thumbsUpOutline, timeOutline, trashOutline } from 'ionicons/icons';
+import { airplaneOutline, alertCircleOutline, basketOutline, chatbubbleEllipsesOutline, printOutline, checkmarkCircleOutline, closeCircleOutline, eyeOutline, pencilOutline, sendOutline, thumbsDownOutline, thumbsUpOutline, timeOutline, trashOutline, bagHandleOutline } from 'ionicons/icons';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -641,6 +649,8 @@ const outcomeRequestData = ref<IWarehouseOutcomeRequest|null>(null);
 const productsData = ref<Array<IProductWithWarehouseStock>>([]);
 const dispachedProductsItemsData = ref<Array<IInventoryProductItem>>([]);
 const loanedProductsItemsData = ref<Array<IWarehouseProductItemLoan>>([]);
+const usersData = ref<Array<IUser>>([]);
+
 
 const viewModeAs = ref<'Requester'|'Dispacher'>('Requester');
 const isDeleted = ref(false);
@@ -730,6 +740,10 @@ const receivedItemsUI = computed(() => {
             })()
         }
     })
+})
+
+const requestedByUser = computed(() => {
+    return usersData.value.find((user) => user.id == outcomeRequestData.value?.user_id);
 })
 
 
@@ -964,6 +978,15 @@ const timelineUI = computed(() => {
                         title: 'Envía tu pedido',
                         description: 'Ud. ha creado un pedido. Envíalo al almacén para su aprobación.',
                         actions: [
+                            {
+                                text: 'Cambiar productos',
+                                fill: 'outline',
+                                color: 'primary',
+                                handler: () => {
+                                    showEditOutcomeRequest()
+                                },
+                                icon: bagHandleOutline
+                            },
                             {
                                 text: 'Enviar pedido',
                                 fill: 'solid',
@@ -1469,6 +1492,23 @@ const openChat = async () => {
     router.push('/inventory/outcome-requests/' + outcomeRequestId + '/chat');
 }
 
+const showEditOutcomeRequest = () => {
+    Dialog.show(EditInventoryWarehouseOutcomeRequest, {
+        props: {
+            outcomeRequestId: outcomeRequestId
+        },
+        onLoaded($this) {
+            $this.on('updated', (event:any) => {
+                AppEvents.emit('inventory:reload');
+            })
+        },
+        modalControllerOptions: {
+            presentingElement: page,
+            showBackdrop: true,
+        }
+    })
+}
+
 
 const downloadRequestedProductsPDF = async () => {
     const generatePDFDocument = async () => {
@@ -1523,14 +1563,21 @@ const downloadRequestedProductsPDF = async () => {
     isLoading.value = false;
 }  
 
+const currentDeviceTheme = computed(() => {
+    return Theme.getTheme();
+});
 
 const loadFormData = async () => {
     await loadOutcomeRequest();
 }
 
+const loadUsers = async () => {
+    usersData.value = await UsersStore.getUsers();
+}
 
 onMounted(() => {
     loadFormData();
+    loadUsers();
     const callbackId = AppEvents.on('inventory:reload', () => {
         loadFormData();
     })

@@ -65,6 +65,7 @@ import { IUser } from '@/interfaces/UserInterfaces';
 import UsersSelector from '@/dialogs/UsersSelector/UsersSelector.vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
+import { UsersStore } from '@/utils/Stored/UsersStore';
 
 const zoneInput = ref<any | null>(null);
 
@@ -244,7 +245,7 @@ const openUserSelector  = () => {
 }
 
 const loadUsers = async () => {
-    usersData.value = await RequestAPI.get('/users');
+    usersData.value = await UsersStore.getUsers();
 }
 
 onMounted(() => {

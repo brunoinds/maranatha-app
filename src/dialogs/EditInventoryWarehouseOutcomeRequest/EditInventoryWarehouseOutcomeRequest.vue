@@ -5,7 +5,10 @@
                 <ion-buttons slot="start">
                     <ion-button :disabled="isLoading" @click="emitter.fire('close')">Cancelar</ion-button>
                 </ion-buttons>
-                <ion-title>Pedido de Productos</ion-title>
+                <ion-title>Editar Pedido de Productos</ion-title>
+                <ion-buttons slot="end">
+                    <ion-button :disabled="isLoading" @click="checkoutActions.saveOutcomeRequest">Guardar</ion-button>
+                </ion-buttons>
             </ion-toolbar>
             <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
@@ -66,22 +69,9 @@
                         </ion-item>
                         <section slot="content">
                             <ion-list>
-                                <ion-item>
-                                    <ion-select label="Solicitar al almacén:" label-placement="stacked" placeholder="Elige el almacén a que vas hacer la solicitud" v-model="warehouseOutcome.inventory_warehouse_id">
-                                        <ion-select-option v-for="warehouse in warehousesData" :key="warehouse.id" :value="warehouse.id">{{ warehouse.name }}</ion-select-option>
-                                    </ion-select>
-                                </ion-item>
-
                                 <ion-item-choose-dialog @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
                                 <ion-item-choose-dialog @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
                             </ion-list>
-
-                            <section class="ion-padding">
-                                <ion-button  color="success" @click="checkoutActions.createNewOutcomeRequest" :disabled="isLoading" expand="block">
-                                    Confirmar y solicitar productos
-                                    <ion-icon slot="end" :icon="checkmarkCircleOutline"></ion-icon>
-                                </ion-button>
-                            </section>
                         </section>
                     </ion-accordion>
                 </ion-accordion-group>
@@ -93,20 +83,18 @@
 </template>
 
 <script setup lang="ts">
+import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import InventoryProductSelector from '@/dialogs/InventoryProductSelector/InventoryProductSelector.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
-import { IInventoryProductItem, INewWarehouseOutcome, INewWarehouseOutcomeRequest, IProduct, IProductWithWarehouseStock, IWarehouse } from '@/interfaces/InventoryInterfaces';
+import { EInventoryWarehouseOutcomeRequestStatus, INewWarehouseOutcomeRequest, IProduct, IProductWithWarehouseStock, IWarehouse, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
+import { EExpenseUses, IExpense } from '@/interfaces/JobsAndExpensesInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { Session } from '@/utils/Session/Session';
-import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonAvatar, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
-import { cartOutline, checkmarkCircleOutline, cart, bagAddOutline, constructOutline, bagHandleOutline } from 'ionicons/icons';
-import { DateTime } from "luxon";
-import { onMounted, ref } from 'vue';
-import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
-import { IExpense, EExpenseUses } from '@/interfaces/JobsAndExpensesInterfaces';
+import { IonAccordion, IonAccordionGroup, IonAvatar, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
+import { bagAddOutline, bagHandleOutline } from 'ionicons/icons';
+import { onMounted, ref } from 'vue';
 
 const accordionGroupEl = ref<any>(null);
 const isLoading = ref<boolean>(true);
@@ -114,9 +102,9 @@ const isLoading = ref<boolean>(true);
 
 const warehousesData = ref<IWarehouse[]>([]);
 const props = defineProps({
-    warehouseId: {
+    outcomeRequestId: {
         type: Number,
-        required: false
+        required: true
     },
     emitter: {
         type: DialogEventEmitter,
@@ -125,19 +113,30 @@ const props = defineProps({
 });
 
 const dynamicData = ref<{
-    warehouseId: number|null,
     productsListWithQuantity: Array<{product: IProductWithWarehouseStock, quantity: number}>
 }>({
-    warehouseId: props.warehouseId ? props.warehouseId : null,
     productsListWithQuantity: []
 })
 
-const warehouseOutcome = ref<INewWarehouseOutcomeRequest>({
-    inventory_warehouse_id: props.warehouseId || "" as any,
-    description: "",
+const warehouseOutcome = ref<IWarehouseOutcomeRequest>({
+    id: 0,
+    created_at: '',
+    updated_at: '',
+    inventory_warehouse_id: 0,
+    inventory_warehouse_outcome_id: null,
+    user_id: 0,
     requested_products: [],
-    job_code: "",
-    expense_code: ""
+    received_products: [],
+    messages: [],
+    requested_at: null,
+    rejected_at: null,
+    approved_at: null,
+    dispatched_at: null,
+    on_the_way_at: null,
+    delivered_at: null,
+    finished_at: null,
+    status: EInventoryWarehouseOutcomeRequestStatus.Draft,
+    value: undefined
 });
 
 const validateData = async () => {
@@ -265,7 +264,7 @@ const actions = {
 }
 
 const checkoutActions = {
-    createNewOutcomeRequest: async () => {
+    saveOutcomeRequest: async () => {
         const validationResponse = validateData();
         if (!(await validationResponse).isValid){
             alertController.create({
@@ -292,12 +291,12 @@ const checkoutActions = {
         }
 
         try {
-            const response = await RequestAPI.post(`/inventory/warehouse-outcome-requests`, form)
-            props.emitter.fire('created', {});
+            const response = await RequestAPI.put('/inventory/warehouse-outcome-requests/' + props.outcomeRequestId, form);
+            props.emitter.fire('updated', {});
             props.emitter.fire('close');
 
             const toast = await toastController.create({
-                message: '✅ Productos solicitados exitosamente',
+                message: '✅ Productos actualizados exitosamente',
                 duration: 2000
             })
             await toast.present();
@@ -315,6 +314,22 @@ const checkoutActions = {
 }
 
 
+const loadOutcomeRequest = async () => {
+    isLoading.value = true;
+    const responseOutcomeRequest = await RequestAPI.get('/inventory/warehouse-outcome-requests/' + props.outcomeRequestId);
+    warehouseOutcome.value = responseOutcomeRequest;
+
+    const productsWithStock = await RequestAPI.get(`/inventory/warehouses/${warehouseOutcome.value.inventory_warehouse_id}/stock`);
+
+    dynamicData.value.productsListWithQuantity = warehouseOutcome.value.requested_products.map((product) => {
+        return {
+            product: productsWithStock.find((p) => p.id === product.product_id),
+            quantity: product.quantity
+        }
+    })
+    isLoading.value = false;
+}
+
 const loadWarehouses = async () => {
     isLoading.value = true;
     const response = await InventoryStore.getWarehouses();
@@ -324,6 +339,7 @@ const loadWarehouses = async () => {
 
 onMounted(async () => {
     loadWarehouses();
+    loadOutcomeRequest();
     setTimeout(() => {
         accordionGroupEl.value.$el.value = "first";
     }, 100);

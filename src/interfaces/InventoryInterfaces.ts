@@ -169,6 +169,7 @@ export enum EInventoryWarehouseOutcomeRequestStatus{
     Finished = 'Finished'
 }
 export interface IWarehouseOutcomeRequest{
+    value: any;
     id: number,
     created_at: string,
     updated_at: string,

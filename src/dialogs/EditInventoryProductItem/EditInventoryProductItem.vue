@@ -5,7 +5,7 @@
                 <ion-buttons slot="start">
                     <ion-button @click="props.emitter.fire('close')">Cerrar</ion-button>
                 </ion-buttons>
-                <ion-title>Producto</ion-title>
+                <ion-title>Ítem</ion-title>
             </ion-toolbar>
             <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
@@ -100,7 +100,7 @@
                 </ion-item>
             </ion-list>
 
-            <br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br>
         </ion-content>
     </ion-page>
 </template>

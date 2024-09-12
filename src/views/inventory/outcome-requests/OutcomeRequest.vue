@@ -1392,7 +1392,8 @@ const createDispatch = async () => {
                 products: outcomeRequestData.value?.requested_products.map((item) => {
                     return {
                         product: productsData.value.find((product) => product.id === item.product_id),
-                        quantity: item.quantity
+                        quantity: item.quantity,
+                        doLoan: productsData.value.find((product) => product.id === item.product_id)?.is_loanable
                     }
                 }),
                 outcomeRequestId: outcomeRequestId

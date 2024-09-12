@@ -46,11 +46,12 @@ import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/Pr
 import EditInventoryProductItem from '@/dialogs/EditInventoryProductItem/EditInventoryProductItem.vue';
 import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
 import { IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonAvatar, IonHeader, IonListHeader, IonLabel, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
 import { DateTime } from 'luxon';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const isLoading = ref<boolean>(true);
 
@@ -109,6 +110,14 @@ const openProductItemView = () => {
 onMounted(async () => {
     isLoading.value = false;
     loadLoanRegestry();
+
+
+    const callbackId = AppEvents.on('inventory:reload', () => {
+        loadLoanRegestry();
+    })
+    onUnmounted(() => {
+        AppEvents.off('inventory:reload', callbackId);
+    });
 })
 </script>
 

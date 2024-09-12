@@ -72,7 +72,7 @@ const props = defineProps({
 });
 
 const outcomesData = ref<IWarehouseOutcomeRequest[]>([]);
-const usersData = ref<IUser[]>([])
+const usersData = ref<IUser[]>([]);
 
 const outcomesUI = computed(() => {
     return outcomesData.value.map((outcome) => {
@@ -142,6 +142,9 @@ onMounted(() => {
     max-width: 600px;
     margin: 0 auto;
     width: 100%;
+}
+ion-fab[slot="fixed"]{
+    position: fixed;
 }
 </style>
 

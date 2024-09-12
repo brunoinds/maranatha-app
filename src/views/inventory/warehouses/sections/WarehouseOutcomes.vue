@@ -126,5 +126,8 @@ onMounted(() => {
     margin: 0 auto;
     width: 100%;
 }
+ion-fab[slot="fixed"]{
+    position: fixed;
+}
 </style>
 

@@ -88,7 +88,7 @@
             <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'" v-if="productItemData && allowEdits && productItemData.product?.is_loanable">
                 <ion-item  button v-if="productItemData.status == EInventoryProductItemStatus.InStock" @click="setInRepair()">
                     <ion-icon color="warning" :icon="buildOutline" slot="start"></ion-icon>
-                    <ion-label color="warning">Hacer mantenimiento</ion-label>
+                    <ion-label color="warning">Dar mantenimiento</ion-label>
                 </ion-item>
                 <ion-item  button v-if="productItemData.status == EInventoryProductItemStatus.WriteOff || productItemData.status == EInventoryProductItemStatus.InRepair" @click="setInStock">
                     <ion-icon color="success" :icon="arrowUndoOutline" slot="start"></ion-icon>

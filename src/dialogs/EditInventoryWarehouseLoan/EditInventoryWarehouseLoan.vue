@@ -204,7 +204,7 @@ import { Viewport } from '@/utils/Viewport/Viewport';
 import { alertController, IonAccordion, IonAccordionGroup, IonInput, IonListHeader, IonAvatar, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
 import { addCircleOutline, albumsOutline, arrowUndoOutline, checkmarkCircleOutline, checkmarkDoneOutline, closeCircleOutline, documentTextOutline, enterOutline, exitOutline, fileTrayFullOutline, peopleOutline, personOutline, removeCircleOutline, swapVerticalOutline, trashBinOutline, warningOutline } from 'ionicons/icons';
 import { DateTime } from "luxon";
-import { computed, onMounted, PropType, ref } from 'vue';
+import { computed, onMounted, onUnmounted, PropType, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const accordionGroupEl = ref<any>(null);
@@ -444,6 +444,14 @@ onMounted(async () => {
     setTimeout(async () => {
         accordionGroupEl.value.$el.value = "second";
     }, 100);
+
+
+    const callbackId = AppEvents.on('inventory:reload', () => {
+        loadLoan();
+    })
+    onUnmounted(() => {
+        AppEvents.off('inventory:reload', callbackId);
+    });
 })
 </script>
 

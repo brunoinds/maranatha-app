@@ -62,7 +62,7 @@ export interface IInventoryProductItem{
     inventory_warehouse_id: number,
     inventory_warehouse_income_id: number,
     inventory_warehouse_outcome_id?: number|null,
-
+    origin_inventory_product_item_id?: number|null,
 
 
     product?: IProduct
@@ -88,7 +88,8 @@ export interface IWarehouseIncome{
     currency: string,
     job_code?: string,
     expense_code?: string,
-    inventory_warehouse_id: number
+    inventory_warehouse_id: number,
+    origin_inventory_warehouse_income_id?: number|null,
 }
 export interface INewWarehouseIncome extends Omit<IWarehouseIncome, 'id' | 'created_at' | 'updated_at'> {}
 

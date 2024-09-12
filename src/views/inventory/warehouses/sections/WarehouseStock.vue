@@ -205,4 +205,7 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+ion-fab[slot="fixed"]{
+    position: fixed;
+}
 </style>

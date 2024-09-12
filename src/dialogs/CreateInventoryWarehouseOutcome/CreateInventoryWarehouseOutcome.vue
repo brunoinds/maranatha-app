@@ -44,6 +44,9 @@
                                         <ion-icon v-if="(product.quantity.length == 0 || product.quantity > product.product.stock.in_stock_count)" slot="start" :icon="alertCircleOutline"></ion-icon>
                                     </ion-item>
 
+                                    <ion-item v-if="product.product.is_loanable">
+                                        <ion-toggle v-model="product.doLoan" :enable-on-off-labels="true">Modo préstamo</ion-toggle>
+                                    </ion-item>
 
 
                                     <ion-item button :detail="false" @click="actions.removeProduct(product.product)">
@@ -58,8 +61,6 @@
                                     </ion-button>
                                 </section>
                             </section>
-                            
-                            
                         </section>
                     </ion-accordion>
                     <ion-accordion value="second">
@@ -111,17 +112,17 @@
                                             <p>{{ product.product.description }}</p>
                                             <p>{{ product.product.brand }}</p>
                                         </ion-label>
-                                        <ion-label slot="end" class="ion-text-right" color="primary"  v-if="!product.product.is_loanable">
+                                        <ion-label slot="end" class="ion-text-right" color="primary"  v-if="!product.doLoan">
                                             <h2 v-for="price in productsResume.find((i) => i.product == product.product)?.prices"><b>+{{ Toolbox.moneyFormat(price.amount, price.currency as unknown as EMoneyType) }}</b></h2>
                                             <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ price.count }} unidades en {{ price.currency }}</p>
                                         </ion-label>
-                                        <ion-label slot="end" class="ion-text-right" color="primary"  v-if="product.product.is_loanable">
+                                        <ion-label slot="end" class="ion-text-right" color="primary"  v-if="product.doLoan">
                                             <h2><b>Préstamo</b></h2>
                                             <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ price.count }} unidades</p>
                                         </ion-label>
                                     </ion-item>
 
-                                    <ion-item v-for="item in productsResume.find((i) => i.product == product.product)?.itemsAggregated" v-if="!product.product.is_loanable">
+                                    <ion-item v-for="item in productsResume.find((i) => i.product == product.product)?.itemsAggregated" v-if="!product.doLoan">
                                         <ion-label>
                                             <h3>{{ item.count }} unidades</h3>
                                             <p style="font-size: 11px;">por {{Toolbox.moneyFormat(item.unitAmount, item.currency as unknown as EMoneyType)}} cada</p>
@@ -165,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonAvatar, IonListHeader, IonContent, IonDatetime, IonHeader, IonIcon, IonImg, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
+import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonToggle, IonAvatar, IonListHeader, IonContent, IonDatetime, IonHeader, IonIcon, IonImg, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { attachOutline, camera, qrCodeOutline, trashBinOutline, checkmarkCircleOutline, bagAddOutline, alertCircleOutline } from 'ionicons/icons';
 import { PropType, computed, onMounted, ref } from 'vue';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
@@ -206,7 +207,8 @@ const props = defineProps({
             userId: number|null,
             products: Array<{
                 product: IProductWithWarehouseStock,
-                quantity: number
+                quantity: number,
+                doLoan: boolean
             }>,
             outcomeRequestId: number|null
         }>,
@@ -217,7 +219,7 @@ const props = defineProps({
 const dynamicData = ref<{
     outcomeRequestId: number|null,
     datetimePickerDate: string,
-    productsListWithQuantity: Array<{product: IProductWithWarehouseStock, quantity: number}>
+    productsListWithQuantity: Array<{product: IProductWithWarehouseStock, quantity: number, doLoan: boolean}>
 }>({
     outcomeRequestId: null,
     datetimePickerDate: DateTime.now().toISODate() as unknown as string,
@@ -263,6 +265,7 @@ const productsResume = computed(() => {
             quantity: p.quantity,
             items: itemsChoosenToSell,
             itemsAggregated: itemsChoosenToSellAggregated,
+            doLoan: p.doLoan,
             prices: currenciesFound.map((currency) => {
                 return {
                     currency,
@@ -282,7 +285,7 @@ const outcomeResume = computed(() => {
                 product.items.forEach((item) => {
                     const key = item.buy_currency;
                     const itemData = JSON.parse(JSON.stringify(item));
-                    if (product.product.is_loanable){
+                    if (product.doLoan){
                         itemData.buy_amount = 0;
                     }
 
@@ -307,12 +310,12 @@ const outcomeResume = computed(() => {
             }, [])
         })(),
         itemsToLoan: (() => {
-            return productsResume.value.filter(product => product.product.is_loanable).reduce((acc, product) => {
+            return productsResume.value.filter(product => product.doLoan).reduce((acc, product) => {
                 return acc.concat(product.items)
             }, [])
         })(),
         itemsToSell: (() => {
-            return productsResume.value.filter(product => !product.product.is_loanable).reduce((acc, product) => {
+            return productsResume.value.filter(product => !product.doLoan).reduce((acc, product) => {
                 return acc.concat(product.items)
             }, [])
         })()
@@ -399,7 +402,8 @@ const actions = {
                         }
                         dynamicData.value.productsListWithQuantity.push({
                             product,
-                            quantity: 0
+                            quantity: product.stock.in_stock_count > 0 ? 1 : 0,
+                            doLoan: product.is_loanable ? true : false
                         })
                     })
                 })
@@ -411,7 +415,8 @@ const actions = {
                         }
                         dynamicData.value.productsListWithQuantity.push({
                             product: product.product,
-                            quantity: product.quantity
+                            quantity: product.quantity,
+                            doLoan: product.product.is_loanable ? true : false
                         })
                     })
                 })
@@ -575,7 +580,8 @@ onMounted(async () => {
         dynamicData.value.productsListWithQuantity = props.targets.products.map((p) => {
             return {
                 product: p.product,
-                quantity: p.quantity
+                quantity: p.quantity,
+                doLoan: p.doLoan
             }
         })
         dynamicData.value.outcomeRequestId = props.targets.outcomeRequestId;

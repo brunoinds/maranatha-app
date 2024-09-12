@@ -687,6 +687,42 @@ const RecordsConfigs = {
                 }
             },
             {
+                id: 'inventory-by-products-loans-kardex',
+                title: 'Kardex de Préstamos en Inventario',
+                filters: [
+                    {
+                        id: 'warehouse_id',
+                        name: 'Almacén',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: warehousesDropdownOptions
+                    },
+                    {
+                        id: 'product_id',
+                        name: 'Producto',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: productsDropdownOptions
+                    },
+                    {
+                        id: 'date_range',
+                        name: 'Rango Fechas',
+                        isRequired: true,
+                        type: 'daterange',
+                        value: {
+                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
+                            end: DateTime.now().toFormat('yyyy-MM-dd')
+                        }
+                    },
+                ],
+                endpoint: 'inventory/by-products-loans-kardex',
+                data: {
+                    body: {
+                        
+                    }
+                }
+            },
+            {
                 id: 'inventory-by-products-balance',
                 title: 'Saldo de Productos en Inventario',
                 filters: [
@@ -771,42 +807,6 @@ const RecordsConfigs = {
                     }
                 ],
                 endpoint: 'inventory/by-products-stock',
-                data: {
-                    body: {
-                        
-                    }
-                }
-            },
-            {
-                id: 'inventory-by-products-loans-kardex',
-                title: 'Kardex de Préstamos en Inventario',
-                filters: [
-                    {
-                        id: 'warehouse_id',
-                        name: 'Almacén',
-                        isRequired: false,
-                        type: 'dropdown',
-                        options: warehousesDropdownOptions
-                    },
-                    {
-                        id: 'product_id',
-                        name: 'Producto',
-                        isRequired: false,
-                        type: 'dropdown',
-                        options: productsDropdownOptions
-                    },
-                    {
-                        id: 'date_range',
-                        name: 'Rango Fechas',
-                        isRequired: true,
-                        type: 'daterange',
-                        value: {
-                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
-                            end: DateTime.now().toFormat('yyyy-MM-dd')
-                        }
-                    },
-                ],
-                endpoint: 'inventory/by-products-loans-kardex',
                 data: {
                     body: {
                         

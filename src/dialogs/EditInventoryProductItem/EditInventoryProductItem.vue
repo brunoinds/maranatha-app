@@ -10,7 +10,6 @@
             <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
         <ion-content>
-
             <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'"  v-if="productItemData">
                 <ion-item>
                     <ion-avatar slot="start" v-if="productItemData?.product">

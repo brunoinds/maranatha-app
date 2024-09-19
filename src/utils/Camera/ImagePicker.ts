@@ -17,10 +17,20 @@ export class ImagePicker{
             return new Promise(async (resolve, reject) => {
                 const scanDocumentNative = () => {
                     return new Promise(async (resolve, reject) => {
-                        let cameraPermission = await Camera.checkPermissions();
-                        if (cameraPermission.camera == 'prompt' || cameraPermission.camera == 'prompt-with-rationale'){
-                            const cameraPermissionRequest = await Camera.requestPermissions();
-                            if (cameraPermissionRequest.camera == 'denied'){
+                        try {
+                            let cameraPermission = await Camera.checkPermissions();
+                            if (cameraPermission.camera == 'prompt' || cameraPermission.camera == 'prompt-with-rationale'){
+                                const cameraPermissionRequest = await Camera.requestPermissions();
+                                if (cameraPermissionRequest.camera == 'denied'){
+                                    toastController.create({
+                                        message: "❌ El acceso a la cámara está bloqueado por su teléfono",
+                                        duration: 2000
+                                    }).then((toast) => {
+                                        toast.present();
+                                    })
+                                    return;
+                                }
+                            }else if (cameraPermission.camera == 'denied'){
                                 toastController.create({
                                     message: "❌ El acceso a la cámara está bloqueado por su teléfono",
                                     duration: 2000
@@ -29,29 +39,23 @@ export class ImagePicker{
                                 })
                                 return;
                             }
-                        }else if (cameraPermission.camera == 'denied'){
-                            toastController.create({
-                                message: "❌ El acceso a la cámara está bloqueado por su teléfono",
-                                duration: 2000
-                            }).then((toast) => {
-                                toast.present();
-                            })
-                            return;
-                        }
-            
-                        cameraPermission = await Camera.checkPermissions();
-            
-                        if (cameraPermission.camera == 'granted' || cameraPermission.camera == 'limited'){
-                            const { scannedImages } = await DocumentScanner.scanDocument() as unknown as {scannedImages: Array<string>};
-                            if (scannedImages.length > 0) {
-                                resolve({
-                                    path: scannedImages[0],
-                                    webPath: Capacitor.convertFileSrc(scannedImages[0]),
-                                    details: {
-            
-                                    }
-                                })
+                
+                            cameraPermission = await Camera.checkPermissions();
+                
+                            if (cameraPermission.camera == 'granted' || cameraPermission.camera == 'limited'){
+                                const { scannedImages } = await DocumentScanner.scanDocument() as unknown as {scannedImages: Array<string>};
+                                if (scannedImages.length > 0) {
+                                    resolve({
+                                        path: scannedImages[0],
+                                        webPath: Capacitor.convertFileSrc(scannedImages[0]),
+                                        details: {
+                
+                                        }
+                                    })
+                                }
                             }
+                        } catch (error) {
+                            reject(error)
                         }
                     })
                     
@@ -80,7 +84,6 @@ export class ImagePicker{
                         } catch (error) {
                             
                         }
-                        
                     })
                 }
                 const openPDFPicker = () => {
@@ -202,8 +205,13 @@ export class ImagePicker{
                         const barcodeResponse = await BarcodeScanner.readBarcodesFromImage({
                             path: image.path as unknown as string,
                         });
+
                         if (barcodeResponse.barcodes.length == 0){
-                            return;
+                            return {
+                                image: compressedFileBase64,
+                                barcode: null
+                            };;
+                        
                         }
                         const barcode = barcodeResponse.barcodes[0];
                         return{

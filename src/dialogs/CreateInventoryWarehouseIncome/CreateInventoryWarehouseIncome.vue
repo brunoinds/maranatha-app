@@ -367,8 +367,6 @@ const cameraActions = {
                 forceFromGallery
             })
 
-            console.log(response)
-
             dynamicData.value.uploadedImageBase64 = response.image;
 
             if (response.barcode){

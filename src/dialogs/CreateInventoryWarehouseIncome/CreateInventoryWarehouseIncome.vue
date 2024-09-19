@@ -362,16 +362,23 @@ const cameraActions = {
     },
     openCamera: async (forceFromGallery: boolean = false) => {
         dynamicData.value.isLoadingImageCompression = true;
-        const response = await ImagePicker.loadInvoiceDocument({
-            forceFromGallery
-        })
+        try {
+            const response = await ImagePicker.loadInvoiceDocument({
+                forceFromGallery
+            })
 
-        dynamicData.value.uploadedImageBase64 = response.image;
+            console.log(response)
 
-        if (response.barcode){
-            cameraActions.setBarcodeData(response.barcode);
+            dynamicData.value.uploadedImageBase64 = response.image;
+
+            if (response.barcode){
+                cameraActions.setBarcodeData(response.barcode);
+            }
+            dynamicData.value.isLoadingImageCompression = false;
+        } catch (error) {
+            dynamicData.value.isLoadingImageCompression = false;
         }
-        dynamicData.value.isLoadingImageCompression = false;
+        
     },
     deleteImageFromCamera: () => {
         dynamicData.value.uploadedImageBase64 = null;

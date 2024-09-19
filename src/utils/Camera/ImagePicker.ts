@@ -173,9 +173,7 @@ export class ImagePicker{
                                         })
                                         return;
                                     }
-                    
-                                    console.log(base64Image)
-    
+                        
                                     resolve(base64Image);
                                 })
                             })
@@ -237,7 +235,10 @@ export class ImagePicker{
                             },
                             {
                                 text: "Cancelar",
-                                role: "cancel"
+                                role: "cancel",
+                                handler: () => {
+                                    reject();
+                                }
                             }
                         ]
                     }).then((actionSheet) => {

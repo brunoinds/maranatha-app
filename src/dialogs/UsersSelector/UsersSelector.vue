@@ -86,7 +86,7 @@ const dynamicData = ref<{
 
 const selectedWorkers = ref<Array<any>>([]);
 
-const selectWorker = (worker: IWorker) => {
+const selectWorker = (worker: IUser) => {
     if (!props.allowMultipleChoice){
         props.emitter.fire('selected', worker);
         props.emitter.fire('close');
@@ -106,7 +106,7 @@ const selectWorkers = () => {
     props.emitter.fire('close');
 }
 
-const workers = computed<Array<IWorker>>(() => {
+const workers = computed<Array<IUser>>(() => {
     let workersList = workersData.value;
     if (props.usersFilterCallback){
         workersList = workersList.filter((worker) => {
@@ -115,7 +115,7 @@ const workers = computed<Array<IWorker>>(() => {
     }
     if (dynamicData.value.search.length > 0){
         workersList = workersList.filter((worker) => {
-            return worker.name.toLowerCase().includes(dynamicData.value.search.toLowerCase()) || worker.id.toLowerCase().includes(dynamicData.value.search.toLowerCase());
+            return worker.name.toLowerCase().includes(dynamicData.value.search.toLowerCase()) || worker.username.toLowerCase().includes(dynamicData.value.search.toLowerCase());
         });
     }
     return workersList;

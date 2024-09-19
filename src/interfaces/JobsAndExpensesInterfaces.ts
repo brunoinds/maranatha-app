@@ -3,6 +3,8 @@ interface IJob{
     code: string;
     zone: string;
     state: 'Active' | 'Inactive';
+    country?: string|null;
+    location?: {latitude: number, longitude: number} | null;
 }
 export enum EExpenseUses{
     Reports = 'Reports',

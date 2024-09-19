@@ -1,7 +1,9 @@
+import { IJob } from "@/interfaces/JobsAndExpensesInterfaces";
+
 export enum EProjectJobStatus {
     WaitingApproval = 'WaitingApproval',
-    Ongoing = 'Ongoing',
     WaitingToStart = 'WaitingToStart',
+    Ongoing = 'Ongoing',
     Finished = 'Finished',
 }
 
@@ -12,7 +14,7 @@ export enum EProjectStructureBuildingType {
     Other = 'Other',
 }
 
-export enum EProjectEventTypeStatus {
+export enum EProjectEventType {
     NewConstruction = 'NewConstruction',
     Renovation = 'Renovation',
     Repair = 'Repair',
@@ -29,14 +31,14 @@ export enum EProjectEventTypeStatus {
 }
 
 export enum EProjectConstructionTaskStatus {
-    Ongoing = 'Ongoing',
     WaitingToStart = 'WaitingToStart',
+    Ongoing = 'Ongoing',
     Finished = 'Finished',
 }
 
 export enum EProjectConstructionPhaseStatus {
-    Ongoing = 'Ongoing',
     WaitingToStart = 'WaitingToStart',
+    Ongoing = 'Ongoing',
     Finished = 'Finished',
 }
 
@@ -61,21 +63,21 @@ export class ProjectEnumsDescriptor {
         return descriptions[type] || 'Unknown';
     }
 
-    static eventTypeStatus(status: EProjectEventTypeStatus): string {
-        const descriptions: { [key in EProjectEventTypeStatus]: string } = {
-            [EProjectEventTypeStatus.NewConstruction]: 'Construcción Nueva',
-            [EProjectEventTypeStatus.Renovation]: 'Renovación',
-            [EProjectEventTypeStatus.Repair]: 'Reparación',
-            [EProjectEventTypeStatus.Painting]: 'Pintura',
-            [EProjectEventTypeStatus.Addition]: 'Adición',
-            [EProjectEventTypeStatus.Fundraising]: 'Recaudación de Fondos',
-            [EProjectEventTypeStatus.Medical]: 'Médico',
-            [EProjectEventTypeStatus.VBS]: 'Escuela Bíblica de Vacaciones',
-            [EProjectEventTypeStatus.Evangelism]: 'Evangelismo',
-            [EProjectEventTypeStatus.Landscaping]: 'Paisajismo',
-            [EProjectEventTypeStatus.Other]: 'Otro',
-            [EProjectEventTypeStatus.Meetings]: 'Reuniones',
-            [EProjectEventTypeStatus.Maintenance]: 'Mantenimiento',
+    static eventType(status: EProjectEventType): string {
+        const descriptions: { [key in EProjectEventType]: string } = {
+            [EProjectEventType.NewConstruction]: 'Construcción Nueva',
+            [EProjectEventType.Renovation]: 'Renovación',
+            [EProjectEventType.Repair]: 'Reparación',
+            [EProjectEventType.Painting]: 'Pintura',
+            [EProjectEventType.Addition]: 'Adición',
+            [EProjectEventType.Fundraising]: 'Recaudación de Fondos',
+            [EProjectEventType.Medical]: 'Médico',
+            [EProjectEventType.VBS]: 'Escuela Bíblica de Vacaciones',
+            [EProjectEventType.Evangelism]: 'Evangelismo',
+            [EProjectEventType.Landscaping]: 'Paisajismo',
+            [EProjectEventType.Other]: 'Otro',
+            [EProjectEventType.Meetings]: 'Reuniones',
+            [EProjectEventType.Maintenance]: 'Mantenimiento',
         };
         return descriptions[status] || 'Unknown';
     }
@@ -121,11 +123,11 @@ export interface IProjectJob {
     job_code: string;
     project_structure_id: number;
     width: string | null;
-    height: string | null;
+    length: string | null;
     area: string | null;
     admins_ids: number[];
     supervisor_id: number;
-    event_type: EProjectEventTypeStatus;
+    event_type: EProjectEventType;
     scheduled_start_date: string;
     scheduled_end_date: string;
     started_at: string | null;
@@ -134,8 +136,10 @@ export interface IProjectJob {
     final_report: any | null;
     marketing_report: any | null;
     messages: any[];
+    construction_phases?: IProjectConstructionPhase[];
+    job?: IJob;
 }
-export interface INewProjectJob extends Omit<IProjectJob, 'id' | 'created_at' | 'updated_at'> {}
+export interface INewProjectJob extends Omit<IProjectJob, 'id' | 'created_at' | 'updated_at' | 'messages' | 'marketing_report' | 'final_report' | 'messages' > {}
 
 export interface IProjectStructure {
     id: number;
@@ -164,7 +168,6 @@ export interface IDefaultConstructionPhase {
     description: string;
     expense_code: string;
     color: string;
-    average_days: number;
     tasks: IDefaultConstructionTask[];
 }
 
@@ -193,8 +196,21 @@ export interface IProjectConstructionPhase {
         attachments_ids: string[];
         notes: string;
     } | null;
+    tasks?: IProjectConstructionTask[];
 }
-export interface INewProjectConstructionPhase extends Omit<IProjectConstructionPhase, 'id' | 'created_at' | 'updated_at'> {}
+export interface INewProjectConstructionPhase extends Omit<IProjectConstructionPhase, 'id' | 'created_at' | 'updated_at' | 'final_report' | 'tasks'> {
+    tasks: {
+        name: string;
+        description: string | null;
+        status: EProjectConstructionTaskStatus;
+        scheduled_start_date: string;
+        scheduled_end_date: string;
+        started_at: string | null;
+        ended_at: string | null;
+        count_workers: number;
+        progress: number;
+    }[];    
+}
 
 export interface IProjectConstructionTask {
     id: number;
@@ -213,13 +229,56 @@ export interface IProjectConstructionTask {
     progress: number;
     daily_reports: IProjectConstructionTaskDailyReport[];
 }
-export interface INewProjectConstructionTask extends Omit<IProjectConstructionTask, 'id' | 'created_at' | 'updated_at'> {}
+export interface INewProjectConstructionTask extends Omit<IProjectConstructionTask, 'id' | 'created_at' | 'updated_at' | 'daily_reports'> {}
 
-interface IProjectConstructionTaskDailyReport {
+export interface IProjectConstructionTaskDailyReport {
+    id: string,
+    created_at: string;
     date: string;
     progress: number;
     count_workers: number;
     notes: string;
     attachments_ids: string[];
 }
-export interface INewProjectConstructionTaskDailyReport extends Omit<IProjectConstructionTaskDailyReport, 'id' | 'created_at' | 'updated_at'> {}
+
+export interface INewProjectConstructionTaskDailyReport extends Omit<IProjectConstructionTaskDailyReport,  'attachments_ids'> {
+    attachments_base64: string[];
+}
+
+
+export interface IProjectJobChatMessage{
+    id: string;
+    text: string|null;
+    image?: {
+        data: string;
+        size: number;
+        type: string;
+    }|null;
+    document?: {
+        data: string;
+        size: number;
+        type: string;
+        name: string;
+    }|null;
+    video?: {
+        data: string;
+        size: number;
+        duration: number;
+        type: string;
+    }|null;
+    audio?: {
+        data: string;
+        size: number;
+        duration: number;
+        type: string;
+    }|null;
+    location?: string|null;
+    reply_to?: string;
+    react_to?: string;
+
+    written_at: string;
+    sent_at: string|null;
+    received_at: string|null;
+    read_at: string|null;
+    user_id: number;
+}

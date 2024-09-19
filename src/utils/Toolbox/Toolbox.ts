@@ -136,6 +136,9 @@ class Toolbox{
             })
         });
     }
+    public static open(fileName: string, base64Data: string){
+        return this.share(fileName, base64Data);
+    }
 
     public static share(fileNameWithExtention: string, base64Data: string){
         if (Capacitor.isNativePlatform()){

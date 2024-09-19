@@ -107,6 +107,14 @@ const routes: Array<RouteRecordRaw> = [
     path: '/projects',
     component: () => import('@/views/projects/Projects.vue')
   },
+  {
+    path: '/projects/jobs/:id',
+    component: () => import('@/views/projects/ProjectJob.vue')
+  },
+  {
+    path: '/projects/jobs/:id/chat',
+    component: () => import('@/views/projects/chat/ProjectJobChat.vue')
+  },
 ]
 
 const router = createRouter({

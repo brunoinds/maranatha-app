@@ -5,15 +5,15 @@
                 <ion-buttons slot="start">
                     <ion-button @click="props.emitter.fire('close')">Cancelar</ion-button>
                 </ion-buttons>
-                <ion-title>Crear Estructura de Proyectos</ion-title>
+                <ion-title>Editar Estructura de Proyectos</ion-title>
                 <ion-buttons slot="end">
-                    <ion-button @click="create">Crear</ion-button>
+                    <ion-button @click="save">Guardar</ion-button>
                 </ion-buttons>
             </ion-toolbar>
             <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
         <ion-content>
-            <ion-accordion-group value="first">
+            <ion-accordion-group value="first" v-if="wasFirstFetched">
                 <ion-accordion value="first">
                     <ion-item slot="header" color="light">
                         <ion-label>
@@ -165,7 +165,12 @@ import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 
 
 const isLoading = ref<boolean>(false);
+const wasFirstFetched = ref<boolean>(false);
 const props = defineProps({
+    projectStructureId: {
+        type: Number,
+        required: true
+    },
     emitter: {
         type: DialogEventEmitter,
         required: true
@@ -293,7 +298,7 @@ const validateCamps = () => {
         errors: errors
     }
 }
-const create = async () => {
+const save = async () => {
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
@@ -312,31 +317,17 @@ const create = async () => {
 
 
     const dataParsed = {
-        ...form.value,
-        default_phases: {
-            construction: form.value.default_phases.construction.map((phase) => {
-                return {
-                    ...phase,
-                    tasks: phase.tasks.map((task) => {
-                        return {
-                            ...task,
-                            average_days: parseInt(task.average_days as any)
-                        }
-                    })
-                }
-            }),
-            studio: form.value.default_phases.studio
-        }
+        ...form.value
     }
 
-    RequestAPI.post('/projects/structures', dataParsed).then((response) => {
-        props.emitter.fire('created', {});
+    RequestAPI.put('/projects/structures/' + props.projectStructureId, dataParsed).then((response) => {
+        props.emitter.fire('update', {});
         props.emitter.fire('close');
         
         AppEvents.emit('projects:reload');
 
         toastController.create({
-            message: '✅ Estrucutra creada exitosamente',
+            message: '✅ Estrucutra guardada exitosamente',
             duration: 2000
         }).then(async (toast) => {
             await toast.present();
@@ -354,7 +345,17 @@ const create = async () => {
     });
 }
 
-onMounted(() => {
+
+const loadView = async () => {
+    isLoading.value = true;
+    const response = await RequestAPI.get(`/projects/structures/${props.projectStructureId}`);
+
+    form.value = response;
+    isLoading.value = false;
+    wasFirstFetched.value = true;
+}
+
+onMounted(async () => {
     form.value.default_phases.construction.push({
         name: 'Etapa 1',
         description: '',
@@ -366,6 +367,8 @@ onMounted(() => {
             average_days: 1
         }],
     });
+
+    await loadView();
 })
 </script>
 

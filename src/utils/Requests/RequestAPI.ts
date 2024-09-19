@@ -32,6 +32,9 @@ class RequestAPI{
         })(),
         rootStorageUrl: (() => {
             return RequestAPI.domainUrl + '/storage';
+        })(),
+        rootPublicStorageUrl: (() => {
+            return RequestAPI.domainUrl + '/public/storage';
         })()
     }
     public static get(url: string, parameters: any = {}): Promise<any>{
@@ -170,6 +173,33 @@ class RequestAPI{
                     reader.readAsDataURL(blob); 
                     reader.onloadend = function() {
                         const base64data = reader.result;     
+                        resolve(base64data);
+                    }
+                })
+            })
+        })
+    }
+
+    public static getPublicStorageUrl(url: string, parameters: any = {}):string{
+        const datUrl = this.variables.rootPublicStorageUrl +  url;
+
+        const urlItem = new URL(datUrl);
+
+        Object.keys(parameters).forEach((key) => {
+            urlItem.searchParams.append(key, parameters[key]);
+        });
+
+        return (urlItem.toString());
+    }
+
+    public static getPublicStorageInBase64(url: string, parameters: any = {}): Promise<any>{
+        return new Promise((resolve, reject) => {
+            fetch(RequestAPI.getPublicStorageUrl(url, parameters)).then((response) => {
+                response.blob().then((blob) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob); 
+                    reader.onloadend = function() {
+                        const base64data = reader.result.split(',')[1];     
                         resolve(base64data);
                     }
                 })

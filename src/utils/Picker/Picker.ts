@@ -1,5 +1,5 @@
 import { PDFModifier } from "@/utils/PDFModifier/PDFModifier";
-import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
+import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
 import { Capacitor } from "@capacitor/core";
 import { FilePicker } from "@capawesome/capacitor-file-picker";
 import { alertController } from "@ionic/vue";
@@ -91,6 +91,7 @@ export class Picker{
         base64: string,
         details: {
             size: number,
+            photo: Photo
         }
     }>{
         return new Promise(async (resolve, reject) => {

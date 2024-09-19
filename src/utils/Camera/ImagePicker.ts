@@ -14,7 +14,7 @@ export class ImagePicker{
         forceFromGallery: false
     }) : Promise<{image: string, barcode: string}>{
         const openCamera = (forceFromGallery: boolean = false) => {
-            return new Promise(async (resolve, reject) => {
+            return new Promise(async (resolve, rejectMaster) => {
                 const scanDocumentNative = () => {
                     return new Promise(async (resolve, reject) => {
                         try {
@@ -55,7 +55,7 @@ export class ImagePicker{
                                 }
                             }
                         } catch (error) {
-                            reject(error)
+                            rejectMaster(error)
                         }
                     })
                     
@@ -74,7 +74,7 @@ export class ImagePicker{
                                         return CameraSource.Prompt;
                                     }
                                 })()
-                            });
+                            })
                             resolve({
                                 path: image.path as unknown as string,
                                 webPath: image.webPath as unknown as string,
@@ -82,53 +82,59 @@ export class ImagePicker{
                                 }
                             });
                         } catch (error) {
-                            
+                            rejectMaster()
                         }
                     })
                 }
                 const openPDFPicker = () => {
                     return new Promise(async (resolve, reject) => {
-                        const result = await FilePicker.pickFiles({
-                            types: ['application/pdf'],
-                            multiple: false,
-                            readData: true
-                        });
-            
-                        if (result.files.length == 0){
-                            return;
-                        }
-                        const file = result.files[0];
-                        let sourcePDF = null;
-            
-                        if (Capacitor.isNativePlatform()){
-                            function convertDataURIToBinary(base64:string) {
-                                const raw = window.atob(base64);
-                                const rawLength = raw.length;
-                                const array = new Uint8Array(new ArrayBuffer(rawLength));
-                                for(let i = 0; i < rawLength; i++) {
-                                    array[i] = raw.charCodeAt(i);
+                        try {
+                            const result = await FilePicker.pickFiles({
+                                types: ['application/pdf'],
+                                multiple: false,
+                                readData: true
+                            });
+                
+                            if (result.files.length == 0){
+                                rejectMaster();
+                                return;
+                            }
+                            const file = result.files[0];
+                            let sourcePDF = null;
+                
+                            if (Capacitor.isNativePlatform()){
+                                function convertDataURIToBinary(base64:string) {
+                                    const raw = window.atob(base64);
+                                    const rawLength = raw.length;
+                                    const array = new Uint8Array(new ArrayBuffer(rawLength));
+                                    for(let i = 0; i < rawLength; i++) {
+                                        array[i] = raw.charCodeAt(i);
+                                    }
+                                    return array;
                                 }
-                                return array;
+                
+                                sourcePDF = {data: convertDataURIToBinary(file.data as string)}
+                            }else{
+                                const url = URL.createObjectURL(file.blob as Blob);
+                                sourcePDF = url;
                             }
-            
-                            sourcePDF = {data: convertDataURIToBinary(file.data as string)}
-                        }else{
-                            const url = URL.createObjectURL(file.blob as Blob);
-                            sourcePDF = url;
+                            const pdf = await PDFModifier.loadPDF(sourcePDF);
+                
+                            const imageBase64 = await pdf.extractPagesIntoSingleImageAsBase64();
+                            
+                            const blob = await fetch(`${imageBase64}`).then(res => res.blob());
+                            const blobUrl = URL.createObjectURL(blob);
+                            resolve({
+                                path: blobUrl,
+                                webPath: blobUrl,
+                                details: {
+                                    pages: pdf.pagesCount()
+                                }
+                            })
+                        } catch (error) {
+                            rejectMaster()
                         }
-                        const pdf = await PDFModifier.loadPDF(sourcePDF);
-            
-                        const imageBase64 = await pdf.extractPagesIntoSingleImageAsBase64();
                         
-                        const blob = await fetch(`${imageBase64}`).then(res => res.blob());
-                        const blobUrl = URL.createObjectURL(blob);
-                        resolve({
-                            path: blobUrl,
-                            webPath: blobUrl,
-                            details: {
-                                pages: pdf.pagesCount()
-                            }
-                        })
                     })
                 }
 
@@ -184,7 +190,10 @@ export class ImagePicker{
                         
                     })();
                     
-                    
+                    return{
+                        image: compressedFileBase64,
+                        barcode: null
+                    };
     
                     let isBarcodeSupported: boolean = false;
 
@@ -245,7 +254,7 @@ export class ImagePicker{
                                 text: "Cancelar",
                                 role: "cancel",
                                 handler: () => {
-                                    reject();
+                                    rejectMaster();
                                 }
                             }
                         ]

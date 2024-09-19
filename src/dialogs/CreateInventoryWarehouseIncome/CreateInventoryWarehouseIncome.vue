@@ -63,7 +63,7 @@
                             <header>
                                 <ion-list v-if="dynamicData.uploadedImageBase64">
                                     <ion-item> 
-                                        <ion-img slot="start" style="height: 80px;" v-if="dynamicData.uploadedImageBase64" :src="'data:image/jpeg;base64,' + dynamicData.uploadedImageBase64"></ion-img>
+                                        <ion-img slot="start" style="height: 80px; width: 120px; max-width: 120px;" v-if="dynamicData.uploadedImageBase64" :src="'data:image/jpeg;base64,' + dynamicData.uploadedImageBase64"></ion-img>
                                         <ion-button slot="end" fill="clear" color="danger" @click="cameraActions.deleteImageFromCamera"> 
                                                 Borrar Foto
                                             <ion-icon slot="start" :icon="trashBinOutline"></ion-icon>
@@ -361,10 +361,12 @@ const cameraActions = {
         })
     },
     openCamera: async (forceFromGallery: boolean = false) => {
-        dynamicData.value.isLoadingImageCompression = true;
         try {
             const response = await ImagePicker.loadInvoiceDocument({
-                forceFromGallery
+                forceFromGallery,
+                onLoadingCompression: (isLoading) => {
+                    dynamicData.value.isLoadingImageCompression = isLoading;
+                }
             })
 
             dynamicData.value.uploadedImageBase64 = response.image;

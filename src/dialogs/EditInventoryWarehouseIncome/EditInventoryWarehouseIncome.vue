@@ -343,9 +343,11 @@ const cameraActions = {
         })
     },
     openCamera: async (forceFromGallery: boolean = false) => {
-        dynamicData.value.isLoadingImageCompression = true;
         const response = await ImagePicker.loadInvoiceDocument({
-            forceFromGallery
+            forceFromGallery,
+            onLoadingCompression: (isLoading) => {
+                dynamicData.value.isLoadingImageCompression = isLoading;
+            }
         })
 
         dynamicData.value.uploadedImageBase64 = response.image;

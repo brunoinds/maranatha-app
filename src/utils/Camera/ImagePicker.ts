@@ -9,9 +9,11 @@ import { DocumentScanner } from "capacitor-document-scanner";
 
 export class ImagePicker{
     public static async loadInvoiceDocument(options: {
-        forceFromGallery?: boolean
+        forceFromGallery?: boolean,
+        onLoadingCompression: (isLoading: boolean) => any
     } = {
-        forceFromGallery: false
+        forceFromGallery: false,
+        onLoadingCompression: (isLoading) => {}
     }) : Promise<{image: string, barcode: string}>{
         const openCamera = (forceFromGallery: boolean = false) => {
             return new Promise(async (resolve, rejectMaster) => {
@@ -158,6 +160,7 @@ export class ImagePicker{
             
                     const compressedFileBase64 = await (async() => {
                         return new Promise((resolve, reject) => {
+                            options.onLoadingCompression(true)
                             imageCompression(file, {
                                 maxSizeMB: 1,
                                 maxWidthOrHeight: (image.details.pages) ? ((image.details.pages > 1) ? undefined : 1024)  : 1024
@@ -182,7 +185,8 @@ export class ImagePicker{
                                         })
                                         return;
                                     }
-                        
+                                    options.onLoadingCompression(false)
+
                                     resolve(base64Image);
                                 })
                             })

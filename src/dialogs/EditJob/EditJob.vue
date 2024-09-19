@@ -40,6 +40,7 @@ import { IonButton, IonButtons, IonContent, IonHeader, IonInput,IonToggle, IonIt
 import { onMounted, ref } from 'vue';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { arrowForwardCircleOutline } from 'ionicons/icons';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 
 
 const jobData = ref<any>(null);
@@ -121,6 +122,8 @@ const saveJob = async () => {
         }).then(async (toast) => {
             await toast.present();
         });
+
+        JobsAndExpenses.refresh();
     }).catch((error) => {
         alertController.create({
             header: 'Oops...',

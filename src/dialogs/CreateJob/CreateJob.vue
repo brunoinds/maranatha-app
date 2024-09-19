@@ -39,6 +39,7 @@ import { IonButton, IonButtons, IonContent, IonHeader, IonInput,IonIcon, IonItem
 import { ref } from 'vue';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { arrowForwardCircleOutline } from 'ionicons/icons';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 
 
 
@@ -97,6 +98,7 @@ const createJob = async () => {
         }).then(async (toast) => {
             await toast.present();
         });
+        JobsAndExpenses.refresh();
     }).catch((error) => {
         alertController.create({
             header: 'Oops...',

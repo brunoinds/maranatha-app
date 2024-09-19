@@ -58,7 +58,7 @@
                         <ion-label color="medium"  v-if="liveUpdates.state == 'Downloading'">
                             <h2>Nueva actualización disponible</h2>
                             <p>v{{ liveUpdates.availableUpdate?.version }} ({{ liveUpdates.availableUpdate.size }})</p>
-                            <p>Descargando actualización...</p>
+                            <p>Descargando actualización ({{ liveUpdates.downloadPercentage }}%)...</p>
                         </ion-label>
 
                         <ion-label color="medium"  v-if="liveUpdates.state == 'Installing'">

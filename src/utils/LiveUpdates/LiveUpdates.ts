@@ -1,6 +1,6 @@
 import { Environment } from '@/utils/Environment/Environment';
 import { RequestAPI } from '@/utils/Requests/RequestAPI'
-import { CapacitorUpdater } from '@capgo/capacitor-updater'
+import { CapacitorUpdater, DownloadEvent } from '@capgo/capacitor-updater'
 import { alertController, toastController } from '@ionic/vue';
 import { SplashScreen } from '@capacitor/splash-screen'
 import { ref } from 'vue';
@@ -47,10 +47,12 @@ export class LiveUpdates{
 
     public static externalLabels = ref<{
         state: 'Searching' | 'Downloading' | 'ReadyToInstall' | 'Installing' | 'NoUpdateAvailable',
-        availableUpdate: DownloadableBundle | null
+        availableUpdate: DownloadableBundle | null,
+        downloadPercentage?: number
     }>({
         state: 'NoUpdateAvailable',
-        availableUpdate: null
+        availableUpdate: null,
+        downloadPercentage: 0
     });
 
     public static async fetchUpdates(forceToFetch = false)
@@ -100,6 +102,10 @@ export class LiveUpdates{
 
     public static async downloadUpdate(bundle: DownloadableBundle)
     {
+        CapacitorUpdater.addListener('download', (info: DownloadEvent) => {
+            LiveUpdates.externalLabels.value.downloadPercentage = info.percent;
+        });
+
         const content = await CapacitorUpdater.download({
             version: bundle.version,
             url: bundle.url,

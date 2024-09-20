@@ -288,11 +288,7 @@ const actions = {
                     if (!expense.uses.includes(EExpenseUses.Inventory)){
                         return false;
                     }
-                    if (warehouseOutcome.value.job_code?.startsWith('000')){
-                        return expense.code.length == 3;
-                    }else{
-                        return expense.code.length != 3;
-                    }
+                    return true;
                 },
                 selectedExpenseCode: warehouseOutcome.value.expense_code
             },

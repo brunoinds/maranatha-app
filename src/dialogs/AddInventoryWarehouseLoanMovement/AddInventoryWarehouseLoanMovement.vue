@@ -181,11 +181,7 @@ const actions = {
                     if (!expense.uses.includes(EExpenseUses.Inventory)){
                         return false;
                     }
-                    if (movement.value.job_code?.startsWith('000')){
-                        return expense.code.length == 3;
-                    }else{
-                        return expense.code.length != 3;
-                    }
+                    return true;
                 },
                 selectedExpenseCode: movement.value.expense_code
             },

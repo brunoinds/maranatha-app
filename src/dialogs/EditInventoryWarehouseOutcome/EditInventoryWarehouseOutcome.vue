@@ -71,14 +71,14 @@
                                             </ion-label>
                                         </ion-item>
 
-                                        <ion-item v-for="item in product.itemsAggregated">
+                                        <ion-item v-for="item in product.items_aggregated">
                                             <ion-label>
                                                 <h3>{{ item.count }} unidades</h3>
-                                                <p style="font-size: 11px;">por {{Toolbox.moneyFormat(item.amount, item.currency as unknown as EMoneyType)}} cada</p>
+                                                <p style="font-size: 11px;">por {{Toolbox.moneyFormat(item.unit_amount, item.currency as unknown as EMoneyType)}} cada</p>
                                             </ion-label>
                                             <ion-label slot="end" class="ion-text-right" color="medium">
-                                                <h2 style="font-size: 14px;"><b>{{ Toolbox.moneyFormat((item.amount * item.count), item.currency as unknown as EMoneyType) }}</b></h2>
-                                                <p>{{ item.count }}x {{ Toolbox.moneyFormat(item.amount, item.currency as unknown as EMoneyType) }}</p>
+                                                <h2 style="font-size: 14px;"><b>{{ Toolbox.moneyFormat((item.total_amount), item.currency as unknown as EMoneyType) }}</b></h2>
+                                                <p>{{ item.count }}x {{ Toolbox.moneyFormat(item.unit_amount, item.currency as unknown as EMoneyType) }}</p>
                                             </ion-label>
                                         </ion-item>
                                     </ion-list>
@@ -138,7 +138,7 @@
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
 import UsersSelector from '@/dialogs/UsersSelector/UsersSelector.vue';
-import { IInventoryProductItem, IProduct, IProductWithWarehouseStock, IWarehouseOutcome } from '@/interfaces/InventoryInterfaces';
+import { IInventoryProductItem, IOutcomeResumeAnalisys, IProduct, IProductWithWarehouseStock, IWarehouseOutcome } from '@/interfaces/InventoryInterfaces';
 import { EMoneyType } from '@/interfaces/ReportInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
@@ -181,33 +181,14 @@ const dynamicData = ref<{
     productsListWithQuantity: []
 })
 
+
+const outcomeResumeAnalisys = ref<null|IOutcomeResumeAnalisys>(null);
 const productsResume = ref<Array<any>>([])
 
 const outcomeResume = computed(() => {
     return {
         prices: (() => {
-            const items = productsResume.value.reduce((acc, product) => {
-                product.items.forEach((item) => {
-                    const key = item.sell_currency;
-                    if (!acc[key]){
-                        acc[key] = {
-                            currency: item.sell_currency,
-                            amount: item.sell_amount,
-                            count: 1
-                        }
-                    }else{
-                        acc[key].amount += item.sell_amount;
-                        acc[key].count++;
-                    }
-                })
-                return acc;
-            }, {} as {[key: string]: {currency: string, amount: number, count: number}})
-            return Object.keys(items).map((key) => items[key]);
-        })(),
-        items: (() => {
-            return productsResume.value.reduce((acc, product) => {
-                return acc.concat(product.items)
-            }, [])
+            return outcomeResumeAnalisys.value?.summary.prices || []
         })()
     }
 })
@@ -465,49 +446,16 @@ const checkoutActions = {
 
 const loadOutcomeProducts = async () => {
     isLoading.value = true;
-    const responseProductsItems = (await RequestAPI.get(`/inventory/warehouse-outcomes/${props.warehouseOutcome.id}/products`) as unknown as Array<IInventoryProductItem>);
+    const responseProductsItemsResume = (await RequestAPI.get('/inventory/warehouse-outcomes/' + props.warehouseOutcome.id + '/resume-analisys')) as IOutcomeResumeAnalisys;
     const responseProducts = (await InventoryStore.getProducts() as unknown as Array<IProduct>);
 
-    productsResume.value = responseProducts.map((product) => {
-        const productItems = responseProductsItems.filter((item) => item.inventory_product_id == product.id);
-
-        if (productItems.length == 0){
-            return null;
-        }
-
+    outcomeResumeAnalisys.value = responseProductsItemsResume;
+    productsResume.value = responseProductsItemsResume.products.map((productAnalisys) => {
         return {
-            product,
-            items: productItems,
-            itemsAggregated: (() => {
-                //Group productItems by item.sell_currency + item.sell_amount:
-                const itemsGrouped = productItems.reduce((acc, item) => {
-                    const key = item.sell_currency + item.sell_amount;
-                    if (!acc[key]){
-                        acc[key] = {
-                            currency: item.sell_currency,
-                            amount: item.sell_amount,
-                            count: 1
-                        }
-                    }else{
-                        acc[key].count++;
-                    }
-                    return acc;
-                }, {} as {[key: string]: {currency: string, amount: number, count: number}})
-                return Object.keys(itemsGrouped).map((key) => itemsGrouped[key]);
-            })(),
-            quantity: productItems.length,
-            prices: (() => {
-                const currenciesFound = productItems.map((item) => item.sell_currency).filter((value, index, self) => self.indexOf(value) === index);
-                return currenciesFound.map((currency) => {
-                    return {
-                        currency,
-                        amount: productItems.filter((item) => item.sell_currency == currency).reduce((acc, item) => acc + item.sell_amount, 0),
-                        count: productItems.filter((item) => item.sell_currency == currency).length
-                    }
-                })
-            })()
+            ...productAnalisys,
+            product: responseProducts.find((product) => product.id == productAnalisys.product_id)
         }
-    }).filter((product) => product != null);
+    })
 
     dynamicData.value.datetimePickerDate = DateTime.fromISO(props.warehouseOutcome.date).toISODate() as unknown as string;
     isLoading.value = false;

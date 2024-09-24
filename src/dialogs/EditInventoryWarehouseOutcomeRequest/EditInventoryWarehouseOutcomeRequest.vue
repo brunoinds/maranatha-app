@@ -87,7 +87,7 @@ import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseD
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import InventoryProductSelector from '@/dialogs/InventoryProductSelector/InventoryProductSelector.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
-import { EInventoryWarehouseOutcomeRequestStatus, INewWarehouseOutcomeRequest, IProduct, IProductWithWarehouseStock, IWarehouse, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
+import { EInventoryWarehouseOutcomeRequestStatus, INewWarehouseOutcomeRequest, IOutcomeResumeAnalisys, IProduct, IProductWithWarehouseStock, IWarehouse, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
 import { EExpenseUses, IExpense } from '@/interfaces/JobsAndExpensesInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
@@ -117,6 +117,7 @@ const dynamicData = ref<{
 }>({
     productsListWithQuantity: []
 })
+
 
 const warehouseOutcome = ref<IWarehouseOutcomeRequest>({
     id: 0,
@@ -332,6 +333,7 @@ const loadWarehouses = async () => {
     warehousesData.value = response;
     isLoading.value = false;
 }
+
 
 onMounted(async () => {
     loadWarehouses();

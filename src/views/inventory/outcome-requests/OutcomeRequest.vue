@@ -1262,7 +1262,7 @@ const loadOutcomeRequest = async () => {
 const loadProducts = async () => {
     isLoading.value = true;
     isLoadingAreas.value.products = true;
-    const response = await RequestAPI.get('/inventory/warehouses/' + outcomeRequestData.value?.inventory_warehouse_id + '/stock');
+    const response = (await RequestAPI.get('/inventory/warehouses/' + outcomeRequestData.value?.inventory_warehouse_id + '/stock')).items;
 
     productsData.value = response;
 

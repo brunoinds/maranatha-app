@@ -126,7 +126,7 @@ const loadProducts = async () => {
 
 const loadWarehouseStockContext = async () => {
     isLoading.value = true;
-    const response = await RequestAPI.get(`/inventory/warehouses/${props.contextWarehouseId}/stock`);
+    const response = (await RequestAPI.get(`/inventory/warehouses/${props.contextWarehouseId}/stock`)).items;
 
     productsData.value = response;
     isLoading.value = false;

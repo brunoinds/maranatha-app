@@ -316,7 +316,7 @@ const loadOutcomeRequest = async () => {
     const responseOutcomeRequest = await RequestAPI.get('/inventory/warehouse-outcome-requests/' + props.outcomeRequestId);
     warehouseOutcome.value = responseOutcomeRequest;
 
-    const productsWithStock = await RequestAPI.get(`/inventory/warehouses/${warehouseOutcome.value.inventory_warehouse_id}/stock`);
+    const productsWithStock = (await RequestAPI.get(`/inventory/warehouses/${warehouseOutcome.value.inventory_warehouse_id}/stock`)).items;
 
     dynamicData.value.productsListWithQuantity = warehouseOutcome.value.requested_products.map((product) => {
         return {

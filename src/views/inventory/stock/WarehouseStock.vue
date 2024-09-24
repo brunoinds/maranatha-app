@@ -153,7 +153,7 @@ const createWarehouseIncome = () => {
 
 const loadWarehouseStock = async () => {
     isLoading.value = true;
-    const response = await RequestAPI.get(`/inventory/warehouses/${warehouseId}/stock`);
+    const response = (await RequestAPI.get(`/inventory/warehouses/${warehouseId}/stock`)).items;
     warehouseProductsStock.value = response;
     isLoading.value = false;
 }

@@ -184,7 +184,7 @@ const openProductStock = (productWithStock: IProductWithWarehouseStock) => {
 
 const loadWarehouseStock = async () => {
     isLoading.value = true;
-    const response = await RequestAPI.get(`/inventory/warehouses/${props.warehouse.id}/stock`);
+    const response = (await RequestAPI.get(`/inventory/warehouses/${props.warehouse.id}/stock`)).items;
     warehouseProductsStock.value = response;
     isLoading.value = false;
 }

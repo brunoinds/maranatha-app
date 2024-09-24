@@ -258,11 +258,41 @@ export interface IProductWithWarehouseStock extends IProduct {
     stock: {
         in_stock_count: number,
         sold_count: number,
+        all_count: number,
         average_buy_price: { [key in EMoneyType]: string },
         average_sell_price: { [key in EMoneyType]: string },
-        items: Array<IInventoryProductItem>
     }
 }
+
+export interface IOutcomeResumeAnalisys{
+    products: Array<{
+        product_id: number
+        quantity: number
+        do_loan: boolean
+        items_ids: Array<number>
+        items_aggregated: Array<{
+            currency: string
+            unit_amount: number
+            count: number
+            total_amount: number
+        }>
+        prices: Array<{
+            currency: string
+            amount: number
+            count: number
+        }>
+    }>
+    summary: {
+        prices: Array<{
+            currency: string
+            amount: number
+            count: number
+        }>
+        items_to_loan: Array<any>
+        items_to_sell: Array<number>
+    }
+}
+
 
 
 export interface IProductsPack{

@@ -536,72 +536,7 @@ const loadImage = async () => {
 
 const loadIncomeProducts = async () => {
     isLoading.value = true;
-
-    const responseProductsItems = (await RequestAPI.get(`/inventory/warehouse-incomes/${props.warehouseIncome.id}/products`) as unknown as Array<IInventoryProductItem>);
-    const responseProductsWithStock = (await RequestAPI.get(`/inventory/warehouses/${props.warehouseIncome.inventory_warehouse_id}/stock`) as unknown as Array<IProductWithWarehouseStock>);
-
-
-    //Group responseProductsItems by product_id:
-    const productsItemsGrouped = responseProductsItems.reduce((acc: any, item: any) => {
-        if (!acc[item.inventory_product_id]){
-            acc[item.inventory_product_id] = [];
-        }
-        acc[item.inventory_product_id].push(item);
-        return acc;
-    }, {})
-
-
-    //Now, map the products and add the quantity and amount:
-    dynamicData.value.productsListWithQuantity = responseProductsWithStock.map((product: any) => {
-        const productItems = productsItemsGrouped[product.id] as Array<IInventoryProductItem> || [];
-        if (!productsItemsGrouped[product.id]){
-            return null;
-        }
-
-        return {
-            product,
-            quantity: productItems.length,
-            amount: (productItems.length == 0) ? 0 : productItems[0].buy_amount,
-            sellings: (() => {
-                const sellingProducts = product.stock.items.filter((item:any) => item.inventory_warehouse_income_id == props.warehouseIncome.id);
-                const selledProducts = sellingProducts.filter((item:any) => item.inventory_warehouse_outcome_id != null);
-                const notSelledProducts = sellingProducts.filter((item:any) => item.inventory_warehouse_outcome_id == null);
-
-                const selledProductsDetails = (() => {
-                    let outcomes:any = {};
-
-                    selledProducts.forEach((item:any) => {
-                        if (!outcomes[item.inventory_warehouse_outcome_id]){
-                            outcomes[item.inventory_warehouse_outcome_id] = {
-                                outcome_id: item.inventory_warehouse_outcome_id,
-                                items: []
-                            };
-                        }
-                        outcomes[item.inventory_warehouse_outcome_id].items.push(item);
-                    })
-
-                    return Object.values(outcomes).map((outcome:any) => {
-                        return {
-                            outcome_id: outcome.outcome_id,
-                            count: outcome.items.length
-                        }
-                    })
-                })() as Array<{outcome_id: number, count: number}>;
-
-
-                return {
-                    in_stock: {
-                        count: notSelledProducts.length,
-                    },
-                    sold: {
-                        count: selledProducts.length,
-                        details: selledProductsDetails
-                    }
-                }
-            })()
-        }
-    }).filter((p: any) => p !== null) as Array<{product: IProduct, quantity: number, amount: number}>;
-
+    dynamicData.value.productsListWithQuantity = (await RequestAPI.get(`/inventory/warehouse-incomes/${props.warehouseIncome.id}/products-state`) as unknown as any)
     dynamicData.value.datetimePickerDate = DateTime.fromISO(props.warehouseIncome.date).toISODate() as unknown as string;
     isLoading.value = false;
 

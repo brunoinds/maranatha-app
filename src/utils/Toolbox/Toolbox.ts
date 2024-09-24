@@ -93,6 +93,14 @@ class Toolbox{
         return  Numeral(amount).format('0,0.00');
     }
 
+    public static integerFormat(amount: number): string{
+        return Numeral(amount).format('0,0');
+    }
+
+    public static floatFormat(amount: number): string{
+        return Numeral(amount).format('0,0.00');
+    }
+
     public static shareNative(fileName: string, base64Data: string){
         fileName = sanitize(fileName, {replacement: '_'})
 

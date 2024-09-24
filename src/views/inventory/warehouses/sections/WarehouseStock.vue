@@ -168,7 +168,8 @@ const createWarehouseIncome = () => {
 const openProductStock = (productWithStock: IProductWithWarehouseStock) => {
     Dialog.show(InventoryProductStock, {
         props: {
-            productWithStock
+            productWithStock,
+            warehouseId: props.warehouse.id
         },
         onLoaded($this) {
             

@@ -39,7 +39,7 @@
                         Unidades compradas
                     </ion-label>
                     <ion-label slot="end" class="ion-text-right">
-                        {{ productWithStock.stock.items.length }}
+                        {{ productWithStock.stock.all_count }}
                     </ion-label>
                 </ion-item>
                 <ion-item>
@@ -47,7 +47,7 @@
                         Unidades vendidas
                     </ion-label>
                     <ion-label slot="end" class="ion-text-right">
-                        {{ productWithStock.stock.items.filter((item) => item.inventory_warehouse_outcome_id != null).length }}
+                        {{ productWithStock.stock.sold_count }}
                     </ion-label>
                 </ion-item>
                 <ion-item>
@@ -108,7 +108,9 @@
             <article v-if="viewSegment == 'Ítems'">
                 <ion-list>
                     <ion-list-header>Ítems</ion-list-header>
-                    <ion-item v-for="(item,index) in productWithStock.stock.items" :key="item.id" button @click="showProductItem(item.id)">
+
+
+                    <ion-item v-for="(item,index) in paginatedItems" :key="item.id" button @click="showProductItem(item.id)">
                         <ion-label>
                             <h2><b>#{{ index + 1 }}</b></h2>
                             <p v-if="item.batch">S/N: {{ item.batch }}</p>
@@ -123,18 +125,23 @@
 
 <script setup lang="ts">
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { IonButton, IonButtons, IonContent, IonSegment, IonSegmentButton, IonHeader, IonChip, IonAvatar, IonSearchbar, IonListHeader, IonLabel, IonInput,IonIcon, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
+import { IonButton, IonButtons, IonContent, IonSegment, IonInfiniteScroll, IonInfiniteScrollContent, IonSegmentButton, IonHeader, IonChip, IonAvatar, IonSearchbar, IonListHeader, IonLabel, IonInput,IonIcon, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController, InfiniteScrollCustomEvent } from '@ionic/vue';
 import { computed, onMounted, ref } from 'vue';
 import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { arrowForwardCircleOutline, cubeOutline, storefrontOutline, checkmarkOutline, arrowUpCircleOutline, arrowDownCircleOutline } from 'ionicons/icons';
 import { IWorker } from '@/interfaces/WorkerInterfaces';
-import { IProduct, IProductWithWarehouseStock, IWarehouse } from '@/interfaces/InventoryInterfaces';
+import { IInventoryProductItem, IProduct, IProductWithWarehouseStock, IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import InventoryProductsPackSelector from '@/dialogs/InventoryProductsPackSelector/InventoryProductsPackSelector.vue';
 import EditInventoryWarehouseOutcome from '@/dialogs/EditInventoryWarehouseOutcome/EditInventoryWarehouseOutcome.vue';
 import EditInventoryWarehouseIncome from '@/dialogs/EditInventoryWarehouseIncome/EditInventoryWarehouseIncome.vue';
 import ProductItemStatusChip from '@/components/ProductItemStatusChip/ProductItemStatusChip.vue';
 import EditInventoryProductItem from '@/dialogs/EditInventoryProductItem/EditInventoryProductItem.vue';
+
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
+
+
 
 const isLoading = ref(false);
 const viewSegment = ref('General');
@@ -147,58 +154,18 @@ const props = defineProps({
         type: Object as () => IProductWithWarehouseStock,
         required: true,
     },
+    warehouseId: {
+        type: Number,
+        required: true
+    }
 });
+
+const paginatedItems = ref<Array<IInventoryProductItem>>([]);
+const movimentsData = ref<any>([]);
 
 
 const productHistoryUI = computed(() => {
-    //Group by props.productWithStock.stock.items['inventory_warehouse_income_id']:
-    const groupedByIncome = props.productWithStock.stock.items.reduce((acc, item) => {
-        if (!acc[item.inventory_warehouse_income_id]){
-            acc[item.inventory_warehouse_income_id] = [];
-        }
-        acc[item.inventory_warehouse_income_id].push(item);
-        return acc;
-    }, {} as Record<number, Array<IProductWithWarehouseStock['stock']['items'][0]>>);
-
-    const incomes = Object.entries(groupedByIncome).map(([key, value]) => {
-        return {
-            income_id: value[0].inventory_warehouse_income_id,
-            items: value
-        }
-    }).map((income) => {
-        return {
-            income_id: income.income_id,
-            count: income.items.length,
-            price: income.items[0].buy_amount,
-            currency: income.items[0].buy_currency,
-            total_price: income.items.reduce((acc, item) => acc + item.buy_amount, 0),
-            outcomes: (() => {
-                const outcomeItems = income.items.filter((item) => item.inventory_warehouse_outcome_id != null).reduce((acc, item) => {
-                    if (!acc[item.inventory_warehouse_outcome_id]){
-                        acc[item.inventory_warehouse_outcome_id] = [];
-                    }
-                    acc[item.inventory_warehouse_outcome_id].push(item);
-                    return acc;
-                }, {});
-
-
-                return Object.entries(outcomeItems).map(([key, value]) => {
-                    return {
-                        outcome_id: value[0].inventory_warehouse_outcome_id,
-                        items: value
-                    }
-                }).map((outcome) => {
-                    return {
-                        outcome_id: outcome.outcome_id,
-                        count: outcome.items.length,
-                    }
-                });
-            })(),
-            remaining_count: income.items.filter((item) => item.inventory_warehouse_outcome_id == null).length
-        }
-    });
-
-    return incomes.map((income) => {
+    return movimentsData.value.map((income) => {
         return {
             ...income,
             priceText: Toolbox.moneyFormat(income.price, income.currency),
@@ -245,7 +212,7 @@ const openIncome = async (incomeId: number) => {
     isLoading.value = false;
 }
 
-const showProductItem = (id: string) => {
+const showProductItem = (id: number) => {
     Dialog.show(EditInventoryProductItem, {
         props: {
             productItemId: id
@@ -256,9 +223,16 @@ const showProductItem = (id: string) => {
     })
 }
 
+const fetchPaginatedProductItems = async (page: number = 1) => {
+    isLoading.value = true;
+    const itemsRequest = await RequestAPI.get(`/inventory/warehouses/${props.warehouseId}/products/${props.productWithStock.id}/items?page=${page}`);
+    paginatedItems.value = itemsRequest.items;
+    movimentsData.value = itemsRequest.movements_history;
+    isLoading.value = false;
+}
 
 onMounted(() => {
-
+    fetchPaginatedProductItems(1)
 })
 
 
@@ -269,5 +243,9 @@ onMounted(() => {
     background-color: var(--ion-color-light-tint);
     padding-top: 10px;
     padding-bottom: 10px;
+}
+
+.scroller {
+    height: 300px;
 }
 </style>

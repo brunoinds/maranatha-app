@@ -172,7 +172,7 @@
                             </section>
 
                             <section class="ion-padding">
-                                <ion-button :disabled="incomeResume.count == 0" color="success" @click="checkoutActions.createNewIncome" expand="block">
+                                <ion-button :disabled="incomeResume.count == 0 || isLoading" color="success" @click="checkoutActions.createNewIncome" expand="block">
                                     Confirmar e Ingresar Productos
                                     <ion-icon slot="end" :icon="checkmarkCircleOutline"></ion-icon>
                                 </ion-button>

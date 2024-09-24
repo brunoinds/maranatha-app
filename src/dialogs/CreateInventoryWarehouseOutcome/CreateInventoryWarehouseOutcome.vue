@@ -35,8 +35,8 @@
                                         <ion-chip slot="end" color="danger" v-if="product.product.stock.in_stock_count == 0">Agotado</ion-chip>
 
                                         <ion-label slot="end" class="ion-text-right" color="primary" v-if="product.product.stock.in_stock_count > 0">
-                                            <h2><b>{{ product.quantity }} unidades</b></h2>
-                                            <p>{{ product.product.stock.in_stock_count }} disponibles</p>
+                                            <h2><b>{{ Toolbox.integerFormat(product.quantity) }} unidades</b></h2>
+                                            <p>{{ Toolbox.integerFormat(product.product.stock.in_stock_count) }} disponibles</p>
                                         </ion-label>
                                     </ion-item>
                                     <ion-item :color="(product.quantity.length == 0 || product.quantity > product.product.stock.in_stock_count) ? 'warning': undefined">
@@ -114,22 +114,22 @@
                                         </ion-label>
                                         <ion-label slot="end" class="ion-text-right" color="primary"  v-if="!product.doLoan">
                                             <h2 v-for="price in productsResume.find((i) => i.product == product.product)?.prices"><b>+{{ Toolbox.moneyFormat(price.amount, price.currency as unknown as EMoneyType) }}</b></h2>
-                                            <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ price.count }} unidades en {{ price.currency }}</p>
+                                            <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ Toolbox.integerFormat(price.count) }} unidades en {{ price.currency }}</p>
                                         </ion-label>
                                         <ion-label slot="end" class="ion-text-right" color="primary"  v-if="product.doLoan">
                                             <h2><b>Préstamo</b></h2>
-                                            <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ price.count }} unidades</p>
+                                            <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ Toolbox.integerFormat(price.count) }} unidades</p>
                                         </ion-label>
                                     </ion-item>
 
-                                    <ion-item v-for="item in productsResume.find((i) => i.product == product.product)?.itemsAggregated" v-if="!product.doLoan">
+                                    <ion-item v-for="item in productsResume.find((i) => i.product == product.product)?.items_aggregated" v-if="!product.doLoan">
                                         <ion-label>
-                                            <h3>{{ item.count }} unidades</h3>
-                                            <p style="font-size: 11px;">por {{Toolbox.moneyFormat(item.unitAmount, item.currency as unknown as EMoneyType)}} cada</p>
+                                            <h3>{{ Toolbox.integerFormat(item.count) }} unidades</h3>
+                                            <p style="font-size: 11px;">por {{Toolbox.moneyFormat(item.unit_amount, item.currency as unknown as EMoneyType)}} cada</p>
                                         </ion-label>
                                         <ion-label slot="end" class="ion-text-right" color="medium">
-                                            <h2 style="font-size: 14px;"><b>{{ Toolbox.moneyFormat(item.totalAmount, item.currency as unknown as EMoneyType) }}</b></h2>
-                                            <p>{{ item.count }}x {{ Toolbox.moneyFormat(item.unitAmount, item.currency as unknown as EMoneyType) }}</p>
+                                            <h2 style="font-size: 14px;"><b>{{ Toolbox.moneyFormat(item.total_amount, item.currency as unknown as EMoneyType) }}</b></h2>
+                                            <p>{{ Toolbox.integerFormat(item.count) }}x {{ Toolbox.moneyFormat(item.unit_amount, item.currency as unknown as EMoneyType) }}</p>
                                         </ion-label>
                                     </ion-item>
                                 </ion-list>
@@ -142,12 +142,12 @@
                                 <ion-item v-for="(price, index) in outcomeResume.prices" :key="price.currency">
                                     <ion-label color="success" slot="end" class="ion-text-right">
                                         <h1><b v-if="index != 0">+</b><b>{{ Toolbox.moneyFormat(price.amount, price.currency as unknown as EMoneyType) }}</b></h1>
-                                        <p>{{ price.count }} productos en {{ price.currency }}</p>
+                                        <p>{{ Toolbox.integerFormat(price.count) }} productos en {{ price.currency }}</p>
                                     </ion-label>
                                 </ion-item>
                             </ion-list>
                             <section class="ion-padding">
-                                <ion-button :disabled="outcomeResume.prices.length == 0" color="success" @click="checkoutActions.createNewOutcome" expand="block">
+                                <ion-button :disabled="outcomeResume.prices.length == 0 || isLoading" color="success" @click="checkoutActions.createNewOutcome" expand="block">
                                     Confirmar Salida de Productos
                                     <ion-icon slot="end" :icon="checkmarkCircleOutline"></ion-icon>
                                 </ion-button>
@@ -168,7 +168,7 @@
 <script setup lang="ts">
 import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonToggle, IonAvatar, IonListHeader, IonContent, IonDatetime, IonHeader, IonIcon, IonImg, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { attachOutline, camera, qrCodeOutline, trashBinOutline, checkmarkCircleOutline, bagAddOutline, alertCircleOutline } from 'ionicons/icons';
-import { PropType, computed, onMounted, ref } from 'vue';
+import { PropType, computed, onMounted, ref, watch } from 'vue';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import InventoryProductSelector from '@/dialogs/InventoryProductSelector/InventoryProductSelector.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
@@ -177,7 +177,7 @@ import { EMoneyType } from '@/interfaces/ReportInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { QRCodeParser } from '@/utils/QRCodeParser/QRCodeParser';
 import { DateTime } from "luxon";
-import { EInventoryProductItemStatus, IInventoryProductItem, INewWarehouseOutcome, IProduct, IProductWithWarehouseStock } from '@/interfaces/InventoryInterfaces';
+import { EInventoryProductItemStatus, IInventoryProductItem, INewWarehouseOutcome, IOutcomeResumeAnalisys, IProduct, IProductWithWarehouseStock } from '@/interfaces/InventoryInterfaces';
 import { ImagePicker } from '@/utils/Camera/ImagePicker';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
@@ -189,7 +189,13 @@ const datetimeAccordionGroupEl = ref<any>(null);
 const accordionGroupEl = ref<any>(null);
 const isLoading = ref<boolean>(true);
 
-
+const outcomeResumeAnalisys = ref<{
+    lastRequestId: string|null,
+    analisys: null|IOutcomeResumeAnalisys
+}>({
+    lastRequestId: null,
+    analisys: null
+})
 
 const props = defineProps({
     warehouseId: {
@@ -227,97 +233,25 @@ const dynamicData = ref<{
 })
 
 const productsResume = computed(() => {
-    return dynamicData.value.productsListWithQuantity.map((p) => {
-        const itemsChoosenToSell = (() => {
-            const itemsAvailableToSell = p.product.stock.items.filter((item) => {
-                return item.status == EInventoryProductItemStatus.InStock
-            }).sort((a, b) => {
-                //Using FIFO method to sell products:
-                return a.order - b.order
-            })
-            return itemsAvailableToSell.slice(0, p.quantity)
-        })();
-
-        const itemsChoosenToSellAggregated = (() => {
-            const items = itemsChoosenToSell.reduce((acc, item) => {
-                    const key = item.buy_currency + item.buy_amount;
-                    if (!acc[key]){
-                        acc[key] = {
-                            currency: item.buy_currency,
-                            unitAmount: item.buy_amount,
-                            count: 1,
-                            totalAmount: item.buy_amount
-                        }
-                    }else{
-                        acc[key].count++;
-                        acc[key].totalAmount += item.buy_amount;
-                    }
-                    return acc;
-            }, {} as {[key: string]: {currency: string, unitAmount: number, count: number, totalAmount: number}})
-            return Object.keys(items).map((key) => items[key]);
-        })()
-
-        const currenciesFound = itemsChoosenToSell.map((item) => item.buy_currency).filter((value, index, self) => self.indexOf(value) === index);
-
-
+    return outcomeResumeAnalisys.value.analisys?.products.map((item) => {
         return {
-            product: p.product,
-            quantity: p.quantity,
-            items: itemsChoosenToSell,
-            itemsAggregated: itemsChoosenToSellAggregated,
-            doLoan: p.doLoan,
-            prices: currenciesFound.map((currency) => {
-                return {
-                    currency,
-                    amount: itemsChoosenToSell.filter((item) => item.buy_currency == currency).reduce((acc, item) => acc + item.buy_amount, 0),
-                    count: itemsChoosenToSell.filter((item) => item.buy_currency == currency).length
-                }
-            })
+            ...item,
+            product: dynamicData.value.productsListWithQuantity.find((p) => p.product.id == item.product_id)?.product
         }
-    })
+    })  || []
 })
 
 
 const outcomeResume = computed(() => {
     return {
         prices: (() => {
-            const items = productsResume.value.reduce((acc, product) => {
-                product.items.forEach((item) => {
-                    const key = item.buy_currency;
-                    const itemData = JSON.parse(JSON.stringify(item));
-                    if (product.doLoan){
-                        itemData.buy_amount = 0;
-                    }
-
-                    if (!acc[key]){
-                        acc[key] = {
-                            currency: itemData.buy_currency,
-                            amount: itemData.buy_amount,
-                            count: 1
-                        }
-                    }else{
-                        acc[key].amount += itemData.buy_amount;
-                        acc[key].count++;
-                    }
-                })
-                return acc;
-            }, {} as {[key: string]: {currency: string, amount: number, count: number}})
-            return Object.keys(items).map((key) => items[key]);
-        })(),
-        items: (() => {
-            return productsResume.value.reduce((acc, product) => {
-                return acc.concat(product.items)
-            }, [])
+            return outcomeResumeAnalisys.value.analisys?.summary.prices || []
         })(),
         itemsToLoan: (() => {
-            return productsResume.value.filter(product => product.doLoan).reduce((acc, product) => {
-                return acc.concat(product.items)
-            }, [])
+            return outcomeResumeAnalisys.value.analisys?.summary.items_to_loan || []
         })(),
         itemsToSell: (() => {
-            return productsResume.value.filter(product => !product.doLoan).reduce((acc, product) => {
-                return acc.concat(product.items)
-            }, [])
+            return outcomeResumeAnalisys.value.analisys?.summary.items_to_sell || []
         })()
     }
 })
@@ -507,9 +441,9 @@ const checkoutActions = {
                 ...warehouseOutcome.value,
                 inventory_warehouse_id: props.warehouseId,
                 date: DateTime.fromFormat(warehouseOutcome.value.date, "dd/MM/yyyy").toISO(),
-                products_items: outcomeResume.value.itemsToSell.map((item: IInventoryProductItem) => {
+                products_items: outcomeResume.value.itemsToSell.map((id: number) => {
                     return {
-                        id: item.id
+                        id: id
                     }
                 }),
                 outcome_request_id: dynamicData.value.outcomeRequestId
@@ -561,6 +495,28 @@ const checkoutActions = {
 }
 
 
+watch(() => dynamicData.value.productsListWithQuantity, async (newValue) => {
+    isLoading.value = true;
+    const requestAnalisysId = crypto.randomUUID();
+    outcomeResumeAnalisys.value.lastRequestId = requestAnalisysId;
+
+    const response = await RequestAPI.post(`/inventory/warehouses/${props.warehouseId}/outcome-resume-analisys`, {
+        products: newValue.map((p) => {
+            return {
+                product_id: p.product.id,
+                quantity: parseInt(p.quantity as any),
+                do_loan: p.doLoan
+            }
+        })
+    })
+
+    if (outcomeResumeAnalisys.value.lastRequestId != requestAnalisysId){
+        return;
+    }
+
+    outcomeResumeAnalisys.value.analisys = response;
+    isLoading.value = false;
+}, {deep: true})
 
 onMounted(async () => {
     isLoading.value = false;

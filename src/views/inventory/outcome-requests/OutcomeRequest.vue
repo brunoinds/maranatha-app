@@ -569,6 +569,7 @@
                                     </ion-label>
                                     <ion-label slot="end" color="warning" class="ion-text-right">
                                         <h2><b>Préstamo</b></h2>
+                                        <p><b>x{{ item.quantity }}</b></p>
                                     </ion-label>
                                 </ion-item>
                             </ion-list>
@@ -1329,8 +1330,8 @@ const openOutcomeRequestReceiptProductsSelector  = async () => {
             }).concat(loanedItemsUI.value.map((item) => {
                 return {
                     product: item.product as IProductWithWarehouseStock,
-                    sent: 1,
-                    received: 1
+                    sent: item.quantity,
+                    received: item.quantity
                 }
             }))
         },

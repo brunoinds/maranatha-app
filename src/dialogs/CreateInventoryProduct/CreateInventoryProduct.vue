@@ -49,6 +49,9 @@
                     <ion-input label="¿Es prestable?" label-placement="stacked" :readonly="true" :value="dynamicData.is_loanable ? 'Sí' : 'No'" :disabled="isLoading"></ion-input>
                     <ion-toggle slot="end" :enable-on-off-labels="true" v-model="dynamicData.is_loanable" :disabled="isLoading"></ion-toggle>
                 </ion-item>
+                <ion-item>
+                    <ion-input label="Url foto" placeholder="" label-placement="stacked" v-model="dynamicData.image" :disabled="isLoading"></ion-input>
+                </ion-item>
             </ion-list>
 
             <datalist id="inventory-products-categories-datatlist">

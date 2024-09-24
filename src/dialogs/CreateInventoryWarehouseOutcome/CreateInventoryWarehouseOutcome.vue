@@ -459,8 +459,8 @@ const checkoutActions = {
                 ...warehouseOutcome.value,
                 inventory_warehouse_id: props.warehouseId,
                 loaned_at: DateTime.fromFormat(warehouseOutcome.value.date, "dd/MM/yyyy").toISO(),
-                products_items_ids: outcomeResume.value.itemsToLoan.map((item: IInventoryProductItem) => {
-                    return item.id
+                products_items_ids: outcomeResume.value.itemsToLoan.map((id: number) => {
+                    return id
                 }),
                 loaned_to_user_id: props.targets?.userId,
                 inventory_warehouse_outcome_request_id: parseInt(dynamicData.value.outcomeRequestId as any)

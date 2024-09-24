@@ -42,6 +42,7 @@ import { ErrorTracking } from '@/utils/ErrorTracking/ErrorTracking';
 import VuePdf from 'vue3-pdfjs'
 import { ScriptInject } from '@/utils/ScriptInject/ScriptInject';
 import { Environment } from '@/utils/Environment/Environment';
+import { PushNotifications } from '@capacitor/push-notifications';
 
 
 
@@ -71,11 +72,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   Session.waitForLogin().then(() => {
     Notifications.waitOneSignalLogin().then(() => {
       setTimeout(async () => {
-        const isAllowed = await Notifications.isAllowed();
-        if (isAllowed){
-          return;
+        if (Capacitor.isNativePlatform()){
+            PushNotifications.checkPermissions().then((response) => {
+                if (response.receive == 'granted'){
+                }else if (response.receive == 'denied'){
+                }else{
+                  Notifications.softAskForPermission();
+                }
+            })
+        }else{
+          const isAllowed = await Notifications.isAllowed();
+          if (isAllowed){
+            return;
+          }
+          Notifications.softAskForPermission();
         }
-        Notifications.softAskForPermission();
       }, 60 * 1000);
     })
   })

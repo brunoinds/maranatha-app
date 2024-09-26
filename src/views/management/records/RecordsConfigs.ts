@@ -639,10 +639,11 @@ const RecordsConfigs = {
                 title: 'Kardex de Productos en Inventario',
                 filters: [
                     {
-                        id: 'warehouse_id',
+                        id: 'warehouse_ids',
                         name: 'Almacén',
                         isRequired: false,
                         type: 'dropdown',
+                        multiple: true,
                         options: warehousesDropdownOptions
                     },
                     {
@@ -672,6 +673,14 @@ const RecordsConfigs = {
                         isRequired: false,
                         type: 'dropdown',
                         options: moneyTypesDropdownOptions
+                    },
+                    {
+                        id: 'categories',
+                        name: 'Categorías',
+                        isRequired: false,
+                        type: 'dropdown',
+                        multiple: true,
+                        options: productsCategoriesDropdownOptions
                     }
                 ],
                 endpoint: 'inventory/by-products-kardex',
@@ -691,10 +700,11 @@ const RecordsConfigs = {
                 title: 'Kardex de Préstamos en Inventario',
                 filters: [
                     {
-                        id: 'warehouse_id',
+                        id: 'warehouse_ids',
                         name: 'Almacén',
                         isRequired: false,
                         type: 'dropdown',
+                        multiple: true,
                         options: warehousesDropdownOptions
                     },
                     {
@@ -714,6 +724,14 @@ const RecordsConfigs = {
                             end: DateTime.now().toFormat('yyyy-MM-dd')
                         }
                     },
+                    {
+                        id: 'categories',
+                        name: 'Categorías',
+                        isRequired: false,
+                        type: 'dropdown',
+                        multiple: true,
+                        options: productsCategoriesDropdownOptions
+                    }
                 ],
                 endpoint: 'inventory/by-products-loans-kardex',
                 data: {
@@ -727,10 +745,11 @@ const RecordsConfigs = {
                 title: 'Saldo de Productos en Inventario',
                 filters: [
                     {
-                        id: 'warehouse_id',
+                        id: 'warehouse_ids',
                         name: 'Almacén',
                         isRequired: false,
                         type: 'dropdown',
+                        multiple: true,
                         options: warehousesDropdownOptions
                     },
                     {
@@ -746,6 +765,14 @@ const RecordsConfigs = {
                         isRequired: false,
                         type: 'dropdown',
                         options: moneyTypesDropdownOptions
+                    },
+                    {
+                        id: 'categories',
+                        name: 'Categorías',
+                        isRequired: false,
+                        type: 'dropdown',
+                        multiple: true,
+                        options: productsCategoriesDropdownOptions
                     }
                 ],
                 endpoint: 'inventory/by-products-balance',
@@ -760,10 +787,11 @@ const RecordsConfigs = {
                 title: 'Stock de Productos en Inventario',
                 filters: [
                     {
-                        id: 'warehouse_id',
+                        id: 'warehouse_ids',
                         name: 'Almacén',
                         isRequired: false,
                         type: 'dropdown',
+                        multiple: true,
                         options: warehousesDropdownOptions
                     },
                     {
@@ -799,10 +827,11 @@ const RecordsConfigs = {
                         value: null
                     },
                     {
-                        id: 'category',
-                        name: 'Categoría',
+                        id: 'categories',
+                        name: 'Categorías',
                         isRequired: false,
                         type: 'dropdown',
+                        multiple: true,
                         options: productsCategoriesDropdownOptions
                     }
                 ],

@@ -70,7 +70,7 @@
                         <WarehouseProductItemLoans v-if="segmentValue == 'loans' && warehouseData" :warehouse="warehouseData"/>
 
                         <Records v-if="segmentValue == 'informs' && warehouseData" location="InventoryManagement" :preFilling="{
-                            warehouse_id: warehouseData.id
+                            warehouse_ids: [warehouseData.id]
                         }"></Records>
                     </main>
                 </main>

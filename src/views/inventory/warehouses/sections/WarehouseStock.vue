@@ -137,11 +137,12 @@ const productsUI = computed(() => {
                 }
             })
         },
-        list: warehouseProductsStock.value.map((product) => {
-            return {
-                ...product,
-                identification: product.id,
-            }
+        list: warehouseProductsStock.value
+            .map((product) => {
+                return {
+                    ...product,
+                    identification: product.id,
+                }
         })
     }
 })
@@ -185,7 +186,7 @@ const openProductStock = (productWithStock: IProductWithWarehouseStock) => {
 const loadWarehouseStock = async () => {
     isLoading.value = true;
     const response = (await RequestAPI.get(`/inventory/warehouses/${props.warehouse.id}/stock`)).items;
-    warehouseProductsStock.value = response;
+    warehouseProductsStock.value = response.filter((item: any) => item.stock.all_count > 0);
     isLoading.value = false;
 }
 

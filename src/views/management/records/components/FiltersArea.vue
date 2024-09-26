@@ -2,7 +2,7 @@
     <article>
         <ion-list>
             <ion-item v-for="filter in props.filters" :key="filter.id">
-                <ion-select v-if="filter.value.type == 'dropdown'" :label="filter.value.name" v-model="filter.value.value">
+                <ion-select v-if="filter.value.type == 'dropdown'" :label="filter.value.name" v-model="filter.value.value" :multiple="filter.value.multiple ? filter.value.multiple : false">
                     <ion-select-option v-for="option in filter.value.options" :value="option.value">{{option.name}}</ion-select-option>
                 </ion-select>
                 <IonDateRangeMonthItem v-if="filter.value.type == 'daterangemonth'" :label="filter.value.name" :value="filter.value.value" v-model="filter.value.value"></IonDateRangeMonthItem>

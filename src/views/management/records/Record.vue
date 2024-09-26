@@ -98,6 +98,7 @@ interface IRecordFilter{
     isRequired: boolean;
     type: string;
     options?: any[];
+    multiple?: boolean;
     value?: any;
 }
 

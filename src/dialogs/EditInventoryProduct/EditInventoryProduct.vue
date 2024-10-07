@@ -162,6 +162,7 @@ dynamicData.value = {
 
 
 const onBlurName = async () => {
+    return;
     if (dynamicData.value.image.length > 0){
         return;
     }

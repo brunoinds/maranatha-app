@@ -14,8 +14,12 @@
             </ion-fab>
 
             <section>
+                <article class="ion-padding">
+                    <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
+                </article>
+
                 <ion-list>
-                    <ion-item v-for="product in productsData" :key="product.id">
+                    <ion-item v-for="product in productsUI" :key="product.id">
                         <ion-avatar slot="start" v-if="product.image">
                             <img :src="product.image" />
                         </ion-avatar>
@@ -32,22 +36,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonAvatar, IonCheckbox, IonSegment, IonSelect, IonSelectOption, IonButton, IonSegmentButton, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { addOutline } from 'ionicons/icons';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { IProduct, IWarehouse } from '@/interfaces/InventoryInterfaces';
-import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateInventoryProduct from '@/dialogs/CreateInventoryProduct/CreateInventoryProduct.vue';
+import { IProduct } from '@/interfaces/InventoryInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { Dialog } from '@/utils/Dialog/Dialog';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
-import {IonPeekPop, IonPeekPopContextMenuItem} from 'ion-peek-pop';
+import { IonAvatar, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSearchbar, IonTitle, IonToolbar } from '@ionic/vue';
 import 'ion-peek-pop/styles.css';
+import { addOutline } from 'ionicons/icons';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const page = ref<HTMLElement|null>(null);
 const isLoading = ref<boolean>(false);
 
 const productsData = ref<IProduct[]>([]);
+
+
+const dynamicData = ref({
+    query: '',
+})
 
 const createNewProduct = () => {
     Dialog.show(CreateInventoryProduct, {
@@ -64,6 +71,16 @@ const createNewProduct = () => {
 }
 
 
+const productsUI = computed(() => {
+    return productsData.value.filter((product) => {
+        if (dynamicData.value.query.trim().length > 0) {
+            return product.name.toLowerCase().includes(dynamicData.value.query.toLowerCase());
+        }
+        return true;
+    }).toSorted((a, b) => {
+        return a.name.localeCompare(b.name);
+    });
+})
 
 const loadProducts = async () => {
     isLoading.value = true;

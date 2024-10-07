@@ -113,6 +113,8 @@ const productsUI = computed(() => {
             return product.is_loanable
         }
         return true;
+    }).toSorted((a, b) => {
+        return a.name.localeCompare(b.name);
     });
 })
 

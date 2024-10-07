@@ -39,8 +39,14 @@
                         </article>
 
                         <article v-if="subSegmentValue == 'Productos'" class="limiter">
+
+                            <article class="ion-padding">
+                                <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
+                            </article>
+
+
                             <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                                <IonPeekPop v-for="product in productsData" :key="product.id" @onPop="editProduct(product)">
+                                <IonPeekPop v-for="product in productsUI" :key="product.id" @onPop="editProduct(product)">
                                     <template v-slot:item>
                                         <ion-item  button @click="editProduct(product)">
                                             <ion-avatar slot="start" v-if="product.image">
@@ -178,7 +184,7 @@
 
 <script setup lang="ts">
 import Records from '@/views/management/records/Records.vue';
-import { IonAvatar, IonButton, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/vue';
+import { IonAvatar, IonButton, IonContent, IonFab, IonFabButton, IonSearchbar, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
@@ -221,6 +227,17 @@ const loansData = ref<IWarehouseProductItemLoan[]>([]);
 const productsData = ref<IProduct[]>([]);
 const productsPacksData = ref<IProductsPack[]>([]);
 
+const productsUI = computed(() => {
+    return productsData.value.filter((product) => {
+        if (dynamicData.value.query.trim().length > 0) {
+            return product.name.toLowerCase().includes(dynamicData.value.query.toLowerCase());
+        }
+        return true;
+    }).toSorted((a, b) => {
+        return a.name.localeCompare(b.name);
+    });
+})
+
 const subSections = ref([
     {
         id: 'Almacenes',
@@ -239,7 +256,9 @@ const subSections = ref([
         title: '📄 Reportes',
     }
 ]);
-
+const dynamicData = ref({
+    query: '',
+})
 const outcomesUI = computed(() => {
     return outcomeRequestsData.value.map((outcome) => {
         return {

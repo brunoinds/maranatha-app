@@ -2,18 +2,25 @@
     <section class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
 
-        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-            <ion-item v-for="income in incomesUI" button @click="openWarehouseIncome(income.original)">
-                <ion-label>
-                    <h2><b>#00{{ income.id }}</b></h2>
-                    <h3>{{ income.date }}</h3>
-                    <p>{{ income.items_count }} productos</p>
-                </ion-label>
-                <ion-label slot="end" color="primary">
-                    <h2><b>{{ income.amount }}</b></h2>
-                </ion-label>
-            </ion-item>
-        </ion-list>
+
+
+
+        <article v-for="incomeGrouped  in incomesGrouppedUI">
+            <ion-list-header>{{ incomeGrouped.monthYearText }}</ion-list-header>
+            <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                <ion-item v-for="income in incomeGrouped.attendances" button @click="openWarehouseIncome(income.original)">
+                    <ion-label>
+                        <h2><b>#00{{ income.id }}</b></h2>
+                        <h3>{{ income.date }}</h3>
+                        <p>{{ income.items_count }} productos</p>
+                    </ion-label>
+                    <ion-label slot="end" color="primary">
+                        <h2><b>{{ income.amount }}</b></h2>
+                    </ion-label>
+                </ion-item>
+            </ion-list>
+        </article>
+
     </section>
 
     <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
@@ -30,7 +37,7 @@
 
 <script setup lang="ts">
 
-import { IonList, IonItem, IonLabel, IonFab, IonFabButton, IonIcon, IonProgressBar } from '@ionic/vue';
+import { IonList, IonItem, IonLabel, IonFab, IonFabButton, IonListHeader, IonIcon, IonProgressBar } from '@ionic/vue';
 import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
 import { IWarehouse, IWarehouseIncome } from '@/interfaces/InventoryInterfaces';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
@@ -127,6 +134,32 @@ const openWarehouseIncome = (warehouseIncome: IWarehouseIncome) => {
         }
     })
 }
+
+
+
+const incomesGrouppedUI = computed(() => {
+    //Group attendances by from_date month/year:
+    const groupedAttendances = incomesUI.value.sort((a, b) => {
+        return DateTime.fromFormat(b.original.date, 'dd/MM/yyyy').toMillis() - DateTime.fromFormat(a.original.date, 'dd/MM/yyyy').toMillis();
+    }).reduce((acc, attendance) => {
+        const monthYear = DateTime.fromFormat(attendance.original.date, 'dd/MM/yyyy').toFormat('MM/yyyy');
+        if (!acc[monthYear]){
+            acc[monthYear] = [];
+        }
+        acc[monthYear].push(attendance);
+        return acc;
+    }, {} as {[key: string]: any[]});
+
+    const groupedAttendancesUI = Object.keys(groupedAttendances).map((key) => {
+        return {
+            monthYear: key,
+            monthYearText: DateTime.fromFormat(key, 'MM/yyyy').toFormat('MMMM yyyy'),
+            attendances: groupedAttendances[key]
+        }
+    })
+
+    return groupedAttendancesUI;
+})
 
 onMounted(() => {
     loadIncomes();

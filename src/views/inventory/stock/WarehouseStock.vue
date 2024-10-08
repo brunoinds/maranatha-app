@@ -16,6 +16,12 @@
                 </ion-fab-button>
             </ion-fab>
 
+
+            <article class="ion-padding">
+                <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
+            </article>
+
+
             <v-data-table
                 :theme="currentDeviceTheme"
                 :headers="productsUI.table.headers"
@@ -49,7 +55,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton, IonCheckbox, IonSegment, IonSelect, IonSelectOption, IonButton, IonSegmentButton, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonSearchbar, IonBackButton, IonCheckbox, IonSegment, IonSelect, IonSelectOption, IonButton, IonSegmentButton, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { addOutline, pencilOutline } from 'ionicons/icons';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IProduct, IWarehouse, IWarehouseIncome, IProductWithWarehouseStock } from '@/interfaces/InventoryInterfaces';
@@ -69,6 +75,9 @@ const page = ref<HTMLElement|null>(null);
 const isLoading = ref<boolean>(false);
 const warehouseId = route.params.warehouseId as string;
 
+const dynamicData = ref({
+    query: '',
+})
 const warehouseProductsStock = ref<IProductWithWarehouseStock[]>([]);
 
 const productsUI = computed(() => {
@@ -122,7 +131,17 @@ const productsUI = computed(() => {
                     }),
                 }
             ],
-            body: warehouseProductsStock.value.map((product) => {
+            body: warehouseProductsStock.value
+            .filter((product) => {
+                if (dynamicData.value.query.trim().length > 0) {
+                    return product.name.toLowerCase().includes(dynamicData.value.query.toLowerCase());
+                }
+                return true;
+            })
+            .toSorted((a, b) => {
+                return a.name.localeCompare(b.name);
+            })
+            .map((product) => {
                 return {
                     ...product,
                     identification: product.id,

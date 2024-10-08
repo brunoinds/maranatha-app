@@ -14,7 +14,7 @@
             </ion-fab>
 
             <section>
-                <article class="ion-padding">
+                <article>
                     <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
                 </article>
 

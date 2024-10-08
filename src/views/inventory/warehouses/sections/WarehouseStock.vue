@@ -21,6 +21,11 @@
             </ion-item>
         </ion-list>
 
+
+        <article class="ion-padding">
+            <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
+        </article>
+
         <v-data-table
             :theme="currentDeviceTheme"
             :headers="productsUI.table.headers"
@@ -56,7 +61,7 @@
 
 <script setup lang="ts">
 
-import { IonList, IonItem, IonLabel, IonFab, IonFabButton, IonIcon, IonAvatar, IonChip, IonButton, IonImg, IonProgressBar } from '@ionic/vue';
+import { IonList, IonItem, IonLabel, IonFab, IonSearchbar, IonFabButton, IonIcon, IonAvatar, IonChip, IonButton, IonImg, IonProgressBar } from '@ionic/vue';
 import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
 import { IProductWithWarehouseStock, IWarehouse, IWarehouseIncome } from '@/interfaces/InventoryInterfaces';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
@@ -78,6 +83,11 @@ const props = defineProps({
         required: true
     }
 });
+
+
+const dynamicData = ref({
+    query: '',
+})
 
 const warehouseProductsStock = ref<IProductWithWarehouseStock[]>([]);
 
@@ -138,7 +148,16 @@ const productsUI = computed(() => {
             })
         },
         list: warehouseProductsStock.value
-            .map((product) => {
+        .filter((product) => {
+            if (dynamicData.value.query.trim().length > 0) {
+                return product.name.toLowerCase().includes(dynamicData.value.query.toLowerCase());
+            }
+            return true;
+        })
+        .toSorted((a, b) => {
+            return a.name.localeCompare(b.name);
+        })
+        .map((product) => {
                 return {
                     ...product,
                     identification: product.id,

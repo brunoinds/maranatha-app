@@ -147,7 +147,7 @@
                                 </ion-item>
                             </ion-list>
                             <section class="ion-padding">
-                                <ion-button :disabled="outcomeResume.prices.length == 0 || isLoading" color="success" @click="checkoutActions.createNewOutcome" expand="block">
+                                <ion-button :disabled="(outcomeResume.itemsToLoan.length + outcomeResume.itemsToSell.length) == 0 || isLoading" color="success" @click="checkoutActions.createNewOutcome" expand="block">
                                     Confirmar Salida de Productos
                                     <ion-icon slot="end" :icon="checkmarkCircleOutline"></ion-icon>
                                 </ion-button>

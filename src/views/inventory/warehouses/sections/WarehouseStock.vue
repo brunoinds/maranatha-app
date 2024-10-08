@@ -24,7 +24,7 @@
                 </ion-label>
             </ion-item>
         </ion-list>
-        
+
         <v-data-table
             :theme="currentDeviceTheme"
             :headers="productsUI.table.headers"
@@ -61,19 +61,18 @@
 
 <script setup lang="ts">
 
-import { IonList, IonItem, IonLabel, IonFab, IonSearchbar, IonFabButton, IonIcon, IonAvatar, IonChip, IonButton, IonImg, IonProgressBar } from '@ionic/vue';
-import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
-import { IProductWithWarehouseStock, IWarehouse, IWarehouseIncome } from '@/interfaces/InventoryInterfaces';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { Toolbox } from '@/utils/Toolbox/Toolbox';
-import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateInventoryWarehouseIncome from '@/dialogs/CreateInventoryWarehouseIncome/CreateInventoryWarehouseIncome.vue';
-import { addOutline, pencilOutline } from 'ionicons/icons';
-import { EMoneyType } from '@/interfaces/ReportInterfaces';
-import { Theme } from '@/utils/Theme/Theme';
-import { AppEvents } from '@/utils/AppEvents/AppEvents';
-import { Viewport } from '@/utils/Viewport/Viewport';
 import InventoryProductStock from '@/dialogs/InventoryProductStock/InventoryProductStock.vue';
+import { IProductWithWarehouseStock, IWarehouse } from '@/interfaces/InventoryInterfaces';
+import { EMoneyType } from '@/interfaces/ReportInterfaces';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { Theme } from '@/utils/Theme/Theme';
+import { Viewport } from '@/utils/Viewport/Viewport';
+import { IonAvatar, IonChip, IonFab, IonFabButton, IonIcon, IonImg, IonItem, IonLabel, IonList, IonProgressBar, IonSearchbar } from '@ionic/vue';
+import { addOutline } from 'ionicons/icons';
+import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
 
 
 const isLoading = ref<boolean>(false);
@@ -148,6 +147,16 @@ const productsUI = computed(() => {
             })
         },
         list: warehouseProductsStock.value
+        .filter((product) => {
+            if (Viewport.data.value.deviceSetting != 'DesktopLandscape'){
+                return product.name.toLowerCase().includes(dynamicData.value.query.toLowerCase())
+            }else{
+                return true;
+            }
+        })
+        .toSorted((a, b) => {
+            return a.name.localeCompare(b.name);
+        })
         .map((product) => {
                 return {
                     ...product,

@@ -6,7 +6,6 @@
                     <ion-button @click="props.emitter.fire('close')">Cerrar</ion-button>
                 </ion-buttons>
                 <ion-title>Stock de Producto</ion-title>
-                <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
             </ion-toolbar>
             <ion-toolbar>
                 <ion-segment v-model="viewSegment">
@@ -18,6 +17,7 @@
                     </ion-segment-button>
                 </ion-segment>
             </ion-toolbar>
+            <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
         <ion-content>
             <article v-if="viewSegment == 'General'">

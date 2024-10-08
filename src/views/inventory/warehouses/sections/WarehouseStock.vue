@@ -32,6 +32,7 @@
             :items="productsUI.table.body"
             :loading-text="'Cargando datos...'"
             :loading="isLoading"
+            :search="dynamicData.query"
             v-if="Viewport.data.value.deviceSetting == 'DesktopLandscape'"
         >
 
@@ -148,15 +149,6 @@ const productsUI = computed(() => {
             })
         },
         list: warehouseProductsStock.value
-        .filter((product) => {
-            if (dynamicData.value.query.trim().length > 0) {
-                return product.name.toLowerCase().includes(dynamicData.value.query.toLowerCase());
-            }
-            return true;
-        })
-        .toSorted((a, b) => {
-            return a.name.localeCompare(b.name);
-        })
         .map((product) => {
                 return {
                     ...product,

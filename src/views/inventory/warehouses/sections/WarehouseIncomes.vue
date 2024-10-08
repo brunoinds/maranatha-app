@@ -140,9 +140,9 @@ const openWarehouseIncome = (warehouseIncome: IWarehouseIncome) => {
 const incomesGrouppedUI = computed(() => {
     //Group attendances by from_date month/year:
     const groupedAttendances = incomesUI.value.sort((a, b) => {
-        return DateTime.fromFormat(b.original.date, 'dd/MM/yyyy').toMillis() - DateTime.fromFormat(a.original.date, 'dd/MM/yyyy').toMillis();
+        return DateTime.fromFormat(b.date, 'dd/MM/yyyy').toMillis() - DateTime.fromFormat(a.date, 'dd/MM/yyyy').toMillis();
     }).reduce((acc, attendance) => {
-        const monthYear = DateTime.fromFormat(attendance.original.date, 'dd/MM/yyyy').toFormat('MM/yyyy');
+        const monthYear = DateTime.fromFormat(attendance.date, 'dd/MM/yyyy').toFormat('MM/yyyy');
         if (!acc[monthYear]){
             acc[monthYear] = [];
         }

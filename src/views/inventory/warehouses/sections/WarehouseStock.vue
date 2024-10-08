@@ -2,6 +2,10 @@
     <section>
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
 
+        <article class="ion-padding">
+            <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
+        </article>
+
         <ion-list v-if="Viewport.data.value.deviceSetting != 'DesktopLandscape'">
             <ion-item v-for="product in productsUI.list" button :key="product.id" @click="openProductStock(product)">
                 <ion-avatar v-if="product.image" slot="start">
@@ -20,12 +24,7 @@
                 </ion-label>
             </ion-item>
         </ion-list>
-
-
-        <article class="ion-padding">
-            <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
-        </article>
-
+        
         <v-data-table
             :theme="currentDeviceTheme"
             :headers="productsUI.table.headers"

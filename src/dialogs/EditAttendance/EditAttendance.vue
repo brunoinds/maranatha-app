@@ -287,7 +287,8 @@ const openJobSelector = () => {
             includeDisabledJobs: false,
             selectedJobCode: dynamicData.value.jobCode,
             jobsFilterCallback(job: IJob){
-                return !job.code.startsWith('000');
+                return true
+                //return !job.code.startsWith('000');
             }
         },
         onLoaded($this) {

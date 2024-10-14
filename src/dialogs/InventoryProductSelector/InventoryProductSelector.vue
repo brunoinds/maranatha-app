@@ -24,7 +24,7 @@
                     </ion-label>
                 </ion-item>
             </ion-list>
-            <ion-list>
+            <!-- <ion-list v-if="false">
                 <ion-item button v-for="product in productsUI" :key="product.id" @click="selectProduct(product)" :detail="false">
                     <ion-avatar slot="start" v-if="product.image">
                         <img :src="product.image" />
@@ -45,7 +45,46 @@
                     </ion-chip>
                     <ion-icon v-if="dynamicData.selectedProducts.includes(product)" color="primary" :icon="checkmarkOutline" slot="end"></ion-icon>
                 </ion-item>
-            </ion-list>
+            </ion-list> -->
+
+
+            <DynamicScroller
+                :items="productsUI"
+                :min-item-size="61.4"
+                class="scroller"
+                :buffer="15"
+            >
+                <template v-slot="{ item, index, active }">
+                    <DynamicScrollerItem
+                        :item="item"
+                        :active="active"
+                        :size-dependencies="[
+                        ]"
+                        :data-index="index"
+                    >
+                        <ion-item button :key="item.id" @click="selectProduct(item)" :detail="false">
+                            <ion-avatar slot="start" v-if="item.image">
+                                <img :src="item.image" />
+                            </ion-avatar>
+                            <ion-label>
+                                <h2>{{ item.name }}</h2>
+                                <p>{{ item.description }}</p>
+                                <p>{{ item.brand }}</p>
+
+                            </ion-label>
+                            <section v-if="item.stock" slot="end">
+                                <ion-label class="ion-text-right">
+                                    <p><span v-for="(value, key) in item.stock.average_buy_price" :key="key">~{{ Toolbox.moneyFormat(value as any, key) }}<br></span></p>
+                                </ion-label>
+                            </section>
+                            <ion-chip v-if="item.stock" :color="item.stock.in_stock_count == 0 ? 'danger' : 'success'" slot="end">
+                                {{ item.stock.in_stock_count == 0 ? 'Agotado' : item.stock.in_stock_count + ' unidades' }}
+                            </ion-chip>
+                            <ion-icon v-if="dynamicData.selectedProducts.includes(item)" color="primary" :icon="checkmarkOutline" slot="end"></ion-icon>
+                        </ion-item>
+                    </DynamicScrollerItem>
+                </template>
+            </DynamicScroller>
         </ion-content>
     </ion-page>
 </template>
@@ -61,6 +100,8 @@ import { IProduct, IProductWithWarehouseStock, IWarehouse } from '@/interfaces/I
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import InventoryProductsPackSelector from '@/dialogs/InventoryProductsPackSelector/InventoryProductsPackSelector.vue';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -121,7 +162,6 @@ const productsUI = computed(() => {
 const loadProducts = async () => {
     isLoading.value = true;
     const response = await InventoryStore.getProducts();
-
     productsData.value = response;
     isLoading.value = false;
 }
@@ -193,4 +233,9 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+
+.scroller {
+    height: calc(100vh - 160px);
+}
+
 </style>

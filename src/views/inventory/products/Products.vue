@@ -18,7 +18,38 @@
                     <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
                 </article>
 
-                <ion-list>
+
+                <DynamicScroller
+                    :items="productsUI"
+                    :min-item-size="77.4"
+                    class="scroller"
+                >
+                    <template v-slot="{ item, index, active }">
+                    <DynamicScrollerItem
+                        :item="item"
+                        :active="active"
+                        :size-dependencies="[
+                        item.message,
+                        ]"
+                        :data-index="index"
+                    >
+                        <ion-item>
+                            <ion-avatar slot="start" v-if="item.image">
+                                <img :src="item.image" />
+                            </ion-avatar>
+                            <ion-label>
+                                <h2>{{ item.name }}</h2>
+                                <p>{{ item.description }}</p>
+                                <p>{{ item.brand }}</p>
+                            </ion-label>
+                        </ion-item>
+                    </DynamicScrollerItem>
+                    </template>
+                </DynamicScroller>
+
+
+
+                <ion-list v-if="false">
                     <ion-item v-for="product in productsUI" :key="product.id">
                         <ion-avatar slot="start" v-if="product.image">
                             <img :src="product.image" />
@@ -45,6 +76,10 @@ import { IonAvatar, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonIte
 import 'ion-peek-pop/styles.css';
 import { addOutline } from 'ionicons/icons';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
+
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+
 
 const page = ref<HTMLElement|null>(null);
 const isLoading = ref<boolean>(false);

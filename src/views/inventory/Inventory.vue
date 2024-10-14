@@ -1,6 +1,6 @@
 <template>
     <ion-page ref="page">
-        <ion-header>
+        <ion-header ref="ionHeaderElement">
             <ion-toolbar>
                 <ion-title>Inventário</ion-title>
             </ion-toolbar>
@@ -39,43 +39,35 @@
                         </article>
 
                         <article v-if="subSegmentValue == 'Productos'" class="limiter">
-
                             <article class="ion-padding">
                                 <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
                             </article>
 
-
-                            <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                                <IonPeekPop v-for="product in productsUI" :key="product.id" @onPop="editProduct(product)">
-                                    <template v-slot:item>
-                                        <ion-item  button @click="editProduct(product)">
-                                            <ion-avatar slot="start" v-if="product.image">
-                                                <img :src="product.image" />
+                            <DynamicScroller
+                                :items="productsUI"
+                                :min-item-size="61.4"
+                                class="scroller"
+                                :buffer="15"
+                            >
+                                <template v-slot="{ item, index, active }">
+                                    <DynamicScrollerItem
+                                        :item="item"
+                                        :active="active"
+                                        :data-index="index"
+                                    >
+                                        <ion-item button @click="editProduct(item)">
+                                            <ion-avatar slot="start" v-if="item.image">
+                                                <img :src="item.image" />
                                             </ion-avatar>
                                             <ion-label>
-                                                <h2>{{ product.name }}</h2>
-                                                <p>{{ product.description }}</p>
-                                                <p>{{ product.brand }}</p>
+                                                <h2>{{ item.name }}</h2>
+                                                <p>{{ item.description }}</p>
+                                                <p>{{ item.brand }}</p>
                                             </ion-label>
                                         </ion-item>
-                                    </template>
-                                    <template v-slot:popover>
-                                        <ion-item>
-                                            <ion-avatar slot="start" v-if="product.image">
-                                                <img :src="product.image" />
-                                            </ion-avatar>
-                                            <ion-label>
-                                                <h2>{{ product.name }}</h2>
-                                                <p>{{ product.description }}</p>
-                                                <p>{{ product.brand }}</p>
-                                            </ion-label>
-                                        </ion-item>
-                                    </template>
-                                    <template v-slot:contextmenu>
-                                        <ion-peek-pop-context-menu-item :icon="openOutline" label="Ver produto"  @click="editProduct(product)"/>
-                                    </template>
-                                </IonPeekPop>
-                            </ion-list>
+                                    </DynamicScrollerItem>
+                                </template>
+                            </DynamicScroller>
 
                             <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
                                 <ion-fab-button @click="createProduct">
@@ -177,14 +169,13 @@
                     </article>
                 </section>
             </main>
-            
         </ion-content>
     </ion-page>
 </template>
 
 <script setup lang="ts">
 import Records from '@/views/management/records/Records.vue';
-import { IonAvatar, IonButton, IonContent, IonFab, IonFabButton, IonSearchbar, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/vue';
+import { IonAvatar, IonButton, IonContent, IonFab, IonListHeader, IonFabButton, IonSearchbar, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
@@ -211,6 +202,8 @@ import {IonPeekPop, IonPeekPopContextMenuItem} from 'ion-peek-pop';
 import 'ion-peek-pop/styles.css';
 import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/ProductItemLoanStatusChip.vue';
 import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
+import { DynamicScroller, DynamicScrollerItem, RecycleScroller } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE');
@@ -220,6 +213,8 @@ const router = useRouter();
 const page = ref<HTMLElement|null>(null);
 const segmentValue = ref<string>('Mis Pedidos');
 const subSegmentValue = ref<string>('Almacenes');
+
+const ionHeaderElement = ref<HTMLElement>();
 
 const warehousesData = ref<IWarehouse[]>([]);
 const outcomeRequestsData = ref<IWarehouseOutcomeRequest[]>([]);
@@ -516,5 +511,9 @@ onMounted(() => {
 
 ion-fab[slot="fixed"]{
     position: fixed;
+}
+
+.scroller {
+    height: calc(92vh - 228px);
 }
 </style>

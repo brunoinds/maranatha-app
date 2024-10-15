@@ -245,6 +245,7 @@ export interface IProduct{
     name: string,
     description?: string,
     category?: string,
+    sub_category?: string,
     brand?: string,
     presentation?: string,
     unit: EInventoryProductUnitType,

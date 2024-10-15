@@ -32,6 +32,9 @@
                     <ion-input ref="categoryInput" label="Categoría" placeholder="Ej.: Materiales de Construcción" label-placement="stacked" v-model="dynamicData.category" :disabled="isLoading"></ion-input>
                 </ion-item>
                 <ion-item>
+                    <ion-input ref="subcategoryInput" label="Subcategoría" placeholder="" label-placement="stacked" v-model="dynamicData.sub_category" :disabled="isLoading"></ion-input>
+                </ion-item>
+                <ion-item>
                     <ion-input ref="brandInput" label="Marca" placeholder="Ej.: Aceros Perú" label-placement="stacked" v-model="dynamicData.brand" :disabled="isLoading"></ion-input>
                 </ion-item>
                 <ion-item>
@@ -56,6 +59,9 @@
 
             <datalist id="inventory-products-categories-datatlist">
                 <option v-for="item in autocompletionUI.categories" :key="item" :value="item">{{ item }}</option>
+            </datalist>
+            <datalist id="inventory-products-subcategories-datatlist">
+                <option v-for="item in autocompletionUI.sub_categories" :key="item" :value="item">{{ item }}</option>
             </datalist>
             <datalist id="inventory-products-brands-datatlist">
                 <option v-for="item in autocompletionUI.brands" :key="item" :value="item">{{ item }}</option>
@@ -90,6 +96,7 @@ import ImageSearch from '@/dialogs/ImageSearch/ImageSearch.vue';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
 
 const categoryInput = ref<any | null>(null);
+const subcategoryInput = ref<any|null>(null);
 const brandInput = ref<any | null>(null);
 const presentationInput = ref<any | null>(null);
 const page = ref<HTMLElement|null>(null);
@@ -98,6 +105,7 @@ const listProducts = ref<Array<IProduct>>([]);
 const autocompletionUI = computed(() => {
     return {
         categories: listProducts.value.map((product) => product.category).filter((value, index, self) => self.indexOf(value) === index),
+        sub_categories: listProducts.value.map((product) => product.sub_category).filter((value, index, self) => self.indexOf(value) === index),
         brands: listProducts.value.map((product) => product.brand).filter((value, index, self) => self.indexOf(value) === index),
         presentations: listProducts.value.map((product) => product.presentation).filter((value, index, self) => self.indexOf(value) === index),
     }
@@ -116,6 +124,7 @@ const dynamicData = ref<{
     name: string,
     description: string,
     category: string,
+    sub_category: string,
     brand: string,
     presentation: string,
     unit: EInventoryProductUnitType,
@@ -128,6 +137,7 @@ const dynamicData = ref<{
     name: '',
     description: '',
     category: '',
+    sub_category: '',
     brand: '',
     presentation: '',
     unit: EInventoryProductUnitType.Units,
@@ -184,6 +194,7 @@ const createProduct = async () => {
         name: dynamicData.value.name,
         description: dynamicData.value.description || null,
         category: dynamicData.value.category || null,
+        sub_category: dynamicData.value.sub_category || null,
         brand: dynamicData.value.brand || null,
         presentation: dynamicData.value.presentation || null,
         unit: dynamicData.value.unit,
@@ -253,8 +264,10 @@ const searchImage = () => {
 onMounted(() => {
     setTimeout(() => {
         categoryInput.value.$el.nativeInput.setAttribute('list', 'inventory-products-categories-datatlist');
+        subcategoryInput.value.$el.nativeInput.setAttribute('list', 'inventory-products-subcategories-datatlist');
         brandInput.value.$el.nativeInput.setAttribute('list', 'inventory-products-brands-datatlist');
         presentationInput.value.$el.nativeInput.setAttribute('list', 'inventory-products-presentations-datatlist');
+
     }, 500);
 
     loadProducts();

@@ -6,7 +6,7 @@
             <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
         </article>
 
-        <ion-list v-if="Viewport.data.value.deviceSetting != 'DesktopLandscape'">
+        <!-- <ion-list>
             <ion-item v-for="product in productsUI.list" button :key="product.id" @click="openProductStock(product)">
                 <ion-avatar v-if="product.image" slot="start">
                     <ion-img :src="product.image"></ion-img>
@@ -23,7 +23,43 @@
                     </ion-chip>
                 </ion-label>
             </ion-item>
-        </ion-list>
+        </ion-list> -->
+
+        <DynamicScroller
+            :items="productsUI.list"
+            :min-item-size="61.4"
+            class="scroller"
+            :buffer="15"
+            v-if="Viewport.data.value.deviceSetting != 'DesktopLandscape'"
+        >
+            <template v-slot="{ item, index, active }">
+                <DynamicScrollerItem
+                    :item="item"
+                    :active="active"
+                    :data-index="index"
+                    :min-height="77.9"
+                >
+                    <ion-item button :key="item.id" @click="openProductStock(item)">
+                        <ion-avatar v-if="item.image" slot="start">
+                            <ion-img :src="item.image"></ion-img>
+                        </ion-avatar>
+                        <ion-label>
+                            <h2><b>{{ item.name }}</b></h2>
+                            <p>{{ item.description }}</p>
+                            <p>{{ item.brand }}</p>
+                        </ion-label>
+                        <ion-label slot="end">
+                            <ion-chip :color="item.stock.in_stock_count > 0 ? 'success' : 'danger'">
+                                <ion-label v-if="item.stock.in_stock_count > 0">{{ item.stock.in_stock_count }}</ion-label>
+                                <ion-label v-else>Agotado</ion-label>
+                            </ion-chip>
+                        </ion-label>
+                    </ion-item>
+                </DynamicScrollerItem>
+            </template>
+        </DynamicScroller>
+
+
 
         <v-data-table
             :theme="currentDeviceTheme"
@@ -73,7 +109,8 @@ import { Viewport } from '@/utils/Viewport/Viewport';
 import { IonAvatar, IonChip, IonFab, IonFabButton, IonIcon, IonImg, IonItem, IonLabel, IonList, IonProgressBar, IonSearchbar } from '@ionic/vue';
 import { addOutline } from 'ionicons/icons';
 import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
-
+import { DynamicScroller, DynamicScrollerItem, RecycleScroller } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -228,5 +265,10 @@ onMounted(() => {
 <style scoped lang="scss">
 ion-fab[slot="fixed"]{
     position: fixed;
+}
+
+
+.scroller {
+    height: calc(100vh - 350px);
 }
 </style>

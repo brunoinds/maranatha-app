@@ -142,6 +142,23 @@ const load = async () => {
         })
     })();
 
+    const productsSubCategoriesDropdownOptions = (() => {
+        let subcategories:Array<string> = [];
+        products.forEach((product:IProduct) => {
+            if (product.sub_category && !subcategories.includes(product.sub_category)){
+                subcategories.push(product.sub_category);
+            }
+        })
+
+        return subcategories.map((subcategory:string) => {
+            return {
+                id: subcategory,
+                name: subcategory,
+                value: subcategory
+            }
+        })
+    })();
+
 
     contents.jobsDropdownOptions = jobsDropdownOptions;
     contents.expensesDropdownOptions = expensesDropdownOptions;
@@ -152,6 +169,7 @@ const load = async () => {
     contents.warehousesDropdownOptions = warehousesDropdownOptions;
     contents.productsDropdownOptions = productsDropdownOptions;
     contents.productsCategoriesDropdownOptions = productsCategoriesDropdownOptions;
+    contents.productsSubCategoriesDropdownOptions = productsSubCategoriesDropdownOptions
 
     isLoadingContents = false;
     isLoadedContents = true;
@@ -180,7 +198,7 @@ const RecordsConfigs = {
     getConfigurations: async () => {
         await waitToLoadContents();
 
-        const { jobsDropdownOptions, expensesDropdownOptions, usersDropdownOptions, jobsZonesDropdownOptions, moneyTypesDropdownOptions, countryTypesDropdownOptions, warehousesDropdownOptions, productsDropdownOptions, productsCategoriesDropdownOptions } = contents;
+        const { jobsDropdownOptions, expensesDropdownOptions, usersDropdownOptions, jobsZonesDropdownOptions, moneyTypesDropdownOptions, countryTypesDropdownOptions, warehousesDropdownOptions, productsDropdownOptions, productsCategoriesDropdownOptions, productsSubCategoriesDropdownOptions } = contents;
 
         return [
             {
@@ -681,6 +699,14 @@ const RecordsConfigs = {
                         type: 'dropdown',
                         multiple: true,
                         options: productsCategoriesDropdownOptions
+                    },
+                    {
+                        id: 'sub_categories',
+                        name: 'Subcategorías',
+                        isRequired: false,
+                        type: 'dropdown',
+                        multiple: true,
+                        options: productsSubCategoriesDropdownOptions
                     }
                 ],
                 endpoint: 'inventory/by-products-kardex',
@@ -731,6 +757,14 @@ const RecordsConfigs = {
                         type: 'dropdown',
                         multiple: true,
                         options: productsCategoriesDropdownOptions
+                    },
+                    {
+                        id: 'sub_categories',
+                        name: 'Subcategorías',
+                        isRequired: false,
+                        type: 'dropdown',
+                        multiple: true,
+                        options: productsSubCategoriesDropdownOptions
                     }
                 ],
                 endpoint: 'inventory/by-products-loans-kardex',
@@ -773,6 +807,14 @@ const RecordsConfigs = {
                         type: 'dropdown',
                         multiple: true,
                         options: productsCategoriesDropdownOptions
+                    },
+                    {
+                        id: 'sub_categories',
+                        name: 'Subcategorías',
+                        isRequired: false,
+                        type: 'dropdown',
+                        multiple: true,
+                        options: productsSubCategoriesDropdownOptions
                     }
                 ],
                 endpoint: 'inventory/by-products-balance',
@@ -833,6 +875,14 @@ const RecordsConfigs = {
                         type: 'dropdown',
                         multiple: true,
                         options: productsCategoriesDropdownOptions
+                    },
+                    {
+                        id: 'sub_categories',
+                        name: 'Subcategorías',
+                        isRequired: false,
+                        type: 'dropdown',
+                        multiple: true,
+                        options: productsSubCategoriesDropdownOptions
                     }
                 ],
                 endpoint: 'inventory/by-products-stock',

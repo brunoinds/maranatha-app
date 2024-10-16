@@ -31,18 +31,16 @@
                 <ion-item>
                     <ion-input label="Descripción" placeholder="Ej.: Detalles opcionales del producto" label-placement="stacked" v-model="dynamicData.description" :disabled="isLoading"></ion-input>
                 </ion-item>
-                <ion-item>
-                    <ion-input ref="categoryInput" label="Categoría" placeholder="Ej.: Materiales de Construcción" label-placement="stacked" v-model="dynamicData.category" :disabled="isLoading"></ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-input ref="subcategoryInput" label="Subcategoría" placeholder="" label-placement="stacked" v-model="dynamicData.sub_category" :disabled="isLoading"></ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-input ref="brandInput" label="Marca" placeholder="Ej.: Aceros Perú" label-placement="stacked" v-model="dynamicData.brand" :disabled="isLoading"></ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-input ref="presentationInput" label="Presentación" placeholder="Ej.: Presentación opcional" label-placement="stacked" v-model="dynamicData.presentation" :disabled="isLoading"></ion-input>
-                </ion-item>
+
+                <IonTextSelectionInput label="Categoría" placeholder="Ej.: Materiales de Construcción" label-placement="stacked" :value="dynamicData.category" v-model="dynamicData.category" :disabled="isLoading" :items="autocompletionUI.categories"></IonTextSelectionInput>
+
+                <IonTextSelectionInput label="Subcategoría" placeholder="Ej.: Materiales de Construcción" label-placement="stacked" :value="dynamicData.sub_category" v-model="dynamicData.sub_category" :disabled="isLoading" :items="autocompletionUI.sub_categories"></IonTextSelectionInput>
+
+                <IonTextSelectionInput label="Marca" placeholder="Ej.: Aceros Perú" label-placement="stacked" v-model="dynamicData.brand" :value="dynamicData.brand" :disabled="isLoading" :items="autocompletionUI.brands"></IonTextSelectionInput>
+
+                <IonTextSelectionInput label="Presentación" placeholder="Ej.: Presentación opcional" label-placement="stacked" :value="dynamicData.presentation" v-model="dynamicData.presentation" :disabled="isLoading" :items="autocompletionUI.presentations"></IonTextSelectionInput>
+
+
                 <ion-item>
                     <ion-input label="Código de barras" placeholder="Ej.: Código de barras opcional" label-placement="stacked" v-model="dynamicData.code" :disabled="isLoading"></ion-input>
                 </ion-item>
@@ -59,19 +57,6 @@
                     <ion-input label="Url foto" placeholder="" label-placement="stacked" v-model="dynamicData.image" :disabled="isLoading"></ion-input>
                 </ion-item>
             </ion-list>
-
-            <datalist id="inventory-products-categories-datatlist">
-                <option v-for="item in autocompletionUI.categories" :key="item" :value="item">{{ item }}</option>
-            </datalist>
-            <datalist id="inventory-products-subcategories-datatlist">
-                <option v-for="item in autocompletionUI.sub_categories" :key="item" :value="item">{{ item }}</option>
-            </datalist>
-            <datalist id="inventory-products-brands-datatlist">
-                <option v-for="item in autocompletionUI.brands" :key="item" :value="item">{{ item }}</option>
-            </datalist>
-            <datalist id="inventory-products-presentations-datatlist">
-                <option v-for="item in autocompletionUI.presentations" :key="item" :value="item">{{ item }}</option>
-            </datalist>
 
             <section class="ion-padding">
                 <ion-button expand="block" shape="round" color="danger" size="default" style="height: 50px" @click="deleteProduct" :disabled="isLoading && Session.getCurrentSessionSync()?.roles().includes('admin')">
@@ -98,6 +83,7 @@ import { computed, onMounted, ref } from 'vue';
 import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { Session } from '@/utils/Session/Session';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
+import IonTextSelectionInput from '@/components/IonTextSelectionInput/IonTextSelectionInput.vue';
 
 const categoryInput = ref<any | null>(null);
 const subcategoryInput = ref<any|null>(null);
@@ -108,10 +94,30 @@ const listProducts = ref<Array<IProduct>>([]);
 
 const autocompletionUI = computed(() => {
     return {
-        categories: listProducts.value.map((product) => product.category).filter((value, index, self) => self.indexOf(value) === index),
-        brands: listProducts.value.map((product) => product.brand).filter((value, index, self) => self.indexOf(value) === index),
-        presentations: listProducts.value.map((product) => product.presentation).filter((value, index, self) => self.indexOf(value) === index),
-        sub_categories: listProducts.value.map((product) => product.sub_category).filter((value, index, self) => self.indexOf(value) === index),
+        categories: listProducts.value.map((product) => product.category).filter((value, index, self) => self.indexOf(value) === index).map((item) => {
+            return {
+                name: item,
+                value: item
+            }
+        }).filter((item) => item.name?.length > 0),
+        sub_categories: listProducts.value.map((product) => product.sub_category).filter((value, index, self) => self.indexOf(value) === index).map((item) => {
+            return {
+                name: item,
+                value: item
+            }
+        }).filter((item) => item.name?.length > 0),
+        brands: listProducts.value.map((product) => product.brand).filter((value, index, self) => self.indexOf(value) === index).map((item) => {
+            return {
+                name: item,
+                value: item
+            }
+        }).filter((item) => item.name?.length > 0),
+        presentations: listProducts.value.map((product) => product.presentation).filter((value, index, self) => self.indexOf(value) === index).map((item) => {
+            return {
+                name: item,
+                value: item
+            }
+        }).filter((item) => item.name?.length > 0),
     }
 });
 
@@ -332,13 +338,7 @@ const searchImage = () => {
 }
 
 onMounted(() => {
-    setTimeout(() => {
-        categoryInput.value.$el.nativeInput.setAttribute('list', 'inventory-products-categories-datatlist');
-        brandInput.value.$el.nativeInput.setAttribute('list', 'inventory-products-brands-datatlist');
-        presentationInput.value.$el.nativeInput.setAttribute('list', 'inventory-products-presentations-datatlist');
-        subcategoryInput.value.$el.nativeInput.setAttribute('list', 'inventory-products-subcategories-datalist');
-    }, 500);
-
+    
     loadProducts();
 })
 </script>

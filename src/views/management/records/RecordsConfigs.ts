@@ -983,7 +983,6 @@ const RecordsConfigs = {
                     }
                 }
             },
-
             {
                 id: 'inventory-by-products',
                 title: 'Productos en Inventario',

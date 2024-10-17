@@ -21,7 +21,7 @@
                                         <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
                                         <ion-label>
                                             <h2><b>{{ attendanceMonth.monthYearText}}</b></h2>
-                                            <p>{{ attendanceMonth.attendances.length }} asistencias</p>
+                                            <p>{{ attendanceMonth.attendances.length }} registros</p>
                                         </ion-label>
                                     </ion-item>
                                     <section slot="content">

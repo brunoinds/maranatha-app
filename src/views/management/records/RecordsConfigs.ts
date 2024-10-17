@@ -202,6 +202,87 @@ const RecordsConfigs = {
 
         return [
             {
+                id: 'general-records',
+                title: 'General Records',
+                filters: [
+                    {
+                        id: 'start_date',
+                        name: 'Fecha Inicio',
+                        isRequired: true,
+                        type: 'date',
+                        value: DateTime.now().startOf('month').toFormat('yyyy-MM-dd')
+                    },
+                    {
+                        id: 'end_date',
+                        name: 'Fecha Fin',
+                        isRequired: true,
+                        type: 'date',
+                        value: DateTime.now().toFormat('yyyy-MM-dd')
+                    },
+                    {
+                        id: 'job_code',
+                        name: 'Job',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: jobsDropdownOptions
+                    },
+                    {
+                        id: 'expense_code',
+                        name: 'Expense Code',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: expensesDropdownOptions
+                    },
+                    {
+                        id: 'country',
+                        name: 'País',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: countryTypesDropdownOptions
+                    },
+                    {
+                        id: 'type',
+                        name: 'Tipo',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: [
+                            {
+                                id: 'Reporte',
+                                name: 'Reporte',
+                                value: 'Reports'
+                            },
+                            {
+                                id: 'Asistencia',
+                                name: 'Asistencia',
+                                value: 'Attendances'
+                            },
+                            {
+                                id: 'Inventario',
+                                name: 'Inventario',
+                                value: 'Inventory'
+                            },
+                        ]
+                    },
+                    {
+                        id: 'money_type',
+                        name: 'Moneda',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: moneyTypesDropdownOptions
+                    }
+                ],
+                endpoint: 'general/general-records',
+                data: {
+                    body: {
+                        formatData: (item:any) => {
+                            return {
+                                ...item,
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 id: 'invoices-by-items',
                 title: 'Boletas/Facturas',
                 filters: [

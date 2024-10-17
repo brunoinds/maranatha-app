@@ -203,7 +203,7 @@ const RecordsConfigs = {
         return [
             {
                 id: 'general-records',
-                title: 'General Records',
+                title: 'Consolidado General',
                 filters: [
                     {
                         id: 'start_date',
@@ -977,6 +977,35 @@ const RecordsConfigs = {
                     }
                 ],
                 endpoint: 'inventory/by-products-stock',
+                data: {
+                    body: {
+                        
+                    }
+                }
+            },
+
+            {
+                id: 'inventory-by-products',
+                title: 'Productos en Inventario',
+                filters: [
+                    {
+                        id: 'categories',
+                        name: 'Categorías',
+                        isRequired: false,
+                        type: 'dropdown',
+                        multiple: true,
+                        options: productsCategoriesDropdownOptions
+                    },
+                    {
+                        id: 'sub_categories',
+                        name: 'Subcategorías',
+                        isRequired: false,
+                        type: 'dropdown',
+                        multiple: true,
+                        options: productsSubCategoriesDropdownOptions
+                    }
+                ],
+                endpoint: 'inventory/by-products',
                 data: {
                     body: {
                         

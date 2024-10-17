@@ -18,6 +18,14 @@
                     <ion-input label="Código de Job" placeholder="Ej.: 0000.23" label-placement="stacked" v-model="dynamicData.code" :disabled="isLoading"></ion-input>
                 </ion-item>
                 <ion-item>
+                    <ion-select label="País" label-placement="stacked" interface="action-sheet" v-model="dynamicData.country" :disabled="isLoading">
+                        <ion-select-option value="PE">Perú 🇵🇪</ion-select-option>
+                        <ion-select-option value="BR">Brasil 🇧🇷</ion-select-option>
+                        <ion-select-option value="PY">Paraguay 🇵🇾</ion-select-option>
+                        <ion-select-option value="US">EE. UU. 🇺🇸</ion-select-option>
+                    </ion-select>
+                </ion-item>
+                <ion-item>
                     <ion-input label="Zona de Job" placeholder="Ej.: Sur" label-placement="stacked" v-model="dynamicData.zone" :disabled="isLoading"></ion-input>
                 </ion-item>
             </ion-list>
@@ -35,7 +43,7 @@
 
 <script setup lang="ts">
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { IonButton, IonButtons, IonContent, IonHeader, IonInput,IonIcon, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
+import { IonButton, IonButtons, IonContent, IonHeader, IonSelect, IonSelectOption, IonInput,IonIcon, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { ref } from 'vue';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { arrowForwardCircleOutline } from 'ionicons/icons';
@@ -54,12 +62,14 @@ const dynamicData = ref<{
     name: string,
     code: string,
     zone: string,
-    state: string
+    state: string,
+    country: string
 }>({
     name: '',
     code: '',
     zone: '',
-    state: 'Active'
+    state: 'Active',
+    country: ''
 });
 
 
@@ -85,7 +95,8 @@ const createJob = async () => {
         name: dynamicData.value.name,
         code: dynamicData.value.code,
         zone: dynamicData.value.zone,
-        state: dynamicData.value.state
+        state: dynamicData.value.state,
+        country: dynamicData.value.country
     }
 
     RequestAPI.post('/jobs', dataParsed).then((response) => {
@@ -123,6 +134,9 @@ const validateCamps = () => {
     }
     if (dynamicData.value.zone.trim().length == 0){
         errors.push("Por favor, ingresa una zona para el Job");
+    }
+    if (dynamicData.value.country.trim().length == 0){
+        errors.push("Por favor, ingresa un país para el Job");
     }
 
     return {

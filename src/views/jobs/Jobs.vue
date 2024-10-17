@@ -23,6 +23,7 @@
                     <ion-label>
                         <h2><b>{{ job.name }}</b></h2>
                         <p><b>Código: </b>{{job.code}}</p>
+                        <p><b>País: </b>{{job.country}}</p>
                         <p><b>Zona: </b>{{job.zone}}</p>
                     </ion-label>
                 </ion-item>
@@ -71,6 +72,7 @@ const jobsData = ref<Array<{
     code: string;
     zone: string;
     state: string;
+    country: string;
 }>>([]);
 
 

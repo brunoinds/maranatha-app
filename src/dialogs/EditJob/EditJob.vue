@@ -21,6 +21,14 @@
                     <ion-input label="Código de Job" placeholder="Ej.: 0000.23" label-placement="stacked" v-model="dynamicData.code" :disabled="isLoading"></ion-input>
                 </ion-item>
                 <ion-item>
+                    <ion-select label="País" label-placement="stacked" interface="action-sheet" v-model="dynamicData.country" :disabled="isLoading">
+                        <ion-select-option value="PE">Perú 🇵🇪</ion-select-option>
+                        <ion-select-option value="BR">Brasil 🇧🇷</ion-select-option>
+                        <ion-select-option value="PY">Paraguay 🇵🇾</ion-select-option>
+                        <ion-select-option value="US">EE. UU. 🇺🇸</ion-select-option>
+                    </ion-select>
+                </ion-item>
+                <ion-item>
                     <ion-input label="Zona de Job" placeholder="Ej.: Sur" label-placement="stacked" v-model="dynamicData.zone" :disabled="isLoading"></ion-input>
                 </ion-item>
                 <ion-item>
@@ -36,7 +44,7 @@
 
 <script setup lang="ts">
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { IonButton, IonButtons, IonContent, IonHeader, IonInput,IonToggle, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
+import { IonButton, IonButtons, IonContent, IonHeader, IonSelect, IonSelectOption, IonInput,IonToggle, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { onMounted, ref } from 'vue';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { arrowForwardCircleOutline } from 'ionicons/icons';
@@ -60,13 +68,15 @@ const dynamicData = ref<{
     code: string,
     zone: string,
     state: string,
-    stateBoolean: boolean
+    stateBoolean: boolean,
+    country: string
 }>({
     name: '',
     code: '',
     zone: '',
     state: 'Active',
-    stateBoolean: true
+    stateBoolean: true,
+    country: ''
 });
 
 
@@ -81,6 +91,7 @@ const loadJob = async () => {
     dynamicData.value.code = job.code;
     dynamicData.value.zone = job.zone;
     dynamicData.value.state = job.state;
+    dynamicData.value.country = job.country;
     dynamicData.value.stateBoolean = job.state == 'Active';
 
     isLoading.value = false;
@@ -109,7 +120,8 @@ const saveJob = async () => {
         name: dynamicData.value.name,
         code: dynamicData.value.code,
         zone: dynamicData.value.zone,
-        state: dynamicData.value.state
+        state: dynamicData.value.state,
+        country: dynamicData.value.country
     }
 
     RequestAPI.patch('/jobs/' + jobData.value.id, dataParsed).then((response) => {
@@ -149,6 +161,10 @@ const validateCamps = () => {
     if (dynamicData.value.zone.trim().length == 0){
         errors.push("Por favor, ingresa una zona para el Job");
     }
+    if (dynamicData.value.country.trim().length == 0){
+        errors.push("Por favor, selecciona el país del Job");
+    }
+
     if (dynamicData.value.stateBoolean == false){
         dynamicData.value.state = 'Inactive';
     }else{

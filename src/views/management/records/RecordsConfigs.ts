@@ -657,6 +657,16 @@ const RecordsConfigs = {
                 title: 'Kardex de Productos en Inventario',
                 filters: [
                     {
+                        id: 'date_range',
+                        name: 'Rango Fechas',
+                        isRequired: true,
+                        type: 'daterange',
+                        value: {
+                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
+                            end: DateTime.now().toFormat('yyyy-MM-dd')
+                        }
+                    },
+                    {
                         id: 'warehouse_ids',
                         name: 'Almacén',
                         isRequired: false,
@@ -715,7 +725,7 @@ const RecordsConfigs = {
                         formatData: (item:any) => {
                             return {
                                 ...item,
-                                ticket_type: item.ticket_type === 'Bill' ? 'Boleta' : 'Factura',
+                                ticket_type: (item.ticket_type) ? item.ticket_type === 'Bill' ? 'Boleta' : 'Factura' : '',
                             }
                         }
                     }

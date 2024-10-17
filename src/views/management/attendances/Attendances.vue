@@ -8,22 +8,36 @@
                 <ion-accordion-group style="margin-top:10px">
                     <ion-accordion v-for="userAttendances in usersAttendances" :key="userAttendances.user.id">
                         <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                            <ion-icon :icon="personOutline" slot="start"></ion-icon>
                             <ion-label>
-                                <h2>{{ userAttendances.user.name }}</h2>
+                                <h2><b>{{ userAttendances.user.name }}</b></h2>
                                 <p>@{{ userAttendances.user.username }}</p>
                             </ion-label>
                         </ion-item>
-                        <section slot="content">
-                            <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                                <ion-item v-for="attendance in userAttendances.attendances" :key="attendance.id" button @click="openAttendance(attendance.id)" :detail="true">
-                                    <ion-label>
-                                        <h2><b>{{attendance.from_date }} - {{ attendance.to_date }}</b></h2>
-                                        <p><b>Job:</b> {{ attendance.job_name }} ({{ attendance.job_code }})</p>
-                                        <p><b>Expense: </b>{{ attendance.expense_name }} ({{ attendance.expense_code }})</p>
-                                        <p><b>Reportado en:</b> {{ attendance.created_at }}</p>
-                                    </ion-label>
-                                </ion-item>
-                            </ion-list>
+                        <section slot="content" class="ion-padding">
+                            <ion-accordion-group>
+                                <ion-accordion v-for="attendanceMonth in userAttendances.attendances" :key="attendanceMonth.monthYear">
+                                    <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                                        <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
+                                        <ion-label>
+                                            <h2><b>{{ attendanceMonth.monthYearText}}</b></h2>
+                                            <p>{{ attendanceMonth.attendances.length }} asistencias</p>
+                                        </ion-label>
+                                    </ion-item>
+                                    <section slot="content">
+                                        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                                            <ion-item v-for="attendance in attendanceMonth.attendances" :key="attendance.id" button @click="openAttendance(attendance.id)" :detail="true">
+                                                <ion-label>
+                                                    <h2><b>{{ DateTime.fromISO(attendance.from_date).toFormat('dd/MM/yyyy') }} - {{ DateTime.fromISO(attendance.to_date).toFormat('dd/MM/yyyy') }}</b></h2>
+                                                    <p><b>Job:</b> {{ attendance.job_name }} ({{ attendance.job_code }})</p>
+                                                    <p><b>Expense: </b>{{ attendance.expense_name }} ({{ attendance.expense_code }})</p>
+                                                    <p><b>Reportado en:</b> {{ DateTime.fromISO(attendance.created_at).toFormat('dd/MM/yyyy') }}</p>
+                                                </ion-label>
+                                            </ion-item>
+                                        </ion-list>
+                                    </section>
+                                </ion-accordion>
+                            </ion-accordion-group>
                         </section>
                     </ion-accordion>
                 </ion-accordion-group>
@@ -40,7 +54,7 @@ import { computed, ref } from 'vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import AttendanceIcon from '&/assets/icons/attendance.svg';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline,sendOutline, closeCircleOutline  } from 'ionicons/icons';
+import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline,sendOutline, closeCircleOutline, calendarOutline, personOutline  } from 'ionicons/icons';
 import { IAttendance } from '@/interfaces/AttendanceInterfaces';
 import { useRouter } from 'vue-router';
 import NewReport from '@/dialogs/NewReport/NewReport.vue';
@@ -68,37 +82,63 @@ const jobsAndExpenses = ref<{
 });
 
 
+/* from_date: DateTime.fromISO(attendance.from_date).toFormat('dd/MM/yyyy'),
+            to_date: DateTime.fromISO(attendance.to_date).toFormat('dd/MM/yyyy'),
+            created_at: DateTime.fromISO(attendance.created_at).toFormat('dd/MM/yyyy'), */
+
 const attendances = computed(() => {
     const attendanceItems = attendancesData.value.map((attendance) => {
         const attendanceItem = {
             ...attendance,
-            from_date: DateTime.fromISO(attendance.from_date).toFormat('dd/MM/yyyy'),
-            to_date: DateTime.fromISO(attendance.to_date).toFormat('dd/MM/yyyy'),
-            created_at: DateTime.fromISO(attendance.created_at).toFormat('dd/MM/yyyy'),
             job_name: jobsAndExpenses.value.jobs.find((job) => job.code == attendance.job_code)?.name,
-            expense_name: jobsAndExpenses.value.expenses.find((expense) => expense.code == attendance.expense_code)?.name
+            expense_name: jobsAndExpenses.value.expenses.find((expense) => expense.code == attendance.expense_code)?.name,
+            original: attendance
         };
         
         return attendanceItem;
     })
 
-    return attendanceItems
+
+    const attendancesMonths = attendanceItems.reduce((acc: any, attendance: IAttendance) => {
+        const monthYear = DateTime.fromISO(attendance.from_date).toFormat('yyyy MM');
+        if (!acc[monthYear]){
+            acc[monthYear] = [];
+        }
+        acc[monthYear].push(attendance);
+        return acc;
+    }, {});
+
+    const attendancesMonthsArrayOfObjects = Object.keys(attendancesMonths).map((key) => {
+        return {
+            monthYear: key,
+            monthYearText: DateTime.fromFormat(key, 'yyyy MM').toFormat('MMMM yyyy'),
+            attendances: attendancesMonths[key].toSorted((a: IAttendance, b: IAttendance) => {
+                return DateTime.fromISO(b.created_at).toMillis() - DateTime.fromISO(a.created_at).toMillis();
+            })
+        }
+    }).toSorted((a: any, b: any) => {
+        return DateTime.fromFormat(b.monthYear, 'yyyy MM').toMillis() - DateTime.fromFormat(a.monthYear, 'yyyy MM').toMillis();
+    });
+
+
+
+    return attendancesMonthsArrayOfObjects
 })
 
 const usersAttendances = computed(() => {
     //Group reports by user_id, creating for each user_id a new array, return an array of users, please:
-    const attendancesGroupedByUser = attendances.value.reduce((acc: any, attendance: any) => {
-        if (!acc[attendance.user_id]){
-            acc[attendance.user_id] = [];
+    const attendancesGroupedByUser = attendances.value.reduce((acc: any, attendanceMonthYear: any) => {
+        if (!acc[attendanceMonthYear.attendances[0].user_id]){
+            acc[attendanceMonthYear.attendances[0].user_id] = [];
         }
-        acc[attendance.user_id].push(attendance);
+        acc[attendanceMonthYear.attendances[0].user_id].push(attendanceMonthYear);
         return acc;
     }, {});
     //Convert this key-value object to an array of objects, please:
 
     const attendancesGroupedByUserArray = Object.keys(attendancesGroupedByUser).map((key) => {
         return {
-            user: attendancesGroupedByUser[key][0].user,
+            user: attendancesGroupedByUser[key][0].attendances[0].user,
             attendances: attendancesGroupedByUser[key]
         }
     });

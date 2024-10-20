@@ -5,8 +5,9 @@
         </header>
         <main>
             <article>
+
                 <ion-accordion-group style="margin-top:10px">
-                    <ion-accordion v-for="userAttendances in usersAttendances" :key="userAttendances.user.id">
+                    <ion-accordion v-for="userAttendances in attendancesUI" :key="userAttendances.user.id">
                         <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                             <ion-icon :icon="personOutline" slot="start"></ion-icon>
                             <ion-label>
@@ -68,6 +69,7 @@ import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { onMounted } from 'vue';
 import { onUnmounted } from 'vue';
+import _ from 'lodash';
 
 const attendancesData = ref<Array<IAttendance>>([]);
 const isLoading = ref<boolean>(true);
@@ -81,10 +83,54 @@ const jobsAndExpenses = ref<{
     expenses: []
 });
 
+const attendancesUI = computed(() => {
+    const usersAttendances = _.groupBy(attendancesData.value, 'user_id');
 
-/* from_date: DateTime.fromISO(attendance.from_date).toFormat('dd/MM/yyyy'),
-            to_date: DateTime.fromISO(attendance.to_date).toFormat('dd/MM/yyyy'),
-            created_at: DateTime.fromISO(attendance.created_at).toFormat('dd/MM/yyyy'), */
+    const userAttendancesUI = Object.keys(usersAttendances).map((userId) => {
+        const userAttendances = usersAttendances[userId];
+
+
+        const userMonthsAttendances = _.groupBy(userAttendances.map((attendance) => {
+            return {
+                ...attendance,
+                monthYear: DateTime.fromISO(attendance.from_date).toFormat('yyyy MM')
+            }
+        }), 'monthYear');
+        const userMonthsAttendancesUI = Object.keys(userMonthsAttendances).map((date) => {
+            const userMonthAttendances = userMonthsAttendances[date];
+            const monthYear = date;
+            return {
+                monthYear: monthYear,
+                monthYearText: DateTime.fromFormat(monthYear, 'yyyy MM').toFormat('MMMM yyyy'),
+                attendances: userMonthAttendances.map((attendance) => {
+                    const attendanceItem = {
+                        ...attendance,
+                        job_name: jobsAndExpenses.value.jobs.find((job) => job.code == attendance.job_code)?.name,
+                        expense_name: jobsAndExpenses.value.expenses.find((expense) => expense.code == attendance.expense_code)?.name,
+                        original: attendance
+                    };
+                    
+                    return attendanceItem;
+                }).toSorted((a: IAttendance, b: IAttendance) => {
+                    return DateTime.fromISO(b.created_at).toMillis() - DateTime.fromISO(a.created_at).toMillis();
+                })
+            }
+        }).toSorted((a: any, b: any) => {
+            return DateTime.fromFormat(b.monthYear, 'yyyy MM').toMillis() - DateTime.fromFormat(a.monthYear, 'yyyy MM').toMillis();
+        });
+
+
+        return {
+            user: userAttendances[0].user,
+            attendances: userMonthsAttendancesUI
+        }
+    })
+
+    return userAttendancesUI.toSorted((a: any, b: any) => {
+        return b.user.name > a.user.name ? -1 : 1;
+    })
+})
+
 
 const attendances = computed(() => {
     const attendanceItems = attendancesData.value.map((attendance) => {

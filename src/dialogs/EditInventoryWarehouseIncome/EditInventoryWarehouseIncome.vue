@@ -106,8 +106,9 @@
                             <section>
                                 <article class="offwhite">
                                     <ion-list-header>Productos</ion-list-header>
+
                                     <ion-list :inset="true" v-for="product in dynamicData.productsListWithQuantity" :key="product.product.id">
-                                        <ion-item>
+                                        <ion-item v-if="!dynamicData.isEditing">
                                             <ion-avatar slot="start" v-if="product.product.image">
                                                 <img :src="product.product.image" />
                                             </ion-avatar>
@@ -120,6 +121,47 @@
                                                 <p>{{ product.quantity }}x {{ Toolbox.moneyFormat(product.amount, warehouseIncome.currency as unknown as EMoneyType) }}</p>
                                             </ion-label>
                                         </ion-item>
+
+
+
+                                        <article  v-if="dynamicData.isEditing">
+                                            <ion-item>
+                                                <ion-avatar slot="start" v-if="product.product.image">
+                                                    <img :src="product.product.image" />
+                                                </ion-avatar>
+                                                <ion-label>
+                                                    <h2><b>{{ product.product.name }}</b></h2>
+                                                    <p>{{ product.product.brand }}</p>
+                                                </ion-label>
+                                                
+                                                <ion-label slot="end" class="ion-text-right" color="primary">
+                                                    <h2><b>{{ Toolbox.moneyFormat(product.quantity * product.amount, warehouseIncome.currency as unknown as EMoneyType) }}</b></h2>
+                                                    <p>{{ product.quantity }}x {{ Toolbox.moneyFormat(product.amount, warehouseIncome.currency as unknown as EMoneyType) }}</p>
+                                                </ion-label>
+                                            </ion-item>
+                                            <ion-item>
+                                                <ion-input label="Precio unitário" type="number" inputmode="numeric" :min="1" v-model="product.amount" class="ion-text-right"></ion-input>
+                                            </ion-item>
+                                            <ion-item>
+                                                <ion-input label="Cantidad" type="number" inputmode="numeric" :min="1" v-model="product.quantity" class="ion-text-right"></ion-input>
+                                            </ion-item>
+                                            
+                                            <ion-item>
+                                                <ion-input label="Producto"   class="ion-text-right" :readonly="true"></ion-input>
+                                                <ion-button slot="end" @click="actions.replaceProduct(product.product)">
+                                                    <ion-label>Cambiar producto</ion-label>
+                                                </ion-button>
+                                            </ion-item>
+                                            <ion-item button :detail="false" @click="actions.removeProduct(product.product)">
+                                                <ion-label color="danger" class="ion-text-center">Eliminar producto</ion-label>
+                                            </ion-item>
+                                        </article>  
+                                        
+
+
+
+
+
                                         
                                         <ion-item v-for="selling in product.sellings.sold.details" :key="selling.outcome_id">
                                             <ion-label>
@@ -130,6 +172,14 @@
                                             </ion-label>
                                         </ion-item>
                                     </ion-list>
+
+
+                                    <article class="ion-padding" v-if="!dynamicData.isEditing">
+                                        <ion-button expand="block" color="warning" @click="dynamicData.isEditing = true">
+                                            <ion-label>Editar productos</ion-label>
+                                            <ion-icon :icon="pencilOutline" slot="end"></ion-icon>
+                                        </ion-button> 
+                                    </article>
                                 </article>
 
                                 <ion-list-header>Costo final</ion-list-header>
@@ -156,9 +206,6 @@
                     </ion-button>
 
                     <br>
-                    <ion-label class="ion-text-center">
-                        <p>Una vez agregados los productos, no se puede modificar sus cantidades y precios. Si deseas modificarlos, debes de borrar todo el ingreso.</p>
-                    </ion-label>
                 </section>
             </article>
             <br><br><br><br><br><br><br><br><br><br><br><br>
@@ -178,11 +225,13 @@ import { QRCodeParser } from '@/utils/QRCodeParser/QRCodeParser';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { alertController, IonAccordion, IonAccordionGroup, IonAvatar, IonButton, IonButtons, IonContent, IonDatetime, IonHeader, IonIcon, IonImg, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, toastController } from '@ionic/vue';
-import { attachOutline, camera, qrCodeOutline, trashBinOutline } from 'ionicons/icons';
+import { attachOutline, camera, pencilOutline, qrCodeOutline, trashBinOutline } from 'ionicons/icons';
 import { DateTime } from "luxon";
 import { computed, onMounted, PropType, ref } from 'vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import { IExpense, EExpenseUses } from '@/interfaces/JobsAndExpensesInterfaces';
+import _, { replace } from 'lodash';
+import InventoryProductSelector from '@/dialogs/InventoryProductSelector/InventoryProductSelector.vue';
 
 const datetimeAccordionGroupEl = ref<any>(null);
 const accordionGroupEl = ref<any>(null);
@@ -194,6 +243,7 @@ const dynamicData = ref<{
     originalImageBase64: null | string,
     datetimePickerDate: string,
     isLoadingImageCompression: boolean,
+    isEditing: boolean,
     productsListWithQuantity: Array<{
         product: IProduct,
         quantity: number,
@@ -208,12 +258,33 @@ const dynamicData = ref<{
             }
         }
     }>,
+    originalProductsListWithQuantity:  Array<{
+        product: IProduct,
+        quantity: number,
+        amount: number,
+        sellings: {
+            in_stock: {
+                count: number
+            },
+            sold: {
+                count: number,
+                details: Array<{outcome_id: number, count: number}>
+            }
+        }
+    }>,
+    listReplacedProductsIds: Array<{
+        originalId: number,
+        newId: number
+    }>
 }>({
     uploadedImageBase64: null,
     originalImageBase64: null,
     isLoadingImageCompression: false,
+    isEditing: false,
     datetimePickerDate: DateTime.now().toISODate() as unknown as string,
-    productsListWithQuantity: []
+    productsListWithQuantity: [],
+    originalProductsListWithQuantity: [],
+    listReplacedProductsIds: []
 })
 const props = defineProps({
     warehouseIncome: {
@@ -241,7 +312,7 @@ const incomeResume = computed(() => {
     const quantity = (() => {
         let countProducts = 0;
         dynamicData.value.productsListWithQuantity.forEach((p) => {
-            countProducts += p.quantity;
+            countProducts += parseInt(p.quantity);
         })
         return countProducts;
     })();
@@ -398,7 +469,45 @@ const actions = {
                 })
             },
         })
+    },
+    removeProduct: (product: IProduct) => {
+        dynamicData.value.productsListWithQuantity = dynamicData.value.productsListWithQuantity.filter((p) => p.product.id !== product.id);
+        dynamicData.value.listReplacedProductsIds = dynamicData.value.listReplacedProductsIds.filter((p) => p.originalId !== product.id).filter((p) => p.newId !== product.id);
+    },
+    replaceProduct: (product: IProduct) => {
+        Dialog.show(InventoryProductSelector, {
+            props: {
+                allowMultipleSelection: false
+            },
+            onLoaded($this) {
+                $this.on('selected', (event:any) => {
+                    const productSel = event.data;
+
+                    //Check and block if the product was already added:
+                    if (dynamicData.value.productsListWithQuantity.find((p) => p.product.id == productSel.id)){
+                        alertController.create({
+                            header: "Oops...",
+                            message: "El producto ya fue agregado",
+                            buttons: ["OK"]
+                        }).then((alert) => {
+                            alert.present();
+                        })
+                        return;
+                    }
+
+
+                    const index = dynamicData.value.productsListWithQuantity.findIndex((p) => p.product.id == product.id);
+                    dynamicData.value.productsListWithQuantity[index].product = productSel;
+
+                    dynamicData.value.listReplacedProductsIds.push({
+                        originalId: product.id,
+                        newId: productSel.id
+                    });
+                })
+            },
+        })
     }
+
 }
 
 const checkoutActions = {
@@ -472,6 +581,72 @@ const checkoutActions = {
     },
     save: async () => {
         const validationResponse = validateData();
+
+
+        const productsChanges = (() => {
+            const changes:any = [];
+            dynamicData.value.originalProductsListWithQuantity.forEach((originalProduct) => {
+                //First check if the product is in the new list:
+                const newProduct = dynamicData.value.productsListWithQuantity.find((p) => p.product.id == originalProduct.product.id);
+
+                if (!newProduct){
+                    //Check if is an replacement:
+                    const replacer = dynamicData.value.listReplacedProductsIds.find((p) => {
+                        return p.originalId == originalProduct.product.id;
+                    });
+
+
+                    if (replacer){
+                        const item:any = {
+                            product_id: originalProduct.product.id,
+                            replaces_by_product_id: replacer.newId
+                        }
+
+                        const newProductItem = dynamicData.value.productsListWithQuantity.find((p) => p.product.id == replacer.newId) as any;
+
+                        if (newProductItem.amount != originalProduct.amount || newProductItem.quantity != originalProduct.quantity || newProductItem.product.id != originalProduct.product.id){
+                            if (newProductItem.amount != originalProduct.amount){
+                                item.amount = parseFloat(newProductItem.amount);
+                            }
+
+                            if (newProductItem.quantity != originalProduct.quantity){
+                                item.quantity = parseInt(newProductItem.quantity);
+                            }
+                        }
+
+                        changes.push(item)
+                        return;
+                    }else{
+                        changes.push({
+                            product_id: originalProduct.product.id,
+                            quantity: 0
+                        })
+                    }
+
+
+                    
+                    return;
+                }
+
+                if (newProduct.amount != originalProduct.amount || newProduct.quantity != originalProduct.quantity || newProduct.product.id != originalProduct.product.id){
+                    const item:any = {
+                        product_id: originalProduct.product.id,
+                    }
+
+                    if (newProduct.amount != originalProduct.amount){
+                        item.amount = parseFloat(newProduct.amount);
+                    }
+
+                    if (newProduct.quantity != originalProduct.quantity){
+                        item.quantity = parseInt(newProduct.quantity);
+                    }
+                    changes.push(item)
+                }
+            })
+            return changes;
+        })();
+
+
         if (!(await validationResponse).isValid){
             alertController.create({
                 header: "Oops...",
@@ -488,7 +663,11 @@ const checkoutActions = {
         const form:any = {
             ...warehouseIncome.value,
             image: dynamicData.value.uploadedImageBase64,
-            date: DateTime.fromFormat(warehouseIncome.value.date, "dd/MM/yyyy").toISO()
+            date: DateTime.fromFormat(warehouseIncome.value.date, "dd/MM/yyyy").toISO(),
+        }
+
+        if (productsChanges.length > 0){
+            form.products_changes = productsChanges;
         }
 
         if (dynamicData.value.uploadedImageBase64 == dynamicData.value.originalImageBase64){
@@ -536,7 +715,8 @@ const loadImage = async () => {
 
 const loadIncomeProducts = async () => {
     isLoading.value = true;
-    dynamicData.value.productsListWithQuantity = (await RequestAPI.get(`/inventory/warehouse-incomes/${props.warehouseIncome.id}/products-state`) as unknown as any)
+    dynamicData.value.productsListWithQuantity = (await RequestAPI.get(`/inventory/warehouse-incomes/${props.warehouseIncome.id}/products-state`) as unknown as any);
+    dynamicData.value.originalProductsListWithQuantity = _.cloneDeep(dynamicData.value.productsListWithQuantity);
     dynamicData.value.datetimePickerDate = DateTime.fromISO(props.warehouseIncome.date).toISODate() as unknown as string;
     isLoading.value = false;
 

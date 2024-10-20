@@ -28,7 +28,9 @@
             <table-area v-if="currentRecord.data.headers.length > 0 || currentRecord.data.isLoading" :headers="currentRecord.data.headers" :items="currentRecord.data.body" :is-loading="currentRecord.data.isLoading"></table-area>
         </main>
         <footer class="ion-padding">
-            
+            <article style="display: flex; align-items: center; justify-content: center;">
+                <ion-label class="ion-text-center" style="font-size: 12px">Cód. Plantilla: {{ currentRecord.configuration?.id }}</ion-label>
+            </article>
         </footer>
     </article>
 </template>

@@ -25,6 +25,10 @@ export const userPermissionsAvailable = [
     {
         id: "view-wallet",
         name: "Acceso a Billetera"
+    },
+    {
+        id: "view-records",
+        name: "Acceso a Plantillas"
     }
 ]
 

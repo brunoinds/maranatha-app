@@ -2,6 +2,8 @@
     <article class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
 
+        <!-- <ion-button @click="open">Open</ion-button> -->
+
         <ion-list v-if="!isLoading"  :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
             <ion-item v-for="account in accountsData" :key="account.id" button @click="updateUser(account)">
                 <ion-label>
@@ -15,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonImg, IonAvatar,IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonButton, IonContent, IonImg, IonAvatar,IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { computed, onMounted, ref } from 'vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
@@ -25,6 +27,7 @@ import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, 
 import { IReport } from '@/interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import { useManagementHtml } from '@/views/management/management';
+import KeyValueEditor from '@/dialogs/KeyValueEditor/KeyValueEditor.vue';
 const accountsData = ref<any>(null);
 const isLoading = ref<boolean>(true);
 const router = useRouter();
@@ -53,6 +56,17 @@ const updateUser = (account) => {
         props: {
             account
         }
+    })
+}
+
+const open = () => {
+    Dialog.show(KeyValueEditor, {
+        props: {
+            metadata: {}
+        },
+        onLoaded($this) {
+            
+        },
     })
 }
 

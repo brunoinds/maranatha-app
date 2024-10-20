@@ -44,7 +44,6 @@
                 </ion-accordion-group>
             </article>
         </main>
-        
     </article>
 </template>
 
@@ -129,67 +128,6 @@ const attendancesUI = computed(() => {
     return userAttendancesUI.toSorted((a: any, b: any) => {
         return b.user.name > a.user.name ? -1 : 1;
     })
-})
-
-
-const attendances = computed(() => {
-    const attendanceItems = attendancesData.value.map((attendance) => {
-        const attendanceItem = {
-            ...attendance,
-            job_name: jobsAndExpenses.value.jobs.find((job) => job.code == attendance.job_code)?.name,
-            expense_name: jobsAndExpenses.value.expenses.find((expense) => expense.code == attendance.expense_code)?.name,
-            original: attendance
-        };
-        
-        return attendanceItem;
-    })
-
-
-    const attendancesMonths = attendanceItems.reduce((acc: any, attendance: IAttendance) => {
-        const monthYear = DateTime.fromISO(attendance.from_date).toFormat('yyyy MM');
-        if (!acc[monthYear]){
-            acc[monthYear] = [];
-        }
-        acc[monthYear].push(attendance);
-        return acc;
-    }, {});
-
-    const attendancesMonthsArrayOfObjects = Object.keys(attendancesMonths).map((key) => {
-        return {
-            monthYear: key,
-            monthYearText: DateTime.fromFormat(key, 'yyyy MM').toFormat('MMMM yyyy'),
-            attendances: attendancesMonths[key].toSorted((a: IAttendance, b: IAttendance) => {
-                return DateTime.fromISO(b.created_at).toMillis() - DateTime.fromISO(a.created_at).toMillis();
-            })
-        }
-    }).toSorted((a: any, b: any) => {
-        return DateTime.fromFormat(b.monthYear, 'yyyy MM').toMillis() - DateTime.fromFormat(a.monthYear, 'yyyy MM').toMillis();
-    });
-
-
-
-    return attendancesMonthsArrayOfObjects
-})
-
-const usersAttendances = computed(() => {
-    //Group reports by user_id, creating for each user_id a new array, return an array of users, please:
-    const attendancesGroupedByUser = attendances.value.reduce((acc: any, attendanceMonthYear: any) => {
-        if (!acc[attendanceMonthYear.attendances[0].user_id]){
-            acc[attendanceMonthYear.attendances[0].user_id] = [];
-        }
-        acc[attendanceMonthYear.attendances[0].user_id].push(attendanceMonthYear);
-        return acc;
-    }, {});
-    //Convert this key-value object to an array of objects, please:
-
-    const attendancesGroupedByUserArray = Object.keys(attendancesGroupedByUser).map((key) => {
-        return {
-            user: attendancesGroupedByUser[key][0].attendances[0].user,
-            attendances: attendancesGroupedByUser[key]
-        }
-    });
-
-    return attendancesGroupedByUserArray;
 })
 
 

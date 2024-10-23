@@ -105,57 +105,89 @@
 
                 <section v-if="segmentValue == 'Mis Pedidos'">
                     <article  class="limiter">
-                        <ion-list-header>Pedidos</ion-list-header>
-                        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                            <IonPeekPop v-for="outcome in outcomesUI" @onPop="openWarehouseOutcomeRequest(outcome)">
-                                <template v-slot:item>
-                                    <ion-item button @click="openWarehouseOutcomeRequest(outcome)">
-                                        <ion-label>
-                                            <h2><b>Pedido #00{{ outcome.id }}</b></h2>
-                                            <p>{{ outcome.date_ago }}</p>
-                                            <p><b>{{ outcome.products_count }} ítems solicitados</b></p>
-                                        </ion-label>
 
-                                        <ion-button size="default" fill="clear" v-if="outcome.chat.unseen_messages_count" @click="openWarehouseOutcomeRequestChat(outcome)">
-                                            <ion-icon slot="start" :icon="chatbubbleEllipsesOutline"></ion-icon>
-                                            {{ outcome.chat.unseen_messages_count }}
-                                        </ion-button>
-                                        
-                                        <OutcomeRequestStatusChip slot="end" :request="outcome" :view-mode="'Requester'" />
-                                    </ion-item>
-                                </template>
-                                <template v-slot:popover>
-                                    <ion-item>
-                                        <ion-label>
-                                            <h2><b>Pedido #00{{ outcome.id }}</b></h2>
-                                            <p>{{ outcome.date_ago }}</p>
-                                            <p><b>{{ outcome.products_count }} ítems solicitados</b></p>
-                                        </ion-label>
-                                        <OutcomeRequestStatusChip slot="end" :request="outcome" :view-mode="'Requester'" />
-                                    </ion-item>
-                                </template>
-                                <template v-slot:contextmenu>
-                                    <ion-peek-pop-context-menu-item :icon="openOutline" label="Ver pedido"  @click="openWarehouseOutcomeRequest(outcome)"/>
-                                    <ion-peek-pop-context-menu-item :icon="chatbubbleEllipsesOutline" :label="'Abrir chat (' + outcome.chat.unseen_messages_count + ')'"  @click="openWarehouseOutcomeRequestChat(outcome)"/>
-                                </template>
-                            </IonPeekPop>
-                        </ion-list>
+                        <ion-accordion-group value="first">
+                            <ion-accordion  value="first">
+                                <ion-item  slot="header">
+                                    <ion-icon :icon="bagHandleOutline" slot="start"></ion-icon>
+                                    <ion-label>
+                                        <h2>Pedidos</h2>
+                                        <p>{{ outcomesUI.length }} pedidos</p>
+                                    </ion-label>
+                                </ion-item>
+                                <div slot="content">
+                                    <DynamicScroller
+                                        :items="outcomesUI"
+                                        :min-item-size="70"
+                                        class="scroller"
+                                        :buffer="15"
+                                    >
+                                        <template v-slot="{ item, index, active }">
+                                            <DynamicScrollerItem
+                                                :item="item"
+                                                :active="active"
+                                                :data-index="index"
+                                            >
+                                                <ion-item button @click="openWarehouseOutcomeRequest(item)">
+                                                    <ion-label>
+                                                        <h2><b>Pedido #00{{ item.id }}</b></h2>
+                                                        <p>{{ item.date_ago }}</p>
+                                                        <p><b>{{ item.products_count }} ítems solicitados</b></p>
+                                                    </ion-label>
 
-                        <ion-list-header v-if="loansUI.length > 0">Préstamos</ion-list-header>
-                        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                            <ion-item v-for="loan in loansUI" button @click="openLoan(loan)">
-                                <ion-avatar slot="start" >
-                                    <img :src="loan.product_item?.product.image" />
-                                </ion-avatar>
-                                <ion-label>
-                                    <h2><b>{{ loan.product_item?.product.name }}</b></h2>
-                                    <p>{{ loan.product_item?.product.description }}</p>
-                                    <p>{{ loan.product_item?.product.brand }}</p>
-                                </ion-label>
+                                                    <ion-button size="default" fill="clear" v-if="item.chat.unseen_messages_count" @click="openWarehouseOutcomeRequestChat(item)">
+                                                        <ion-icon slot="start" :icon="chatbubbleEllipsesOutline"></ion-icon>
+                                                        {{ item.chat.unseen_messages_count }}
+                                                    </ion-button>
+                                                    
+                                                    <OutcomeRequestStatusChip slot="end" :request="item" :view-mode="'Requester'" />
+                                                </ion-item>
+                                            </DynamicScrollerItem>
+                                        </template>
+                                    </DynamicScroller>
+                                </div>
+                            </ion-accordion>
 
-                                <ProductItemLoanStatusChip slot="end" :request="loan" />
-                            </ion-item>
-                        </ion-list>
+                            <ion-accordion  value="second">
+                                <ion-item  slot="header">
+                                    <ion-icon :icon="gitCompareOutline" slot="start"></ion-icon>
+                                    <ion-label>
+                                        <h2>Préstamos</h2>
+                                        <p>{{ loansUI.length }} préstamos</p>
+                                    </ion-label>
+                                </ion-item>
+                                <div slot="content">
+                                    <DynamicScroller
+                                        :items="loansUI"
+                                        :min-item-size="70"
+                                        class="scroller"
+                                        :buffer="15"
+                                    >
+                                        <template v-slot="{ item, index, active }">
+                                            <DynamicScrollerItem
+                                                :item="item"
+                                                :active="active"
+                                                :data-index="index"
+                                            >
+                                                <ion-item button @click="openLoan(item)">
+                                                    <ion-avatar slot="start" >
+                                                        <img :src="item.product_item?.product.image" />
+                                                    </ion-avatar>
+                                                    <ion-label>
+                                                        <h2><b>{{ item.product_item?.product.name }}</b></h2>
+                                                        <p>{{ item.product_item?.product.description }}</p>
+                                                        <p>{{ item.product_item?.product.brand }}</p>
+                                                    </ion-label>
+
+                                                    <ProductItemLoanStatusChip slot="end" :request="item" />
+                                                </ion-item>
+                                            </DynamicScrollerItem>
+                                        </template>
+                                    </DynamicScroller>
+                                </div>
+                            </ion-accordion>
+                        </ion-accordion-group>
+
 
                         <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
                             <ion-fab-button @click="openQrCodeScanner('Requester')">
@@ -187,7 +219,7 @@ import CreateWarehouse from '@/dialogs/CreateWarehouse/CreateWarehouse.vue';
 import { IProduct, IProductsPack, IWarehouse, IWarehouseOutcomeRequest, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
 import { Session } from '@/utils/Session/Session';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { addOutline, chatbubbleEllipsesOutline, logoDropbox, qrCodeOutline, storefrontOutline, openOutline } from 'ionicons/icons';
+import { addOutline, chatbubbleEllipsesOutline, logoDropbox, qrCodeOutline, storefrontOutline, openOutline, bagHandleOutline, gitCompareOutline } from 'ionicons/icons';
 import TimeAgo from 'javascript-time-ago';
 import es from 'javascript-time-ago/locale/es';
 import { onMounted } from 'vue';

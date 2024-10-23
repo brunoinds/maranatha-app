@@ -2,22 +2,35 @@
     <section class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
 
-        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-            <ion-item v-for="loan in loansUI" button @click="openWarehouseLoan(loan.original)">
-                <ion-avatar slot="start" v-if="loan.product_item?.product.image">
-                    <img :src="loan.product_item.product.image" />
-                </ion-avatar>
-                <ion-label>
-                    <h2><b>#00{{ loan.id }}</b></h2>
-                    <h2><b>{{ loan.product_item?.product.name }}</b></h2>
-                    <h3>{{ loan.date }} - {{ loan.loaned_to?.name }}</h3>
-                    <p>{{ loan.product_item?.product.description }}</p>
-                    <p>{{ loan.product_item?.product.brand }}</p>
 
-                </ion-label>
-                <ProductItemLoanStatusChip :request="loan" slot="end" />
-            </ion-item>
-        </ion-list>
+        <DynamicScroller
+            :items="loansUI"
+            :min-item-size="70"
+            class="scroller"
+            :buffer="15"
+        >
+            <template v-slot="{ item, index, active }">
+                <DynamicScrollerItem
+                    :item="item"
+                    :active="active"
+                    :data-index="index"
+                >
+                    <ion-item button @click="openWarehouseLoan(item.original)">
+                        <ion-avatar slot="start" v-if="item.product_item?.product.image">
+                            <img :src="item.product_item.product.image" />
+                        </ion-avatar>
+                        <ion-label>
+                            <h2><b>#00{{ item.id }}</b></h2>
+                            <h2><b>{{ item.product_item?.product.name }}</b></h2>
+                            <h3>{{ item.date }} - {{ item.loaned_to?.name }}</h3>
+                            <p>{{ item.product_item?.product.description }}</p>
+                            <p>{{ item.product_item?.product.brand }}</p>
+                        </ion-label>
+                        <ProductItemLoanStatusChip :request="item" slot="end" />
+                    </ion-item>
+                </DynamicScrollerItem>
+            </template>
+        </DynamicScroller>
     </section>
 
 
@@ -45,6 +58,7 @@ import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import CreateInventoryWarehouseLoan from '@/dialogs/CreateInventoryWarehouseLoan/CreateInventoryWarehouseLoan.vue';
 import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/ProductItemLoanStatusChip.vue';
 import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
+import { DynamicScroller, DynamicScrollerItem, RecycleScroller } from 'vue-virtual-scroller'
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -122,6 +136,10 @@ onMounted(() => {
 }
 ion-fab[slot="fixed"]{
     position: fixed;
+}
+
+.scroller {
+    height: calc(92vh - 198px);
 }
 </style>
 

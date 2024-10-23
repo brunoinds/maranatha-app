@@ -537,10 +537,14 @@
                             <ion-progress-bar v-if="isLoadingAreas.dispachedProducts" type="indeterminate"></ion-progress-bar>
 
 
-                            <article class="ion-padding" v-if="viewModeAs == 'Dispacher' && outcomeRequestData?.inventory_warehouse_outcome_id && !isLoadingAreas.dispachedProducts">
-                                <ion-button @click="openWarehouseOutcome()" expand="block">Ver detalles del despacho</ion-button>
+                            <article class="ion-padding" >
+                                <ion-button v-if="viewModeAs == 'Dispacher' && outcomeRequestData?.inventory_warehouse_outcome_id && !isLoadingAreas.dispachedProducts" @click="openWarehouseOutcome()" expand="block">Ver detalles de ventas</ion-button>
+                                <ion-button  v-if="outcomeRequestData?.inventory_warehouse_outcome_id && !isLoadingAreas.dispachedProducts" fill="outline" @click="downloadDispatchedProductsPDF()" expand="block">
+                                    <ion-icon :icon="printOutline" slot="start"></ion-icon>
+                                    Imprimir comprobante de despacho
+                                </ion-button>
                             </article>
-                            
+
                             <ion-list v-if="!isLoadingAreas.dispachedProducts">
                                 <ion-item v-for="item in dispachedItemsUI" :key="item.product?.id">
                                     <ion-avatar slot="start" v-if="item.product?.image">
@@ -1463,6 +1467,61 @@ const openWarehouseOutcome = async () => {
     isLoading.value = false;
 }
 
+
+const downloadDispatchedProductsPDF = async () => {
+    const generatePDFDocument = async () => {
+        return new Promise(async (resolve, reject) => {
+            const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/inventory/warehouse-outcome-requests/${outcomeRequestId}/dispatched/download-pdf`;
+
+            const pdfDocument = await Toolbox.fetchWithProgress(pdfDownloadUrl,  {
+                method: 'GET',
+                headers: {
+                    'Authorization': await RequestAPI.authHeader()
+                }
+            }, (progress) => {
+            }).then((blob) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    resolve({
+                        blobUrl: URL.createObjectURL(blob),
+                        base64: reader.result?.split(';base64,')[1] as unknown as string
+                    })
+                }
+                reader.onerror = () => {                
+                    
+                }
+                reader.readAsDataURL(blob);
+            }).catch((error) => {
+            }).finally(() => {
+            })
+        });
+    }
+    const shareDocument = (file:any, extention:string = ".zip") => {
+        toastController.create({
+            message: '✅ Documento generado con éxito!',
+            duration: 1500
+        }).then((toast) => {
+            toast.present();
+        })
+        if (Capacitor.isNativePlatform()){
+            Toolbox.openNative('Despacho de Productos N00' + outcomeRequestId+ extention, file.base64);
+        }else{
+            let link = document.createElement('a');
+            link.href = file.blobUrl;
+            link.download = 'Despacho de Productos N00' + outcomeRequestId+ extention;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+
+    isLoading.value = true;
+    const pdfDocument = await generatePDFDocument();
+    shareDocument(pdfDocument, '.pdf');
+    isLoading.value = false;
+}  
+
+
 const deleteOutcomeRequest = async () => {
     const alert = await alertController.create({
         header: 'Borrar pedido',
@@ -1515,7 +1574,7 @@ const showEditOutcomeRequest = () => {
 const downloadRequestedProductsPDF = async () => {
     const generatePDFDocument = async () => {
         return new Promise(async (resolve, reject) => {
-            const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/inventory/warehouse-outcome-requests/${outcomeRequestId}/download-pdf`;
+            const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/inventory/warehouse-outcome-requests/${outcomeRequestId}/requested/download-pdf`;
 
             const pdfDocument = await Toolbox.fetchWithProgress(pdfDownloadUrl,  {
                 method: 'GET',

@@ -99,19 +99,19 @@ const autocompletionUI = computed(() => {
                 name: item,
                 value: item
             }
-        }).filter((item) => item.name?.length > 0),
+        }).filter((item) => item.name?.length > 0).toSorted((a, b) => a.name.localeCompare(b.name)),
         sub_categories: listProducts.value.map((product) => product.sub_category).filter((value, index, self) => self.indexOf(value) === index).map((item) => {
             return {
                 name: item,
                 value: item
             }
-        }).filter((item) => item.name?.length > 0),
+        }).filter((item) => item.name?.length > 0).toSorted((a, b) => a.name.localeCompare(b.name)),
         brands: listProducts.value.map((product) => product.brand).filter((value, index, self) => self.indexOf(value) === index).map((item) => {
             return {
                 name: item,
                 value: item
             }
-        }).filter((item) => item.name?.length > 0),
+        }).filter((item) => item.name?.length > 0).toSorted((a, b) => a.name.localeCompare(b.name)),
         presentations: listProducts.value.map((product) => product.presentation).filter((value, index, self) => self.indexOf(value) === index).map((item) => {
             return {
                 name: item,

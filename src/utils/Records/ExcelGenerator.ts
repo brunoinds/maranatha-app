@@ -147,7 +147,15 @@ class ExcelGenerator{
             const getObjectValues = (obj:any) => {
                 return Object.keys(obj).map(key => obj[key]);
             }
-            const items = getObjectValues(orderObjectKeys(row, options.data.headers.map((header) => header.key)));
+            const items = getObjectValues(orderObjectKeys(row, options.data.headers.map((header) => header.key))).map((item) => {
+                if (item == null){
+                    return "";
+                }
+
+                return item;
+            });
+
+
             worksheet.addRows([items]);
             worksheet.getRow(worksheet.rowCount).eachCell((cell) => {
                 cell.border = {

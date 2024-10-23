@@ -15,7 +15,7 @@
                     <ion-input label="Nombre de Job" placeholder="Ej.: Proyecto Palisades" label-placement="stacked" v-model="dynamicData.name" :disabled="isLoading"></ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-input label="Código de Job" placeholder="Ej.: 0000.23" label-placement="stacked" v-model="dynamicData.code" :disabled="isLoading"></ion-input>
+                    <ion-input label="Código de Job" placeholder="Ej.: 0000.23" label-placement="stacked" v-model="dynamicData.code" @ion-blur="onBlurCode" :disabled="isLoading"></ion-input>
                 </ion-item>
                 <ion-item>
                     <ion-select label="País" label-placement="stacked" interface="action-sheet" v-model="dynamicData.country" :disabled="isLoading">
@@ -72,9 +72,8 @@ const dynamicData = ref<{
     country: ''
 });
 
-
 const createJob = async () => {
-    const validationResponse = validateCamps();
+    const validationResponse = await validateCamps();
 
     if (!validationResponse.isValid){
         alertController.create({
@@ -123,7 +122,7 @@ const createJob = async () => {
     });
 }
 
-const validateCamps = () => {
+const validateCamps = async () => {
     let errors:Array<string> = [];
 
     if (dynamicData.value.name.trim().length == 0){
@@ -137,6 +136,33 @@ const validateCamps = () => {
     }
     if (dynamicData.value.country.trim().length == 0){
         errors.push("Por favor, ingresa un país para el Job");
+    }
+
+    try {
+        const job = await JobsAndExpenses.getJob(dynamicData.value.code);
+        const alert = await alertController.create({
+            header: 'Observación',
+            message: 'Ya existe un Job con el código ingresado. Deseas agregar un "-" con el código del país al final para diferenciarlo?',
+            buttons: [
+                {
+                    text: 'No',
+                    role: 'cancel',
+                    handler: () => {
+                        
+                    }
+                }, 
+                {
+                    text: 'Sí',
+                    handler: () => {
+                        dynamicData.value.code = `${dynamicData.value.code}-${dynamicData.value.country}`;
+                    }
+                }
+            ]
+        })
+        
+        alert.present();
+    } catch (error) {
+        
     }
 
     return {

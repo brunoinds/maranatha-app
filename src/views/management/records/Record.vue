@@ -118,7 +118,7 @@ const downloadExcel = async () => {
         })
         return;
     }
-
+    
 
     ExcelGenerator.generateExcelFrom({
         data: {
@@ -128,7 +128,18 @@ const downloadExcel = async () => {
             rules: currentRecord.value.data.rules || undefined,
             footer: currentRecord.value.data.footer || undefined
         },
-        filters: currentRecord.value.filters,
+        filters: currentRecord.value.filters.map((filter) => {
+            if (filter.value.id == 'warehouse_ids'){
+                filter.value.options = filter.value.options.map((item) => {
+                    return {
+                        ...item,
+                        value: item.name
+                    }
+                })
+            }
+
+            return filter;
+        }),
         title: 'Informe ' + currentRecord.value.configuration?.title || 'Informe'
     }).then((result) => {
         const fileTitle = 'Informe ' + currentRecord.value.configuration?.title

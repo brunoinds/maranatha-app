@@ -539,7 +539,7 @@
 
                             <article class="ion-padding" >
                                 <ion-button v-if="viewModeAs == 'Dispacher' && outcomeRequestData?.inventory_warehouse_outcome_id && !isLoadingAreas.dispachedProducts" @click="openWarehouseOutcome()" expand="block">Ver detalles de ventas</ion-button>
-                                <ion-button  v-if="outcomeRequestData?.inventory_warehouse_outcome_id && !isLoadingAreas.dispachedProducts" fill="outline" @click="downloadDispatchedProductsPDF()" expand="block">
+                                <ion-button  v-if="!isLoadingAreas.dispachedProducts" fill="outline" @click="downloadDispatchedProductsPDF()" expand="block">
                                     <ion-icon :icon="printOutline" slot="start"></ion-icon>
                                     Imprimir comprobante de despacho
                                 </ion-button>

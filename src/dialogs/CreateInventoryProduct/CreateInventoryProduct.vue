@@ -29,6 +29,9 @@
                     <ion-input label="Descripción" placeholder="Ej.: Detalles opcionales del producto" label-placement="stacked" v-model="dynamicData.description" :disabled="isLoading"></ion-input>
                 </ion-item>
 
+
+                {{ dynamicData }}
+
                 <IonTextSelectionInput label="Categoría" placeholder="Ej.: Materiales de Construcción" label-placement="stacked" v-model="dynamicData.category" :disabled="isLoading" :items="autocompletionUI.categories"></IonTextSelectionInput>
 
                 <IonTextSelectionInput label="Subcategoría" placeholder="Ej.: Materiales de Construcción" label-placement="stacked" v-model="dynamicData.sub_category" :disabled="isLoading" :items="autocompletionUI.sub_categories"></IonTextSelectionInput>

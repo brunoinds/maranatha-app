@@ -20,7 +20,7 @@
                     <br>
                     <article style="text-align: center;">
                         <br>
-                        <ion-icon :icon="storefrontOutline" style="font-size: 94px;" color="primary"></ion-icon>
+                        <ion-icon :icon="warehouseIcon" style="font-size: 94px;" color="primary"></ion-icon>
                         <h1><b>{{ warehouseData?.name }}</b></h1>
 
                         <ion-label>
@@ -82,7 +82,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { IonPage, IonHeader, IonToolbar, IonTitle,IonButtons, IonBackButton, IonCheckbox, IonSegment, IonSelect, IonSelectOption, IonButton, IonSegmentButton, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { addOutline, storefrontOutline, ellipsisHorizontal, storefront } from 'ionicons/icons';
+import { addOutline, storefrontOutline, ellipsisHorizontal, storefront, homeOutline } from 'ionicons/icons';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IWarehouse, IWarehouseIncome } from '@/interfaces/InventoryInterfaces';
 import { Dialog } from '@/utils/Dialog/Dialog';
@@ -193,6 +193,18 @@ const loadWarehouseIncomes = async () => {
     const response = await RequestAPI.get(`/inventory/warehouses/${warehouseId}/incomes`);
     warehouseIncomes.value = response;
 }
+
+const warehouseIcon = computed(() => {
+    if (!warehouseData.value) {
+        return storefrontOutline
+    } else {
+        if (warehouseData.value.name.toLowerCase().includes('casa')){
+            return homeOutline
+        }else{
+            return storefrontOutline
+        }
+    }
+})
 
 onMounted(() => {
     loadWarehouse();

@@ -14,8 +14,8 @@
                 <main>
                     <article v-if="subSegmentValue == 'Almacenes'" class="limiter">
                         <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                            <ion-item v-for="warehouse in warehousesData" button @click="openWarehouse(warehouse)">
-                                <ion-icon :icon="storefrontOutline" style="font-size: 34px;" slot="start" color="primary"></ion-icon>
+                            <ion-item v-for="warehouse in warehousesUI" button @click="openWarehouse(warehouse)">
+                                <ion-icon :icon="warehouse.icon" style="font-size: 34px;" slot="start" color="primary"></ion-icon>
                                 <ion-label>
                                     <h2><b>{{ warehouse.name }}</b></h2>
                                     <h3>{{ warehouse.zone }}</h3>
@@ -109,7 +109,7 @@ import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonList, IonAvatar, IonSearchbar, IonSegment, IonSegmentButton, IonProgressBar } from '@ionic/vue';
-import { addOutline, logoDropbox, storefrontOutline } from 'ionicons/icons';
+import { addOutline, homeOutline, logoDropbox, storefrontOutline } from 'ionicons/icons';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
@@ -150,6 +150,23 @@ const productsUI = computed(() => {
         return a.name.localeCompare(b.name);
     });
 })
+
+const warehousesUI = computed(() => {
+    return warehousesData.value.map((warehouse) => {
+        return {
+            ...warehouse,
+            icon: (() => {
+                if (warehouse.name.toLowerCase().includes('casa')){
+                    return homeOutline
+                }else{
+                    return storefrontOutline
+                }
+            })()
+        }
+    })
+})
+
+
 const openWarehouse = (warehouse: IWarehouse) => {
     router.push(`/inventory/warehouses/${warehouse.id}`);
 }

@@ -28,7 +28,7 @@
                         <article v-if="subSegmentValue == 'Almacenes'" class="limiter">
                             <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                                 <ion-item v-for="warehouse in warehousesUI" button @click="openWarehouse(warehouse)">
-                                    <ion-icon :icon="storefrontOutline" style="font-size: 34px;" slot="start" color="primary"></ion-icon>
+                                    <ion-icon :icon="warehouse.icon" style="font-size: 34px;" slot="start" color="primary"></ion-icon>
                                     <ion-label>
                                         <h2><b>{{ warehouse.name }}</b></h2>
                                         <h3>{{ warehouse.zone }}</h3>
@@ -219,7 +219,7 @@ import CreateWarehouse from '@/dialogs/CreateWarehouse/CreateWarehouse.vue';
 import { IProduct, IProductsPack, IWarehouse, IWarehouseOutcomeRequest, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
 import { Session } from '@/utils/Session/Session';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { addOutline, chatbubbleEllipsesOutline, logoDropbox, qrCodeOutline, storefrontOutline, openOutline, bagHandleOutline, gitCompareOutline } from 'ionicons/icons';
+import { addOutline, chatbubbleEllipsesOutline, logoDropbox, qrCodeOutline, storefrontOutline, openOutline, bagHandleOutline, gitCompareOutline, homeOutline } from 'ionicons/icons';
 import TimeAgo from 'javascript-time-ago';
 import es from 'javascript-time-ago/locale/es';
 import { onMounted } from 'vue';
@@ -309,7 +309,18 @@ const loansUI = computed(() => {
 });
 
 const warehousesUI = computed(() => {
-    return warehousesData.value.filter((warehouse) => {
+    return warehousesData.value.map((warehouse) => {
+        return {
+            ...warehouse,
+            icon: (() => {
+                if (warehouse.name.toLowerCase().includes('casa')){
+                    return homeOutline
+                }else{
+                    return storefrontOutline
+                }
+            })()
+        }
+    }).filter((warehouse) => {
         return warehouse.owners.includes(Session.getCurrentSessionSync()?.id() as number) || Session.getCurrentSessionSync()?.roles().includes('admin');
     });
 })

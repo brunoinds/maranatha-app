@@ -106,12 +106,12 @@
                 <section v-if="segmentValue == 'Mis Pedidos'">
                     <article  class="limiter">
 
-                        <ion-accordion-group value="first">
-                            <ion-accordion  value="first">
-                                <ion-item  slot="header">
-                                    <ion-icon :icon="bagHandleOutline" slot="start"></ion-icon>
+                        <ion-accordion-group>
+                            <ion-accordion>
+                                <ion-item slot="header">
+                                    <ion-icon color="primary" :icon="bagHandleOutline" slot="start"></ion-icon>
                                     <ion-label>
-                                        <h2>Pedidos</h2>
+                                        <h2><b>Pedidos</b></h2>
                                         <p>{{ outcomesUI.length }} pedidos</p>
                                     </ion-label>
                                 </ion-item>
@@ -148,11 +148,11 @@
                                 </div>
                             </ion-accordion>
 
-                            <ion-accordion  value="second">
-                                <ion-item  slot="header">
-                                    <ion-icon :icon="gitCompareOutline" slot="start"></ion-icon>
+                            <ion-accordion>
+                                <ion-item slot="header">
+                                    <ion-icon color="primary" :icon="gitCompareOutline" slot="start"></ion-icon>
                                     <ion-label>
-                                        <h2>Préstamos</h2>
+                                        <h2><b>Préstamos</b></h2>
                                         <p>{{ loansUI.length }} préstamos</p>
                                     </ion-label>
                                 </ion-item>
@@ -207,7 +207,7 @@
 
 <script setup lang="ts">
 import Records from '@/views/management/records/Records.vue';
-import { IonAvatar, IonButton, IonContent, IonFab, IonListHeader, IonFabButton, IonSearchbar, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/vue';
+import { IonAvatar, IonButton, IonContent, IonFab, IonListHeader, IonAccordion, IonAccordionGroup, IonFabButton, IonSearchbar, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';

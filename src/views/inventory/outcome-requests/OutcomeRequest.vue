@@ -632,8 +632,8 @@ import { UsersStore } from '@/utils/Stored/UsersStore';
 import { Theme } from '@/utils/Theme/Theme';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { Capacitor } from '@capacitor/core';
-import { alertController, IonAvatar, IonBackButton, IonButton, IonButtons, IonSkeletonText, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar, toastController } from '@ionic/vue';
-import { airplaneOutline, alertCircleOutline, basketOutline, chatbubbleEllipsesOutline, printOutline, checkmarkCircleOutline, closeCircleOutline, eyeOutline, pencilOutline, sendOutline, thumbsDownOutline, thumbsUpOutline, timeOutline, trashOutline, bagHandleOutline } from 'ionicons/icons';
+import { alertController, IonAvatar, IonBackButton, IonButton, IonButtons, IonSkeletonText, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar, toastController, actionSheetController } from '@ionic/vue';
+import { airplaneOutline, alertCircleOutline, basketOutline, chatbubbleEllipsesOutline, printOutline, checkmarkCircleOutline, closeCircleOutline, eyeOutline, pencilOutline, sendOutline, thumbsDownOutline, thumbsUpOutline, timeOutline, trashOutline, bagHandleOutline, imagesOutline, documentTextOutline } from 'ionicons/icons';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -1468,58 +1468,7 @@ const openWarehouseOutcome = async () => {
 }
 
 
-const downloadDispatchedProductsPDF = async () => {
-    const generatePDFDocument = async () => {
-        return new Promise(async (resolve, reject) => {
-            const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/inventory/warehouse-outcome-requests/${outcomeRequestId}/dispatched/download-pdf`;
 
-            const pdfDocument = await Toolbox.fetchWithProgress(pdfDownloadUrl,  {
-                method: 'GET',
-                headers: {
-                    'Authorization': await RequestAPI.authHeader()
-                }
-            }, (progress) => {
-            }).then((blob) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    resolve({
-                        blobUrl: URL.createObjectURL(blob),
-                        base64: reader.result?.split(';base64,')[1] as unknown as string
-                    })
-                }
-                reader.onerror = () => {                
-                    
-                }
-                reader.readAsDataURL(blob);
-            }).catch((error) => {
-            }).finally(() => {
-            })
-        });
-    }
-    const shareDocument = (file:any, extention:string = ".zip") => {
-        toastController.create({
-            message: '✅ Documento generado con éxito!',
-            duration: 1500
-        }).then((toast) => {
-            toast.present();
-        })
-        if (Capacitor.isNativePlatform()){
-            Toolbox.openNative('Despacho de Productos N00' + outcomeRequestId+ extention, file.base64);
-        }else{
-            let link = document.createElement('a');
-            link.href = file.blobUrl;
-            link.download = 'Despacho de Productos N00' + outcomeRequestId+ extention;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    }
-
-    isLoading.value = true;
-    const pdfDocument = await generatePDFDocument();
-    shareDocument(pdfDocument, '.pdf');
-    isLoading.value = false;
-}  
 
 
 const deleteOutcomeRequest = async () => {
@@ -1570,11 +1519,121 @@ const showEditOutcomeRequest = () => {
     })
 }
 
-
-const downloadRequestedProductsPDF = async () => {
-    const generatePDFDocument = async () => {
+const downloadDispatchedProductsPDF = async () => {
+    const withImages = async () => {
         return new Promise(async (resolve, reject) => {
-            const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/inventory/warehouse-outcome-requests/${outcomeRequestId}/requested/download-pdf`;
+            const sheet = await actionSheetController.create({
+                header: 'Descargar PDF',
+                buttons: [
+                    {
+                        text: 'Sin imágenes',
+                        icon: documentTextOutline,
+                        handler: () => {
+                            resolve(false);
+                        }
+                    },
+                    {
+                        text: 'Con imágenes',
+                        icon: imagesOutline,
+                        handler: () => {
+                            resolve(true);
+                        }
+                    },
+                    {
+                        text: 'Cancelar',
+                        role: 'cancel'
+                    }
+                ]
+            });
+
+            sheet.present();
+        })
+    }
+
+    const generatePDFDocument = async (withImages: boolean) => {
+        return new Promise(async (resolve, reject) => {
+            const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/inventory/warehouse-outcome-requests/${outcomeRequestId}/dispatched/download-pdf?withImages=${withImages}`;
+
+            const pdfDocument = await Toolbox.fetchWithProgress(pdfDownloadUrl,  {
+                method: 'GET',
+                headers: {
+                    'Authorization': await RequestAPI.authHeader()
+                }
+            }, (progress) => {
+            }).then((blob) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    resolve({
+                        blobUrl: URL.createObjectURL(blob),
+                        base64: reader.result?.split(';base64,')[1] as unknown as string
+                    })
+                }
+                reader.onerror = () => {                
+                    
+                }
+                reader.readAsDataURL(blob);
+            }).catch((error) => {
+            }).finally(() => {
+            })
+        });
+    }
+    const shareDocument = (file:any, extention:string = ".zip") => {
+        toastController.create({
+            message: '✅ Documento generado con éxito!',
+            duration: 1500
+        }).then((toast) => {
+            toast.present();
+        })
+        if (Capacitor.isNativePlatform()){
+            Toolbox.openNative('Despacho de Productos N00' + outcomeRequestId+ extention, file.base64);
+        }else{
+            let link = document.createElement('a');
+            link.href = file.blobUrl;
+            link.download = 'Despacho de Productos N00' + outcomeRequestId+ extention;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+
+    isLoading.value = true;
+    const pdfDocument = await generatePDFDocument(await withImages());
+    shareDocument(pdfDocument, '.pdf');
+    isLoading.value = false;
+}  
+const downloadRequestedProductsPDF = async () => {
+    const withImages = async () => {
+        return new Promise(async (resolve, reject) => {
+            const sheet = await actionSheetController.create({
+                header: 'Descargar PDF',
+                buttons: [
+                    {
+                        text: 'Sin imágenes',
+                        icon: documentTextOutline,
+                        handler: () => {
+                            resolve(false);
+                        }
+                    },
+                    {
+                        text: 'Con imágenes',
+                        icon: imagesOutline,
+                        handler: () => {
+                            resolve(true);
+                        }
+                    },
+                    {
+                        text: 'Cancelar',
+                        role: 'cancel'
+                    }
+                ]
+            });
+
+            sheet.present();
+        })
+    }
+    const generatePDFDocument = async (withImages: boolean) => {
+        return new Promise(async (resolve, reject) => {
+            const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/inventory/warehouse-outcome-requests/${outcomeRequestId}/requested/download-pdf?withImages=${withImages}`;
 
             const pdfDocument = await Toolbox.fetchWithProgress(pdfDownloadUrl,  {
                 method: 'GET',
@@ -1619,7 +1678,7 @@ const downloadRequestedProductsPDF = async () => {
     }
 
     isLoading.value = true;
-    const pdfDocument = await generatePDFDocument();
+    const pdfDocument = await generatePDFDocument(await withImages());
     shareDocument(pdfDocument, '.pdf');
     isLoading.value = false;
 }  

@@ -33,18 +33,36 @@
                     </article>
 
                     <article v-if="subSegmentValue == 'Productos'" class="limiter">
-                        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                            <ion-item  button v-for="product in productsData" :key="product.id" @click="editProduct(product)">
-                                <ion-avatar slot="start" v-if="product.image">
-                                    <img :src="product.image" />
-                                </ion-avatar>
-                                <ion-label>
-                                    <h2>{{ product.name }}</h2>
-                                    <p>{{ product.description }}</p>
-                                    <p>{{ product.brand }}</p>
-                                </ion-label>
-                            </ion-item>
-                        </ion-list>
+                        <article class="ion-padding">
+                            <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
+                        </article>
+
+                        <DynamicScroller
+                            :items="productsUI"
+                            :min-item-size="70"
+                            class="scroller"
+                            :buffer="15"
+                        >
+                            <template v-slot="{ item, index, active }">
+                                <DynamicScrollerItem
+                                    :item="item"
+                                    :active="active"
+                                    :data-index="index"
+                                >
+                                    <ion-item  button @click="editProduct(item)">
+                                        <ion-avatar slot="start" v-if="item.image">
+                                            <img :src="item.image" />
+                                        </ion-avatar>
+                                        <ion-label>
+                                            <h2>{{ item.name }}</h2>
+                                            <p>{{ item.description }}</p>
+                                            <p>{{ item.brand }}</p>
+                                        </ion-label>
+                                    </ion-item>
+                                </DynamicScrollerItem>
+                            </template>
+                        </DynamicScroller>
+
 
                         <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
                             <ion-fab-button @click="createProduct">
@@ -90,12 +108,11 @@ import { Dialog } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonList, IonSegment, IonSegmentButton, IonProgressBar } from '@ionic/vue';
+import { IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonList, IonAvatar, IonSearchbar, IonSegment, IonSegmentButton, IonProgressBar } from '@ionic/vue';
 import { addOutline, logoDropbox, storefrontOutline } from 'ionicons/icons';
-import TimeAgo from 'javascript-time-ago';
-import es from 'javascript-time-ago/locale/es';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
 const router = useRouter();
 const isLoading = ref<boolean>(false);
@@ -118,6 +135,21 @@ const warehousesData = ref<IWarehouse[]>([]);
 const productsData = ref<IProduct[]>([]);
 const productsPacksData = ref<IProductsPack[]>([]);
 
+const dynamicData = ref({
+    query: ''
+})
+
+
+const productsUI = computed(() => {
+    return productsData.value.filter((product) => {
+        if (dynamicData.value.query.trim().length > 0) {
+            return product.name.toLowerCase().includes(dynamicData.value.query.toLowerCase());
+        }
+        return true;
+    }).toSorted((a, b) => {
+        return a.name.localeCompare(b.name);
+    });
+})
 const openWarehouse = (warehouse: IWarehouse) => {
     router.push(`/inventory/warehouses/${warehouse.id}`);
 }
@@ -250,6 +282,10 @@ onMounted(() => {
     max-width: 600px;
     margin: 0 auto;
     width: 100%;
+}
+
+.scroller {
+    height: calc(89vh - 280px);
 }
 </style>
 

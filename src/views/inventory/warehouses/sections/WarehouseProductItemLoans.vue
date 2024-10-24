@@ -2,6 +2,9 @@
     <section class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
 
+        <article class="ion-padding">
+            <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
+        </article>
 
         <DynamicScroller
             :items="loansUI"
@@ -44,21 +47,17 @@
 
 <script setup lang="ts">
 
-import { IonList, IonItem, IonLabel, IonFab, IonAvatar, IonFabButton, IonIcon, IonProgressBar } from '@ionic/vue';
-import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
-import { IWarehouse, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { Toolbox } from '@/utils/Toolbox/Toolbox';
-import { addOutline } from 'ionicons/icons';
-import { Dialog } from '@/utils/Dialog/Dialog';
-import CreateInventoryWarehouseOutcome from '@/dialogs/CreateInventoryWarehouseOutcome/CreateInventoryWarehouseOutcome.vue';
-import EditInventoryWarehouseOutcome from '@/dialogs/EditInventoryWarehouseOutcome/EditInventoryWarehouseOutcome.vue';
-import { Viewport } from '@/utils/Viewport/Viewport';
-import { AppEvents } from '@/utils/AppEvents/AppEvents';
-import CreateInventoryWarehouseLoan from '@/dialogs/CreateInventoryWarehouseLoan/CreateInventoryWarehouseLoan.vue';
 import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/ProductItemLoanStatusChip.vue';
+import CreateInventoryWarehouseLoan from '@/dialogs/CreateInventoryWarehouseLoan/CreateInventoryWarehouseLoan.vue';
 import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
-import { DynamicScroller, DynamicScrollerItem, RecycleScroller } from 'vue-virtual-scroller'
+import { IWarehouse, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { IonAvatar, IonFab, IonFabButton, IonIcon, IonItem, IonSearchbar, IonLabel, IonProgressBar } from '@ionic/vue';
+import { addOutline } from 'ionicons/icons';
+import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -68,10 +67,17 @@ const props = defineProps({
     }
 });
 
+const dynamicData = ref({
+    query: ''
+})
 const loansData = ref<IWarehouseProductItemLoan[]>([]);
 
 const loansUI = computed(() => {
-    return loansData.value.map((loan) => {
+    return loansData.value.filter((loan) => {
+        if (dynamicData.value.query.trim().length == 0) return true;
+
+        return loan.product_item?.product.name.toLowerCase().includes(dynamicData.value.query.toLowerCase())
+    }).map((loan) => {
         return {
             ...loan,
             date: new Date(loan.loaned_at || '').toLocaleDateString(),

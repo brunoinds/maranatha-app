@@ -508,8 +508,8 @@
 
                             <article class="ion-padding">
                                 <ion-button :disabled="isLoading" fill="outline" color="primary" @click="downloadRequestedProductsPDF()" expand="block">
-                                    Imprimir pedido
-                                    <ion-icon slot="end" :icon="printOutline"></ion-icon>
+                                    Imprimir productos solicitados
+                                    <ion-icon slot="start" :icon="printOutline"></ion-icon>
                                 </ion-button>
                             </article>
 
@@ -541,7 +541,7 @@
                                 <ion-button v-if="viewModeAs == 'Dispacher' && outcomeRequestData?.inventory_warehouse_outcome_id && !isLoadingAreas.dispachedProducts" @click="openWarehouseOutcome()" expand="block">Ver detalles de ventas</ion-button>
                                 <ion-button  v-if="!isLoadingAreas.dispachedProducts" fill="outline" @click="downloadDispatchedProductsPDF()" expand="block">
                                     <ion-icon :icon="printOutline" slot="start"></ion-icon>
-                                    Imprimir comprobante de despacho
+                                    Imprimir productos despachados
                                 </ion-button>
                             </article>
 

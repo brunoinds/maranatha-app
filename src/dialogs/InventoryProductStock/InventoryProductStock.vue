@@ -109,10 +109,18 @@
                 <ion-list>
                     <ion-list-header>Ítems</ion-list-header>
 
+                    <ion-item>
+                        <ion-select label="Página:" v-model="paginatedInfo.page" label-placement="stacked" @ion-change="onChangePage" interface="action-sheet">
+                            <ion-select-option v-for="page in pagesUI" :value="page">{{ page }}</ion-select-option>
+                        </ion-select>
+                    </ion-item>
 
-                    <ion-item v-for="(item,index) in paginatedItems" :key="item.id" button @click="showProductItem(item.id)">
+                    <br>
+                    
+
+                    <ion-item v-for="(item) in paginatedItemsUI" :key="item.id" button @click="showProductItem(item.id)">
                         <ion-label>
-                            <h2><b>#{{ index + 1 }}</b></h2>
+                            <h2><b>#{{ item.index }}</b></h2>
                             <p v-if="item.batch">S/N: {{ item.batch }}</p>
                         </ion-label>
                         <ProductItemStatusChip slot="end" :request="item" />
@@ -161,8 +169,24 @@ const props = defineProps({
 });
 
 const paginatedItems = ref<Array<IInventoryProductItem>>([]);
+const paginatedInfo = ref({
+    page: 1,
+    totalPages: 1
+})
 const movimentsData = ref<any>([]);
 
+const pagesUI = computed(() => {
+    return Array.from({ length: paginatedInfo.value.totalPages }, (_, i) => i + 1);
+})
+
+const paginatedItemsUI = computed(() => {
+    return paginatedItems.value.map((item, index) => {
+        return {
+            ...item,
+            index: (index + 1) + ((paginatedInfo.value.page - 1) * 100)
+        }
+    })
+})
 
 const productHistoryUI = computed(() => {
     return movimentsData.value.map((income) => {
@@ -223,10 +247,16 @@ const showProductItem = (id: number) => {
     })
 }
 
+const onChangePage = () => {
+    fetchPaginatedProductItems(paginatedInfo.value.page);
+}
+
 const fetchPaginatedProductItems = async (page: number = 1) => {
     isLoading.value = true;
     const itemsRequest = await RequestAPI.get(`/inventory/warehouses/${props.warehouseId}/products/${props.productWithStock.id}/items?page=${page}`);
     paginatedItems.value = itemsRequest.items;
+    paginatedInfo.value.page = page;
+    paginatedInfo.value.totalPages = itemsRequest.pages;
     movimentsData.value = itemsRequest.movements_history;
     isLoading.value = false;
 }

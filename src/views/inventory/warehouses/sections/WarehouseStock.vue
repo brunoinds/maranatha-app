@@ -6,25 +6,6 @@
             <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
         </article>
 
-        <!-- <ion-list>
-            <ion-item v-for="product in productsUI.list" button :key="product.id" @click="openProductStock(product)">
-                <ion-avatar v-if="product.image" slot="start">
-                    <ion-img :src="product.image"></ion-img>
-                </ion-avatar>
-                <ion-label>
-                    <h2><b>{{ product.name }}</b></h2>
-                    <p>{{ product.description }}</p>
-                    <p>{{ product.brand }}</p>
-                </ion-label>
-                <ion-label slot="end">
-                    <ion-chip :color="product.stock.in_stock_count > 0 ? 'success' : 'danger'">
-                        <ion-label v-if="product.stock.in_stock_count > 0">{{ product.stock.in_stock_count }}</ion-label>
-                        <ion-label v-else>Agotado</ion-label>
-                    </ion-chip>
-                </ion-label>
-            </ion-item>
-        </ion-list> -->
-
         <DynamicScroller
             :items="productsUI.list"
             :min-item-size="61.4"

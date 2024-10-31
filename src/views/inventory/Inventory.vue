@@ -111,8 +111,9 @@
                                 <ion-item slot="header">
                                     <ion-icon color="primary" :icon="bagHandleOutline" slot="start"></ion-icon>
                                     <ion-label>
-                                        <h2><b>Pedidos</b></h2>
-                                        <p>{{ outcomesUI.length }} pedidos</p>
+                                        <h2><b>Mis Pedidos</b></h2>
+                                        <p v-if="!isLoading">{{ outcomesUI.length }} pedidos</p>
+                                        <p v-else>Cargando sus pedidos...</p>
                                     </ion-label>
                                 </ion-item>
                                 <div slot="content">
@@ -152,8 +153,9 @@
                                 <ion-item slot="header">
                                     <ion-icon color="primary" :icon="gitCompareOutline" slot="start"></ion-icon>
                                     <ion-label>
-                                        <h2><b>Préstamos</b></h2>
-                                        <p>{{ loansUI.length }} préstamos</p>
+                                        <h2><b>Mis Préstamos</b></h2>
+                                        <p v-if="!isLoading">{{ loansUI.length }} préstamos</p>
+                                        <p v-else>Cargando sus préstamos...</p>
                                     </ion-label>
                                 </ion-item>
                                 <div slot="content">

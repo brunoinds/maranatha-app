@@ -1,9 +1,9 @@
 <template>
     <ion-item>
-        <ion-select v-if="view == 'List'" :label="label"  :label-placement="labelPlacement" :value="valueItem" :placeholder="placeholder" v-model="model" @ion-change="changeListValue" :disabled="disabled" :multiple="false">
+        <ion-select v-if="view == 'List'" :label="label"  :label-placement="labelPlacement" :placeholder="placeholder" :value="value" @ion-change="changeListValue" :disabled="disabled" :multiple="false">
             <ion-select-option v-for="item in items" :value="item.value">{{ item.name }}</ion-select-option>
         </ion-select>
-        <ion-input v-if="view == 'Text'" :label="label"  :label-placement="labelPlacement" :placeholder="placeholder" :value="valueItem" v-model="model" @ion-input="changeTextValue" :disabled="disabled"></ion-input>
+        <ion-input v-if="view == 'Text'" :label="label"  :label-placement="labelPlacement" :placeholder="placeholder" :value="value" @ion-input="changeTextValue" :disabled="disabled"></ion-input>
         <ion-button slot="end" @click="changeView">
             <ion-icon v-if="view == 'List'" :icon="pencilOutline"></ion-icon>
             <ion-icon  v-if="view == 'Text'" :icon="listOutline"></ion-icon>
@@ -59,8 +59,6 @@ const props = defineProps({
         default: ''
     }
 });
-
-const valueItem = ref(props.value);
 
 const model = defineModel();
 

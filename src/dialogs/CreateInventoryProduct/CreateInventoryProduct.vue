@@ -29,13 +29,13 @@
                     <ion-input label="Descripción" placeholder="Ej.: Detalles opcionales del producto" label-placement="stacked" v-model="dynamicData.description" :disabled="isLoading"></ion-input>
                 </ion-item>
 
-                <IonTextSelectionInput label="Categoría" placeholder="Ej.: Materiales de Construcción" label-placement="stacked" v-model="dynamicData.category" :disabled="isLoading" :items="autocompletionUI.categories"></IonTextSelectionInput>
+                <IonTextSelectionInput label="Categoría" placeholder="Ej.: Materiales de Construcción" label-placement="stacked" v-model="dynamicData.category" :value="dynamicData.category" :disabled="isLoading" :items="autocompletionUI.categories"></IonTextSelectionInput>
 
-                <IonTextSelectionInput label="Subcategoría" placeholder="Ej.: Materiales de Construcción" label-placement="stacked" v-model="dynamicData.sub_category" :disabled="isLoading" :items="autocompletionUI.sub_categories"></IonTextSelectionInput>
+                <IonTextSelectionInput label="Subcategoría" placeholder="Ej.: Materiales de Construcción" label-placement="stacked" v-model="dynamicData.sub_category" :value="dynamicData.sub_category" :disabled="isLoading" :items="autocompletionUI.sub_categories"></IonTextSelectionInput>
 
-                <IonTextSelectionInput label="Marca" placeholder="Ej.: Aceros Perú" label-placement="stacked" v-model="dynamicData.brand" :disabled="isLoading" :items="autocompletionUI.brands"></IonTextSelectionInput>
+                <IonTextSelectionInput label="Marca" placeholder="Ej.: Aceros Perú" label-placement="stacked" v-model="dynamicData.brand" :disabled="isLoading" :value="dynamicData.brand" :items="autocompletionUI.brands"></IonTextSelectionInput>
 
-                <IonTextSelectionInput label="Presentación" placeholder="Ej.: Presentación opcional" label-placement="stacked" v-model="dynamicData.presentation" :disabled="isLoading" :items="autocompletionUI.presentations"></IonTextSelectionInput>
+                <IonTextSelectionInput label="Presentación" placeholder="Ej.: Presentación opcional" label-placement="stacked" v-model="dynamicData.presentation" :value="dynamicData.presentation" :disabled="isLoading" :items="autocompletionUI.presentations"></IonTextSelectionInput>
 
                 <ion-item>
                     <ion-input label="Código de barras" placeholder="Ej.: Código de barras opcional" label-placement="stacked" v-model="dynamicData.code" :disabled="isLoading"></ion-input>

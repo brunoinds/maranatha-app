@@ -623,7 +623,7 @@ import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/Edi
 import EditInventoryWarehouseOutcome from '@/dialogs/EditInventoryWarehouseOutcome/EditInventoryWarehouseOutcome.vue';
 import EditInventoryWarehouseOutcomeRequest from '@/dialogs/EditInventoryWarehouseOutcomeRequest/EditInventoryWarehouseOutcomeRequest.vue';
 import InventoryOutcomeRequestReceiptProductsSelector from '@/dialogs/InventoryOutcomeRequestReceiptProductsSelector/InventoryOutcomeRequestReceiptProductsSelector.vue';
-import { EInventoryWarehouseOutcomeRequestStatus, IInventoryProductItem, IProduct, IProductWithWarehouseStock, IWarehouseOutcomeRequest, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
+import { EInventoryWarehouseOutcomeRequestStatus, IInventoryProductItem, IInventoryProductItemUncountable, IProduct, IProductWithWarehouseStock, IWarehouseOutcomeRequest, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
 import { IUser } from '@/interfaces/UserInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog } from '@/utils/Dialog/Dialog';
@@ -652,7 +652,17 @@ const outcomeRequestId = route.params.id as string;
 
 const outcomeRequestData = ref<IWarehouseOutcomeRequest|null>(null);
 const productsData = ref<Array<IProductWithWarehouseStock>>([]);
-const dispachedProductsItemsData = ref<Array<IInventoryProductItem>>([]);
+const dispachedProductsItemsData = ref<{
+    countableItems: Array<IInventoryProductItem>,
+    uncountableItems: Array<{
+        id: number,
+        inventory_product_id: number,
+        quantity: number,
+    }>
+}>({
+    countableItems: [],
+    uncountableItems: []
+});
 const loanedProductsItemsData = ref<Array<IWarehouseProductItemLoan>>([]);
 const usersData = ref<Array<IUser>>([]);
 
@@ -677,7 +687,7 @@ const dispachedItemsUI = computed(() => {
         quantity: number
     }> = [];
 
-    dispachedProductsItemsData.value.forEach((item) => {
+    dispachedProductsItemsData.value.countableItems.forEach((item) => {
         const product = products.find((product) => product.product.id === item.inventory_product_id);
 
         if (product){
@@ -686,6 +696,19 @@ const dispachedItemsUI = computed(() => {
             products.push({
                 product: productsData.value.find((product) => product.id === item.inventory_product_id) as IProductWithWarehouseStock,
                 quantity: 1
+            })
+        }
+    })
+
+    dispachedProductsItemsData.value.uncountableItems.forEach((item) => {
+        const product = products.find((product) => product.product.id === item.inventory_product_id);
+
+        if (product){
+            product.quantity += item.quantity;
+        } else {
+            products.push({
+                product: productsData.value.find((product) => product.id === item.inventory_product_id) as IProductWithWarehouseStock,
+                quantity: item.quantity
             })
         }
     })
@@ -1279,7 +1302,10 @@ const loadDispachedProductsItems = async () => {
     isLoadingAreas.value.dispachedProducts = true;
     const response = await RequestAPI.get('/inventory/warehouse-outcomes/' + outcomeRequestData.value?.inventory_warehouse_outcome_id + '/products');
 
-    dispachedProductsItemsData.value = response;
+    dispachedProductsItemsData.value = {
+        countableItems: response.countable_items,
+        uncountableItems: response.uncountable_items
+    };
     isLoading.value = false;
     isLoadingAreas.value.dispachedProducts = false;
 }

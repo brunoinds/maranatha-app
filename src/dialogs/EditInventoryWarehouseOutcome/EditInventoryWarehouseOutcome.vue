@@ -67,14 +67,14 @@
                                             </ion-label>
                                             <ion-label slot="end" class="ion-text-right" color="primary">
                                                 <h2 v-for="price in productsResume.find((i) => i.product == product.product)?.prices"><b>+{{ Toolbox.moneyFormat(price.amount, price.currency as unknown as EMoneyType) }}</b></h2>
-                                                <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ price.count }} unidades en {{ price.currency }}</p>
+                                                <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ price.count }} {{Toolbox.inventoryProductUnitName(product.product.unit).toLowerCase()}} en {{ price.currency }}</p>
                                             </ion-label>
                                         </ion-item>
 
                                         <ion-item v-for="item in product.items_aggregated">
                                             <ion-label>
-                                                <h3>{{ item.count }} unidades</h3>
-                                                <p style="font-size: 11px;">por {{Toolbox.moneyFormat(item.unit_amount, item.currency as unknown as EMoneyType)}} cada</p>
+                                                <h3>{{ item.count }} {{Toolbox.inventoryProductUnitName(product.product.unit).toLowerCase()}}</h3>
+                                                <p style="font-size: 11px;">por {{Toolbox.moneyFormat(item.unit_amount, item.currency as unknown as EMoneyType)}} cada {{Toolbox.inventoryProductUnitName(product.product.unit).toLowerCase()}}</p>
                                             </ion-label>
                                             <ion-label slot="end" class="ion-text-right" color="medium">
                                                 <h2 style="font-size: 14px;"><b>{{ Toolbox.moneyFormat((item.total_amount), item.currency as unknown as EMoneyType) }}</b></h2>

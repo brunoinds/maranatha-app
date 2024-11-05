@@ -41,13 +41,13 @@
                     <ion-input label="Código de barras" placeholder="Ej.: Código de barras opcional" label-placement="stacked" v-model="dynamicData.code" :disabled="isLoading"></ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-select label="Tipo de unidad" label-placement="stacked" interface="action-sheet" v-model="dynamicData.unit" :disabled="isLoading">
+                    <ion-select label="Tipo de unidad" label-placement="stacked" interface="action-sheet" v-model="dynamicData.unit" :disabled="isLoading" @ion-change="onChangeUnit">
                         <ion-select-option v-for="unit in Toolbox.inventoryProductUnits()" :value="unit">{{ Toolbox.inventoryProductUnitName(unit) }}</ion-select-option>
                     </ion-select>
                 </ion-item>
                 <ion-item>
                     <ion-input label="¿Es prestable?" label-placement="stacked" :readonly="true" :value="dynamicData.is_loanable ? 'Sí' : 'No'" :disabled="isLoading"></ion-input>
-                    <ion-toggle slot="end" :enable-on-off-labels="true" v-model="dynamicData.is_loanable" :disabled="isLoading"></ion-toggle>
+                    <ion-toggle slot="end" :enable-on-off-labels="true" v-model="dynamicData.is_loanable" :disabled="isLoading  || getUnitNature(dynamicData.unit) == 'Float'"></ion-toggle>
                 </ion-item>
                 <ion-item>
                     <ion-input label="Url foto" placeholder="" label-placement="stacked" v-model="dynamicData.image" :disabled="isLoading"></ion-input>
@@ -74,7 +74,7 @@ import { computed, onMounted, ref } from 'vue';
 import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { arrowForwardCircleOutline, cubeOutline, cameraOutline, pricetagOutline } from 'ionicons/icons';
 import { IWorker } from '@/interfaces/WorkerInterfaces';
-import { EInventoryProductStatus, EInventoryProductUnitType, IProduct } from '@/interfaces/InventoryInterfaces';
+import { EInventoryProductStatus, EInventoryProductUnitType, getUnitNature, IProduct } from '@/interfaces/InventoryInterfaces';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import ImageSearch from '@/dialogs/ImageSearch/ImageSearch.vue';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
@@ -116,6 +116,12 @@ const autocompletionUI = computed(() => {
     }
 });
 
+
+const onChangeUnit = () => {
+    if (getUnitNature(dynamicData.value.unit) == 'Float'){
+        dynamicData.value.is_loanable = false;
+    }
+}
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({

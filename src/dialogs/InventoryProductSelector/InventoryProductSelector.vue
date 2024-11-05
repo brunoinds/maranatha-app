@@ -78,7 +78,7 @@
                                 </ion-label>
                             </section>
                             <ion-chip v-if="item.stock" :color="item.stock.in_stock_count == 0 ? 'danger' : 'success'" slot="end">
-                                {{ item.stock.in_stock_count == 0 ? 'Agotado' : item.stock.in_stock_count + ' unidades' }}
+                                {{ item.stock.in_stock_count == 0 ? 'Agotado' : item.stock.in_stock_count + ' ' + Toolbox.inventoryProductUnitName(item.unit).toLowerCase() }}
                             </ion-chip>
                             <ion-icon v-if="dynamicData.selectedProducts.includes(item)" color="primary" :icon="checkmarkOutline" slot="end"></ion-icon>
                         </ion-item>
@@ -123,6 +123,11 @@ const props = defineProps({
         type: Boolean,
         required: false,
         default: false
+    },
+    filterProductsCallback: {
+        type: Function,
+        required: false,
+        default: () => true
     }
 });
 
@@ -154,6 +159,11 @@ const productsUI = computed(() => {
             return product.is_loanable
         }
         return true;
+    }).filter((product) => {
+        if (props.filterProductsCallback){
+            return props.filterProductsCallback(product);
+        }
+        return true;
     }).toSorted((a, b) => {
         return a.name.localeCompare(b.name);
     });
@@ -181,7 +191,7 @@ const chooseFromProductsPack = () => {
                 dynamicData.value.selectedProducts = event.data.map((productPack: any) => productPack.product);
                 dynamicData.value.selectedProductsQuantity = event.data.map((productPack: any) => {
                     return {
-                        product: productPack.product,
+                        product: productsData.value.find((product) => product.id === productPack.product.id),
                         quantity: productPack.quantity
                     }
                 });

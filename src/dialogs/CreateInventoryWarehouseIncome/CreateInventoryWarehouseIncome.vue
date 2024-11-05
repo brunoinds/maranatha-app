@@ -29,13 +29,18 @@
                                         <h2><b>{{ product.product.name }}</b></h2>
                                         <p>{{ product.product.brand }}</p>
                                     </ion-label>
-                                    <ion-label slot="end" class="ion-text-right" color="primary">
+                                    <ion-label slot="end" class="ion-text-right" color="primary"  v-if="getUnitNature(product.product.unit) == 'Integer'">
                                         <h2><b>{{ Toolbox.moneyFormat(product.quantity * product.amount, warehouseIncome.currency as unknown as EMoneyType) }}</b></h2>
                                         <p>{{ product.quantity }}x {{ Toolbox.moneyFormat(product.amount, warehouseIncome.currency as unknown as EMoneyType) }}</p>
                                     </ion-label>
+                                    <ion-label slot="end" class="ion-text-right" color="primary"  v-if="getUnitNature(product.product.unit) == 'Float'">
+                                        <h2><b>{{ Toolbox.moneyFormat(product.amount, warehouseIncome.currency as unknown as EMoneyType) }}</b></h2>
+                                        <p>{{ product.quantity }} {{ Toolbox.inventoryProductUnitName(product.product.unit).toLowerCase() }}</p>
+                                    </ion-label>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-input label="Precio unitário" type="number" inputmode="numeric" :min="1" v-model="product.amount" class="ion-text-right"></ion-input>
+                                    <ion-input v-if="getUnitNature(product.product.unit) == 'Integer'" label="Precio unitário" type="number" inputmode="numeric" :min="1" v-model="product.amount" class="ion-text-right"></ion-input>
+                                    <ion-input v-if="getUnitNature(product.product.unit) == 'Float'" :label="'Precio total por los ' + product.quantity + ' ' + Toolbox.inventoryProductUnitName(product.product.unit).toLowerCase() " type="number" inputmode="numeric" :min="1" v-model="product.amount" class="ion-text-right"></ion-input>
                                 </ion-item>
                                 <ion-item>
                                     <ion-input label="Cantidad" type="number" inputmode="numeric" :min="1" v-model="product.quantity" class="ion-text-right"></ion-input>
@@ -150,9 +155,14 @@
                                                 <h2><b>{{ product.product.name }}</b></h2>
                                                 <p>{{ product.product.brand }}</p>
                                             </ion-label>
-                                            <ion-label slot="end" class="ion-text-right" color="primary">
+                                            <ion-label slot="end" class="ion-text-right" color="primary"  v-if="getUnitNature(product.product.unit) == 'Integer'">
                                                 <h2><b>{{ Toolbox.moneyFormat(product.quantity * product.amount, warehouseIncome.currency as unknown as EMoneyType) }}</b></h2>
                                                 <p>{{ product.quantity }}x {{ Toolbox.moneyFormat(product.amount, warehouseIncome.currency as unknown as EMoneyType) }}</p>
+                                            </ion-label>
+
+                                            <ion-label slot="end" class="ion-text-right" color="primary"  v-if="getUnitNature(product.product.unit) == 'Float'">
+                                                <h2><b>{{ Toolbox.moneyFormat(product.amount, warehouseIncome.currency as unknown as EMoneyType) }}</b></h2>
+                                                <p>{{ product.quantity }} {{ Toolbox.inventoryProductUnitName(product.product.unit).toLowerCase() }}</p>
                                             </ion-label>
                                         </ion-item>
                                     </ion-list>
@@ -203,7 +213,7 @@ import { EMoneyType } from '@/interfaces/ReportInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { QRCodeParser } from '@/utils/QRCodeParser/QRCodeParser';
 import { DateTime } from "luxon";
-import { INewWarehouseIncome, IProduct } from '@/interfaces/InventoryInterfaces';
+import { getUnitNature, INewWarehouseIncome, IProduct } from '@/interfaces/InventoryInterfaces';
 import { ImagePicker } from '@/utils/Camera/ImagePicker';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
@@ -254,12 +264,23 @@ const warehouseIncome = ref<INewWarehouseIncome>({
 });
 
 const incomeResume = computed(() => {
-    const price = dynamicData.value.productsListWithQuantity.reduce((acc, p) => acc + (p.quantity * p.amount), 0);
+    let price = 0
+    dynamicData.value.productsListWithQuantity.forEach((p) => {
+        if (getUnitNature(p.product.unit) == 'Integer'){
+            price  += (p.quantity * p.amount)
+        }else{
+            price += (p.amount)
+        }
+    }, 0);
     const currency = warehouseIncome.value.currency;
     const quantity = (() => {
         let countProducts = 0;
         dynamicData.value.productsListWithQuantity.forEach((p) => {
-            countProducts += parseInt(p.quantity);
+            if (getUnitNature(p.product.unit) == 'Integer'){
+                countProducts += parseInt(p.quantity);
+            }else{
+                countProducts += 1;
+            }
         })
         return countProducts;
     })();

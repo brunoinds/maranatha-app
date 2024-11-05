@@ -46,13 +46,13 @@
                     <ion-input label="Código de barras" placeholder="Ej.: Código de barras opcional" label-placement="stacked" v-model="dynamicData.code" :disabled="isLoading"></ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-select label="Tipo de unidad" label-placement="stacked" interface="action-sheet" v-model="dynamicData.unit" :disabled="isLoading">
+                    <ion-select label="Tipo de unidad" label-placement="stacked" interface="action-sheet" v-model="dynamicData.unit" :disabled="isLoading" @ion-change="onChangeUnit">
                         <ion-select-option v-for="unit in Toolbox.inventoryProductUnits()" :value="unit">{{ Toolbox.inventoryProductUnitName(unit) }}</ion-select-option>
                     </ion-select>
                 </ion-item>
                 <ion-item>
                     <ion-input label="¿Es prestable?" label-placement="stacked" :readonly="true" :value="dynamicData.is_loanable  ? 'Sí' : 'No'" :disabled="isLoading"></ion-input>
-                    <ion-toggle slot="end" :enable-on-off-labels="true" v-model="dynamicData.is_loanable" :disabled="isLoading"></ion-toggle>
+                    <ion-toggle slot="end" :enable-on-off-labels="true" v-model="dynamicData.is_loanable" :disabled="isLoading || getUnitNature(dynamicData.unit) == 'Float'"></ion-toggle>
                 </ion-item>
                 <ion-item>
                     <ion-input label="Url foto" placeholder="" label-placement="stacked" v-model="dynamicData.image" :disabled="isLoading"></ion-input>
@@ -75,7 +75,7 @@
 
 <script setup lang="ts">
 import ImageSearch from '@/dialogs/ImageSearch/ImageSearch.vue';
-import { EInventoryProductStatus, EInventoryProductUnitType, IProduct } from '@/interfaces/InventoryInterfaces';
+import { EInventoryProductStatus, EInventoryProductUnitType, getUnitNature, IProduct } from '@/interfaces/InventoryInterfaces';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { IonAvatar, IonButton, IonButtons, IonContent, IonHeader, IonToggle, IonIcon, IonLabel, IonInput, IonItem, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
@@ -217,46 +217,96 @@ const save = async () => {
         return;
     }
 
+ 
 
-    isLoading.value = true;
+    const doOperation = () => {
+        isLoading.value = true;
 
 
-    const dataParsed = {
-        name: dynamicData.value.name,
-        description: dynamicData.value.description || null,
-        category: dynamicData.value.category || null,
-        sub_category: dynamicData.value.sub_category || null,
-        brand: dynamicData.value.brand || null,
-        presentation: dynamicData.value.presentation || null,
-        unit: dynamicData.value.unit,
-        code: dynamicData.value.code || null,
-        status: dynamicData.value.status,
-        image: dynamicData.value.image || null,
-        is_loanable: dynamicData.value.is_loanable
+        const dataParsed = {
+            name: dynamicData.value.name,
+            description: dynamicData.value.description || null,
+            category: dynamicData.value.category || null,
+            sub_category: dynamicData.value.sub_category || null,
+            brand: dynamicData.value.brand || null,
+            presentation: dynamicData.value.presentation || null,
+            unit: dynamicData.value.unit,
+            code: dynamicData.value.code || null,
+            status: dynamicData.value.status,
+            image: dynamicData.value.image || null,
+            is_loanable: dynamicData.value.is_loanable
+        }
+
+        RequestAPI.put('/inventory/products/' + props.product.id , dataParsed).then(async (response) => {
+            await InventoryStore.refreshProducts();
+            props.emitter.fire('updated', {});
+            props.emitter.fire('close');
+
+            toastController.create({
+                message: '✅ Producto creado exitosamente',
+                duration: 2000
+            }).then(async (toast) => {
+                await toast.present();
+            });
+        }).catch((error) => {
+            alertController.create({
+                header: 'Oops...',
+                message: error.response.message,
+                buttons: ['OK']
+            }).then(async (alert) => {
+                await alert.present();
+            });
+        }).finally(() => {
+            isLoading.value = false;
+        });
     }
 
-    RequestAPI.put('/inventory/products/' + props.product.id , dataParsed).then(async (response) => {
-        await InventoryStore.refreshProducts();
-        props.emitter.fire('updated', {});
-        props.emitter.fire('close');
+    if (getUnitNature(dynamicData.value.unit) != getUnitNature(props.product.unit)){
+        if ((getUnitNature(dynamicData.value.unit) == 'Float')){
+            const alert = await alertController.create({
+                header: '¡Atención!',
+                message: 'Al cambiar la unidad de este producto a una unidad de tipo decimal, el producto no podrá ser prestado. Todos los préstamos registrados de este producto, así como sus entradas y salidas serán borradas permanentemente. ¿Estás seguro de continuar?',
+                buttons: [
+                    {
+                        text: 'Cancelar',
+                        role: 'cancel'
+                    },
+                    {
+                        text: 'Continuar',
+                        role: 'destructive',
+                        handler: () => {
+                            doOperation();
+                        }
+                    }
+                ]
+            })
 
-        toastController.create({
-            message: '✅ Producto creado exitosamente',
-            duration: 2000
-        }).then(async (toast) => {
-            await toast.present();
-        });
-    }).catch((error) => {
-        alertController.create({
-            header: 'Oops...',
-            message: error.response.message,
-            buttons: ['OK']
-        }).then(async (alert) => {
             await alert.present();
-        });
-    }).finally(() => {
-        isLoading.value = false;
-    });
+        }else if (getUnitNature(dynamicData.value.unit) == 'Integer'){
+            const alert = await alertController.create({
+                header: '¡Atención!',
+                message: 'Al cambiar la unidad de este producto a una unidad de tipo entero, todas las entradas y salidas de este producto serán borradas permanentemente. ¿Estás seguro de continuar?',
+                buttons: [
+                    {
+                        text: 'Cancelar',
+                        role: 'cancel'
+                    },
+                    {
+                        text: 'Continuar',
+                        role: 'destructive',
+                        handler: () => {
+                            doOperation();
+                        }
+                    }
+                ]
+            })
+
+            await alert.present();
+        }
+    }else{
+        doOperation();
+    }
+
 }
 
 const deleteProduct = async () => {
@@ -336,6 +386,12 @@ const searchImage = () => {
             showBackdrop: true,
         }
     })
+}
+
+const onChangeUnit = () => {
+    if (getUnitNature(dynamicData.value.unit) == 'Float'){
+        dynamicData.value.is_loanable = false;
+    }
 }
 
 onMounted(() => {

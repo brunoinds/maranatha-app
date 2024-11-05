@@ -87,8 +87,8 @@ const dynamicData = ref<{
 
 const allProductsQuantity = computed(() => {
     return {
-        sent: dynamicData.value.products.reduce((acc, product) => acc + (isNaN(parseInt(product.sent)) ? 0 : parseInt(product.sent)), 0),
-        received: dynamicData.value.products.reduce((acc, product) => acc + (isNaN(parseInt(product.received)) ? 0 : parseInt(product.received)), 0),
+        sent: dynamicData.value.products.reduce((acc, product) => acc + (isNaN(parseFloat(product.sent)) ? 0 : parseFloat(product.sent)), 0),
+        received: dynamicData.value.products.reduce((acc, product) => acc + (isNaN(parseFloat(product.received)) ? 0 : parseFloat(product.received)), 0),
     }
 })
 
@@ -115,7 +115,7 @@ const confirmReceiptAll = async () => {
                     props.emitter.fire('received-all', dynamicData.value.products.map(product => {
                         return {
                             product: product.product,
-                            quantity: isNaN(parseInt(product.received)) ? 0 : parseInt(product.received)
+                            quantity: isNaN(parseFloat(product.received)) ? 0 : parseFloat(product.received)
                         }
                     }));
                     props.emitter.fire('close')
@@ -142,7 +142,7 @@ const notReceiveAll = async () => {
                     props.emitter.fire('not-received-all', dynamicData.value.products.map(product => {
                         return {
                             product: product.product,
-                            quantity:  isNaN(parseInt(product.received)) ? 0 : parseInt(product.received)
+                            quantity:  isNaN(parseFloat(product.received)) ? 0 : parseFloat(product.received)
                         }
                     }));
                     props.emitter.fire('close')

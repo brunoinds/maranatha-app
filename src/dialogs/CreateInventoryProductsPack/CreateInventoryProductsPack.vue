@@ -192,7 +192,7 @@ const checkoutActions = {
             products: dynamicData.value.products.map((productData) => {
                 return {
                     product_id: productData.product.id,
-                    quantity: parseInt(productData.quantity as any)
+                    quantity: parseFloat(productData.quantity as any)
                 }
             })
         }

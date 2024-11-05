@@ -2,6 +2,7 @@ import { ECountryType, EMoneyType } from "@/interfaces/ReportInterfaces";
 import { IUser } from "@/interfaces/UserInterfaces";
 
 
+
 export const productUnitTypes = {
     Units: 'Unidades',
     Liters: 'Litros',
@@ -25,6 +26,22 @@ export enum EInventoryProductUnitType{
     Gallons = 'Gallons',
     Packs = 'Packs',
 }
+export const unitNatures = {
+    Integer: [EInventoryProductUnitType.Bags, EInventoryProductUnitType.Units, EInventoryProductUnitType.Boxes, EInventoryProductUnitType.Buckets, EInventoryProductUnitType.Bags, EInventoryProductUnitType.Packs],
+    Float: [EInventoryProductUnitType.Liters, EInventoryProductUnitType.Kilograms, EInventoryProductUnitType.Meters, EInventoryProductUnitType.Gallons]
+}
+
+export const getUnitNature = (unit: EInventoryProductUnitType) => {
+    for(let nature in unitNatures){
+        if(unitNatures[nature].includes(unit)){
+            return nature;
+        }
+    }
+    return null;
+}
+
+
+
 export enum EInventoryProductStatus{
     Active = 'Active',
     Inactive = 'Inactive'
@@ -70,6 +87,10 @@ export interface IInventoryProductItem{
     warehouse?: IWarehouse,
     income?: IWarehouseIncome,
     outcome?: IWarehouseOutcome
+}
+
+export interface IInventoryProductItemUncountable{
+    
 }
 
 
@@ -290,7 +311,8 @@ export interface IOutcomeResumeAnalisys{
             count: number
         }>
         items_to_loan: Array<any>
-        items_to_sell: Array<number>
+        items_to_sell: Array<number>,
+        items_uncountable_to_sell: Array<{id: number, quantity: number}>
     }
 }
 

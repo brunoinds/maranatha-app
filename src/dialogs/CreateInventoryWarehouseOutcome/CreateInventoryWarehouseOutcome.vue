@@ -35,8 +35,8 @@
                                         <ion-chip slot="end" color="danger" v-if="product.product.stock.in_stock_count == 0">Agotado</ion-chip>
 
                                         <ion-label slot="end" class="ion-text-right" color="primary" v-if="product.product.stock.in_stock_count > 0">
-                                            <h2><b>{{ Toolbox.integerFormat(product.quantity) }} unidades</b></h2>
-                                            <p>{{ Toolbox.integerFormat(product.product.stock.in_stock_count) }} disponibles</p>
+                                            <h2><b>{{ product.quantity }} {{Toolbox.inventoryProductUnitName(product.product.unit).toLowerCase()}}</b></h2>
+                                            <p>{{ product.product.stock.in_stock_count }} disponibles</p>
                                         </ion-label>
                                     </ion-item>
                                     <ion-item :color="(product.quantity.length == 0 || product.quantity > product.product.stock.in_stock_count) ? 'warning': undefined">
@@ -114,22 +114,23 @@
                                         </ion-label>
                                         <ion-label slot="end" class="ion-text-right" color="primary"  v-if="!product.doLoan">
                                             <h2 v-for="price in productsResume.find((i) => i.product == product.product)?.prices"><b>+{{ Toolbox.moneyFormat(price.amount, price.currency as unknown as EMoneyType) }}</b></h2>
-                                            <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ Toolbox.integerFormat(price.count) }} unidades en {{ price.currency }}</p>
+                                            <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ price.count }} {{Toolbox.inventoryProductUnitName(product.product.unit).toLowerCase()}} en {{ price.currency }}</p>
                                         </ion-label>
+
                                         <ion-label slot="end" class="ion-text-right" color="primary"  v-if="product.doLoan">
                                             <h2><b>Préstamo</b></h2>
-                                            <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ Toolbox.integerFormat(price.count) }} unidades</p>
+                                            <p v-for="price in productsResume.find((i) => i.product == product.product)?.prices">{{ price.count }} unidades</p>
                                         </ion-label>
                                     </ion-item>
 
                                     <ion-item v-for="item in productsResume.find((i) => i.product == product.product)?.items_aggregated" v-if="!product.doLoan">
                                         <ion-label>
-                                            <h3>{{ Toolbox.integerFormat(item.count) }} unidades</h3>
-                                            <p style="font-size: 11px;">por {{Toolbox.moneyFormat(item.unit_amount, item.currency as unknown as EMoneyType)}} cada</p>
+                                            <h3>{{ item.count }} {{Toolbox.inventoryProductUnitName(product.product.unit).toLowerCase()}}</h3>
+                                            <p style="font-size: 11px;">por {{Toolbox.moneyFormat(item.unit_amount, item.currency as unknown as EMoneyType)}} cada {{Toolbox.inventoryProductUnitName(product.product.unit).toLowerCase()}}</p>
                                         </ion-label>
                                         <ion-label slot="end" class="ion-text-right" color="medium">
                                             <h2 style="font-size: 14px;"><b>{{ Toolbox.moneyFormat(item.total_amount, item.currency as unknown as EMoneyType) }}</b></h2>
-                                            <p>{{ Toolbox.integerFormat(item.count) }}x {{ Toolbox.moneyFormat(item.unit_amount, item.currency as unknown as EMoneyType) }}</p>
+                                            <p>{{ item.count }}x {{ Toolbox.moneyFormat(item.unit_amount, item.currency as unknown as EMoneyType) }}</p>
                                         </ion-label>
                                     </ion-item>
                                 </ion-list>
@@ -142,12 +143,12 @@
                                 <ion-item v-for="(price, index) in outcomeResume.prices" :key="price.currency">
                                     <ion-label color="success" slot="end" class="ion-text-right">
                                         <h1><b v-if="index != 0">+</b><b>{{ Toolbox.moneyFormat(price.amount, price.currency as unknown as EMoneyType) }}</b></h1>
-                                        <p>{{ Toolbox.integerFormat(price.count) }} productos en {{ price.currency }}</p>
+                                        <p>{{ price.count }} productos en {{ price.currency }}</p>
                                     </ion-label>
                                 </ion-item>
                             </ion-list>
                             <section class="ion-padding">
-                                <ion-button :disabled="(outcomeResume.itemsToLoan.length + outcomeResume.itemsToSell.length) == 0 || isLoading" color="success" @click="checkoutActions.createNewOutcome" expand="block">
+                                <ion-button :disabled="(outcomeResume.itemsToLoan.length + outcomeResume.itemsToSell.length + outcomeResume.itemsUncountableToSell.length) == 0 || isLoading" color="success" @click="checkoutActions.createNewOutcome" expand="block">
                                     Confirmar Salida de Productos
                                     <ion-icon slot="end" :icon="checkmarkCircleOutline"></ion-icon>
                                 </ion-button>
@@ -252,6 +253,9 @@ const outcomeResume = computed(() => {
         })(),
         itemsToSell: (() => {
             return outcomeResumeAnalisys.value.analisys?.summary.items_to_sell || []
+        })(),
+        itemsUncountableToSell: (() => {
+            return outcomeResumeAnalisys.value.analisys?.summary.items_uncountable_to_sell || []
         })()
     }
 })
@@ -433,7 +437,7 @@ const checkoutActions = {
 
 
         const createOutomeRequest = async() => {
-            if (outcomeResume.value.itemsToSell.length == 0){
+            if (outcomeResume.value.itemsToSell.length + outcomeResume.value.itemsUncountableToSell.length == 0){
                 return;
             }
 
@@ -444,6 +448,12 @@ const checkoutActions = {
                 products_items: outcomeResume.value.itemsToSell.map((id: number) => {
                     return {
                         id: id
+                    }
+                }),
+                products_items_uncountable: outcomeResume.value.itemsUncountableToSell.map((item) => {
+                    return {
+                        id: item.id,
+                        quantity: item.quantity
                     }
                 }),
                 outcome_request_id: dynamicData.value.outcomeRequestId
@@ -504,7 +514,7 @@ watch(() => dynamicData.value.productsListWithQuantity, async (newValue) => {
         products: newValue.map((p) => {
             return {
                 product_id: p.product.id,
-                quantity: parseInt(p.quantity as any),
+                quantity: parseFloat(p.quantity),
                 do_loan: p.doLoan
             }
         })

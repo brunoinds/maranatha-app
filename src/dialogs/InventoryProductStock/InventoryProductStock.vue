@@ -31,12 +31,12 @@
                         <p>{{ productWithStock.brand }}</p>
                     </ion-label>
                     <ion-chip v-if="productWithStock.stock" :color="productWithStock.stock.in_stock_count == 0 ? 'danger' : 'success'" slot="end">
-                        {{ productWithStock.stock.in_stock_count == 0 ? 'Agotado' : productWithStock.stock.in_stock_count + ' unidades' }}
+                        {{ productWithStock.stock.in_stock_count == 0 ? 'Agotado' : productWithStock.stock.in_stock_count + ' ' + Toolbox.inventoryProductUnitName(productWithStock.unit).toLowerCase()}}
                     </ion-chip>
                 </ion-item>
                 <ion-item>
                     <ion-label>
-                        Unidades compradas
+                        {{Toolbox.inventoryProductUnitName(productWithStock.unit)}} compradas
                     </ion-label>
                     <ion-label slot="end" class="ion-text-right">
                         {{ productWithStock.stock.all_count }}
@@ -44,7 +44,7 @@
                 </ion-item>
                 <ion-item>
                     <ion-label>
-                        Unidades vendidas
+                        {{Toolbox.inventoryProductUnitName(productWithStock.unit)}} vendidas
                     </ion-label>
                     <ion-label slot="end" class="ion-text-right">
                         {{ productWithStock.stock.sold_count }}
@@ -52,7 +52,7 @@
                 </ion-item>
                 <ion-item>
                     <ion-label>
-                        Unidades en stock
+                        {{Toolbox.inventoryProductUnitName(productWithStock.unit)}} en stock
                     </ion-label>
                     <ion-label slot="end" class="ion-text-right">
                         {{ productWithStock.stock.in_stock_count }}
@@ -75,10 +75,10 @@
                         <ion-item @click="openIncome(income.income_id)" button>
                             <ion-label>
                                 <h2><b>Ingreso #00{{ income.income_id }}</b></h2>
-                                <p><b>{{ income.totalPriceText }}</b> ({{ income.priceText }} c/u)</p>
+                                <p><b>{{ income.totalPriceText }}</b> ({{ income.priceText }} c/ {{ Toolbox.inventoryProductUnitName(productWithStock.unit).toLowerCase().substring(0,2) }}.)</p>
                             </ion-label>
                             <ion-label slot="end" class="ion-text-right"  color="success">
-                                <h2><b>+{{ income.count }} un.</b></h2>
+                                <h2><b>+{{ income.count }} {{ Toolbox.inventoryProductUnitName(productWithStock.unit).toLowerCase().substring(0,2) }}.</b></h2>
                             </ion-label>
                             <ion-icon :icon="arrowUpCircleOutline" color="success" slot="end"></ion-icon>
                         </ion-item>
@@ -88,7 +88,7 @@
                                 <p><b>Salida #00{{ outcome.outcome_id }}</b></p>
                             </ion-label>
                             <ion-label slot="end" class="ion-text-right"  color="danger">
-                                -{{ outcome.count }} un.
+                                -{{ outcome.count }} {{ Toolbox.inventoryProductUnitName(productWithStock.unit).toLowerCase().substring(0,2) }}.
                             </ion-label>
                             <ion-icon :icon="arrowDownCircleOutline"  color="danger" slot="end"></ion-icon>
                         </ion-item>
@@ -98,7 +98,7 @@
                                 Quedan
                             </ion-label>
                             <ion-label slot="end" class="ion-text-right" color="primary">
-                                <h2><b>{{ income.remaining_count }} un.</b></h2>
+                                <h2><b>{{ income.remaining_count }} {{ Toolbox.inventoryProductUnitName(productWithStock.unit).toLowerCase().substring(0,2) }}.</b></h2>
                                 <p>restantes en stock</p>
                             </ion-label>
                         </ion-item>
@@ -118,7 +118,7 @@
                     <br>
                     
 
-                    <ion-item v-for="(item) in paginatedItemsUI" :key="item.id" button @click="showProductItem(item.id)">
+                    <ion-item v-for="(item) in paginatedItemsUI" :key="item.id" button :disabled="getUnitNature(productWithStock.unit) == 'Float'" @click="showProductItem(item.id)">
                         <ion-label>
                             <h2><b>#{{ item.index }}</b></h2>
                             <p v-if="item.batch">S/N: {{ item.batch }}</p>
@@ -138,7 +138,7 @@ import { computed, onMounted, ref } from 'vue';
 import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { arrowForwardCircleOutline, cubeOutline, storefrontOutline, checkmarkOutline, arrowUpCircleOutline, arrowDownCircleOutline } from 'ionicons/icons';
 import { IWorker } from '@/interfaces/WorkerInterfaces';
-import { IInventoryProductItem, IProduct, IProductWithWarehouseStock, IWarehouse } from '@/interfaces/InventoryInterfaces';
+import { getUnitNature, IInventoryProductItem, IProduct, IProductWithWarehouseStock, IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import InventoryProductsPackSelector from '@/dialogs/InventoryProductsPackSelector/InventoryProductsPackSelector.vue';
 import EditInventoryWarehouseOutcome from '@/dialogs/EditInventoryWarehouseOutcome/EditInventoryWarehouseOutcome.vue';

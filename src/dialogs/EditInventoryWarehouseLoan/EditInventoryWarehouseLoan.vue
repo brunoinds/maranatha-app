@@ -26,13 +26,14 @@
                         <ProductItemLoanStatusChip slot="end" :request="loan" />
                     </ion-item>
 
-
                     <ion-item button @click="seeOutcomeRequest" v-if="loan.inventory_warehouse_outcome_request_id">
                         <ion-icon color="primary" slot="start" :icon="fileTrayFullOutline"></ion-icon>
                         <ion-label color="primary" >
                             <h2>Ver pedido</h2>
                         </ion-label>
                     </ion-item>
+
+                    
 
                     <ion-item button @click="openProductItemView"  v-if="dataUI.isMeLoaner">
                         <ion-icon color="primary" slot="start" :icon="albumsOutline"></ion-icon>
@@ -92,8 +93,8 @@
                     <ion-accordion value="second">
                         <ion-item slot="header" color="light">
                             <ion-label>
-                                <h2><b>2. Movimientos</b></h2>
-                                <p>Historial de movimientos del producto</p>
+                                <h2><b>2. Job y expense</b></h2>
+                                <p>Registro del Job y Expense del préstamo</p>
                             </ion-label>
                         </ion-item>
                         <section slot="content">
@@ -106,13 +107,13 @@
                                         <h3><b>Job: </b> {{ moviment.job_code }} <b>Expense: </b> {{ moviment.expense_code }}</h3>
                                         <p>{{ moviment.description }}</p>
                                     </ion-label>
-                                    <ion-button fill="clear" color="danger" @click="actions.deleteMoviment(moviment.id)">
+                                    <ion-button v-if="false" fill="clear" color="danger" @click="actions.deleteMoviment(moviment.id)">
                                         <ion-icon slot="icon-only" :icon="removeCircleOutline"></ion-icon>
                                     </ion-button>
                                 </ion-item>
                             </ion-list>
 
-                            <section class="ion-padding">
+                            <section class="ion-padding" v-if="false">
                                 <ion-button @click="actions.addNewMoviment" expand="block" >
                                     <ion-icon slot="end" :icon="addCircleOutline"></ion-icon>
                                     Nuevo Movimiento
@@ -202,7 +203,7 @@ import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { alertController, IonAccordion, IonAccordionGroup, IonInput, IonListHeader, IonAvatar, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
-import { addCircleOutline, albumsOutline, arrowUndoOutline, checkmarkCircleOutline, checkmarkDoneOutline, closeCircleOutline, documentTextOutline, enterOutline, exitOutline, fileTrayFullOutline, peopleOutline, personOutline, removeCircleOutline, swapVerticalOutline, trashBinOutline, warningOutline } from 'ionicons/icons';
+import { addCircleOutline, albumsOutline, arrowUndoOutline, checkmarkCircleOutline, checkmarkDoneOutline, closeCircleOutline, cogOutline, documentTextOutline, enterOutline, exitOutline, fileTrayFullOutline, peopleOutline, personOutline, removeCircleOutline, swapVerticalOutline, trashBinOutline, warningOutline } from 'ionicons/icons';
 import { DateTime } from "luxon";
 import { computed, onMounted, onUnmounted, PropType, ref } from 'vue';
 import { useRouter } from 'vue-router';

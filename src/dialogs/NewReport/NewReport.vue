@@ -186,11 +186,11 @@ const validateCamps = () => {
     }
 }
 
-watch(dynamicData, (newValue) => {
+/* watch(dynamicData, (newValue) => {
     dynamicTitle.value = generateDefaultTitle();
 }, { deep: true });
-
-const generateDefaultTitle = () => {
+ */
+/* const generateDefaultTitle = () => {
     return (() => {
         try {
             const startDate = DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy");
@@ -205,7 +205,7 @@ const generateDefaultTitle = () => {
     })();
 }
 
-dynamicTitle.value = generateDefaultTitle();
+dynamicTitle.value = generateDefaultTitle(); */
 </script>
 
 <style scoped lang="scss">

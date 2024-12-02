@@ -129,16 +129,21 @@ const downloadExcel = async () => {
             footer: currentRecord.value.data.footer || undefined
         },
         filters: currentRecord.value.filters.map((filter) => {
-            if (filter.value.id == 'warehouse_ids'){
-                filter.value.options = filter.value.options.map((item) => {
+            let filterStatic = JSON.parse(JSON.stringify(filter.value));
+            if (filterStatic.id == 'warehouse_ids'){
+                filterStatic.options = filterStatic.options.map((item) => {
                     return {
                         ...item,
                         value: item.name
                     }
                 })
+                if (Array.isArray(filterStatic.value)){
+                    filterStatic.value = filterStatic.value.map((item) => {
+                        return filterStatic.options.find((option) => option.id == item).name
+                    })
+                }
             }
-
-            return filter;
+            return ref(filterStatic);
         }),
         title: 'Informe ' + currentRecord.value.configuration?.title || 'Informe'
     }).then((result) => {

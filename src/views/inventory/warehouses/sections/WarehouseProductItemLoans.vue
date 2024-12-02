@@ -6,7 +6,8 @@
             <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
         </article>
 
-        <DynamicScroller
+
+        <!-- <DynamicScroller
             :items="loansUI"
             :min-item-size="70"
             class="scroller"
@@ -33,6 +34,38 @@
                     </ion-item>
                 </DynamicScrollerItem>
             </template>
+        </DynamicScroller> -->
+
+        <DynamicScroller
+            :items="loansGroupedByRequestUI"
+            :min-item-size="70"
+            class="scroller"
+            :buffer="15"
+        >
+            <template v-slot="{ item, index, active }">
+                <DynamicScrollerItem
+                    :item="item"
+                    :active="active"
+                    :data-index="index"
+                >
+                    <ion-item button @click="openLoanProduct(item.loans)">
+                        <ion-avatar slot="start" v-if="item.productItem?.product.image">
+                            <img :src="item.productItem.product.image" />
+                        </ion-avatar>
+                        <ion-label>
+                            <h2><b>{{ item.productItem?.product.name }}</b></h2>
+                            <p>{{ item.productItem?.product.description }}</p>
+                            <p>{{ item.productItem?.product.brand }}</p>
+                            <h3>{{ item.date }} - {{ item.loanedTo?.name }}</h3>
+                            <p><b>Job:</b> {{ item.job.code }} {{ item.job.name }}</p>
+                            <p><b>Expense:</b> {{ item.expense.code }} {{ item.expense.name}}</p>
+                            
+
+                        </ion-label>
+                        <ProductItemLoanStatusChip v-for="request in item.statuses" :request="request" slot="end" />
+                    </ion-item>
+                </DynamicScrollerItem>
+            </template>
         </DynamicScroller>
     </section>
 
@@ -50,12 +83,16 @@
 import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/ProductItemLoanStatusChip.vue';
 import CreateInventoryWarehouseLoan from '@/dialogs/CreateInventoryWarehouseLoan/CreateInventoryWarehouseLoan.vue';
 import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
+import ShowListLoans from '@/dialogs/ShowListLoans/ShowListLoans.vue';
 import { IWarehouse, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
+import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { IonAvatar, IonFab, IonFabButton, IonIcon, IonItem, IonSearchbar, IonLabel, IonProgressBar } from '@ionic/vue';
 import { addOutline } from 'ionicons/icons';
+import _ from 'lodash';
 import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
@@ -70,9 +107,13 @@ const props = defineProps({
 const dynamicData = ref({
     query: ''
 })
+const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
+    jobs: [],
+    expenses: []
+});
 const loansData = ref<IWarehouseProductItemLoan[]>([]);
 
-const loansUI = computed(() => {
+/* const loansUI = computed(() => {
     return loansData.value.filter((loan) => {
         if (dynamicData.value.query.trim().length == 0) return true;
 
@@ -85,15 +126,64 @@ const loansUI = computed(() => {
         }
     }).sort((a, b) => b.id - a.id);
 });
+ */
+const openLoanProduct = async (loans: IWarehouseProductItemLoan[]) => {
+    Dialog.show(ShowListLoans, {
+        props: {
+            productsItemsLoans: loans,
+        },
+        onLoaded($this) {
+            
+        }
+    })
+} 
 
+const loansGroupedByRequestUI = computed(() => {
+    const grouped = _.groupBy(loansData.value.map((loan) => {
+        return {
+            ...loan,
+            grouper: loan.inventory_warehouse_outcome_request_id + '/-/' + loan.product_item?.inventory_product_id,
+            original: loan
+        }
+    }), 'grouper')
+
+    return Object.keys(grouped).map((group) => {
+        const loans = grouped[group].map(item => item.original);
+
+        return {
+            id: group,
+            productItem: loans[0].product_item,
+            jobCode: loans[0].movements[0]?.job_code || '',
+            expenseCode: loans[0].movements[0]?.expense_code || '',
+            job: jobsAndExpenses.value.jobs.find((job) => job.code == loans[0].movements[0]?.job_code) || { code: '', name: '' },
+            expense: jobsAndExpenses.value.expenses.find((expense) => expense.code == loans[0].movements[0]?.expense_code) || { code: '', name: '' },
+            loanedAt: loans[0].loaned_at,
+            loanedBy: loans[0].loaned_by,
+            loanedTo: loans[0].loaned_to,
+            date: new Date(loans[0].loaned_at || '').toLocaleDateString(),
+            loans: loans,
+            statuses: _.uniq(loans.map((loan) => loan.status)).map((status) => {
+                return loans.find((loan) => loan.status == status)
+            })
+        }
+    }).filter((item) => {
+        if (dynamicData.value.query.trim().length == 0) return true;
+        return item.productItem?.product.name.toLowerCase().includes(dynamicData.value.query.toLowerCase())
+    })
+})
 const loadLoans = async () => {
     isLoading.value = true;
     const response = await RequestAPI.get(`/inventory/warehouses/${props.warehouse.id}/loans`);
     loansData.value = response;
     isLoading.value = false;
 }
+const loadJobsAndExpenses = async () => {
+    const jobs =  await JobsAndExpenses.getJobs() as unknown as Array<IJob>;
+    jobsAndExpenses.value.jobs = jobs
 
-
+    const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
+    jobsAndExpenses.value.expenses = expenses;
+}
 const createWarehouseLoan = () => {
     Dialog.show(CreateInventoryWarehouseLoan, {
         props: {
@@ -125,6 +215,7 @@ const openWarehouseLoan = (loan: IWarehouseProductItemLoan) => {
 }
 onMounted(() => {
     loadLoans();
+    loadJobsAndExpenses();
     const callbackId = AppEvents.on('inventory:reload', () => {
         loadLoans()
     })

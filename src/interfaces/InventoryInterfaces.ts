@@ -274,6 +274,7 @@ export interface IProduct{
     status: EInventoryProductStatus,
     image?: string,
     is_loanable: boolean,
+    inventory_warehouses_ids: number[]
 }
 
 export interface IProductWithWarehouseStock extends IProduct {

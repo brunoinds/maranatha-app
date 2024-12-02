@@ -7,6 +7,10 @@
                 <ion-label>
                     <h2><b>#00{{ outcome.id }}</b></h2>
                     <h3>{{ outcome.date }}</h3>
+                    <p v-if="outcome.job"><b>Job:</b> ({{ outcome.job.code }}) {{ outcome.job.name }}</p>
+                    <p v-if="outcome.expense"><b>Expense:</b> ({{ outcome.expense.code }}) {{ outcome.expense.name }}</p>
+                    <p v-if="outcome.user"><b>Usuario:</b> {{ outcome.user.name }}</p>
+
                     <p>{{ outcome.items_count }} productos</p>
                 </ion-label>
                 <ion-label slot="end" color="primary">
@@ -41,6 +45,10 @@ import CreateInventoryWarehouseOutcome from '@/dialogs/CreateInventoryWarehouseO
 import EditInventoryWarehouseOutcome from '@/dialogs/EditInventoryWarehouseOutcome/EditInventoryWarehouseOutcome.vue';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import { IUser } from '@/interfaces/UserInterfaces';
+import { UsersStore } from '@/utils/Stored/UsersStore';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -50,7 +58,15 @@ const props = defineProps({
     }
 });
 
+const usersData = ref<Array<IUser>>([]);
+
+
 const outcomesData = ref<IWarehouseOutcome[]>([]);
+
+const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
+    jobs: [],
+    expenses: []
+});
 
 const outcomesUI = computed(() => {
     return outcomesData.value.map((outcome) => {
@@ -61,6 +77,9 @@ const outcomesUI = computed(() => {
                 return Toolbox.moneyFormat(amount.amount, amount.currency)
             }),
             items_count: outcome.items_count,
+            job: jobsAndExpenses.value.jobs.find((job) => job.code == outcome.job_code),
+            expense: jobsAndExpenses.value.expenses.find((expense) => expense.code == outcome.expense_code),
+            user: usersData.value.find((user) => user.id == outcome.user_id),
             original: outcome
         }
     }).sort((a, b) => b.id - a.id);
@@ -109,8 +128,22 @@ const openWarehouseOutcome = (warehouseOutcome: IWarehouseOutcome) => {
         }
     })
 }
+
+const loadJobsAndExpenses = async () => {
+    const jobs =  await JobsAndExpenses.getJobs() as unknown as Array<IJob>;
+    jobsAndExpenses.value.jobs = jobs
+
+    const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
+    jobsAndExpenses.value.expenses = expenses;
+}
+const loadUsers = async () => {
+    const users = await UsersStore.getUsers();
+    usersData.value = users;
+}
 onMounted(() => {
     loadOutcomes();
+    loadJobsAndExpenses();
+    loadUsers();
     const callbackId = AppEvents.on('inventory:reload', () => {
         loadOutcomes()
     })

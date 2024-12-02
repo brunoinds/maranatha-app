@@ -114,6 +114,11 @@ const props = defineProps({
         required: false,
         default: null
     },
+    showStock: {
+        type: Boolean,
+        required: false,
+        default: true
+    },
     allowMultipleSelection: {
         type: Boolean,
         required: false,
@@ -164,6 +169,12 @@ const productsUI = computed(() => {
             return props.filterProductsCallback(product);
         }
         return true;
+    }).filter((product) => {
+        if (!props.contextWarehouseId){
+            return true;
+        }
+
+        return product.inventory_warehouses_ids.includes(props.contextWarehouseId);
     }).toSorted((a, b) => {
         return a.name.localeCompare(b.name);
     });
@@ -232,7 +243,7 @@ const selectProduct = (product: IProduct) => {
 
 
 onMounted(() => {
-    if (props.contextWarehouseId){
+    if (props.contextWarehouseId && props.showStock){
         loadWarehouseStockContext();
     }else{
         loadProducts();

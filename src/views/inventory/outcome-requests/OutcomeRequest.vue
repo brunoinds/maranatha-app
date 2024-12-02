@@ -562,7 +562,7 @@
                             </ion-list>
 
                             <ion-list v-if="!isLoadingAreas.loanedProducts">
-                                <ion-item v-for="item in loanedItemsUI" :key="item.product?.id" button @click="openLoanProduct(item.loanId)">
+                                <ion-item v-for="item in loanedItemsUI" :key="item.product?.id" button @click="openLoanProduct(item.loans)">
                                     <ion-avatar slot="start" v-if="item.product?.image">
                                         <img :src="item.product?.image" />
                                     </ion-avatar>
@@ -623,6 +623,7 @@ import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/Edi
 import EditInventoryWarehouseOutcome from '@/dialogs/EditInventoryWarehouseOutcome/EditInventoryWarehouseOutcome.vue';
 import EditInventoryWarehouseOutcomeRequest from '@/dialogs/EditInventoryWarehouseOutcomeRequest/EditInventoryWarehouseOutcomeRequest.vue';
 import InventoryOutcomeRequestReceiptProductsSelector from '@/dialogs/InventoryOutcomeRequestReceiptProductsSelector/InventoryOutcomeRequestReceiptProductsSelector.vue';
+import ShowListLoans from '@/dialogs/ShowListLoans/ShowListLoans.vue';
 import { EInventoryWarehouseOutcomeRequestStatus, IInventoryProductItem, IInventoryProductItemUncountable, IProduct, IProductWithWarehouseStock, IWarehouseOutcomeRequest, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
 import { IUser } from '@/interfaces/UserInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
@@ -718,7 +719,7 @@ const dispachedItemsUI = computed(() => {
 const loanedItemsUI = computed(() => {
     let products:Array<{
         product: IProduct,
-        loanId: number,
+        loans: IWarehouseProductItemLoan[],
         quantity: number
     }> = [];
 
@@ -727,9 +728,10 @@ const loanedItemsUI = computed(() => {
 
         if (product){
             product.quantity++;
+            product.loans.push(item);
         } else {
             products.push({
-                loanId: item.id,
+                loans: [item],
                 product: productsData.value.find((product) => product.id === item.product_item?.product.id) as IProduct,
                 quantity: 1
             })
@@ -1398,10 +1400,10 @@ const openOutcomeRequestReceiptProductsSelector  = async () => {
         }
     })
 }
-const openLoanProduct = async (loadId:number) => {
-    Dialog.show(EditInventoryWarehouseLoan, {
+const openLoanProduct = async (loans: IWarehouseProductItemLoan[]) => {
+    Dialog.show(ShowListLoans, {
         props: {
-            productItemLoanId: loanedProductsItemsData.value.find((item) => item.id === loadId)?.id,
+            productsItemsLoans: loans,
         },
         onLoaded($this) {
             

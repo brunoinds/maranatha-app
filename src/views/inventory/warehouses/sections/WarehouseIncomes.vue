@@ -12,6 +12,8 @@
                     <ion-label>
                         <h2><b>#00{{ income.id }}</b></h2>
                         <h3>{{ income.date }}</h3>
+                        <p v-if="income.job"><b>Job:</b> ({{ income.job.code }}) {{ income.job.name }}</p>
+                        <p v-if="income.expense"><b>Expense:</b> ({{ income.expense.code }}) {{ income.expense.name }}</p>
                         <p>{{ income.items_count }} productos</p>
                     </ion-label>
                     <ion-label slot="end" color="primary">
@@ -50,6 +52,10 @@ import { DateTime } from 'luxon';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import ImportInventoryWarehouseIncome from '@/dialogs/ImportInventoryWarehouseIncome/ImportInventoryWarehouseIncome.vue';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
+import { IUser } from '@/interfaces/UserInterfaces';
+import { UsersStore } from '@/utils/Stored/UsersStore';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -57,6 +63,11 @@ const props = defineProps({
         type: Object as PropType<IWarehouse>,
         required: true
     }
+});
+
+const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
+    jobs: [],
+    expenses: []
 });
 
 const incomesData = ref<IWarehouseIncome[]>([]);
@@ -68,6 +79,8 @@ const incomesUI = computed(() => {
             date: DateTime.fromJSDate(new Date(income.date)).toFormat("dd/MM/yyyy").toString(),
             amount: Toolbox.moneyFormat(income.amount, income.currency),
             items_count: income.items_count,
+            job: jobsAndExpenses.value.jobs.find((job) => job.code == income.job_code),
+            expense: jobsAndExpenses.value.expenses.find((expense) => expense.code == income.expense_code),
             original: income
         }
     }).sort((a, b) => b.id - a.id);
@@ -161,8 +174,18 @@ const incomesGrouppedUI = computed(() => {
     return groupedAttendancesUI;
 })
 
+const loadJobsAndExpenses = async () => {
+    const jobs =  await JobsAndExpenses.getJobs() as unknown as Array<IJob>;
+    jobsAndExpenses.value.jobs = jobs
+
+    const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
+    jobsAndExpenses.value.expenses = expenses;
+}
+
+
 onMounted(() => {
     loadIncomes();
+    loadJobsAndExpenses();
     const callbackId = AppEvents.on('inventory:reload', () => {
         loadIncomes()
     })

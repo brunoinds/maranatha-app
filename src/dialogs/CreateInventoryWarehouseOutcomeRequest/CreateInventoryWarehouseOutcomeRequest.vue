@@ -20,10 +20,33 @@
 
             <article>
                 <ion-accordion-group ref="accordionGroupEl">
+                    
                     <ion-accordion value="first">
                         <ion-item slot="header" color="light">
                             <ion-label>
-                                <h2><b>1. Agregar productos</b></h2>
+                                <h2><b>1. Datos del pedido</b></h2>
+                                <p>Completa los datos del pedido</p>
+                            </ion-label>
+                        </ion-item>
+                        <section slot="content">
+                            <ion-list>
+                                <ion-item>
+                                    <ion-select label="Solicitar al almacén:" label-placement="stacked" placeholder="Elige el almacén a que vas hacer la solicitud" v-model="warehouseOutcome.inventory_warehouse_id">
+                                        <ion-select-option v-for="warehouse in warehousesData" :key="warehouse.id" :value="warehouse.id">{{ warehouse.name }}</ion-select-option>
+                                    </ion-select>
+                                </ion-item>
+
+                                <ion-item-choose-dialog @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
+                                <ion-item-choose-dialog @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
+                            </ion-list>
+
+                            
+                        </section>
+                    </ion-accordion>
+                    <ion-accordion value="second">
+                        <ion-item slot="header" color="light">
+                            <ion-label>
+                                <h2><b>2. Agregar productos</b></h2>
                                 <p>Selecciona los productos que deseas solicitar</p>
                             </ion-label>
                         </ion-item>
@@ -57,34 +80,14 @@
                             </section>
                         </section>
                     </ion-accordion>
-                    <ion-accordion value="second">
-                        <ion-item slot="header" color="light">
-                            <ion-label>
-                                <h2><b>2. Datos del pedido</b></h2>
-                                <p>Completa los datos del pedido</p>
-                            </ion-label>
-                        </ion-item>
-                        <section slot="content">
-                            <ion-list>
-                                <ion-item>
-                                    <ion-select label="Solicitar al almacén:" label-placement="stacked" placeholder="Elige el almacén a que vas hacer la solicitud" v-model="warehouseOutcome.inventory_warehouse_id">
-                                        <ion-select-option v-for="warehouse in warehousesData" :key="warehouse.id" :value="warehouse.id">{{ warehouse.name }}</ion-select-option>
-                                    </ion-select>
-                                </ion-item>
-
-                                <ion-item-choose-dialog @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
-                                <ion-item-choose-dialog @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
-                            </ion-list>
-
-                            <section class="ion-padding">
-                                <ion-button  color="success" @click="checkoutActions.createNewOutcomeRequest" :disabled="isLoading" expand="block">
-                                    Confirmar y solicitar productos
-                                    <ion-icon slot="end" :icon="checkmarkCircleOutline"></ion-icon>
-                                </ion-button>
-                            </section>
-                        </section>
-                    </ion-accordion>
                 </ion-accordion-group>
+
+                <section class="ion-padding">
+                    <ion-button  color="success" @click="checkoutActions.createNewOutcomeRequest" :disabled="isLoading" expand="block">
+                        Confirmar y solicitar productos
+                        <ion-icon slot="end" :icon="checkmarkCircleOutline"></ion-icon>
+                    </ion-button>
+                </section>
 
                 <br><br><br><br><br><br><br><br><br><br><br><br>
             </article>
@@ -190,7 +193,8 @@ const actions = {
     addNewProduct: () => {
         Dialog.show(InventoryProductSelector, {
             props: {
-                allowMultipleSelection: true
+                allowMultipleSelection: true,
+                contextWarehouseId: warehouseOutcome.value.inventory_warehouse_id
             },
             onLoaded($this) {
                 $this.on('selected', (event:any) => {

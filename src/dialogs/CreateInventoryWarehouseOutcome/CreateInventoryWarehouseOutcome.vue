@@ -329,7 +329,8 @@ const actions = {
         Dialog.show(InventoryProductSelector, {
             props: {
                 contextWarehouseId: props.warehouseId,
-                allowMultipleSelection: true
+                allowMultipleSelection: true,
+                showStock: true
             },
             onLoaded($this) {
                 $this.on('selected', (event:any) => {

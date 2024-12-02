@@ -373,7 +373,8 @@ const actions = {
             props: {
                 contextWarehouseId: props.warehouseId,
                 allowMultipleSelection: true,
-                onlyLoanable: true
+                onlyLoanable: true,
+                showStock: true
             },
             onLoaded($this) {
                 $this.on('selected', (event:any) => {

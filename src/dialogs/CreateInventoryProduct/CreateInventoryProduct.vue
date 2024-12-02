@@ -50,6 +50,11 @@
                     <ion-toggle slot="end" :enable-on-off-labels="true" v-model="dynamicData.is_loanable" :disabled="isLoading  || getUnitNature(dynamicData.unit) == 'Float'"></ion-toggle>
                 </ion-item>
                 <ion-item>
+                    <ion-select label="Almacenes" label-placement="stacked" interface="action-sheet" v-model="dynamicData.inventory_warehouses_ids" :multiple="true" :disabled="isLoading">
+                        <ion-select-option v-for="warehouse in listWarehouses" :value="warehouse.id">{{ warehouse.name }}</ion-select-option>
+                    </ion-select>
+                </ion-item>
+                <ion-item>
                     <ion-input label="Url foto" placeholder="" label-placement="stacked" v-model="dynamicData.image" :disabled="isLoading"></ion-input>
                 </ion-item>
             </ion-list>
@@ -74,7 +79,7 @@ import { computed, onMounted, ref } from 'vue';
 import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { arrowForwardCircleOutline, cubeOutline, cameraOutline, pricetagOutline } from 'ionicons/icons';
 import { IWorker } from '@/interfaces/WorkerInterfaces';
-import { EInventoryProductStatus, EInventoryProductUnitType, getUnitNature, IProduct } from '@/interfaces/InventoryInterfaces';
+import { EInventoryProductStatus, EInventoryProductUnitType, getUnitNature, IProduct, IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import ImageSearch from '@/dialogs/ImageSearch/ImageSearch.vue';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
@@ -86,6 +91,7 @@ const brandInput = ref<any | null>(null);
 const presentationInput = ref<any | null>(null);
 const page = ref<HTMLElement|null>(null);
 const listProducts = ref<Array<IProduct>>([]);
+const listWarehouses = ref<Array<IWarehouse>>([]);
 
 const autocompletionUI = computed(() => {
     return {
@@ -143,7 +149,8 @@ const dynamicData = ref<{
     status: EInventoryProductStatus,
     image: string,
     isLoadingImage: boolean,
-    is_loanable: boolean
+    is_loanable: boolean,
+    inventory_warehouses_ids: number[]
 }>({
     name: '',
     description: '',
@@ -156,7 +163,8 @@ const dynamicData = ref<{
     status: EInventoryProductStatus.Active,
     image: '',
     isLoadingImage: false,
-    is_loanable: false
+    is_loanable: false,
+    inventory_warehouses_ids: []
 });
 
 
@@ -212,7 +220,8 @@ const createProduct = async () => {
         code: dynamicData.value.code || null,
         status: dynamicData.value.status,
         image: dynamicData.value.image || null,
-        is_loanable: dynamicData.value.is_loanable
+        is_loanable: dynamicData.value.is_loanable,
+        inventory_warehouses_ids: dynamicData.value.inventory_warehouses_ids
     }
 
     RequestAPI.post('/inventory/products', dataParsed).then(async (response) => {
@@ -240,6 +249,11 @@ const createProduct = async () => {
 }
 const loadProducts = async () => {
     listProducts.value = await InventoryStore.getProducts();
+}
+const loadWarehouses = async () => {
+    isLoading.value = true;
+    listWarehouses.value = await InventoryStore.getWarehouses();
+    isLoading.value = false;
 }
 
 const validateCamps = () => {
@@ -274,6 +288,9 @@ const searchImage = () => {
 
 onMounted(() => {
     loadProducts();
+    loadWarehouses().then(() => {
+        dynamicData.value.inventory_warehouses_ids = listWarehouses.value.map((warehouse) => warehouse.id);
+    })
 })
 </script>
 

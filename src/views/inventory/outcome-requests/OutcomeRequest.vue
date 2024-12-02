@@ -629,6 +629,7 @@ import { IUser } from '@/interfaces/UserInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { Session } from '@/utils/Session/Session';
 import { UsersStore } from '@/utils/Stored/UsersStore';
 import { Theme } from '@/utils/Theme/Theme';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
@@ -1322,16 +1323,52 @@ const loadLoanedProductsItems = async () => {
 }
 
 const changeRequestStatus = async (status: EInventoryWarehouseOutcomeRequestStatus) => {
-    isLoading.value = true;
-    isLoadingAreas.value.outcomeRequest = true;
-    const response = await RequestAPI.put('/inventory/warehouse-outcome-requests/' + outcomeRequestId, {
-        status: status
-    });
+    const performRequest = async () => {
+        isLoading.value = true;
+        isLoadingAreas.value.outcomeRequest = true;
+        const response = await RequestAPI.put('/inventory/warehouse-outcome-requests/' + outcomeRequestId, {
+            status: status
+        });
 
-    outcomeRequestData.value = response.warehouse_outcome_request;
-    isLoading.value = false;
-    isLoadingAreas.value.outcomeRequest = false;
-    AppEvents.emit('inventory:reload');
+        outcomeRequestData.value = response.warehouse_outcome_request;
+        isLoading.value = false;
+        isLoadingAreas.value.outcomeRequest = false;
+        AppEvents.emit('inventory:reload');
+    }
+    if (status == EInventoryWarehouseOutcomeRequestStatus.Approved){
+        const currentSession = await Session.getCurrentSession();
+        if (!currentSession){
+            return;
+        };
+
+        if (currentSession.roles().includes("admin")){
+            await performRequest();
+            return;
+        }
+
+        if (outcomeRequestData.value?.user_id == currentSession.id()){
+            const alert = await alertController.create({
+                header: 'Oops..',
+                message: 'Ud. no puede aprobar un pedido dónde Ud. es el solicitante. Por favor, solicita para que otro jefe de almacén lo apruebe.',
+                buttons: [
+                    {
+                        text: 'Ok',
+                        role: 'cancel',
+                    }
+                ]
+            });
+
+            await alert.present();
+        }else{
+            await performRequest();
+            return;
+        }
+
+
+        
+    }else{
+        await performRequest();
+    }
 }
 
 

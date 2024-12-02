@@ -93,8 +93,8 @@
                     <ion-accordion value="second">
                         <ion-item slot="header" color="light">
                             <ion-label>
-                                <h2><b>2. Job y expense</b></h2>
-                                <p>Registro del Job y Expense del préstamo</p>
+                                <h2><b>2. Movimientos</b></h2>
+                                <p>Registro de movimeintos en el préstamo</p>
                             </ion-label>
                         </ion-item>
                         <section slot="content">
@@ -107,13 +107,13 @@
                                         <h3><b>Job: </b> {{ moviment.job_code }} <b>Expense: </b> {{ moviment.expense_code }}</h3>
                                         <p>{{ moviment.description }}</p>
                                     </ion-label>
-                                    <ion-button v-if="false" fill="clear" color="danger" @click="actions.deleteMoviment(moviment.id)">
+                                    <ion-button fill="clear" color="danger" @click="actions.deleteMoviment(moviment.id)">
                                         <ion-icon slot="icon-only" :icon="removeCircleOutline"></ion-icon>
                                     </ion-button>
                                 </ion-item>
                             </ion-list>
 
-                            <section class="ion-padding" v-if="false">
+                            <section class="ion-padding">
                                 <ion-button @click="actions.addNewMoviment" expand="block" >
                                     <ion-icon slot="end" :icon="addCircleOutline"></ion-icon>
                                     Nuevo Movimiento

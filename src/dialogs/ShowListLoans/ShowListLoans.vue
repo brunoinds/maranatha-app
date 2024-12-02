@@ -22,8 +22,8 @@
                         
                         <p><b>Prestado para:</b> {{ loan.loaned_to?.name }}</p>
                         <p><b>Fecha:</b> {{ loan.date }}</p>
-                        <p><b>Job:</b> {{ loan.movements[0]?.job_code }}</p>
-                        <p><b>Expense:</b> {{ loan.movements[0]?.expense_code }}</p>
+                        <p><b>Job:</b> {{ loan.movements[loan.movements.length - 1]?.job_code }}</p>
+                        <p><b>Expense:</b> {{ loan.movements[loan.movements.length - 1]?.expense_code }}</p>
                     </ion-label>
                     <ProductItemLoanStatusChip slot="end" :request="loan" />
                 </ion-item>

@@ -2,9 +2,9 @@
     <section class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
 
-        <article class="ion-padding">
+       <!--  <article class="ion-padding">
             <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
-        </article>
+        </article> -->
 
 
         <!-- <DynamicScroller
@@ -36,7 +36,7 @@
             </template>
         </DynamicScroller> -->
 
-        <DynamicScroller
+        <!-- <DynamicScroller
             :items="loansGroupedByRequestUI"
             :min-item-size="70"
             class="scroller"
@@ -66,7 +66,40 @@
                     </ion-item>
                 </DynamicScrollerItem>
             </template>
-        </DynamicScroller>
+        </DynamicScroller> -->
+
+
+        <ion-accordion-group v-for="item in loansByUsersData" :key="item.user.id" value="first">
+            <ion-accordion value="first">
+                <ion-item slot="header" color="light">
+                    <ion-icon :icon="personOutline" slot="start"></ion-icon>
+                    <ion-label>
+                        <h2><b>{{ item.user.name }}</b></h2>
+                        <p>@{{ item.user.username }}</p>
+                    </ion-label>
+                </ion-item>
+                <section slot="content" class="ion-padding">
+                    <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                        <ion-item v-for="loan in item.loans" button @click="openWarehouseLoan(loan)">
+                            <ion-avatar slot="start" v-if="loan.product_item?.product.image">
+                                <img :src="loan.product_item.product.image" />
+                            </ion-avatar>
+                            <ion-label>
+                                <h2><b>{{ loan.product_item?.product.name }}</b></h2>
+                                <p>{{ loan.product_item?.product.description }}</p>
+                                <p>{{ loan.product_item?.product.brand }}</p>
+                                <h3>{{ (new Date(loan.loaned_at || '').toLocaleDateString()) }}</h3>
+                                <p><b>Job:</b> {{ (loan as any).tagging.job.code }} - {{ (loan as any).tagging.job.name }}</p>
+                                <p><b>Expense:</b> {{ (loan as any).tagging.expense.code }} - {{ (loan as any).tagging.expense.name }}</p>
+                            </ion-label>
+                            <ProductItemLoanStatusChip :request="loan" slot="end" />
+                        </ion-item>
+                    </ion-list>
+                </section>
+            </ion-accordion>
+        </ion-accordion-group>
+
+
     </section>
 
 
@@ -86,13 +119,16 @@ import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/Edi
 import ShowListLoans from '@/dialogs/ShowListLoans/ShowListLoans.vue';
 import { IWarehouse, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
 import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
+import { IUser } from '@/interfaces/UserInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
-import { IonAvatar, IonFab, IonFabButton, IonIcon, IonItem, IonSearchbar, IonLabel, IonProgressBar } from '@ionic/vue';
-import { addOutline } from 'ionicons/icons';
+import { Viewport } from '@/utils/Viewport/Viewport';
+import { IonAvatar, IonFab, IonFabButton, IonIcon, IonItem, IonSearchbar, IonLabel, IonProgressBar, IonAccordion, IonAccordionGroup } from '@ionic/vue';
+import { addOutline, personOutline } from 'ionicons/icons';
 import _ from 'lodash';
+import { DateTime } from 'luxon';
 import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
@@ -112,6 +148,10 @@ const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
     expenses: []
 });
 const loansData = ref<IWarehouseProductItemLoan[]>([]);
+const loansByUsersData = ref<Array<{
+    user: IUser,
+    loans: IWarehouseProductItemLoan[]
+}>>([]);
 
 /* const loansUI = computed(() => {
     return loansData.value.filter((loan) => {
@@ -153,10 +193,10 @@ const loansGroupedByRequestUI = computed(() => {
         return {
             id: group,
             productItem: loans[0].product_item,
-            jobCode: loans[0].movements[0]?.job_code || '',
-            expenseCode: loans[0].movements[0]?.expense_code || '',
-            job: jobsAndExpenses.value.jobs.find((job) => job.code == loans[0].movements[0]?.job_code) || { code: '', name: '' },
-            expense: jobsAndExpenses.value.expenses.find((expense) => expense.code == loans[0].movements[0]?.expense_code) || { code: '', name: '' },
+            jobCode: loans[0].movements[loans[0].movements.length - 1]?.job_code || '',
+            expenseCode: loans[0].movements[loans[0].movements.length - 1]?.expense_code || '',
+            job: jobsAndExpenses.value.jobs.find((job) => job.code == loans[0].movements[loans[0].movements.length - 1]?.job_code) || { code: '', name: '' },
+            expense: jobsAndExpenses.value.expenses.find((expense) => expense.code == loans[0].movements[loans[0].movements.length - 1]?.expense_code) || { code: '', name: '' },
             loanedAt: loans[0].loaned_at,
             loanedBy: loans[0].loaned_by,
             loanedTo: loans[0].loaned_to,
@@ -175,6 +215,12 @@ const loadLoans = async () => {
     isLoading.value = true;
     const response = await RequestAPI.get(`/inventory/warehouses/${props.warehouse.id}/loans`);
     loansData.value = response;
+    isLoading.value = false;
+}
+const loadLoansByUsers = async () => {
+    isLoading.value = true;
+    const response = await RequestAPI.get(`/inventory/warehouses/${props.warehouse.id}/loans-by-users`);
+    loansByUsersData.value = response;
     isLoading.value = false;
 }
 const loadJobsAndExpenses = async () => {
@@ -209,15 +255,15 @@ const openWarehouseLoan = (loan: IWarehouseProductItemLoan) => {
             
         },
         modalControllerOptions: {
-  
+
         }
     })
 }
 onMounted(() => {
-    loadLoans();
+    loadLoansByUsers();
     loadJobsAndExpenses();
     const callbackId = AppEvents.on('inventory:reload', () => {
-        loadLoans()
+        loadLoansByUsers()
     })
     onUnmounted(() => {
         AppEvents.off('inventory:reload', callbackId);

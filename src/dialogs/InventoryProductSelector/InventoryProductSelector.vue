@@ -117,7 +117,7 @@ const props = defineProps({
     showStock: {
         type: Boolean,
         required: false,
-        default: true
+        default: false
     },
     allowMultipleSelection: {
         type: Boolean,

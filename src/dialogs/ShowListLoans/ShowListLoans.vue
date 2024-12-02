@@ -12,7 +12,7 @@
         <ion-content>
             <ion-list>
                 <ion-item v-for="loan in loansRegistryUI" :key="loan.id" button @click="showLoan(loan)">
-                    <ion-avatar slot="start" >
+                    <ion-avatar slot="start" v-if="loan.product_item?.product.image">
                         <img :src="loan.product_item?.product.image" />
                     </ion-avatar>
                     <ion-label>

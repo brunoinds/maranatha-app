@@ -1,13 +1,22 @@
 <template>
     <section class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
+        <br>
 
-        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+        <ion-segment v-model="selectedView">
+            <ion-segment-button value="Individuals">
+                <ion-label>Individuales</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="ByJobs">
+                <ion-label>Por Jobs</ion-label>
+            </ion-segment-button>
+        </ion-segment>
+
+        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'" v-if="selectedView == 'Individuals'">
             <ion-item v-for="outcome in outcomesUI" button @click="openWarehouseOutcome(outcome.original)">
                 <ion-label>
-                    <h2><b>#00{{ outcome.id }}</b></h2>
+                    <h2><b>#00{{ outcome.id }} - {{ outcome.job?.code }} {{ outcome.job?.name }}</b></h2>
                     <h3>{{ outcome.date }}</h3>
-                    <p v-if="outcome.job"><b>Job:</b> ({{ outcome.job.code }}) {{ outcome.job.name }}</p>
                     <p v-if="outcome.expense"><b>Expense:</b> ({{ outcome.expense.code }}) {{ outcome.expense.name }}</p>
                     <p v-if="outcome.user"><b>Usuario:</b> {{ outcome.user.name }}</p>
 
@@ -21,6 +30,40 @@
                 </ion-label>
             </ion-item>
         </ion-list>
+
+
+        <article  v-if="selectedView == 'ByJobs'" class="ion-padding">
+            <ion-accordion-group v-for="item in outcomesByJobsUI" :key="item.job?.code" value="first" >
+                <ion-accordion value="first">
+                    <ion-item slot="header" color="light">
+                        <ion-label>
+                            <h2><b>{{ item.job?.code }} - {{ item.job?.name }}</b></h2>
+                            <p>{{ item.outcomes.length }} salidas</p>
+                        </ion-label>
+                    </ion-item>
+                    <section slot="content" class="ion-padding">
+                        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                            <ion-item v-for="outcome in item.outcomes" button @click="openWarehouseOutcome(outcome.original)">
+                                <ion-label>
+                                    <h2><b>#00{{ outcome.id }}</b> - {{ outcome.expense?.code }} {{ outcome.expense?.name }}</h2>
+                                    <h3>{{ outcome.date }}</h3>
+                                    <p v-if="outcome.expense"><b>Expense:</b> ({{ outcome.expense.code }}) {{ outcome.expense.name }}</p>
+                                    <p v-if="outcome.user"><b>Usuario:</b> {{ outcome.user.name }}</p>
+
+                                    <p>{{ outcome.items_count }} productos</p>
+                                </ion-label>
+                                <ion-label slot="end" color="primary">
+                                    <h2 v-for="(item, i) in outcome.amount">
+                                        <b v-if="i > 0">+</b>
+                                        <b>{{ item }}</b>
+                                    </h2>
+                                </ion-label>
+                            </ion-item>
+                        </ion-list>
+                    </section>
+                </ion-accordion>
+            </ion-accordion-group>
+        </article>
     </section>
 
 
@@ -34,7 +77,7 @@
 
 <script setup lang="ts">
 
-import { IonList, IonItem, IonLabel, IonFab, IonFabButton, IonIcon, IonProgressBar } from '@ionic/vue';
+import { IonList, IonItem, IonLabel, IonFab, IonFabButton, IonIcon, IonProgressBar, IonSegment, IonSegmentButton, IonAccordion, IonAccordionGroup } from '@ionic/vue';
 import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
 import { IWarehouse, IWarehouseOutcome } from '@/interfaces/InventoryInterfaces';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
@@ -49,6 +92,7 @@ import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { IUser } from '@/interfaces/UserInterfaces';
 import { UsersStore } from '@/utils/Stored/UsersStore';
+import _ from 'lodash';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -59,6 +103,8 @@ const props = defineProps({
 });
 
 const usersData = ref<Array<IUser>>([]);
+
+const selectedView = ref<'Individuals'|'ByJobs'>('Individuals');
 
 
 const outcomesData = ref<IWarehouseOutcome[]>([]);
@@ -84,6 +130,18 @@ const outcomesUI = computed(() => {
         }
     }).sort((a, b) => b.id - a.id);
 });
+
+const outcomesByJobsUI = computed(() => {
+    const jobs = Object.keys(_.groupBy(outcomesUI.value, 'job.code')).map((jobCode) => {
+        const jobOutcomes = outcomesUI.value.filter((outcome) => outcome.job?.code == jobCode);
+        return {
+            job: jobOutcomes[0].job,
+            outcomes: jobOutcomes
+        }
+    })
+
+    return jobs;
+})
 
 const loadOutcomes = async () => {
     isLoading.value = true;

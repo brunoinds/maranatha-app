@@ -1,6 +1,7 @@
 <template>
     <section class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
+        <br>
 
 
 
@@ -10,9 +11,8 @@
             <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                 <ion-item v-for="income in incomeGrouped.attendances" button @click="openWarehouseIncome(income.original)">
                     <ion-label>
-                        <h2><b>#00{{ income.id }}</b></h2>
+                        <h2><b>#00{{ income.id }} - {{ income.job?.code }} - {{ income.job?.name }}</b></h2>
                         <h3>{{ income.date }}</h3>
-                        <p v-if="income.job"><b>Job:</b> ({{ income.job.code }}) {{ income.job.name }}</p>
                         <p v-if="income.expense"><b>Expense:</b> ({{ income.expense.code }}) {{ income.expense.name }}</p>
                         <p>{{ income.items_count }} productos</p>
                     </ion-label>

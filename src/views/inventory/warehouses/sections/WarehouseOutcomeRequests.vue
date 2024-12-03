@@ -1,6 +1,7 @@
 <template>
     <section class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
+        <br>
 
         <ion-segment v-model="selectedView">
             <ion-segment-button value="Outcomes">

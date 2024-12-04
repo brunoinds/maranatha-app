@@ -87,7 +87,7 @@ import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseD
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import InventoryProductSelector from '@/dialogs/InventoryProductSelector/InventoryProductSelector.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
-import { EInventoryWarehouseOutcomeRequestStatus, INewWarehouseOutcomeRequest, IOutcomeResumeAnalisys, IProduct, IProductWithWarehouseStock, IWarehouse, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
+import { EInventoryWarehouseOutcomeRequestStatus, EInventoryWarehouseOutcomeRequestType, INewWarehouseOutcomeRequest, IOutcomeResumeAnalisys, IProduct, IProductWithWarehouseStock, IWarehouse, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
 import { EExpenseUses, IExpense } from '@/interfaces/JobsAndExpensesInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
@@ -137,7 +137,8 @@ const warehouseOutcome = ref<IWarehouseOutcomeRequest>({
     delivered_at: null,
     finished_at: null,
     status: EInventoryWarehouseOutcomeRequestStatus.Draft,
-    value: undefined
+    value: undefined,
+    type: EInventoryWarehouseOutcomeRequestType.Outcomes
 });
 
 const validateData = async () => {
@@ -191,7 +192,8 @@ const actions = {
         Dialog.show(InventoryProductSelector, {
             props: {
                 allowMultipleSelection: true,
-                contextWarehouseId: warehouseOutcome.value.inventory_warehouse_id
+                contextWarehouseId: warehouseOutcome.value.inventory_warehouse_id,
+                showStock: true
             },
             onLoaded($this) {
                 $this.on('selected', (event:any) => {

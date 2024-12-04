@@ -1,16 +1,20 @@
 <template>
     <section class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
-        <br>
+        
 
-        <ion-segment v-model="selectedView">
-            <ion-segment-button value="Outcomes">
-                <ion-label>Salidas</ion-label>
-            </ion-segment-button>
-            <ion-segment-button value="Loans">
-                <ion-label>Préstamos</ion-label>
-            </ion-segment-button>
-        </ion-segment>
+        <div class="ion-padding">
+            <ion-segment v-model="selectedView">
+                <ion-segment-button value="Outcomes">
+                    <ion-label>Salidas</ion-label>
+                </ion-segment-button>
+                <ion-segment-button value="Loans">
+                    <ion-label>Préstamos</ion-label>
+                </ion-segment-button>
+            </ion-segment>
+        </div>
+
+        
 
         <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
             <ion-item v-for="outcome in outcomesUI" button @click="openWarehouseOutcomeRequest(outcome)">
@@ -112,10 +116,9 @@ const outcomesUI = computed(() => {
             job,
             expense,
             title: `Pedido #00${outcome.id} - ${job.code} ${job?.name} - ${expense.code} ${expense?.name}`,
-            request_type: (outcome as any).request_type as 'Outcomes' | 'Loans',
             original: outcome
         }
-    }).sort((a, b) => b.id - a.id).filter(outcome => outcome.request_type === selectedView.value);
+    }).sort((a, b) => b.id - a.id).filter(outcome => outcome.type === selectedView.value);
 });
 
 const loadOutcomes = async () => {

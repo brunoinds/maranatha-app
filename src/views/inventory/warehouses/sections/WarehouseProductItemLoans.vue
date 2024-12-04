@@ -1,179 +1,123 @@
 <template>
     <section class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
-        <br>
-       <!--  <article class="ion-padding">
-            <ion-searchbar v-model="dynamicData.query" :animated="true" placeholder="Buscar Producto"></ion-searchbar>
-        </article> -->
 
+        <div class="ion-padding">
+            <ion-segment v-model="selectedView">
+                <ion-segment-button value="ByUsers">
+                    <ion-label>Por Usuarios</ion-label>
+                </ion-segment-button>
+                <ion-segment-button value="ByJobs">
+                    <ion-label>Por Jobs</ion-label>
+                </ion-segment-button>
+            </ion-segment>
+        </div>
+        
 
-        <!-- <DynamicScroller
-            :items="loansUI"
-            :min-item-size="70"
-            class="scroller"
-            :buffer="15"
-        >
-            <template v-slot="{ item, index, active }">
-                <DynamicScrollerItem
-                    :item="item"
-                    :active="active"
-                    :data-index="index"
-                >
-                    <ion-item button @click="openWarehouseLoan(item.original)">
-                        <ion-avatar slot="start" v-if="item.product_item?.product.image">
-                            <img :src="item.product_item.product.image" />
-                        </ion-avatar>
+        <article v-if="selectedView == 'ByUsers'">
+            <ion-accordion-item v-for="item in loansGroupedByRequestUI" :key="item.user.id" :value="item.user.id">
+                <template v-slot:head>
+                    <ion-item button>
+                        <ion-icon :icon="personOutline" slot="start"></ion-icon>
                         <ion-label>
-                            <h2><b>#00{{ item.id }}</b></h2>
-                            <h2><b>{{ item.product_item?.product.name }}</b></h2>
-                            <h3>{{ item.date }} - {{ item.loaned_to?.name }}</h3>
-                            <p>{{ item.product_item?.product.description }}</p>
-                            <p>{{ item.product_item?.product.brand }}</p>
+                            <h2><b>{{ item.user.name }}</b></h2>
+                            <p>@{{ item.user.username }}</p>
                         </ion-label>
-                        <ProductItemLoanStatusChip :request="item" slot="end" />
                     </ion-item>
-                </DynamicScrollerItem>
-            </template>
-        </DynamicScroller> -->
+                </template>
+                
+                <template #body>
+                    <div class="ion-padding">
+                        <DynamicScroller
+                            :items="item.loansGrouped"
+                            :min-item-size="70"
+                            class="scroller"
+                            :buffer="15"
+                        >
+                            <template v-slot="{ item, index, active }">
+                                <DynamicScrollerItem
+                                    :item="item"
+                                    :active="active"
+                                    :data-index="index"
+                                >
+                                    <ion-item button @click="(item.isGrouped) ? openWarehouseLoans(item.loans) : openWarehouseLoan(item.main)">
+                                        <ion-avatar slot="start" v-if="item.main.product_item?.product.image">
+                                            <img :src="item.main.product_item.product.image" />
+                                        </ion-avatar>
+                                        <ion-label>
+                                            <h2><b>{{ item.main.product_item?.product.name }}</b></h2>
+                                            <p>{{ item.main.product_item?.product.description }}</p>
+                                            <p>{{ item.main.product_item?.product.brand }}</p>
+                                            <h3>{{ (new Date(item.main.loaned_at || '').toLocaleDateString()) }}</h3>
+                                            <p><b>Pedido:</b> #00{{item.main.inventory_warehouse_outcome_request_id }}</p>
 
-        <!-- <DynamicScroller
-            :items="loansGroupedByRequestUI"
-            :min-item-size="70"
-            class="scroller"
-            :buffer="15"
-        >
-            <template v-slot="{ item, index, active }">
-                <DynamicScrollerItem
-                    :item="item"
-                    :active="active"
-                    :data-index="index"
-                >
-                    <ion-item button @click="openLoanProduct(item.loans)">
-                        <ion-avatar slot="start" v-if="item.productItem?.product.image">
-                            <img :src="item.productItem.product.image" />
-                        </ion-avatar>
+                                            <p><b>Job:</b> {{ item.main.job.code }} - {{ item.main.job.name }}</p>
+                                            <p><b>Expense:</b> {{ item.main.expense.code }} - {{ item.main.expense.name }}</p>
+                                            <div class="grouped-status-chip" v-if="item.isGrouped">
+                                                <ProductItemLoanStatusChip v-for="request in item.statuses" :request="request" slot="end" />
+                                            </div>
+                                        </ion-label>
+                                        <ProductItemLoanStatusChip v-if="!item.isGrouped" v-for="request in item.statuses" :request="request" slot="end" />
+
+                                        <ion-note v-if="item.isGrouped" slot="end" color="primary">x{{ item.loans.length }}</ion-note>
+                                    </ion-item>
+                                </DynamicScrollerItem>
+                            </template>
+                        </DynamicScroller>
+                    </div>
+                </template>
+            </ion-accordion-item>
+        </article>
+        <article v-if="selectedView == 'ByJobs'">
+            <ion-accordion-item v-for="job in loansGroupedByJobsUI" :key="job.job?.code" :value="job.job?.code">
+                <template v-slot:head>
+                    <ion-item button>
                         <ion-label>
-                            <h2><b>{{ item.productItem?.product.name }}</b></h2>
-                            <p>{{ item.productItem?.product.description }}</p>
-                            <p>{{ item.productItem?.product.brand }}</p>
-                            <h3>{{ item.date }} - {{ item.loanedTo?.name }}</h3>
-                            <p><b>Job:</b> {{ item.job.code }} {{ item.job.name }}</p>
-                            <p><b>Expense:</b> {{ item.expense.code }} {{ item.expense.name}}</p>
-                            
-
+                            <h2><b>{{ job.job?.code }} - {{ job.job?.name }}</b></h2>
+                            <p>{{ job.loans.length }} préstamos</p>
                         </ion-label>
-                        <ProductItemLoanStatusChip v-for="request in item.statuses" :request="request" slot="end" />
                     </ion-item>
-                </DynamicScrollerItem>
-            </template>
-        </DynamicScroller> -->
+                </template>
+                
+                <template #body>
+                    <div class="ion-padding">
+                        <DynamicScroller
+                            :items="job.loans"
+                            :min-item-size="70"
+                            class="scroller"
+                            :buffer="15"
+                        >
+                            <template v-slot="{ item, index, active }">
+                                <DynamicScrollerItem
+                                    :item="item"
+                                    :active="active"
+                                    :data-index="index"
+                                >
+                                    <ion-item button @click="openWarehouseLoan(item)">
+                                        <ion-avatar slot="start" v-if="item.product_item?.product.image">
+                                            <img :src="item.product_item.product.image" />
+                                        </ion-avatar>
+                                        <ion-label>
+                                            <h2><b>{{ item.product_item?.product.name }}</b></h2>
+                                            <p>{{ item.product_item?.product.description }}</p>
+                                            <p>{{ item.product_item?.product.brand }}</p>
+                                            <h3>{{ (new Date(item.loaned_at || '').toLocaleDateString()) }}</h3>
+                                            <p><b>Pedido:</b> #00{{item.inventory_warehouse_outcome_request_id }}</p>
 
+                                            <p><b>Para:</b> {{ item.loaned_to?.name }}</p>
 
-        <ion-accordion-item v-for="item in loansGroupedByRequestUI" :key="item.user.id" :value="item.user.id">
-            <template v-slot:head>
-                <ion-item button>
-                    <ion-icon :icon="personOutline" slot="start"></ion-icon>
-                    <ion-label>
-                        <h2><b>{{ item.user.name }}</b></h2>
-                        <p>@{{ item.user.username }}</p>
-                    </ion-label>
-                </ion-item>
-            </template>
-            
-            <template #body>
-                <div class="ion-padding">
-                    <DynamicScroller
-                        :items="item.loansGrouped"
-                        :min-item-size="70"
-                        class="scroller"
-                        :buffer="15"
-                    >
-                        <template v-slot="{ item, index, active }">
-                            <DynamicScrollerItem
-                                :item="item"
-                                :active="active"
-                                :data-index="index"
-                            >
-                                <ion-item button @click="openLoanProduct(item.loans)">
-                                    <ion-avatar slot="start" v-if="item.main.product_item?.product.image">
-                                        <img :src="item.main.product_item.product.image" />
-                                    </ion-avatar>
-                                    <ion-label>
-                                        <h2><b>{{ item.main.product_item?.product.name }}</b></h2>
-                                        <p>{{ item.main.product_item?.product.description }}</p>
-                                        <p>{{ item.main.product_item?.product.brand }}</p>
-                                        <h3>{{ (new Date(item.main.loaned_at || '').toLocaleDateString()) }}</h3>
-                                        <p><b>Pedido:</b> #00{{item.main.inventory_warehouse_outcome_request_id }}</p>
-
-                                        <p><b>Job:</b> {{ (item.main as any).tagging.job.code }} - {{ (item.main as any).tagging.job.name }}</p>
-                                        <p><b>Expense:</b> {{ (item.main as any).tagging.expense.code }} - {{ (item.main as any).tagging.expense.name }}</p>
-                                    </ion-label>
-                                    <ProductItemLoanStatusChip v-for="request in item.statuses" :request="request" slot="end" />
-                                </ion-item>
-                            </DynamicScrollerItem>
-                        </template>
-                    </DynamicScroller>
-
-
-
-                    <!-- <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'" v-if="false">
-                        <ion-item v-for="loanGrouped in item.loansGrouped" button @click="openLoanProduct(loanGrouped.loans)">
-                            <ion-avatar slot="start" v-if="loanGrouped.main.product_item?.product.image">
-                                <img :src="loanGrouped.main.product_item.product.image" />
-                            </ion-avatar>
-                            <ion-label>
-                                <h2><b>{{ loanGrouped.main.product_item?.product.name }}</b></h2>
-                                <p>{{ loanGrouped.main.product_item?.product.description }}</p>
-                                <p>{{ loanGrouped.main.product_item?.product.brand }}</p>
-                                <h3>{{ (new Date(loanGrouped.main.loaned_at || '').toLocaleDateString()) }}</h3>
-                                <p><b>Pedido:</b> #00{{loanGrouped.main.inventory_warehouse_outcome_request_id }}</p>
-
-                                <p><b>Job:</b> {{ (loanGrouped.main as any).tagging.job.code }} - {{ (loanGrouped.main as any).tagging.job.name }}</p>
-                                <p><b>Expense:</b> {{ (loanGrouped.main as any).tagging.expense.code }} - {{ (loanGrouped.main as any).tagging.expense.name }}</p>
-                            </ion-label>
-                            <ProductItemLoanStatusChip v-for="request in loanGrouped.statuses" :request="request" slot="end" />
-                        </ion-item>
-                    </ion-list> -->
-                </div>
-            </template>
-        </ion-accordion-item>
-
-
-
-
-        <!-- <ion-accordion-group v-for="item in loansGroupedByRequestUI" :key="item.user.id" value="first">
-            <ion-accordion value="first">
-                <ion-item slot="header" color="light">
-                    <ion-icon :icon="personOutline" slot="start"></ion-icon>
-                    <ion-label>
-                        <h2><b>{{ item.user.name }}</b></h2>
-                        <p>@{{ item.user.username }}</p>
-                    </ion-label>
-                </ion-item>
-                <section slot="content" class="ion-padding">
-                    <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                        <ion-item v-for="loanGrouped in item.loansGrouped" button @click="openLoanProduct(loanGrouped.loans)">
-                            <ion-avatar slot="start" v-if="loanGrouped.main.product_item?.product.image">
-                                <img :src="loanGrouped.main.product_item.product.image" />
-                            </ion-avatar>
-                            <ion-label>
-                                <h2><b>{{ loanGrouped.main.product_item?.product.name }}</b></h2>
-                                <p>{{ loanGrouped.main.product_item?.product.description }}</p>
-                                <p>{{ loanGrouped.main.product_item?.product.brand }}</p>
-                                <h3>{{ (new Date(loanGrouped.main.loaned_at || '').toLocaleDateString()) }}</h3>
-                                <p><b>Pedido:</b> #00{{loanGrouped.main.inventory_warehouse_outcome_request_id }}</p>
-
-                                <p><b>Job:</b> {{ (loanGrouped.main as any).tagging.job.code }} - {{ (loanGrouped.main as any).tagging.job.name }}</p>
-                                <p><b>Expense:</b> {{ (loanGrouped.main as any).tagging.expense.code }} - {{ (loanGrouped.main as any).tagging.expense.name }}</p>
-                            </ion-label>
-                            <ProductItemLoanStatusChip v-for="request in loanGrouped.statuses" :request="request" slot="end" />
-                        </ion-item>
-                    </ion-list>
-                </section>
-            </ion-accordion>
-        </ion-accordion-group>
- -->
-
+                                            <p><b>Job:</b> {{ item.job.code }} - {{ item.job.name }}</p>
+                                            <p><b>Expense:</b> {{ item.expense.code }} - {{ item.expense.name }}</p>
+                                        </ion-label>
+                                        <ProductItemLoanStatusChip :request="item" slot="end" />
+                                    </ion-item>
+                                </DynamicScrollerItem>
+                            </template>
+                        </DynamicScroller>
+                    </div>
+                </template>
+            </ion-accordion-item>
+        </article>
     </section>
 
 
@@ -200,7 +144,7 @@ import { Dialog } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { IonAvatar, IonFab, IonFabButton, IonIcon, IonItem, IonSearchbar, IonLabel, IonProgressBar, IonAccordion, IonAccordionGroup, IonList } from '@ionic/vue';
+import { IonAvatar, IonFab, IonFabButton, IonIcon, IonItem, IonSearchbar, IonLabel, IonProgressBar, IonAccordion, IonAccordionGroup, IonList, IonNote, IonSegment, IonSegmentButton } from '@ionic/vue';
 import { addOutline, personOutline } from 'ionicons/icons';
 import _ from 'lodash';
 import { DateTime } from 'luxon';
@@ -214,6 +158,10 @@ const props = defineProps({
         required: true
     }
 });
+
+
+const selectedView = ref<'ByUsers'|'ByJobs'>('ByUsers');
+
 
 const dynamicData = ref({
     query: ''
@@ -242,7 +190,7 @@ const loansByUsersData = ref<Array<{
     }).sort((a, b) => b.id - a.id);
 });
  */
-const openLoanProduct = async (loans: IWarehouseProductItemLoan[]) => {
+const openWarehouseLoans = async (loans: IWarehouseProductItemLoan[]) => {
     Dialog.show(ShowListLoans, {
         props: {
             productsItemsLoans: loans,
@@ -252,6 +200,19 @@ const openLoanProduct = async (loans: IWarehouseProductItemLoan[]) => {
         }
     })
 } 
+const openWarehouseLoan = (loan: IWarehouseProductItemLoan) => {
+    Dialog.show(EditInventoryWarehouseLoan, {
+        props: {
+            productItemLoanId: loan.id,
+        },
+        onLoaded($this) {
+            
+        },
+        modalControllerOptions: {
+
+        }
+    })
+}
 
 const loansGroupedByRequestUI = computed(() => {
     return loansByUsersData.value.map((item) => {
@@ -268,13 +229,20 @@ const loansGroupedByRequestUI = computed(() => {
                 }), 'grouper')
 
                 return Object.keys(grouped).map((group) => {
-                    const loans = grouped[group].map(item => item.original);
+                    const loans = grouped[group].map(item => item.original).map((loan) => {
+                        return {
+                            ...loan,
+                            job: jobsAndExpenses.value.jobs.find((job) => job.code == loan.job_code),
+                            expense: jobsAndExpenses.value.expenses.find((expense) => expense.code == loan.expense_code),
+                        }
+                    });
 
                     return {
                         id: group,
                         group: group,
                         main: loans[0],
                         loans: loans,
+                        isGrouped: loans.length > 1,
                         statuses: _.uniq(loans.map((loan) => loan.status)).map((status) => {
                             return loans.find((loan) => loan.status == status)
                         })
@@ -284,6 +252,27 @@ const loansGroupedByRequestUI = computed(() => {
         }
     })
 })
+
+const loansGroupedByJobsUI = computed(() => {
+    let loans:IWarehouseProductItemLoan[] = [];
+    loansByUsersData.value.forEach((user) => {
+        loans.push(...user.loans)
+    })
+
+    return Object.keys(_.groupBy(loans, 'job_code')).map((jobCode) => {
+        return {
+            job: jobsAndExpenses.value.jobs.find((job) => job.code == jobCode),
+            loans: loans.filter((loan) => loan.job_code == jobCode).map((loan) => {
+                return {
+                    ...loan,
+                    job: jobsAndExpenses.value.jobs.find((job) => job.code == loan.job_code),
+                    expense: jobsAndExpenses.value.expenses.find((expense) => expense.code == loan.expense_code)
+                }
+            })
+        }
+    });
+})
+
 const loadLoans = async () => {
     isLoading.value = true;
     const response = await RequestAPI.get(`/inventory/warehouses/${props.warehouse.id}/loans`);
@@ -319,19 +308,7 @@ const createWarehouseLoan = () => {
         }
     })
 }
-const openWarehouseLoan = (loan: IWarehouseProductItemLoan) => {
-    Dialog.show(EditInventoryWarehouseLoan, {
-        props: {
-            productItemLoanId: loan.id,
-        },
-        onLoaded($this) {
-            
-        },
-        modalControllerOptions: {
 
-        }
-    })
-}
 onMounted(() => {
     loadLoansByUsers();
     loadJobsAndExpenses();
@@ -345,6 +322,19 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+
+.grouped-status-chip{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding-top: 5px;
+    > article{
+        :deep(ion-chip){
+            margin: 0;
+        }
+    }
+    
+}
 .content{
     max-width: 600px;
     margin: 0 auto;

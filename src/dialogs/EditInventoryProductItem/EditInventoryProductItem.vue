@@ -69,7 +69,7 @@
                 </ion-item>
             </ion-list>
 
-            <ion-list-header v-if="productItemData?.loans && productItemData.loans.length > 0 && movementsUI.length > 0"  :style="Viewport.data.value.deviceSetting != 'DesktopLandscape' ? 'margin-bottom: 10px;' : undefined">Historial de Movimientos</ion-list-header>
+            <ion-list-header v-if="productItemData?.loans && productItemData.loans.length > 0 && movementsUI.length > 0"  :style="Viewport.data.value.deviceSetting != 'DesktopLandscape' ? 'margin-bottom: 10px;' : undefined">Historial de Subpréstamos</ion-list-header>
             <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'" v-if="productItemData && movementsUI.length > 0">
                 <ion-item v-for="movement in movementsUI" :key="movement.id" button @click="showLoan(movement.loan)">
                     <ion-icon color="primary" slot="start" :icon="swapVerticalOutline"></ion-icon>

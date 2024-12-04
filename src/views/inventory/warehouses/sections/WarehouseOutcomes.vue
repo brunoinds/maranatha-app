@@ -1,16 +1,20 @@
 <template>
     <section class="content">
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
-        <br>
+        
 
-        <ion-segment v-model="selectedView">
-            <ion-segment-button value="Individuals">
-                <ion-label>Individuales</ion-label>
-            </ion-segment-button>
-            <ion-segment-button value="ByJobs">
-                <ion-label>Por Jobs</ion-label>
-            </ion-segment-button>
-        </ion-segment>
+        <div class="ion-padding">
+            <ion-segment v-model="selectedView">
+                <ion-segment-button value="Individuals">
+                    <ion-label>Individuales</ion-label>
+                </ion-segment-button>
+                <ion-segment-button value="ByJobs">
+                    <ion-label>Por Jobs</ion-label>
+                </ion-segment-button>
+            </ion-segment>
+        </div>
+
+        
 
         <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'" v-if="selectedView == 'Individuals'">
             <ion-item v-for="outcome in outcomesUI" button @click="openWarehouseOutcome(outcome.original)">

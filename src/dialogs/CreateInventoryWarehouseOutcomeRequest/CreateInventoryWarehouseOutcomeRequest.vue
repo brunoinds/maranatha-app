@@ -38,6 +38,13 @@
 
                                 <ion-item-choose-dialog @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
                                 <ion-item-choose-dialog @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
+
+                                <ion-item>
+                                    <ion-select label="Tipo de pedido:" label-placement="stacked" placeholder="Elige el tipo de solicitud a que vas hacer al almacén" v-model="warehouseOutcome.type">
+                                        <ion-select-option :value="EInventoryWarehouseOutcomeRequestType.Outcomes">Salidas</ion-select-option>
+                                        <ion-select-option :value="EInventoryWarehouseOutcomeRequestType.Loans">Préstamos</ion-select-option>
+                                    </ion-select>
+                                </ion-item>
                             </ion-list>
 
                             
@@ -99,7 +106,7 @@
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import InventoryProductSelector from '@/dialogs/InventoryProductSelector/InventoryProductSelector.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
-import { IInventoryProductItem, INewWarehouseOutcome, INewWarehouseOutcomeRequest, IProduct, IProductWithWarehouseStock, IWarehouse } from '@/interfaces/InventoryInterfaces';
+import { EInventoryWarehouseOutcomeRequestType, IInventoryProductItem, INewWarehouseOutcome, INewWarehouseOutcomeRequest, IProduct, IProductWithWarehouseStock, IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
@@ -140,7 +147,8 @@ const warehouseOutcome = ref<INewWarehouseOutcomeRequest>({
     description: "",
     requested_products: [],
     job_code: "",
-    expense_code: ""
+    expense_code: "",
+    type: EInventoryWarehouseOutcomeRequestType.Outcomes
 });
 
 const validateData = async () => {
@@ -195,6 +203,14 @@ const actions = {
             props: {
                 allowMultipleSelection: true,
                 contextWarehouseId: warehouseOutcome.value.inventory_warehouse_id,
+                showStock: true,
+                filterProductsCallback: (productItem: IProductWithWarehouseStock) => {
+                    if (warehouseOutcome.value.type === EInventoryWarehouseOutcomeRequestType.Loans){
+                        return productItem.is_loanable;
+                    }else{
+                        return !productItem.is_loanable
+                    }
+                }
             },
             onLoaded($this) {
                 $this.on('selected', (event:any) => {

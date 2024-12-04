@@ -146,11 +146,13 @@ export interface IWarehouseProductItemLoan{
     movements: Array<{
         id: string,
         user_id: number,
+        to_user_id: number,
         job_code: string,
         expense_code: string,
         date: string,
         description: string,
-        user?: IUser
+        user?: IUser,
+        to_user?: IUser
     }>,
     intercurrences: Array<{
         id: string,
@@ -159,6 +161,8 @@ export interface IWarehouseProductItemLoan{
         description: string,
         user?: IUser
     }>,
+    job_code: string,
+    expense_code: string,
     inventory_product_item_id: number,
     inventory_warehouse_id: number,
     inventory_warehouse_outcome_request_id?: number|null,
@@ -190,6 +194,11 @@ export enum EInventoryWarehouseOutcomeRequestStatus{
     Delivered = 'Delivered',
     Finished = 'Finished'
 }
+
+export enum EInventoryWarehouseOutcomeRequestType{
+    Outcomes = 'Outcomes',
+    Loans = 'Loans',
+}
 export interface IWarehouseOutcomeRequest{
     value: any;
     id: number,
@@ -217,7 +226,8 @@ export interface IWarehouseOutcomeRequest{
     finished_at: string|null,
     job_code?: string|null,
     expense_code?: string|null,
-    status: EInventoryWarehouseOutcomeRequestStatus
+    status: EInventoryWarehouseOutcomeRequestStatus,
+    type: EInventoryWarehouseOutcomeRequestType
 }
 
 export interface INewWarehouseOutcomeRequest extends Omit<IWarehouseOutcomeRequest, 'id' | 'created_at' | 'updated_at' | 'requested_at' | 'rejected_at' | 'approved_at' | 'dispatched_at' | 'delivered_at' | 'finished_at' | 'on_the_way_at' | 'received_products' | 'status' | 'messages' | 'inventory_warehouse_outcome_id' | 'user_id'> {}

@@ -5,7 +5,7 @@
                 <ion-buttons slot="start">
                     <ion-button @click="emitter.fire('close')">Cancelar</ion-button>
                 </ion-buttons>
-                <ion-title>Nuevo Movimiento</ion-title>
+                <ion-title>Modificar Job, Expense o Usuário del Préstamo</ion-title>
             </ion-toolbar>
             <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         </ion-header>
@@ -13,17 +13,17 @@
             <article>
                 <section>
                     <ion-list>
-                        
-                        <ion-accordion-group ref="datetimeAccordionGroupEl">
+                        <!-- <ion-accordion-group ref="datetimeAccordionGroupEl">
                             <ion-accordion value="start" ref="datetimeAccordion" class="datetime-accordion">
                                 <ion-item lines="inset" slot="header">
                                     <ion-input label="Fecha del movimiento:" label-placement="stacked" placeholder="10/10/2023" v-model="movement.date" :readonly="true"></ion-input>
                                 </ion-item>
                                 <ion-datetime slot="content" presentation="date" v-model="dynamicData.datetimePickerDate" @ion-change="onEvents.onDatePickerChange"></ion-datetime>
                             </ion-accordion>
-                        </ion-accordion-group>
+                        </ion-accordion-group> -->
                         <ion-item-choose-dialog @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="movement.job_code"/>
                         <ion-item-choose-dialog @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="movement.expense_code"/>
+                        <ion-item-choose-dialog @click="actions.openUserSelector" placeholder="Selecciona el Usuário" label="Usuário:" :value="movement.to_user_id"/>
 
                         <ion-item>
                             <ion-textarea label="Descripción:" label-placement="stacked"  v-model="movement.description" :auto-grow="true" :rows="1" placeholder="Descripción"></ion-textarea>
@@ -32,7 +32,7 @@
 
                     <section class="ion-padding">
                         <ion-button color="success" @click="checkoutActions.createNewMovement" expand="block">
-                            Registrar Movimiento
+                            Guardar modificaciónes
                             <ion-icon slot="end" :icon="checkmarkCircleOutline"></ion-icon>
                         </ion-button>
                     </section>
@@ -47,6 +47,7 @@
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
+import UsersSelector from '@/dialogs/UsersSelector/UsersSelector.vue';
 import { IExpense, EExpenseUses } from '@/interfaces/JobsAndExpensesInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { Session } from '@/utils/Session/Session';
@@ -75,16 +76,34 @@ const props = defineProps({
         type: DialogEventEmitter,
         required: true
     },
+    jobCode: {
+        type: String,
+        required: false,
+        default: null
+    },
+    expenseCode: {
+        type: String,
+        required: false,
+        default: null
+    },
+    toUserId: {
+        type: Number,
+        required: false,
+        default: null
+    }
 });
 
 const movement = ref<any>({
     id: crypto.randomUUID(),
     user_id: Session.getCurrentSessionSync()?.id(),
+    to_user_id: null,
     description: "",
     date: DateTime.now().toFormat("dd/MM/yyyy").toString(),
     job_code: "",
     expense_code: "",
 });
+
+
 
 const validateData = async () => {
     const formErrors: Array<{field: string, message: string}> = [];
@@ -102,6 +121,13 @@ const validateData = async () => {
                 message: "La fecha de compra es inválida " + dt.invalidExplanation
             })
         }
+    }
+
+    if (movement.value.to_user_id == null){
+        formErrors.push({
+            field: "to_user_id",
+            message: "El usuario es requerido"
+        })
     }
 
     if (!movement.value.job_code){
@@ -195,6 +221,22 @@ const actions = {
                 })
             },
         })
+    },
+    openUserSelector: () => {
+        Dialog.show(UsersSelector, {
+            props: {
+                selectedUserId: movement.value.to_user_id
+            },
+            onLoaded($this) {
+                $this.on('selected', (event:any) => {
+                    const user = event.data;
+                    movement.value.to_user_id = user.id;
+                })
+                
+                $this.on('close', () => {
+                })
+            },
+        })
     }
 }
 
@@ -216,7 +258,7 @@ const checkoutActions = {
         isLoading.value = true;
         const form = {
             ...movement.value,
-            date: DateTime.fromFormat(movement.value.date, "dd/MM/yyyy").toISO(),
+            date: DateTime.now().toISO(),
         }
         props.emitter.fire('create', form);
         props.emitter.fire('close');
@@ -226,6 +268,18 @@ const checkoutActions = {
 
 onMounted(async () => {
     isLoading.value = false;
+
+    if (props.jobCode){
+        movement.value.job_code = props.jobCode;
+    }
+
+    if (props.expenseCode){
+        movement.value.expense_code = props.expenseCode;
+    }
+
+    if (props.toUserId){
+        movement.value.to_user_id = props.toUserId;
+    }
 })
 </script>
 

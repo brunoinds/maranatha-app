@@ -93,8 +93,8 @@
                     <ion-accordion value="second">
                         <ion-item slot="header" color="light">
                             <ion-label>
-                                <h2><b>2. Movimientos</b></h2>
-                                <p>Registro de movimeintos en el préstamo</p>
+                                <h2><b>2. Registro de cambios</b></h2>
+                                <p>Registro de cambios de Jobs, Expenses y Prestatarios</p>
                             </ion-label>
                         </ion-item>
                         <section slot="content">
@@ -102,21 +102,19 @@
                                 <ion-item v-for="moviment in movimentsUI" :key="moviment.id">
                                     <ion-icon color="primary" slot="start" :icon="swapVerticalOutline"></ion-icon>
                                     <ion-label>
-                                        <h2><b>{{ moviment.user.name }}</b></h2>
+                                        <h2><b>{{ moviment.to_user?.name }}</b></h2>
                                         <h3>{{ moviment.date }}</h3>
                                         <h3><b>Job: </b> {{ moviment.job_code }} <b>Expense: </b> {{ moviment.expense_code }}</h3>
-                                        <p>{{ moviment.description }}</p>
+                                        <p><b>Observaciónes:</b> {{ moviment.description }}</p>
+                                        <p><b>Registrado por: </b> {{ moviment.user?.name }}</p>
                                     </ion-label>
-                                    <ion-button fill="clear" color="danger" @click="actions.deleteMoviment(moviment.id)">
-                                        <ion-icon slot="icon-only" :icon="removeCircleOutline"></ion-icon>
-                                    </ion-button>
                                 </ion-item>
                             </ion-list>
 
                             <section class="ion-padding">
                                 <ion-button @click="actions.addNewMoviment" expand="block" >
-                                    <ion-icon slot="end" :icon="addCircleOutline"></ion-icon>
-                                    Nuevo Movimiento
+                                    <ion-icon slot="end" :icon="swapVerticalOutline"></ion-icon>
+                                    Modificar Job, Expense o Usuario del Préstamo
                                 </ion-button>
                             </section>
                         </section>
@@ -134,7 +132,7 @@
                                 <ion-item v-for="intercurrency in intercurrencesUI" :key="intercurrency.id">
                                     <ion-icon color="warning" slot="start" :icon="warningOutline"></ion-icon>
                                     <ion-label>
-                                        <h2><b>{{ intercurrency.user.name }}</b></h2>
+                                        <h2><b>{{ intercurrency.user?.name }}</b></h2>
                                         <h3>{{ intercurrency.date }}</h3>
                                         <p>{{ intercurrency.description }}</p>
                                     </ion-label>
@@ -291,7 +289,9 @@ const actions = {
     addNewMoviment: async () => {
         Dialog.show(AddInventoryWarehouseLoanMovement, {
             props: {
-                
+                jobCode: loan.value?.movements[loan.value?.movements.length - 1]?.job_code,
+                expenseCode: loan.value?.movements[loan.value?.movements.length - 1]?.expense_code,
+                toUserId: loan.value?.movements[loan.value?.movements.length - 1]?.to_user_id,
             },
             onLoaded($this) {
                 $this.on('create', (event:any) => {

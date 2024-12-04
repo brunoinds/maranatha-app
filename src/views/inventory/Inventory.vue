@@ -112,40 +112,52 @@
                                     <ion-icon color="primary" :icon="bagHandleOutline" slot="start"></ion-icon>
                                     <ion-label>
                                         <h2><b>Mis Pedidos</b></h2>
-                                        <p v-if="!isLoading">{{ outcomesUI.length }} pedidos</p>
-                                        <p v-else>Cargando sus pedidos...</p>
+                                        <p v-if="isLoading">Cargando solicitudes...</p>
+                                        <p v-else>{{ outcomesUI.reduce((acc, job) => acc + job.outcomes.length, 0) }} solicitudes</p>
                                     </ion-label>
                                 </ion-item>
-                                <div slot="content">
-                                    <DynamicScroller
-                                        :items="outcomesUI"
-                                        :min-item-size="70"
-                                        class="scroller"
-                                        :buffer="15"
-                                    >
-                                        <template v-slot="{ item, index, active }">
-                                            <DynamicScrollerItem
-                                                :item="item"
-                                                :active="active"
-                                                :data-index="index"
-                                            >
-                                                <ion-item button @click="openWarehouseOutcomeRequest(item)">
-                                                    <ion-label>
-                                                        <h2><b>Pedido #00{{ item.id }}</b></h2>
-                                                        <p>{{ item.date_ago }}</p>
-                                                        <p><b>{{ item.products_count }} ítems solicitados</b></p>
-                                                    </ion-label>
-
-                                                    <ion-button size="default" fill="clear" v-if="item.chat.unseen_messages_count" @click="openWarehouseOutcomeRequestChat(item)">
-                                                        <ion-icon slot="start" :icon="chatbubbleEllipsesOutline"></ion-icon>
-                                                        {{ item.chat.unseen_messages_count }}
-                                                    </ion-button>
-                                                    
-                                                    <OutcomeRequestStatusChip slot="end" :request="item" :view-mode="'Requester'" />
-                                                </ion-item>
-                                            </DynamicScrollerItem>
+                                <div slot="content" class="ion-padding">
+                                    
+                                    <ion-accordion-item v-for="job in outcomesUI" :key="job.job?.code" :value="job.job?.code">
+                                        <template v-slot:head>
+                                            <ion-item button>
+                                                <ion-label>
+                                                    <h2><b>{{ job.job?.code }} - {{ job.job?.name }}</b></h2>
+                                                    <p>{{ job.outcomes.length }} solicitudes</p>
+                                                </ion-label>
+                                            </ion-item>
                                         </template>
-                                    </DynamicScroller>
+                                        <template #body>
+                                            <div class="ion-padding">
+                                                <DynamicScroller
+                                                    :items="job.outcomes"
+                                                    :min-item-size="70"
+                                                    class="scroller"
+                                                    :buffer="15"
+                                                >
+                                                    <template v-slot="{ item, index, active }">
+                                                        <DynamicScrollerItem
+                                                            :item="item"
+                                                            :active="active"
+                                                            :data-index="index"
+                                                        >
+                                                            <ion-item button @click="openWarehouseOutcomeRequest(item)">
+                                                                <ion-label>
+                                                                    <h2><b>Pedido #00{{ item.id }}</b></h2>
+                                                                    <p>{{ item.date_ago }}</p>
+                                                                    <p><b>Job:</b> {{ item.job?.code }} {{ item.job?.name }}</p>
+                                                                    <p><b>Expense:</b> {{ item.expense?.code }} {{ item.expense?.name }}</p>
+                                                                    <p><b>{{ item.products_count }} ítems solicitados</b></p>
+                                                                </ion-label>
+                                                                
+                                                                <OutcomeRequestStatusChip slot="end" :request="item" :view-mode="'Requester'" />
+                                                            </ion-item>
+                                                        </DynamicScrollerItem>
+                                                    </template>
+                                                </DynamicScroller>
+                                            </div>
+                                        </template>
+                                    </ion-accordion-item>
                                 </div>
                             </ion-accordion>
 
@@ -154,38 +166,57 @@
                                     <ion-icon color="primary" :icon="gitCompareOutline" slot="start"></ion-icon>
                                     <ion-label>
                                         <h2><b>Mis Préstamos</b></h2>
-                                        <p v-if="!isLoading">{{ loansUI.length }} préstamos</p>
-                                        <p v-else>Cargando sus préstamos...</p>
+                                        <p v-if="isLoading">Cargando préstamos...</p>
+                                        <p v-else>{{ loansUI.reduce((acc, job) => acc + job.loans.length, 0) }} préstamos</p>
                                     </ion-label>
                                 </ion-item>
-                                <div slot="content">
-                                    <DynamicScroller
-                                        :items="loansUI"
-                                        :min-item-size="70"
-                                        class="scroller"
-                                        :buffer="15"
-                                    >
-                                        <template v-slot="{ item, index, active }">
-                                            <DynamicScrollerItem
-                                                :item="item"
-                                                :active="active"
-                                                :data-index="index"
-                                            >
-                                                <ion-item button @click="openLoan(item)">
-                                                    <ion-avatar slot="start" >
-                                                        <img :src="item.product_item?.product.image" />
-                                                    </ion-avatar>
-                                                    <ion-label>
-                                                        <h2><b>{{ item.product_item?.product.name }}</b></h2>
-                                                        <p>{{ item.product_item?.product.description }}</p>
-                                                        <p>{{ item.product_item?.product.brand }}</p>
-                                                    </ion-label>
+                                <div slot="content" class="ion-padding">
 
-                                                    <ProductItemLoanStatusChip slot="end" :request="item" />
-                                                </ion-item>
-                                            </DynamicScrollerItem>
+                                    <ion-accordion-item v-for="job in loansUI" :key="job.job?.code" :value="job.job?.code">
+                                        <template v-slot:head>
+                                            <ion-item button>
+                                                <ion-label>
+                                                    <h2><b>{{ job.job?.code }} - {{ job.job?.name }}</b></h2>
+                                                    <p>{{ job.loans.length }} préstamos</p>
+                                                </ion-label>
+                                            </ion-item>
                                         </template>
-                                    </DynamicScroller>
+                                        <template #body>
+                                            <div class="ion-padding">
+                                                <DynamicScroller
+                                                    :items="job.loans"
+                                                    :min-item-size="70"
+                                                    class="scroller"
+                                                    :buffer="15"
+                                                >
+                                                    <template v-slot="{ item, index, active }">
+                                                        <DynamicScrollerItem
+                                                            :item="item"
+                                                            :active="active"
+                                                            :data-index="index"
+                                                        >
+                                                            <ion-item button @click="openLoan(item)">
+                                                                <ion-avatar slot="start" >
+                                                                    <img :src="item.product_item?.product.image" />
+                                                                </ion-avatar>
+                                                                <ion-label>
+                                                                    <h2><b>{{ item.product_item?.product.name }}</b></h2>
+                                                                    <p>{{ item.product_item?.product.description }}</p>
+                                                                    <p>{{ item.product_item?.product.brand }}</p>
+
+                                                                    <p><b>Job:</b> {{ item.job?.code }} {{ item.job?.name }}</p>
+                                                                    <p><b>Expense:</b> {{ item.expense?.code }} {{ item.expense?.name }}</p>
+                                                                </ion-label>
+
+                                                                <ProductItemLoanStatusChip slot="end" :request="item" />
+                                                            </ion-item>
+                                                        </DynamicScrollerItem>
+                                                    </template>
+                                                </DynamicScroller>
+                                            </div>
+                                        </template>
+                                    </ion-accordion-item>
+
                                 </div>
                             </ion-accordion>
                         </ion-accordion-group>
@@ -238,6 +269,10 @@ import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/Pr
 import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
 import { DynamicScroller, DynamicScrollerItem, RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import _ from 'lodash';
+import IonAccordionItem from '@/components/IonAccordionItem/IonAccordionItem.vue';
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE');
@@ -256,6 +291,11 @@ const loansData = ref<IWarehouseProductItemLoan[]>([]);
 const productsData = ref<IProduct[]>([]);
 const productsPacksData = ref<IProductsPack[]>([]);
 
+const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
+    jobs: [],
+    expenses: []
+});
+
 const productsUI = computed(() => {
     return productsData.value.filter((product) => {
         if (dynamicData.value.query.trim().length > 0) {
@@ -266,6 +306,14 @@ const productsUI = computed(() => {
         return a.name.localeCompare(b.name);
     });
 })
+
+const loadJobsAndExpenses = async () => {
+    const jobs =  await JobsAndExpenses.getJobs() as unknown as Array<IJob>;
+    jobsAndExpenses.value.jobs = jobs
+
+    const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
+    jobsAndExpenses.value.expenses = expenses;
+}
 
 const subSections = ref([
     {
@@ -289,25 +337,43 @@ const dynamicData = ref({
     query: '',
 })
 const outcomesUI = computed(() => {
-    return outcomeRequestsData.value.map((outcome) => {
+    const outcomes = outcomeRequestsData.value.map((outcome) => {
         return {
             ...outcome,
             date_ago: timeAgo.format(new Date(outcome.requested_at || outcome.created_at)),
             products_count: outcome.requested_products.reduce((acc, product) => acc + product.quantity, 0),
-            chat: {
-                unseen_messages_count: outcome.messages.filter(message => message.user_id != Session.getCurrentSessionSync()?.id() && message.read_at == null).length
-            },
+            job: jobsAndExpenses.value.jobs.find((job) => job.code == outcome.job_code),
+            expense: jobsAndExpenses.value.expenses.find((expense) => expense.code == outcome.expense_code),
             original: outcome
         }
     }).sort((a, b) => b.id - a.id);
+
+
+    return Object.keys(_.groupBy(outcomes, 'job_code')).map((jobCode) => {
+        return {
+            job: jobsAndExpenses.value.jobs.find((job) => job.code == jobCode),
+            outcomes: outcomes.filter((outcome) => outcome.job_code == jobCode)
+        }
+    });
 });
 const loansUI = computed(() => {
-    return loansData.value.map((loan) => {
+    const loans = loansData.value.map((loan) => {
         return {
             ...loan,
-            date: timeAgo.format(new Date(loan.created_at))
+            date: timeAgo.format(new Date(loan.created_at)),
+            job: jobsAndExpenses.value.jobs.find((job) => job.code == loan.job_code),
+            expense: jobsAndExpenses.value.expenses.find((expense) => expense.code == loan.expense_code),
         }
     }).sort((a, b) => b.id - a.id);
+
+
+
+    return Object.keys(_.groupBy(loans, 'job_code')).map((jobCode) => {
+        return {
+            job: jobsAndExpenses.value.jobs.find((job) => job.code == jobCode),
+            loans: loans.filter((loan) => loan.job_code == jobCode)
+        }
+    });
 });
 
 const warehousesUI = computed(() => {
@@ -530,6 +596,7 @@ onMounted(() => {
     loadProducts();
     loadProductsPacks();
     loadLoans();
+    loadJobsAndExpenses();
 
     const callbackId = AppEvents.on('inventory:reload', () => {
         loadWarehouses();

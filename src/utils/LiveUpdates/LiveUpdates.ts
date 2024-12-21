@@ -150,8 +150,3 @@ export class LiveUpdates{
         return (LiveUpdates.downloadedUpdate != null);
     }
 }
-
-
-//Buscando nuevas actualizaciones
-//Descargando actualización
-//Instalando actualización

@@ -95,7 +95,7 @@
                                     </ion-input>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-input @ionInput="checkTicketOnInput" label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  inputmode="numeric" type="tel"></ion-input>
+                                    <ion-input @ionInput="checkTicketOnInput" label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  inputmode="decimal" type="tel"></ion-input>
                                 </ion-item>
                             </ion-list>
                         </section>

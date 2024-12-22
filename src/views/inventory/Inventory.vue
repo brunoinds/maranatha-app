@@ -69,7 +69,7 @@
                                 </template>
                             </DynamicScroller>
 
-                            <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
+                            <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false" v-if="Session.getCurrentSessionSync()?.isAdmin()">
                                 <ion-fab-button @click="createProduct">
                                     <ion-icon :icon="addOutline"></ion-icon>
                                 </ion-fab-button>

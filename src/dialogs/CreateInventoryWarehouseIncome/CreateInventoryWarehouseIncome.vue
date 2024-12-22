@@ -130,7 +130,7 @@
 
                             <ion-list>
                                 <ion-item-choose-dialog @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseIncome.job_code"/>
-                                <ion-item-choose-dialog @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseIncome.expense_code"/>
+                                <ion-item-choose-dialog v-if="false" @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseIncome.expense_code"/>
                             </ion-list>
                         </section>
                     </ion-accordion>

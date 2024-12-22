@@ -54,6 +54,10 @@ class Session{
         return this.sessionUserData.id;
     }
 
+    public isAdmin(){
+        return this.roles().includes("admin");
+    }
+
     private async refreshUserInformation(){
         let response:any = null;
         try {

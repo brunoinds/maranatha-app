@@ -99,7 +99,7 @@
                                     <ion-input :readonly="readonly" :label="'Código de ' + invoiceType + ':'" label-placement="stacked" placeholder="AAXX-XXXXXXXX" v-model="invoice.ticket_number"></ion-input>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-input :readonly="readonly" label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  inputmode="decimal" type="tel"></ion-input>
+                                    <ion-input :readonly="readonly" label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  inputmode="text"></ion-input>
                                 </ion-item>
                             </ion-list>
                         </section>

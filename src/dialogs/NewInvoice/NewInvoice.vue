@@ -95,7 +95,10 @@
                                     </ion-input>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-input @ionInput="checkTicketOnInput" label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  inputmode="decimal" type="tel"></ion-input>
+                                    <ion-input @ionInput="checkTicketOnInput" label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  :inputmode="(report?.country == 'PY') ? 'text' : 'decimal'"></ion-input>
+                                </ion-item>
+                                <ion-item v-if="(report?.country == 'PY')">
+                                    <ion-input label="Proveedor:" label-placement="stacked" placeholder="Ingresa el nombre del proveedor" v-model="optionalCamps.provider"></ion-input>
                                 </ion-item>
                             </ion-list>
                         </section>
@@ -206,6 +209,11 @@ const accordionGroup = ref<any>(null);
 const isLoading = ref<boolean>(true);
 const isLoadingImageCompression = ref<boolean>(false);
 const isRepeatedTicket = ref<boolean>(false);
+
+const optionalCamps = ref({
+    provider: "",
+})
+
 const dynamicData = ref<{
     uploadedImageBase64: null | string,
     uploadedPdfBase64: null | string,
@@ -345,7 +353,7 @@ const invoiceType = computed(() => {
 const stepsChecks = computed(() => {
     return {
         first: (dynamicData.value.uploadedImageBase64 !== null || dynamicData.value.uploadedPdfBase64) ? true : false,
-        second: (invoice.value.description.length !== 0 && invoice.value.date.length !== 0 && invoice.value.ticket_number.length !== 0 && invoice.value.commerce_number.length !== 0 && invoice.value.amount !== 0) ? true : false,
+        second: (invoice.value.description.length !== 0 && invoice.value.date.length !== 0 && invoice.value.ticket_number.length !== 0 && invoice.value.commerce_number.length !== 0 && invoice.value.amount !== 0 && (props.report.country == 'PY' && optionalCamps.value.provider.trim().length > 0)) ? true : false,
         third: (invoice.value.job_code.length !== 0 && invoice.value.expense_code.length !== 0 && (dynamicData.value.listSelectedJobs.length > 0 ? selectedJobsPercentageIsCompleted.value :  true)) ? true : false
     }
 })
@@ -755,6 +763,14 @@ const validateData = async () => {
             message: "La foto de la " + invoiceType + " es requerida"
         })
     }
+
+    if (props.report.country == 'PY' && optionalCamps.value.provider.trim().length == 0){
+        formErrors.push({
+            field: "provider",
+            message: "El proveedor es requerido"
+        })
+    }
+
     if (!invoice.value.date){
         formErrors.push({
             field: "date",
@@ -837,7 +853,12 @@ const createNewInvoice = async () => {
             const listInvoicesToCreate = dynamicData.value.listSelectedJobs.map((selectedJob, i) => {
                 return {
                     ...invoice.value,
-                    description: invoice.value.description + ` [${(i+1)}/${dynamicData.value.listSelectedJobs.length} - ${(selectedJob.percentage * 1).toFixed(0)}%]`,
+                    description: invoice.value.description + ` [${(i+1)}/${dynamicData.value.listSelectedJobs.length} - ${(selectedJob.percentage * 1).toFixed(0)}%] ` + (() => {
+                    if (optionalCamps.value.provider.trim().length > 0){
+                        return ` (Proveedor: ${optionalCamps.value.provider})`
+                    }
+                    return "";
+                })(),
                     job_code: selectedJob.job.code,
                     amount: parseFloat((invoice.value.amount * (selectedJob.percentage / 100)).toFixed(2)),
                     id: i,
@@ -894,6 +915,12 @@ const createNewInvoice = async () => {
         const createSingleInvoice = async () => {
             const invoiceDocument = {
                 ...invoice.value,
+                description: invoice.value.description + (() => {
+                    if (optionalCamps.value.provider.trim().length > 0){
+                        return ` [Proveedor: ${optionalCamps.value.provider}]`
+                    }
+                    return "";
+                })(),
                 id: 0,
                 date: DateTime.fromFormat(invoice.value.date, "dd/MM/yyyy").toISO(),
                 image: dynamicData.value.uploadedImageBase64,

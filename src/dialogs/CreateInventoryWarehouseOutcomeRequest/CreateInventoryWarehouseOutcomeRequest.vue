@@ -36,15 +36,17 @@
                                     </ion-select>
                                 </ion-item>
 
-                                <ion-item-choose-dialog @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
-                                <ion-item-choose-dialog @click="actions.openExpenseSelector" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
-
                                 <ion-item>
                                     <ion-select label="Tipo de pedido:" label-placement="stacked" placeholder="Elige el tipo de solicitud a que vas hacer al almacén" v-model="warehouseOutcome.type">
                                         <ion-select-option :value="EInventoryWarehouseOutcomeRequestType.Outcomes">Salidas</ion-select-option>
                                         <ion-select-option :value="EInventoryWarehouseOutcomeRequestType.Loans">Préstamos</ion-select-option>
                                     </ion-select>
                                 </ion-item>
+
+                                <ion-item-choose-dialog @click="actions.openJobSelector" placeholder="Selecciona el Job" label="Job:" :value="warehouseOutcome.job_code"/>
+                                <ion-item-choose-dialog @click="actions.openExpenseSelector" v-if="warehouseOutcome.type == EInventoryWarehouseOutcomeRequestType.Outcomes" placeholder="Selecciona el Expense" label="Expense:" :value="warehouseOutcome.expense_code"/>
+
+                                
                             </ion-list>
 
                             
@@ -168,7 +170,7 @@ const validateData = async () => {
         })
     }
 
-    if (warehouseOutcome.value.expense_code == ""){
+    if (warehouseOutcome.value.expense_code == "" && warehouseOutcome.value.type == EInventoryWarehouseOutcomeRequestType.Outcomes){
         formErrors.push({
             field: "expense_code",
             message: "Elige el Expense al que deseas asignar la solicitud"

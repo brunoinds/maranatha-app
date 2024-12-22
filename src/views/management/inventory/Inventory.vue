@@ -64,7 +64,7 @@
                         </DynamicScroller>
 
 
-                        <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
+                        <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false" v-if="Session.getCurrentSessionSync()?.isAdmin()">
                             <ion-fab-button @click="createProduct">
                                 <ion-icon :icon="addOutline"></ion-icon>
                             </ion-fab-button>
@@ -106,6 +106,7 @@ import { IProduct, IProductsPack, IWarehouse } from '@/interfaces/InventoryInter
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { Session } from '@/utils/Session/Session';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonList, IonAvatar, IonSearchbar, IonSegment, IonSegmentButton, IonProgressBar } from '@ionic/vue';

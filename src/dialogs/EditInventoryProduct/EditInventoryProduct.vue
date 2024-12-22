@@ -375,6 +375,10 @@ const loadWarehouses = async () => {
 const validateCamps = () => {
     let errors:Array<string> = [];
 
+    if (!Session.getCurrentSessionSync()?.isAdmin()){
+        errors.push("Solamente el administrador puede editar productos");
+    }
+
     if (dynamicData.value.name.trim().length == 0){
         errors.push("Por favor, ingresa el nombre del producto");
     }

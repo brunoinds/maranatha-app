@@ -7,7 +7,7 @@
             </ion-toolbar>
         </ion-header>
         <ion-content>
-            <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false">
+            <ion-fab slot="fixed" vertical="bottom" horizontal="end" :edge="false" v-if="Session.getCurrentSessionSync()?.isAdmin()">
                 <ion-fab-button @click="createNewProduct">
                     <ion-icon :icon="addOutline"></ion-icon>
                 </ion-fab-button>
@@ -71,6 +71,7 @@ import CreateInventoryProduct from '@/dialogs/CreateInventoryProduct/CreateInven
 import { IProduct } from '@/interfaces/InventoryInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog } from '@/utils/Dialog/Dialog';
+import { Session } from '@/utils/Session/Session';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { IonAvatar, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSearchbar, IonTitle, IonToolbar } from '@ionic/vue';
 import 'ion-peek-pop/styles.css';

@@ -582,6 +582,13 @@
                         <section v-if="productListSegmentView == 'Received'">
                             <ion-progress-bar v-if="isLoadingAreas.outcomeRequest" type="indeterminate"></ion-progress-bar>
 
+                            <article class="ion-padding" >
+                                <ion-button  v-if="!isLoadingAreas.outcomeRequest" fill="outline" @click="downloadReceivedProductsPDF()" expand="block">
+                                    <ion-icon :icon="printOutline" slot="start"></ion-icon>
+                                    Imprimir productos recibidos
+                                </ion-button>
+                            </article>
+
                             <ion-list v-if="!isLoadingAreas.outcomeRequest">
                                 <ion-item v-for="item in receivedItemsUI" :key="item.product?.id">
                                     <ion-avatar slot="start" v-if="item.product?.image">
@@ -1583,7 +1590,88 @@ const showEditOutcomeRequest = () => {
         }
     })
 }
+const downloadReceivedProductsPDF = async () => {
+    const withImages = async () => {
+        return new Promise(async (resolve, reject) => {
+            const sheet = await actionSheetController.create({
+                header: 'Descargar PDF',
+                buttons: [
+                    {
+                        text: 'Sin imágenes',
+                        icon: documentTextOutline,
+                        handler: () => {
+                            resolve(false);
+                        }
+                    },
+                    {
+                        text: 'Con imágenes',
+                        icon: imagesOutline,
+                        handler: () => {
+                            resolve(true);
+                        }
+                    },
+                    {
+                        text: 'Cancelar',
+                        role: 'cancel'
+                    }
+                ]
+            });
 
+            sheet.present();
+        })
+    }
+
+    const generatePDFDocument = async (withImages: boolean) => {
+        return new Promise(async (resolve, reject) => {
+            const pdfDownloadUrl = `${RequestAPI.variables.rootUrl}/inventory/warehouse-outcome-requests/${outcomeRequestId}/received/download-pdf?withImages=${withImages}`;
+
+            const pdfDocument = await Toolbox.fetchWithProgress(pdfDownloadUrl,  {
+                method: 'GET',
+                headers: {
+                    'Authorization': await RequestAPI.authHeader()
+                }
+            }, (progress) => {
+            }).then((blob) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    resolve({
+                        blobUrl: URL.createObjectURL(blob),
+                        base64: reader.result?.split(';base64,')[1] as unknown as string
+                    })
+                }
+                reader.onerror = () => {                
+                    
+                }
+                reader.readAsDataURL(blob);
+            }).catch((error) => {
+            }).finally(() => {
+            })
+        });
+    }
+    const shareDocument = (file:any, extention:string = ".zip") => {
+        toastController.create({
+            message: '✅ Documento generado con éxito!',
+            duration: 1500
+        }).then((toast) => {
+            toast.present();
+        })
+        if (Capacitor.isNativePlatform()){
+            Toolbox.openNative('Despacho de Productos Recibidos N00' + outcomeRequestId+ extention, file.base64);
+        }else{
+            let link = document.createElement('a');
+            link.href = file.blobUrl;
+            link.download = 'Despacho de Productos Recibidos N00' + outcomeRequestId+ extention;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+
+    isLoading.value = true;
+    const pdfDocument = await generatePDFDocument(await withImages());
+    shareDocument(pdfDocument, '.pdf');
+    isLoading.value = false;
+}  
 const downloadDispatchedProductsPDF = async () => {
     const withImages = async () => {
         return new Promise(async (resolve, reject) => {

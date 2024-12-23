@@ -101,6 +101,10 @@
                                 <ion-item>
                                     <ion-input :readonly="readonly" label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  inputmode="text"></ion-input>
                                 </ion-item>
+
+                                <ion-item>
+                                    <ion-input label="Proveedor:" label-placement="stacked" placeholder="Ingresa el nombre del proveedor" v-model="invoice.provider"></ion-input>
+                                </ion-item>
                             </ion-list>
                         </section>
                     </ion-accordion>

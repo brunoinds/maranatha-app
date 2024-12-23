@@ -3,15 +3,16 @@ enum EInvoiceType {
     Facture = 'Facture'
 }
 interface IInvoice{
-value: any;
+    value: any;
     id: number;
-    created_at: string,
+    created_at: string  
     updated_at: string,
     report_id: number,
     type: EInvoiceType,
     description: string,
     ticket_number: string,
     commerce_number: string,
+    provider: string,
     date: string,
     job_code: string,
     expense_code: string,
@@ -29,6 +30,7 @@ interface INewInvoice{
     description: string,
     ticket_number: string,
     commerce_number: string,
+    provider: string,
     date: string,
     job_code: string,
     expense_code: string,

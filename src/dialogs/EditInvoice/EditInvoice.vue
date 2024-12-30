@@ -217,7 +217,7 @@ const invoiceType = computed(() => {
 const stepsChecks = computed(() => {
     return {
         first: (dynamicData.value.uploadedImageBase64 !== null || dynamicData.value.uploadedPdfBase64 !== null) ? true : false,
-        second: (invoice.value.description.length !== 0 && invoice.value.date.length !== 0 && invoice.value.ticket_number.length !== 0 && invoice.value.commerce_number.length !== 0 && invoice.value.amount !== 0 && (props.report.country == 'PY' ? invoice.value.provider.trim().length > 0 : true)) ? true : false,
+        second: (invoice.value.description.length !== 0 && invoice.value.date.length !== 0 && invoice.value.ticket_number.length !== 0 && invoice.value.commerce_number.length !== 0 && invoice.value.amount !== 0 && ((props.report.country == 'PY') ? invoice.value.provider != null && invoice.value.provider.trim().length > 0 : true)) ? true : false,
         third: (invoice.value.job_code.length !== 0 && invoice.value.expense_code.length !== 0) ? true : false
     }
 })

@@ -26,7 +26,7 @@
 
                 <ion-item>
                     <ion-label position="stacked">Fecha del Depósito</ion-label>
-                    <input class="native-input sc-ion-input-ios" v-maska data-maska="##/##/####" v-model="dynamicData.date" :disabled="isLoading">
+                    <IonDatetimeItem design="text" presentation="date" v-model="dynamicData.date" :disabled="isLoading" :value="dynamicData.date"></IonDatetimeItem>
                 </ion-item>
 
                 <ion-item>
@@ -78,6 +78,7 @@ import imageCompression from 'browser-image-compression';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { Capacitor } from '@capacitor/core';
 import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
+import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
 
 const isLoadingImageCompression = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
@@ -101,7 +102,7 @@ const dynamicData = ref<{
 }>({
     description: 'Caja chica: valor inicial',
     amount: 0,
-    date: (DateTime.now().toFormat("dd/MM/yyyy") as unknown as string).toString(),
+    date: (DateTime.now().toISO() as unknown as string).toString(),
     ticketNumber: '',
     receiptBase64: null,
     receiptType: null
@@ -124,7 +125,7 @@ const createDeposit = async () => {
     RequestAPI.post('/balance/users/' + props.userId + '/credits', {
         amount: dynamicData.value.amount,
         description: dynamicData.value.description.trim(),
-        date: DateTime.fromFormat(dynamicData.value.date, "dd/MM/yyyy").set({
+        date: DateTime.fromISO(dynamicData.value.date).set({
             hour: DateTime.now().hour,
             minute: DateTime.now().minute,
             second: DateTime.now().second,
@@ -163,10 +164,10 @@ const validateCamps = () => {
         errors.push("La descripción no puede estar vacía");
     }
     
-    const isDateValid = DateTime.fromFormat(dynamicData.value.date, "dd/MM/yyyy").isValid;
+    const isDateValid = DateTime.fromISO(dynamicData.value.date).isValid;
 
     if (!isDateValid){
-        errors.push(DateTime.fromFormat(dynamicData.value.date, "dd/MM/yyyy").invalidExplanation);
+        errors.push(DateTime.fromISO(dynamicData.value.date).invalidExplanation);
     }
 
     if (dynamicData.value.amount <= 0){

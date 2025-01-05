@@ -1,5 +1,20 @@
 <template>
     <article class="content">
+
+        <ion-toolbar>
+            <header class="header" style="max-width: 600px;margin: 0 auto;width: 100%;">
+                <button @click="goPreviousYear">
+                    <ion-icon :icon="chevronBackCircleOutline"></ion-icon>
+                </button>
+                <h1>{{selectedYear}}</h1>
+                <button @click="goNextYear">
+                    <ion-icon :icon="chevronForwardCircleOutline"></ion-icon>
+                </button>
+            </header>
+            <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
+        </ion-toolbar>
+
+
         <ion-progress-bar v-if="isLoading" type="indeterminate"></ion-progress-bar>
         
         <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
@@ -63,7 +78,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import EditUser from '@/dialogs/EditUser/EditUser.vue';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn } from 'ionicons/icons';
+import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, chevronBackCircleOutline, chevronForwardCircleOutline, close, logIn } from 'ionicons/icons';
 import { EMoneyType, IReport } from '@/interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
@@ -73,10 +88,12 @@ const isLoading = ref<boolean>(true);
 const router = useRouter();
 const page = ref<HTMLElement|null>(null);
 
+const selectedYear = ref<number>(2025);
+
 const loadBalances = async () => {
     isLoading.value = true;
     balancesData.value = (await RequestAPI.get('/management/balances/users', {
-        year: 2024
+        year: selectedYear.value
     }));
     isLoading.value = false;
 }
@@ -103,6 +120,16 @@ const openWallet = (userId: string) => {
     router.push(`/wallets/users/${userId}`);
 }
 
+
+const goPreviousYear = () => {
+    selectedYear.value = selectedYear.value - 1;
+    loadBalances();
+}
+const goNextYear = () => {
+    selectedYear.value = selectedYear.value + 1;
+    loadBalances();
+}
+
 onMounted(() => {
     const callbackId = AppEvents.on('all:reload', () => {
         loadBalances();
@@ -120,6 +147,36 @@ onMounted(() => {
     max-width: 600px;
     margin: 0 auto;
     width: 100%;
+}
+
+
+.header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: transparent;
+    padding: 8px 14px;
+    > h1{
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0;
+    }
+    > button{
+        background-color: transparent;
+        border: none;
+        color: var(--main-color);
+        font-size: 20px;
+        padding: 0px;
+        &[disabled]{
+            filter:grayscale(1);
+            &:active{
+                opacity: 1;
+            }
+        }
+        &:active{
+            opacity: 0.2;
+        }
+    }
 }
 
 </style>

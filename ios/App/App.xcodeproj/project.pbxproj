@@ -353,7 +353,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 46;
-				DEVELOPMENT_TEAM = PLHT3W3J87;
+				DEVELOPMENT_TEAM = 38LY6532D2;
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Maranatha Invoices";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
@@ -382,7 +382,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 46;
-				DEVELOPMENT_TEAM = PLHT3W3J87;
+				DEVELOPMENT_TEAM = 38LY6532D2;
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Maranatha Invoices";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";

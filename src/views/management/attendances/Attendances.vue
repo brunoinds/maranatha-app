@@ -16,8 +16,8 @@
                             </ion-label>
                         </ion-item>
                         <section slot="content" class="ion-padding">
-                            <ion-accordion-group>
-                                <ion-accordion v-for="attendanceMonth in userAttendances.attendances" :key="attendanceMonth.monthYear">
+                            <ion-accordion-item v-for="attendanceMonth in userAttendances.attendances" :key="attendanceMonth.monthYear" :value="attendanceMonth.monthYear">
+                                <template v-slot:head>
                                     <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                                         <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
                                         <ion-label>
@@ -25,20 +25,20 @@
                                             <p>{{ attendanceMonth.attendances.length }} registros</p>
                                         </ion-label>
                                     </ion-item>
-                                    <section slot="content">
-                                        <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                                            <ion-item v-for="attendance in attendanceMonth.attendances" :key="attendance.id" button @click="openAttendance(attendance.id)" :detail="true">
-                                                <ion-label>
-                                                    <h2><b>{{ DateTime.fromISO(attendance.from_date).toFormat('dd/MM/yyyy') }} - {{ DateTime.fromISO(attendance.to_date).toFormat('dd/MM/yyyy') }}</b></h2>
-                                                    <p><b>Job:</b> {{ attendance.job_name }} ({{ attendance.job_code }})</p>
-                                                    <p><b>Expense: </b>{{ attendance.expense_name }} ({{ attendance.expense_code }})</p>
-                                                    <p><b>Reportado en:</b> {{ DateTime.fromISO(attendance.created_at).toFormat('dd/MM/yyyy') }}</p>
-                                                </ion-label>
-                                            </ion-item>
-                                        </ion-list>
-                                    </section>
-                                </ion-accordion>
-                            </ion-accordion-group>
+                                </template>
+                                <template #body>
+                                    <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                                        <ion-item v-for="attendance in attendanceMonth.attendances" :key="attendance.id" button @click="openAttendance(attendance.id)" :detail="true">
+                                            <ion-label>
+                                                <h2><b>{{ DateTime.fromISO(attendance.from_date).toFormat('dd/MM/yyyy') }} - {{ DateTime.fromISO(attendance.to_date).toFormat('dd/MM/yyyy') }}</b></h2>
+                                                <p><b>Job:</b> {{ attendance.job_name }} ({{ attendance.job_code }})</p>
+                                                <p><b>Expense: </b>{{ attendance.expense_name }} ({{ attendance.expense_code }})</p>
+                                                <p><b>Reportado en:</b> {{ DateTime.fromISO(attendance.created_at).toFormat('dd/MM/yyyy') }}</p>
+                                            </ion-label>
+                                        </ion-item>
+                                    </ion-list>
+                                </template>
+                            </ion-accordion-item>
                         </section>
                     </ion-accordion>
                 </ion-accordion-group>
@@ -69,6 +69,7 @@ import { Viewport } from '@/utils/Viewport/Viewport';
 import { onMounted } from 'vue';
 import { onUnmounted } from 'vue';
 import _ from 'lodash';
+import IonAccordionItem from '@/components/IonAccordionItem/IonAccordionItem.vue';
 
 const attendancesData = ref<Array<IAttendance>>([]);
 const isLoading = ref<boolean>(true);

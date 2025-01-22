@@ -140,9 +140,13 @@ const validateCamps = async () => {
 
     try {
         const job = await JobsAndExpenses.getJob(dynamicData.value.code);
+
+        dynamicData.value.code = `${dynamicData.value.code}-${dynamicData.value.country}[${dynamicData.value.zone}]`;
+
+/* 
         const alert = await alertController.create({
             header: 'Observación',
-            message: 'Ya existe un Job con el código ingresado. Deseas agregar un "-" con el código del país al final para diferenciarlo?',
+            message: 'Ya existe un Job con el código ingresado. Vamos agregar  con el código del país al final para diferenciarlo?',
             buttons: [
                 {
                     text: 'No',
@@ -160,7 +164,7 @@ const validateCamps = async () => {
             ]
         })
         
-        alert.present();
+        alert.present(); */
     } catch (error) {
         
     }

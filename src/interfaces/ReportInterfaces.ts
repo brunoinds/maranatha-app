@@ -34,6 +34,7 @@ interface IReport{
     type: EReportType;
     money_type: EMoneyType;
     country: ECountryType;
+    zone: string;
     rejection_reason: string|null;
     rejected_at: string|null;
     approved_at: string|null;

@@ -138,7 +138,7 @@
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
 import UsersSelector from '@/dialogs/UsersSelector/UsersSelector.vue';
-import { IInventoryProductItem, IOutcomeResumeAnalisys, IProduct, IProductWithWarehouseStock, IWarehouseOutcome } from '@/interfaces/InventoryInterfaces';
+import { IInventoryProductItem, IOutcomeResumeAnalisys, IProduct, IProductWithWarehouseStock, IWarehouse, IWarehouseOutcome } from '@/interfaces/InventoryInterfaces';
 import { EMoneyType } from '@/interfaces/ReportInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
@@ -150,7 +150,7 @@ import { DateTime } from "luxon";
 import { PropType, computed, onMounted, ref } from 'vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
-import { IExpense, EExpenseUses } from '@/interfaces/JobsAndExpensesInterfaces';
+import { IExpense, EExpenseUses, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 
 const datetimeAccordionGroupEl = ref<any>(null);
 const accordionGroupEl = ref<any>(null);
@@ -251,7 +251,28 @@ const actions = {
     openJobSelector: () => {
         Dialog.show(JobSelector, {
             props: {
-                includeDisabledJobs: false
+                includeDisabledJobs: false,
+                jobsFilterCallback(job: IJob){
+                    const warehouse = warehousesData.value.find((w) => w.id === warehouseOutcome.value.inventory_warehouse_id);
+
+                    if (!warehouse){
+                        return true;
+                    }
+
+                    if (warehouse.zone){
+                        if (warehouse.country){
+                            return job.zone.toLowerCase() == warehouse.zone.toLowerCase() && job.country.toLowerCase() == warehouse.country.toLowerCase();
+                        }else{
+                            return job.zone.toLowerCase() == warehouse.zone.toLowerCase();
+                        }
+                    }else{
+                        if (warehouse.country){
+                            return job.country.toLowerCase() == warehouse.country.toLowerCase();
+                        }
+                    }
+
+                    return true;
+                }
             },
             onLoaded($this) {
                 $this.on('selected', (event:any) => {
@@ -461,6 +482,14 @@ const loadOutcomeProducts = async () => {
     isLoading.value = false;
 }
 
+const warehousesData = ref<IWarehouse[]>([]);
+const loadWarehouses = async () => {
+    isLoading.value = true;
+    const response = await InventoryStore.getWarehouses();
+    warehousesData.value = response;
+    isLoading.value = false;
+}
+
 
 onMounted(async () => {
     isLoading.value = false;
@@ -468,6 +497,8 @@ onMounted(async () => {
         await loadOutcomeProducts();
         accordionGroupEl.value.$el.value = "second";
     }, 100);
+
+    loadWarehouses();
 })
 </script>
 

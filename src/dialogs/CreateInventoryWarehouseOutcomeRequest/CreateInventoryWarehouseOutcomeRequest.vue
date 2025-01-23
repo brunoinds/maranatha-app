@@ -119,6 +119,7 @@ import { onMounted, ref } from 'vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { IExpense, EExpenseUses } from '@/interfaces/JobsAndExpensesInterfaces';
+import { IJob } from '../../interfaces/JobsAndExpensesInterfaces';
 
 const accordionGroupEl = ref<any>(null);
 const isLoading = ref<boolean>(true);
@@ -247,7 +248,28 @@ const actions = {
     openJobSelector: () => {
         Dialog.show(JobSelector, {
             props: {
-                includeDisabledJobs: false
+                includeDisabledJobs: false,
+                jobsFilterCallback(job: IJob){
+                    const warehouse = warehousesData.value.find((w) => w.id === warehouseOutcome.value.inventory_warehouse_id);
+
+                    if (!warehouse){
+                        return true;
+                    }
+
+                    if (warehouse.zone){
+                        if (warehouse.country){
+                            return job.zone.toLowerCase() == warehouse.zone.toLowerCase() && job.country.toLowerCase() == warehouse.country.toLowerCase();
+                        }else{
+                            return job.zone.toLowerCase() == warehouse.zone.toLowerCase();
+                        }
+                    }else{
+                        if (warehouse.country){
+                            return job.country.toLowerCase() == warehouse.country.toLowerCase();
+                        }
+                    }
+
+                    return true;
+                }
             },
             onLoaded($this) {
                 $this.on('selected', (event:any) => {

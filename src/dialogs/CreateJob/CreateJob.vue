@@ -67,9 +67,9 @@ const dynamicData = ref<{
 }>({
     name: '',
     code: '',
-    zone: '',
+    zone: 'NoZone',
     state: 'Active',
-    country: ''
+    country: 'PE'
 });
 
 const createJob = async () => {
@@ -92,10 +92,10 @@ const createJob = async () => {
 
     const dataParsed = {
         name: dynamicData.value.name,
-        code: dynamicData.value.code,
         zone: dynamicData.value.zone,
         state: dynamicData.value.state,
-        country: dynamicData.value.country
+        country: dynamicData.value.country,
+        code: `${dynamicData.value.code}-${dynamicData.value.country}[${dynamicData.value.zone}]`
     }
 
     RequestAPI.post('/jobs', dataParsed).then((response) => {
@@ -138,36 +138,14 @@ const validateCamps = async () => {
         errors.push("Por favor, ingresa un país para el Job");
     }
 
-    try {
+    /* try {
         const job = await JobsAndExpenses.getJob(dynamicData.value.code);
 
         dynamicData.value.code = `${dynamicData.value.code}-${dynamicData.value.country}[${dynamicData.value.zone}]`;
 
-/* 
-        const alert = await alertController.create({
-            header: 'Observación',
-            message: 'Ya existe un Job con el código ingresado. Vamos agregar  con el código del país al final para diferenciarlo?',
-            buttons: [
-                {
-                    text: 'No',
-                    role: 'cancel',
-                    handler: () => {
-                        
-                    }
-                }, 
-                {
-                    text: 'Sí',
-                    handler: () => {
-                        dynamicData.value.code = `${dynamicData.value.code}-${dynamicData.value.country}`;
-                    }
-                }
-            ]
-        })
-        
-        alert.present(); */
     } catch (error) {
         
-    }
+    } */
 
     return {
         isValid: errors.length == 0,

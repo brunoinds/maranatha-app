@@ -88,7 +88,7 @@ import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import InventoryProductSelector from '@/dialogs/InventoryProductSelector/InventoryProductSelector.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
 import { EInventoryWarehouseOutcomeRequestStatus, EInventoryWarehouseOutcomeRequestType, INewWarehouseOutcomeRequest, IOutcomeResumeAnalisys, IProduct, IProductWithWarehouseStock, IWarehouse, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
-import { EExpenseUses, IExpense } from '@/interfaces/JobsAndExpensesInterfaces';
+import { EExpenseUses, IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
@@ -228,7 +228,28 @@ const actions = {
     openJobSelector: () => {
         Dialog.show(JobSelector, {
             props: {
-                includeDisabledJobs: false
+                includeDisabledJobs: false,
+                jobsFilterCallback(job: IJob){
+                    const warehouse = warehousesData.value.find((w) => w.id === warehouseOutcome.value.inventory_warehouse_id);
+
+                    if (!warehouse){
+                        return true;
+                    }
+
+                    if (warehouse.zone){
+                        if (warehouse.country){
+                            return job.zone.toLowerCase() == warehouse.zone.toLowerCase() && job.country.toLowerCase() == warehouse.country.toLowerCase();
+                        }else{
+                            return job.zone.toLowerCase() == warehouse.zone.toLowerCase();
+                        }
+                    }else{
+                        if (warehouse.country){
+                            return job.country.toLowerCase() == warehouse.country.toLowerCase();
+                        }
+                    }
+
+                    return true;
+                }
             },
             onLoaded($this) {
                 $this.on('selected', (event:any) => {

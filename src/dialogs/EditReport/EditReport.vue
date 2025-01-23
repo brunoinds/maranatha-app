@@ -41,6 +41,12 @@
                     </ion-select>
                 </ion-item>
                 <ion-item>
+                    <ion-select label="Zona:" label-placement="stacked" interface="action-sheet" v-model="dynamicData.zone" :disabled="isLoading">
+                        <ion-select-option v-for="zone in  _.uniq(jobsAndExpenses.jobs.map(job => job.zone))">{{ zone }}</ion-select-option>
+                    </ion-select>
+                </ion-item>
+
+                <ion-item>
                     <ion-label position="stacked">Fecha de Inicio</ion-label>
                     <input class="native-input sc-ion-input-ios" v-maska data-maska="##/##/####" v-model="dynamicData.startDate" :disabled="isLoading">
                 </ion-item>
@@ -70,6 +76,9 @@ import { DateTime } from 'luxon';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import _ from 'lodash';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -89,6 +98,7 @@ const dynamicData = ref<{
     endDate: string,
     moneyType: EMoneyType,
     country: ECountryType,
+    zone: string,
     user_id: number
 }>({
     title: '',
@@ -97,8 +107,24 @@ const dynamicData = ref<{
     startDate: (DateTime.now().set({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString(),
     endDate: (DateTime.now().set({ day: 1}).plus({ month: 1}).minus({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString(),
     country: ECountryType.PE,
+    zone: 'NoZone',
     user_id: Session.getCurrentSessionSync()?.id() as number
 });
+
+const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
+    jobs: [],
+    expenses: []
+});
+
+const loadJobsAndExpenses = async () => {
+    const jobs =  await JobsAndExpenses.getJobs() as unknown as Array<IJob>;
+    jobsAndExpenses.value.jobs = jobs.filter((job) => {
+        return job.state == "Active"
+    });
+
+    const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
+    jobsAndExpenses.value.expenses = expenses;
+}
 
 const deleteReport = async () => {
     alertController.create({
@@ -167,7 +193,8 @@ const saveReport = async () => {
         money_type: dynamicData.value.moneyType,
         from_date: DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").toISO(),
         to_date: DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy").toISO(),
-        country: dynamicData.value.country
+        country: dynamicData.value.country,
+        zone: dynamicData.value.zone
     }).then((response) => {
         props.emitter.fire('updated', {
             ...response.report
@@ -197,6 +224,10 @@ const validateCamps = () => {
 
     if (dynamicData.value.title.trim().length == 0){
         errors.push("El nombre del reporte no puede estar vacío");
+    }
+
+    if (dynamicData.value.zone.trim().length == 0){
+        errors.push("La zona no puede estar vacía");
     }
 
     const isStartDateValid = DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").isValid;
@@ -234,7 +265,8 @@ const loadReport = () => {
             startDate: DateTime.fromISO(response.from_date).toFormat("dd/MM/yyyy"),
             endDate: DateTime.fromISO(response.to_date).toFormat("dd/MM/yyyy"),
             country: response.country,
-            user_id: response.user_id
+            user_id: response.user_id,
+            zone: response.zone
         }
 
     }).catch((error) => {
@@ -251,7 +283,11 @@ const loadReport = () => {
         isLoading.value = false;
     });
 }
-loadReport();
+
+onMounted(() => {
+    loadJobsAndExpenses();
+    loadReport();
+});
 </script>
 
 <style scoped lang="scss">

@@ -17,6 +17,7 @@ interface IReportResponse{
     type: EReportType;
     money_type: EMoneyType;
     country: ECountryType;
+    zone: string;
     rejection_reason: string|null;
     rejected_at: string|null;
     approved_at: string|null;
@@ -199,6 +200,7 @@ class StoredReports{
                             status: report.status,
                             money_type: report.money_type,
                             country: report.country,
+                            zone: report.zone,
                         }).then((response) => {
                             resolve({
                                 previousId: report.id,

@@ -23,6 +23,23 @@
                     <ion-label position="stacked">Fecha de Término</ion-label>
                     <IonDatetimeItem design="text" presentation="date" v-model="dynamicData.endDate" :disabled="isLoading" :value="dynamicData.endDate"></IonDatetimeItem>
                 </ion-item>
+
+                <ion-item>
+                    <ion-select label="País:" label-placement="stacked" interface="action-sheet" v-model="dynamicData.country" :disabled="isLoading">
+                        <ion-select-option value="PE">Perú 🇵🇪</ion-select-option>
+                        <ion-select-option value="BR">Brasil 🇧🇷</ion-select-option>
+                        <ion-select-option value="PY">Paraguay 🇵🇾</ion-select-option>
+                        <ion-select-option value="US">EE. UU. 🇺🇸</ion-select-option>
+                    </ion-select>
+                </ion-item>
+
+                <ion-item>
+                    <ion-select label="Zona:" label-placement="stacked" interface="action-sheet" v-model="dynamicData.zone" :disabled="isLoading">
+                        <ion-select-option v-for="zone in  _.uniq(jobsAndExpenses.jobs.map(job => job.zone))">{{ zone }}</ion-select-option>
+                    </ion-select>
+                </ion-item>
+
+
                 <ion-item button @click="openJobSelector">
                     <ion-input :readonly="true" label="Job:" label-placement="stacked" placeholder="Selecciona el Job" v-model="dynamicData.jobCode"></ion-input>
                 </ion-item>
@@ -70,6 +87,7 @@ import { IJob, IExpense, EExpenseUses } from '../../interfaces/JobsAndExpensesIn
 import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
+import _ from 'lodash';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -83,9 +101,13 @@ const dynamicData = ref<{
     endDate: string,
     jobCode: number|null,
     expenseCode: number|null,
-    description: string
+    description: string,
+    country: string,
+    zone: string
 }>({
     description: '',
+    country: 'PE',
+    zone: 'NoZone',
     jobCode: null,
     expenseCode: null,
     startDate: (DateTime.now().set({ day: 1}).toISO() as unknown as string).toString(),
@@ -223,6 +245,10 @@ const loadJobsAndExpenses = async () => {
 
     const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
     jobsAndExpenses.value.expenses = expenses;
+
+    nextTick(() => {
+        dynamicData.value.zone = jobsAndExpenses.value.jobs[0].zone;
+    });
 }
 
 const openJobSelector = () => {
@@ -231,8 +257,18 @@ const openJobSelector = () => {
             includeDisabledJobs: false,
             selectedJobCode: dynamicData.value.jobCode,
             jobsFilterCallback(job: IJob){
+                if (dynamicData.value.zone){
+                    if (dynamicData.value.country){
+                        return job.zone.toLowerCase() == dynamicData.value.zone.toLowerCase() && job.country.toLowerCase() == dynamicData.value.country.toLowerCase();
+                    }else{
+                        return job.zone.toLowerCase() == dynamicData.value.zone.toLowerCase();
+                    }
+                }else{
+                    if (dynamicData.value.country){
+                        return job.country.toLowerCase() == dynamicData.value.country.toLowerCase();
+                    }
+                }
                 return true;
-                //return !job.code.startsWith('000');
             }
         },
         onLoaded($this) {

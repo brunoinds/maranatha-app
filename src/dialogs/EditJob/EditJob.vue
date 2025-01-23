@@ -88,13 +88,30 @@ const loadJob = async () => {
     const job = jobs.find((job:any) => job.code == props.jobCode);
     jobData.value = job;
     dynamicData.value.name = job.name;
-    dynamicData.value.code = job.code;
+    dynamicData.value.code = sanitizeCode(job.code);
     dynamicData.value.zone = job.zone;
     dynamicData.value.state = job.state;
     dynamicData.value.country = job.country;
     dynamicData.value.stateBoolean = job.state == 'Active';
 
     isLoading.value = false;
+
+
+
+    function sanitizeCode(code: string): string{
+        if (code === null) {
+            return '';
+        }
+
+        // First remove anything inside [], including []:
+        code = code.replace(/\[[^\]]*\]/g, '');
+
+        if (code.includes('-')) {
+            code = code.split('-')[0].trim();
+        }
+
+        return code;
+    }
 }
 
 const saveJob = async () => {
@@ -118,10 +135,10 @@ const saveJob = async () => {
     const dataParsed = {
         id: jobData.value.id,
         name: dynamicData.value.name,
-        code: dynamicData.value.code,
         zone: dynamicData.value.zone,
         state: dynamicData.value.state,
-        country: dynamicData.value.country
+        country: dynamicData.value.country,
+        code: `${dynamicData.value.code}-${dynamicData.value.country}[${dynamicData.value.zone}]`
     }
 
     RequestAPI.patch('/jobs/' + jobData.value.id, dataParsed).then((response) => {

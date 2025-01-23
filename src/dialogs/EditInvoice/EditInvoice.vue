@@ -718,7 +718,21 @@ const openJobSelector = (origin: string, data:any) => {
     Dialog.show(JobSelector, {
         props: {
             includeDisabledJobs: false,
-            selectedJobCode: invoice.value.job_code
+            selectedJobCode: invoice.value.job_code,
+            jobsFilterCallback(job: IJob){
+                if (props.report.zone){
+                    if (props.report.country){
+                        return job.zone.toLowerCase() == props.report.zone.toLowerCase() && job.country.toLowerCase() == props.report.country.toLowerCase();
+                    }else{
+                        return job.zone.toLowerCase() == props.report.zone.toLowerCase();
+                    }
+                }else{
+                    if (props.report.country){
+                        return job.country.toLowerCase() == props.report.country.toLowerCase();
+                    }
+                }
+                return true;
+            }
         },
         onLoaded($this) {
             $this.on('selected', (event:any) => {

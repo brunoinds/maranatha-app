@@ -26,9 +26,6 @@
                     <ion-input label="Nombre del almacén" placeholder="Ej.: Almacén central" label-placement="stacked" v-model="dynamicData.name" :disabled="isLoading"></ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-input ref="zoneInput" label="Zona" placeholder="Ej.: Zona I" label-placement="stacked" v-model="dynamicData.zone" :disabled="isLoading"></ion-input>
-                </ion-item>
-                <ion-item>
                     <ion-select label="País" label-placement="stacked" interface="action-sheet" v-model="dynamicData.country" :disabled="isLoading">
                         <ion-select-option value="PE">Perú 🇵🇪</ion-select-option>
                         <ion-select-option value="BR">Brasil 🇧🇷</ion-select-option>
@@ -36,6 +33,12 @@
                         <ion-select-option value="US">EE. UU. 🇺🇸</ion-select-option>
                     </ion-select>
                 </ion-item>
+                <ion-item>
+                    <ion-select label="Zona:" label-placement="stacked" interface="action-sheet" v-model="dynamicData.zone" :disabled="isLoading">
+                        <ion-select-option v-for="zone in  _.uniq(jobsAndExpenses.jobs.map(job => job.zone))">{{ zone }}</ion-select-option>
+                    </ion-select>
+                </ion-item>
+
                 <ion-item-choose-dialog :disabled="isLoading" @click="openUserSelector" placeholder="Selecciona los usuarios" label="Administradores del Almacén:" :value="usersUI.map((item) => item).join(', ')"/>
             </ion-list>
 
@@ -66,6 +69,10 @@ import UsersSelector from '@/dialogs/UsersSelector/UsersSelector.vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { UsersStore } from '@/utils/Stored/UsersStore';
+import _ from 'lodash';
+import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import { nextTick } from 'process';
 
 const zoneInput = ref<any | null>(null);
 
@@ -244,6 +251,25 @@ const openUserSelector  = () => {
     })
 }
 
+const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
+    jobs: [],
+    expenses: []
+});
+
+const loadJobsAndExpenses = async () => {
+    const jobs =  await JobsAndExpenses.getJobs() as unknown as Array<IJob>;
+    jobsAndExpenses.value.jobs = jobs.filter((job) => {
+        return job.state == "Active"
+    });
+
+    const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
+    jobsAndExpenses.value.expenses = expenses;
+
+    nextTick(() => {
+        dynamicData.value.zone = jobsAndExpenses.value.jobs[0].zone;
+    });
+}
+
 const loadUsers = async () => {
     usersData.value = await UsersStore.getUsers();
 }
@@ -253,6 +279,7 @@ onMounted(() => {
         zoneInput.value.$el.nativeInput.setAttribute('list', 'inventory-warehouses-zones-datatlist');
     }, 500);
     loadUsers();
+    loadJobsAndExpenses();
 })
 </script>
 

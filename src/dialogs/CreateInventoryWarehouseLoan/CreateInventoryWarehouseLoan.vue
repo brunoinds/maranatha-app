@@ -154,14 +154,15 @@ import { EMoneyType } from '@/interfaces/ReportInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { QRCodeParser } from '@/utils/QRCodeParser/QRCodeParser';
 import { DateTime } from "luxon";
-import { EInventoryProductItemStatus, IInventoryProductItem, INewWarehouseOutcome, INewWarehouseProductItemLoan, IProduct, IProductWithWarehouseStock } from '@/interfaces/InventoryInterfaces';
+import { EInventoryProductItemStatus, IInventoryProductItem, INewWarehouseOutcome, INewWarehouseProductItemLoan, IProduct, IProductWithWarehouseStock, IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { ImagePicker } from '@/utils/Camera/ImagePicker';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import UsersSelector from '@/dialogs/UsersSelector/UsersSelector.vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import { IUser } from '@/interfaces/UserInterfaces';
-import { IExpense, EExpenseUses } from '@/interfaces/JobsAndExpensesInterfaces';
+import { IExpense, EExpenseUses, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 
 const datetimeAccordionGroupEl = ref<any>(null);
 const accordionGroupEl = ref<any>(null);
@@ -367,6 +368,16 @@ const onEvents = {
     }
 }
 
+
+const warehousesData = ref<IWarehouse[]>([]);
+const loadWarehouses = async () => {
+    isLoading.value = true;
+    const response = await InventoryStore.getWarehouses();
+    warehousesData.value = response;
+    isLoading.value = false;
+}
+
+
 const actions = {
     addNewProduct: () => {
         Dialog.show(InventoryProductSelector, {
@@ -410,7 +421,28 @@ const actions = {
     openJobSelector: () => {
         Dialog.show(JobSelector, {
             props: {
-                includeDisabledJobs: false
+                includeDisabledJobs: false,
+                jobsFilterCallback(job: IJob){
+                    const warehouse = warehousesData.value.find((w) => w.id === loanRequest.value.inventory_warehouse_id);
+
+                    if (!warehouse){
+                        return true;
+                    }
+
+                    if (warehouse.zone){
+                        if (warehouse.country){
+                            return job.zone.toLowerCase() == warehouse.zone.toLowerCase() && job.country.toLowerCase() == warehouse.country.toLowerCase();
+                        }else{
+                            return job.zone.toLowerCase() == warehouse.zone.toLowerCase();
+                        }
+                    }else{
+                        if (warehouse.country){
+                            return job.country.toLowerCase() == warehouse.country.toLowerCase();
+                        }
+                    }
+
+                    return true;
+                }
             },
             onLoaded($this) {
                 $this.on('selected', (event:any) => {
@@ -519,6 +551,7 @@ onMounted(async () => {
         accordionGroupEl.value.$el.value = "first";
     }, 100);
 
+    loadWarehouses();
 
     if (props.targets){
         loanRequest.value.job_code = props.targets.jobCode || "";

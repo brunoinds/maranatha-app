@@ -38,6 +38,14 @@
                         <ion-select-option value="US">EE. UU. 🇺🇸</ion-select-option>
                     </ion-select>
                 </ion-item>
+
+
+                <ion-item>
+                    <ion-select label="Zona:" label-placement="stacked" interface="action-sheet" v-model="dynamicData.zone" :disabled="isLoading">
+                        <ion-select-option v-for="zone in  _.uniq(jobsAndExpenses.jobs.map(job => job.zone))">{{ zone }}</ion-select-option>
+                    </ion-select>
+                </ion-item>
+
                 <ion-item v-if="false">
                     <ion-label position="stacked">Fecha de Inicio</ion-label>
                     <input class="native-input sc-ion-input-ios" v-maska data-maska="##/##/####" v-model="dynamicData.startDate" :disabled="isLoading">
@@ -67,6 +75,9 @@ import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
 import { IReportResponse, StoredReports } from '@/utils/Stored/StoredReports';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import _ from 'lodash';
+import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -80,15 +91,36 @@ const dynamicData = ref<{
     startDate: string,
     endDate: string,
     moneyType: EMoneyType,
-    country: ECountryType
+    country: ECountryType,
+    zone: string
 }>({
     type: EReportType.Bill,
     moneyType: EMoneyType.PEN,
     startDate: (DateTime.now().set({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString(),
     endDate: (DateTime.now().set({ day: 1}).plus({ month: 1}).minus({ day: 1}).toFormat("dd/MM/yyyy") as unknown as string).toString(),
-    country: ECountryType.PE
+    country: ECountryType.PE,
+    zone: 'NoZone'
 });
 const dynamicTitle = ref('');
+
+const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
+    jobs: [],
+    expenses: []
+});
+
+const loadJobsAndExpenses = async () => {
+    const jobs =  await JobsAndExpenses.getJobs() as unknown as Array<IJob>;
+    jobsAndExpenses.value.jobs = jobs.filter((job) => {
+        return job.state == "Active"
+    });
+
+    const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
+    jobsAndExpenses.value.expenses = expenses;
+
+    nextTick(() => {
+        dynamicData.value.zone = jobsAndExpenses.value.jobs[0].zone;
+    });
+}
 
 
 const createNewReport = async () => {
@@ -114,6 +146,7 @@ const createNewReport = async () => {
         type: dynamicData.value.type,
         money_type: dynamicData.value.moneyType,
         country: dynamicData.value.country,
+        zone: dynamicData.value.zone,
         from_date: DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").toISO() as string,
         to_date: DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy").toISO() as string,
         status: EReportStatus.Draft,
@@ -161,6 +194,10 @@ const validateCamps = () => {
         errors.push("El nombre del reporte no puede estar vacío");
     }
 
+    if (dynamicData.value.zone.trim().length == 0){
+        errors.push("Por favor, selecciona una zona");
+    }
+
     const isStartDateValid = DateTime.fromFormat(dynamicData.value.startDate, "dd/MM/yyyy").isValid;
     const isEndDateValid = DateTime.fromFormat(dynamicData.value.endDate, "dd/MM/yyyy").isValid;
 
@@ -206,6 +243,11 @@ const validateCamps = () => {
 }
 
 dynamicTitle.value = generateDefaultTitle(); */
+
+
+onMounted(() => {
+    loadJobsAndExpenses();
+})
 </script>
 
 <style scoped lang="scss">

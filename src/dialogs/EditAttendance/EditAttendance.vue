@@ -15,6 +15,22 @@
         <ion-content>
             <ion-list-header>Datos de la Asistencia:</ion-list-header>
             <ion-list :inset="true">
+                <ion-item>
+                    <ion-select label="País:" label-placement="stacked" interface="action-sheet" v-model="dynamicData.country" :disabled="isLoading">
+                        <ion-select-option value="PE">Perú 🇵🇪</ion-select-option>
+                        <ion-select-option value="BR">Brasil 🇧🇷</ion-select-option>
+                        <ion-select-option value="PY">Paraguay 🇵🇾</ion-select-option>
+                        <ion-select-option value="US">EE. UU. 🇺🇸</ion-select-option>
+                    </ion-select>
+                </ion-item>
+
+                <ion-item>
+                    <ion-select label="Zona:" label-placement="stacked" interface="action-sheet" v-model="dynamicData.zone" :disabled="isLoading">
+                        <ion-select-option v-for="zone in  _.uniq(jobsAndExpenses.jobs.map(job => job.zone))">{{ zone }}</ion-select-option>
+                    </ion-select>
+                </ion-item>
+
+
                 <ion-item button @click="openJobSelector">
                     <ion-input :readonly="true" label="Job:" label-placement="stacked" placeholder="Selecciona el Job" v-model="dynamicData.jobCode"></ion-input>
                 </ion-item>
@@ -34,6 +50,8 @@
                     <ion-label position="stacked">Fecha de Término</ion-label>
                     <IonDatetimeItem design="text" presentation="date" v-model="dynamicData.endDate" :disabled="isLoading" :value="dynamicData.endDate"></IonDatetimeItem>
                 </ion-item>
+
+                
             </ion-list>
 
 
@@ -92,6 +110,7 @@ import { IAttendance } from '../../interfaces/AttendanceInterfaces';
 import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
+import _ from 'lodash';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({
@@ -114,12 +133,16 @@ const dynamicData = ref<{
     description: string,
     startDate: string,
     endDate: string,
+    country: string,
+    zone: string
 }>({
     description: props.attendance.description as string,
     jobCode: props.attendance.job_code as unknown as number,
     expenseCode: props.attendance.expense_code as unknown as number,
     startDate: props.attendance.from_date,
-    endDate: props.attendance.to_date
+    endDate: props.attendance.to_date,
+    country: '',
+    zone: ''
 });
 
 const jobsAndExpenses = ref<{jobs: Array<IJob>, expenses: Array<IExpense>}>({
@@ -287,8 +310,18 @@ const openJobSelector = () => {
             includeDisabledJobs: false,
             selectedJobCode: dynamicData.value.jobCode,
             jobsFilterCallback(job: IJob){
-                return true
-                //return !job.code.startsWith('000');
+                if (dynamicData.value.zone){
+                    if (dynamicData.value.country){
+                        return job.zone.toLowerCase() == dynamicData.value.zone.toLowerCase() && job.country.toLowerCase() == dynamicData.value.country.toLowerCase();
+                    }else{
+                        return job.zone.toLowerCase() == dynamicData.value.zone.toLowerCase();
+                    }
+                }else{
+                    if (dynamicData.value.country){
+                        return job.country.toLowerCase() == dynamicData.value.country.toLowerCase();
+                    }
+                }
+                return true;
             }
         },
         onLoaded($this) {
@@ -324,6 +357,19 @@ const loadJobsAndExpenses = async () => {
 
     const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
     jobsAndExpenses.value.expenses = expenses;
+
+
+
+    if (dynamicData.value.jobCode){
+        const job = jobs.find((job) => {
+            return job.code == dynamicData.value.jobCode;
+        });
+
+        if (job){
+            dynamicData.value.zone = job.zone;
+            dynamicData.value.country = job.country;
+        }
+    }
 }
 
 const deleteAttendance = async () => {

@@ -241,6 +241,13 @@ const RecordsConfigs = {
                         options: countryTypesDropdownOptions
                     },
                     {
+                        id: 'job_region',
+                        name: 'Zona de Job',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: jobsZonesDropdownOptions
+                    },
+                    {
                         id: 'type',
                         name: 'Tipo',
                         isRequired: false,
@@ -376,6 +383,13 @@ const RecordsConfigs = {
                         }
                     },
                     {
+                        id: 'country',
+                        name: 'País',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: countryTypesDropdownOptions
+                    },
+                    {
                         id: 'job_region',
                         name: 'Zona de Job',
                         isRequired: false,
@@ -418,6 +432,20 @@ const RecordsConfigs = {
                             start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
                             end: DateTime.now().toFormat('yyyy-MM-dd')
                         }
+                    },
+                    {
+                        id: 'country',
+                        name: 'País',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: countryTypesDropdownOptions
+                    },
+                    {
+                        id: 'job_region',
+                        name: 'Zona de Job',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: jobsZonesDropdownOptions
                     },
                     {
                         id: 'job_code',
@@ -505,6 +533,13 @@ const RecordsConfigs = {
                         options: jobsDropdownOptions
                     },
                     {
+                        id: 'country',
+                        name: 'País',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: countryTypesDropdownOptions
+                    },
+                    {
                         id: 'job_zone',
                         name: 'Zona de Job',
                         isRequired: false,
@@ -571,6 +606,13 @@ const RecordsConfigs = {
                         options: jobsDropdownOptions
                     },
                     {
+                        id: 'country',
+                        name: 'País',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: countryTypesDropdownOptions
+                    },
+                    {
                         id: 'job_zone',
                         name: 'Zona de Job',
                         isRequired: false,
@@ -632,6 +674,13 @@ const RecordsConfigs = {
                         isRequired: false,
                         type: 'dropdown',
                         options: jobsDropdownOptions
+                    },
+                    {
+                        id: 'country',
+                        name: 'País',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: countryTypesDropdownOptions
                     },
                     {
                         id: 'job_zone',

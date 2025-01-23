@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonInput,IonIcon, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { arrowForwardCircleOutline, cubeOutline, storefrontOutline } from 'ionicons/icons';
 import { IWorker } from '@/interfaces/WorkerInterfaces';
@@ -68,7 +68,6 @@ import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseD
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
-import { nextTick } from 'process';
 import _ from 'lodash';
 
 const zoneInput = ref<any | null>(null);

@@ -61,7 +61,7 @@ import { IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { arrowForwardCircleOutline, storefrontOutline, trashOutline } from 'ionicons/icons';
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import { Dialog, DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import Warehouse from '@/views/inventory/warehouses/Warehouse.vue';
 import { IUser } from '@/interfaces/UserInterfaces';
@@ -72,7 +72,6 @@ import { UsersStore } from '@/utils/Stored/UsersStore';
 import _ from 'lodash';
 import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
-import { nextTick } from 'process';
 
 const zoneInput = ref<any | null>(null);
 

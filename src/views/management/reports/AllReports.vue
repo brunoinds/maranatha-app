@@ -74,7 +74,49 @@
 
             <section v-if="dynamicData.showAllUsersReports">
                 <ion-list-header>Todos usuarios</ion-list-header>
-                <ion-accordion-group style="margin-top:10px"  :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+
+                <ion-accordion-item v-for="userReports in usersReports" :key="userReports.user.id" :value="userReports.user.id">
+                    <template v-slot:head>
+                        <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                            <ion-label>
+                                <h2>{{ userReports.user.name }}</h2>
+                                <p>@{{ userReports.user.username }}</p>
+                            </ion-label>
+                        </ion-item>
+                    </template>
+                    <template #body>
+                        <ion-accordion-item v-for="monthYearReports  in userReports.reports" :key="monthYearReports.monthYearText" :value="monthYearReports.monthYearText">
+                            <template v-slot:head>
+                                <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                                    <ion-label>
+                                        <p>&nbsp;&nbsp;{{ monthYearReports.monthYearText }}</p>
+                                    </ion-label>
+                                    <div slot="end" style="display: flex; align-items: center;">
+                                        <ReportStatusChip v-for="badge in monthYearReports.badges" :report="{status: badge}" :minimalText="true"></ReportStatusChip>
+                                    </div>
+                                </ion-item>
+                            </template>
+                            <template #body>
+                                <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                                    <ion-item v-for="report in monthYearReports.reports" :key="report.id" button @click="openReport(report.id)" :detail="true">
+                                        <ion-label>
+                                                <h2><b>{{ report.title }}</b></h2>
+                                                <p>{{report.reportType}}</p>
+                                                <p>{{report.reportDates}}</p>
+                                                <p><b>{{report.moneyPrefix}} {{Toolbox.moneyFormat(report.invoices.totalAmount)}}</b></p>
+                                            </ion-label>
+                                            <ReportStatusChip :report="report"></ReportStatusChip>
+                                    </ion-item>
+                                </ion-list>
+                            </template>
+                        </ion-accordion-item>
+                    </template>
+                </ion-accordion-item>
+
+
+
+
+                <!-- <ion-accordion-group style="margin-top:10px"  :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                     <ion-accordion v-for="userReports in usersReports" :key="userReports.user.id">
                         <ion-item slot="header" color="light">
                             <ion-label>
@@ -110,7 +152,7 @@
                             </ion-accordion-group>
                         </section>
                     </ion-accordion>
-                </ion-accordion-group>
+                </ion-accordion-group> -->
             </section>
         </article>
     </article>
@@ -129,6 +171,7 @@ import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { onMounted } from 'vue';
+import IonAccordionItem from '@/components/IonAccordionItem/IonAccordionItem.vue';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);

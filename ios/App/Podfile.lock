@@ -227,23 +227,23 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
-  Capacitor: 4c0681b47eebeba1f902093d24149cf2f518393e
-  CapacitorApp: 024e1b1bea5f883d79f6330d309bc441c88ad04a
-  CapacitorCamera: 084b0b228bba7d00587910337b1c89e93b1d32ab
-  CapacitorCommunityFileOpener: 8ae87db61961a6166cb929cc16e3cc719ea58da1
+  Capacitor: b506c52a9c818b1973a37022fe51abc83051b5e8
+  CapacitorApp: 3bef09d0bbb9698fd1766398499f306647156bbf
+  CapacitorCamera: d0197014a35cff3a591f0da7f04fba3e2f5f9be8
+  CapacitorCommunityFileOpener: 45a59b1cab6086f6cef7a8acd8b4be317efc1a9d
   CapacitorCordova: 1222fdd78bfd0d323cc22bf254eed1484fe6c92a
-  CapacitorDocumentScanner: 91258121abad1becc90936f85ad0fff4146e50b1
-  CapacitorFilesystem: 02f9a9053b96e1881ba1fc98d846869413c195c2
-  CapacitorHaptics: 1fffc1217c7e64a472d7845be50fb0c2f7d4204c
-  CapacitorKeyboard: b978154b024a5f65e044908e37d15b7de58b9d12
-  CapacitorMlkitBarcodeScanning: ea08ef246e5d3511d5a231a59fae36b16ad9acb3
-  CapacitorPushNotifications: b31e326c6e4eb216a622041d6ca21a973f34943f
-  CapacitorShare: cd41743331cb71d217c029de54b681cbd91e0fcc
-  CapacitorSplashScreen: dd3de3f3644710fa2a697cfb91ec262eece4d242
-  CapacitorStatusBar: 565c0a1ebd79bb40d797606a8992b4a105885309
-  CapawesomeCapacitorFilePicker: 41f486cb4a89c6a7c8a4f5d683dbf96658894182
-  CapgoCapacitorUpdater: fa6fedc02691b5a699a83304160c31f9bbc60ccc
-  CordovaPluginsStatic: aade773e5fbcffa2ff53cfe7ec2086da88be807e
+  CapacitorDocumentScanner: c0cb73d9081ca6abecbe19920d0fc49485c3d202
+  CapacitorFilesystem: bf2ec09248b95cac168085ad5691622ccddab3f5
+  CapacitorHaptics: c56885bd07919be808b38db507507919ce4d1b09
+  CapacitorKeyboard: 673a4a303383a61f4d360c871f121f8bbaa745b6
+  CapacitorMlkitBarcodeScanning: 70cb5d3526397338b63a53cfff48dc4e78413773
+  CapacitorPushNotifications: b65e9e5ed4caa19d614ee8221b26129f6d506e63
+  CapacitorShare: 9789d7c471cbcdf4eb601f195b0883d774efe0d9
+  CapacitorSplashScreen: 4ff6258039d0ea77b289edb9503a50ba02d58189
+  CapacitorStatusBar: f7e05ad7e5fb1a1cdacd2f0b55d488550ca07c41
+  CapawesomeCapacitorFilePicker: 365997b9ddf94a840b8535eb76c37e060f55ae0e
+  CapgoCapacitorUpdater: cfa6c745c49a555a73607d45efc2f7c89b9f8f25
+  CordovaPluginsStatic: 803abf90cef970734ea1439b899cb597e121a623
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleMLKit: 2bd0dc6253c4d4f227aad460f69215a504b2980e
   GoogleToolboxForMac: 8bef7c7c5cf7291c687cf5354f39f9db6399ad34
@@ -258,11 +258,11 @@ SPEC CHECKSUMS:
   OneSignalXCFramework: d47a350b15e106a5dc310e3f97867e28dad6589e
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   Sentry: 8984a4ffb2b9bd2894d74fb36e6f5833865bc18e
-  SentryCapacitor: 5c27da09956d89b0ba715071f6a37c137d9aea50
+  SentryCapacitor: 634152424174e786e001f2bb25de94e617ddf726
   SentryPrivate: 2f0c9ba4c3fc993f70eab6ca95673509561e0085
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
   Version: de5907f2c5d0f3cf21708db7801d1d5401139486
 
 PODFILE CHECKSUM: 8eb3858bc8c4db4a7c3cffa561223da0e37e8dea
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2

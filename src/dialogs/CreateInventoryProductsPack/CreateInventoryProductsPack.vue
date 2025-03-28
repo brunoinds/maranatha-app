@@ -32,7 +32,7 @@
                                     </ion-label>
                                 </ion-item>
                                 <ion-item>
-                                        <ion-input label="Cantidad" type="number" inputmode="numeric" :min="1" v-model="product.quantity" class="ion-text-right"></ion-input>
+                                        <ion-input label="Cantidad" type="number" inputmode="decimal" :min="1" v-model="product.quantity" class="ion-text-right"></ion-input>
                                     </ion-item>
                                 <ion-item button :detail="false" @click="actions.removeProduct(product.product)">
                                     <ion-label color="danger" class="ion-text-center">Eliminar producto</ion-label>

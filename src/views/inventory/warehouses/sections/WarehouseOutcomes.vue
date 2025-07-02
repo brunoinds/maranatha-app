@@ -138,6 +138,11 @@ const outcomesUI = computed(() => {
 const outcomesByJobsUI = computed(() => {
     const jobs = Object.keys(_.groupBy(outcomesUI.value, 'job.code')).map((jobCode) => {
         const jobOutcomes = outcomesUI.value.filter((outcome) => outcome.job?.code == jobCode);
+
+        if (jobOutcomes.length === 0) return {
+            job: { code: jobCode, name: 'Sin Job' },
+            outcomes: []
+        };
         return {
             job: jobOutcomes[0].job,
             outcomes: jobOutcomes

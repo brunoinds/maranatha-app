@@ -127,7 +127,7 @@ const outcomesUI = computed(() => {
                 return Toolbox.moneyFormat(amount.amount, amount.currency)
             }),
             items_count: outcome.items_count,
-            job: jobsAndExpenses.value.jobs.find((job) => job.code == outcome.job_code),
+            job: jobsAndExpenses.value.jobs.find((job) => job.code == outcome.job_code) || { code: outcome.job_code, name: 'Sin Job' },
             expense: jobsAndExpenses.value.expenses.find((expense) => expense.code == outcome.expense_code),
             user: usersData.value.find((user) => user.id == outcome.user_id),
             original: outcome

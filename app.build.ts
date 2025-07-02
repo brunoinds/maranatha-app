@@ -273,7 +273,7 @@ class AppNativeCompiler{
                 return new Promise((resolve, reject) => {
                     //xcodebuild -exportArchive -archivePath build/YourProject.xcarchive -exportPath build/YourProject.ipa -exportOptionsPlist exportOptions.plist
 
-                    const ls = spawn('xcodebuild', ['-exportArchive', '-archivePath', archivePath, '-exportPath', exportPath, '-exportOptionsPlist', exportOptionsPath], {
+                    const ls = spawn('xcodebuild', ['-exportArchive', '-archivePath', archivePath, '-exportPath', exportPath, '-exportOptionsPlist', exportOptionsPath, '-allowProvisioningUpdates', '-destination', 'generic/platform=iOS'], {
                         stdio: ['inherit', 'inherit', 'inherit']
                     });
                     ls.on('close', (code) => {

@@ -85,9 +85,9 @@ const attendances = computed(() => {
             from_date: DateTime.fromISO(attendance.from_date).toFormat('dd/MM/yyyy'),
             to_date: DateTime.fromISO(attendance.to_date).toFormat('dd/MM/yyyy'),
             created_at: DateTime.fromISO(attendance.created_at).toFormat('dd/MM/yyyy'),
-            job_name: jobsAndExpenses.value.jobs.find((job) => job.code == attendance.job_code)?.name,
-            expense_name: jobsAndExpenses.value.expenses.find((expense) => expense.code == attendance.expense_code)?.name
-        };
+            job_name: jobsAndExpenses.value.jobs.find((job) => job.code == attendance.job_code)?.name || '',
+            expense_name: jobsAndExpenses.value.expenses.find((expense) => expense.code == attendance.expense_code)?.name || ''
+        } as IAttendance & { from_date: string; to_date: string; created_at: string; job_name: string; expense_name: string };
         
         return attendanceItem;
     })
@@ -106,7 +106,7 @@ const attendancesGroupedUI = computed(() => {
         }
         acc[monthYear].push(attendance);
         return acc;
-    }, {} as {[key: string]: IAttendance[]});
+    }, {} as {[key: string]: (IAttendance & { from_date: string; to_date: string; created_at: string; job_name: string; expense_name: string })[]});
 
     const groupedAttendancesUI = Object.keys(groupedAttendances).map((key) => {
         return {

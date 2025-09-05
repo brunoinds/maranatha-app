@@ -1,6 +1,6 @@
-import CapacitorConfig from './capacitor.config.ts';
-import { exec, execSync, spawn } from 'child_process';
+import { spawn } from 'child_process';
 import fs from 'fs';
+import CapacitorConfig from './capacitor.config.ts';
 
 
 

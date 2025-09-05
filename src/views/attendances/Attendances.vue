@@ -14,16 +14,18 @@
             </ion-fab>
 
             <section class="content">
-                <ion-accordion-group :value="(attendancesGroupedUI.length > 0) ? attendancesGroupedUI[0].monthYear : null">
-                    <ion-accordion v-for="attendanceGrouped  in attendancesGroupedUI" :key="attendanceGrouped.monthYear" :value="attendanceGrouped.monthYear">
-                        <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                            <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
-                            <ion-label>
-                                <h2><b>{{ attendanceGrouped.monthYearText }}</b></h2>
-                                <p>{{ attendanceGrouped.attendances.length }} registros</p>
-                            </ion-label>
-                        </ion-item>
-                        <section slot="content" class="ion-padding">
+                <template v-if="attendancesGroupedUI.length > 0">
+                    <ion-accordion-item v-for="attendanceGrouped in attendancesGroupedUI" :key="attendanceGrouped.monthYear" :value="attendanceGrouped.monthYear">
+                        <template v-slot:head>
+                            <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                                <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
+                                <ion-label>
+                                    <h2><b>{{ attendanceGrouped.monthYearText }}</b></h2>
+                                    <p>{{ attendanceGrouped.attendances.length }} registros</p>
+                                </ion-label>
+                            </ion-item>
+                        </template>
+                        <template #body>
                             <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                                 <ion-item v-for="attendance in attendanceGrouped.attendances" :key="attendance.id" button @click="openAttendance(attendance.id)" :detail="true">
                                     <ion-label>
@@ -34,9 +36,9 @@
                                     </ion-label>
                                 </ion-item>
                             </ion-list>
-                        </section>
-                    </ion-accordion>
-                </ion-accordion-group>
+                        </template>
+                    </ion-accordion-item>
+                </template>
 
 
                 <OnBoardingPanel v-if="!isLoading && attendances.length == 0"
@@ -51,7 +53,7 @@
 
 <script setup lang="ts">
 import AttendanceIcon from '&/assets/icons/attendance.svg';
-import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonImg, IonAccordion, IonAccordionGroup, IonItem, IonListHeader, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
+import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonImg, IonItem, IonListHeader, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
@@ -66,6 +68,7 @@ import NewAttendance from '../../dialogs/NewAttendance/NewAttendance.vue';
 import { IAttendance } from '../../interfaces/AttendanceInterfaces';
 import { AppEvents } from '../../utils/AppEvents/AppEvents';
 import OnBoardingPanel from '@/components/OnBoardingPanel/OnBoardingPanel.vue';
+import IonAccordionItem from '@/components/IonAccordionItem/IonAccordionItem.vue';
 
 const attendancesData = ref<Array<IAttendance>>([]);
 const isLoading = ref<boolean>(true);

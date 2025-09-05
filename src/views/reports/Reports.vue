@@ -19,16 +19,18 @@
                 <article v-if="reports.rejected.length > 0">
                     <ion-list-header>Rechazados</ion-list-header>
                     <br>
-                    <ion-accordion-group v-if="groupedReports.rejected.length > 1" :value="groupedReports.rejected.length > 0 ? groupedReports.rejected[0].monthYear : null">
-                        <ion-accordion v-for="reportGroup in groupedReports.rejected" :key="reportGroup.monthYear" :value="reportGroup.monthYear">
-                            <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                                <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
-                                <ion-label>
-                                    <h2><b>{{ reportGroup.monthYearText }}</b></h2>
-                                    <p>{{ reportGroup.reports.length }} reportes</p>
-                                </ion-label>
-                            </ion-item>
-                            <section slot="content" class="ion-padding">
+                    <template v-if="groupedReports.rejected.length > 1">
+                        <ion-accordion-item v-for="reportGroup in groupedReports.rejected" :key="reportGroup.monthYear" :value="reportGroup.monthYear">
+                            <template v-slot:head>
+                                <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                                    <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
+                                    <ion-label>
+                                        <h2><b>{{ reportGroup.monthYearText }}</b></h2>
+                                        <p>{{ reportGroup.reports.length }} reportes</p>
+                                    </ion-label>
+                                </ion-item>
+                            </template>
+                            <template #body>
                                 <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                                     <ion-item v-for="report in reportGroup.reports" :key="report.id" button @click="openReport(report.id)" :detail="true">
                                         <ion-label>
@@ -40,9 +42,9 @@
                                         <ReportStatusChip :report="report"></ReportStatusChip>
                                     </ion-item>
                                 </ion-list>
-                            </section>
-                        </ion-accordion>
-                    </ion-accordion-group>
+                            </template>
+                        </ion-accordion-item>
+                    </template>
                     <ion-list v-else :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                         <ion-item v-for="report in reports.rejected" :key="report.id" button @click="openReport(report.id)" :detail="true">
                             <ion-label>
@@ -59,16 +61,18 @@
                 <article v-if="reports.drafts.length > 0">
                     <ion-list-header>No enviados</ion-list-header>
                     <br>
-                    <ion-accordion-group v-if="groupedReports.drafts.length > 1" :value="groupedReports.drafts.length > 0 ? groupedReports.drafts[0].monthYear : null">
-                        <ion-accordion v-for="reportGroup in groupedReports.drafts" :key="reportGroup.monthYear" :value="reportGroup.monthYear">
-                            <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                                <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
-                                <ion-label>
-                                    <h2><b>{{ reportGroup.monthYearText }}</b></h2>
-                                    <p>{{ reportGroup.reports.length }} reportes</p>
-                                </ion-label>
-                            </ion-item>
-                            <section slot="content" class="ion-padding">
+                    <template v-if="groupedReports.drafts.length > 1">
+                        <ion-accordion-item v-for="reportGroup in groupedReports.drafts" :key="reportGroup.monthYear" :value="reportGroup.monthYear">
+                            <template v-slot:head>
+                                <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                                    <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
+                                    <ion-label>
+                                        <h2><b>{{ reportGroup.monthYearText }}</b></h2>
+                                        <p>{{ reportGroup.reports.length }} reportes</p>
+                                    </ion-label>
+                                </ion-item>
+                            </template>
+                            <template #body>
                                 <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                                     <ion-item v-for="report in reportGroup.reports" :key="report.id" button @click="openReport(report.id)" :detail="true">
                                         <ion-label>
@@ -80,9 +84,9 @@
                                         <ReportStatusChip :report="report"></ReportStatusChip>
                                     </ion-item>
                                 </ion-list>
-                            </section>
-                        </ion-accordion>
-                    </ion-accordion-group>
+                            </template>
+                        </ion-accordion-item>
+                    </template>
                     <ion-list v-else :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                         <ion-item v-for="report in reports.drafts" :key="report.id" button @click="openReport(report.id)" :detail="true">
                             <ion-label>
@@ -99,16 +103,18 @@
                 <article v-if="reports.submitted.length > 0">
                     <ion-list-header>Pendiente Aprobación</ion-list-header>
                     <br>
-                    <ion-accordion-group v-if="groupedReports.submitted.length > 1" :value="groupedReports.submitted.length > 0 ? groupedReports.submitted[0].monthYear : null">
-                        <ion-accordion v-for="reportGroup in groupedReports.submitted" :key="reportGroup.monthYear" :value="reportGroup.monthYear">
-                            <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                                <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
-                                <ion-label>
-                                    <h2><b>{{ reportGroup.monthYearText }}</b></h2>
-                                    <p>{{ reportGroup.reports.length }} reportes</p>
-                                </ion-label>
-                            </ion-item>
-                            <section slot="content" class="ion-padding">
+                    <template v-if="groupedReports.submitted.length > 1">
+                        <ion-accordion-item v-for="reportGroup in groupedReports.submitted" :key="reportGroup.monthYear" :value="reportGroup.monthYear">
+                            <template v-slot:head>
+                                <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                                    <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
+                                    <ion-label>
+                                        <h2><b>{{ reportGroup.monthYearText }}</b></h2>
+                                        <p>{{ reportGroup.reports.length }} reportes</p>
+                                    </ion-label>
+                                </ion-item>
+                            </template>
+                            <template #body>
                                 <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                                     <ion-item v-for="report in reportGroup.reports" :key="report.id" button @click="openReport(report.id)" :detail="true">
                                         <ion-label>
@@ -120,9 +126,9 @@
                                         <ReportStatusChip :report="report"></ReportStatusChip>
                                     </ion-item>
                                 </ion-list>
-                            </section>
-                        </ion-accordion>
-                    </ion-accordion-group>
+                            </template>
+                        </ion-accordion-item>
+                    </template>
                     <ion-list v-else :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                         <ion-item v-for="report in reports.submitted" :key="report.id" button @click="openReport(report.id)" :detail="true">
                             <ion-label>
@@ -139,16 +145,18 @@
                 <article v-if="reports.approved.length > 0">
                     <ion-list-header>Pendiente Reembolso</ion-list-header>
                     <br>
-                    <ion-accordion-group v-if="groupedReports.approved.length > 1" :value="groupedReports.approved.length > 0 ? groupedReports.approved[0].monthYear : null">
-                        <ion-accordion v-for="reportGroup in groupedReports.approved" :key="reportGroup.monthYear" :value="reportGroup.monthYear">
-                            <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                                <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
-                                <ion-label>
-                                    <h2><b>{{ reportGroup.monthYearText }}</b></h2>
-                                    <p>{{ reportGroup.reports.length }} reportes</p>
-                                </ion-label>
-                            </ion-item>
-                            <section slot="content" class="ion-padding">
+                    <template v-if="groupedReports.approved.length > 1">
+                        <ion-accordion-item v-for="reportGroup in groupedReports.approved" :key="reportGroup.monthYear" :value="reportGroup.monthYear">
+                            <template v-slot:head>
+                                <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                                    <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
+                                    <ion-label>
+                                        <h2><b>{{ reportGroup.monthYearText }}</b></h2>
+                                        <p>{{ reportGroup.reports.length }} reportes</p>
+                                    </ion-label>
+                                </ion-item>
+                            </template>
+                            <template #body>
                                 <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                                     <ion-item v-for="report in reportGroup.reports" :key="report.id" button @click="openReport(report.id)" :detail="true">
                                         <ion-label>
@@ -160,9 +168,9 @@
                                         <ReportStatusChip :report="report"></ReportStatusChip>
                                     </ion-item>
                                 </ion-list>
-                            </section>
-                        </ion-accordion>
-                    </ion-accordion-group>
+                            </template>
+                        </ion-accordion-item>
+                    </template>
                     <ion-list v-else :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                         <ion-item v-for="report in reports.approved" :key="report.id" button @click="openReport(report.id)" :detail="true">
                             <ion-label>
@@ -179,16 +187,18 @@
                 <article v-if="reports.restituted.length > 0">
                     <ion-list-header>Pagados</ion-list-header>
                     <br>
-                    <ion-accordion-group v-if="groupedReports.restituted.length > 1" :value="groupedReports.restituted.length > 0 ? groupedReports.restituted[0].monthYear : null">
-                        <ion-accordion v-for="reportGroup in groupedReports.restituted" :key="reportGroup.monthYear" :value="reportGroup.monthYear">
-                            <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
-                                <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
-                                <ion-label>
-                                    <h2><b>{{ reportGroup.monthYearText }}</b></h2>
-                                    <p>{{ reportGroup.reports.length }} reportes</p>
-                                </ion-label>
-                            </ion-item>
-                            <section slot="content" class="ion-padding">
+                    <template v-if="groupedReports.restituted.length > 1">
+                        <ion-accordion-item v-for="reportGroup in groupedReports.restituted" :key="reportGroup.monthYear" :value="reportGroup.monthYear">
+                            <template v-slot:head>
+                                <ion-item slot="header" color="light" :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
+                                    <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
+                                    <ion-label>
+                                        <h2><b>{{ reportGroup.monthYearText }}</b></h2>
+                                        <p>{{ reportGroup.reports.length }} reportes</p>
+                                    </ion-label>
+                                </ion-item>
+                            </template>
+                            <template #body>
                                 <ion-list :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                                     <ion-item v-for="report in reportGroup.reports" :key="report.id" button @click="openReport(report.id)" :detail="true">
                                         <ion-label>
@@ -200,9 +210,9 @@
                                         <ReportStatusChip :report="report"></ReportStatusChip>
                                     </ion-item>
                                 </ion-list>
-                            </section>
-                        </ion-accordion>
-                    </ion-accordion-group>
+                            </template>
+                        </ion-accordion-item>
+                    </template>
                     <ion-list v-else :inset="Viewport.data.value.deviceSetting == 'DesktopLandscape'">
                         <ion-item v-for="report in reports.restituted" :key="report.id" button @click="openReport(report.id)" :detail="true">
                             <ion-label>
@@ -227,7 +237,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonRefresher, IonRefresherContent, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, IonAccordion, IonAccordionGroup, alertController } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonRefresher, IonRefresherContent, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
@@ -249,6 +259,7 @@ import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
 import IonDateRange from '@/components/IonDateRange/IonDateRange.vue';
 import OnBoardingPanel from '@/components/OnBoardingPanel/OnBoardingPanel.vue';
+import IonAccordionItem from '@/components/IonAccordionItem/IonAccordionItem.vue';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);

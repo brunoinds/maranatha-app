@@ -10,28 +10,32 @@
             </div>
         </ion-accordion>
     </ion-accordion-group>
-    
 </template>
 
 <script setup lang="ts">
 
-import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonChip, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonPage, IonSearchbar, IonSelect, IonSelectOption, IonToggle, IonToolbar, alertController } from '@ionic/vue';
+import { IonAccordion, IonAccordionGroup } from '@ionic/vue';
 import { ref } from 'vue';
 
 const isOpen = ref(false);
 const meElement = ref<HTMLElement | null>(null);
-
+const timeoutId = ref<number | null>(null);
 const onChange = (event: CustomEvent) => {
     const meElementEl = (meElement.value as any).$el;
     if (event.target != meElementEl){
         return;
     }
     if (event.detail.value){
+        if (timeoutId.value) {
+            clearTimeout(timeoutId.value);
+        }
         isOpen.value = true;
         return;
     }
 
-    isOpen.value = false;
+    setTimeout(() => {
+        isOpen.value = false;
+    }, 300);
 }
 
 </script>

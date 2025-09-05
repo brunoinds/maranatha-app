@@ -88,7 +88,8 @@ class Session{
     
     public static async login(username:string, password:string){
         if (await Session.isLogged()){
-            throw new Error("Already logged");
+            //throw new Error("Already logged");
+            return;
         }
 
         try {

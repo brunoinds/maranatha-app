@@ -246,6 +246,7 @@ class RequestAPI{
     private static async proxyResponse(response: Promise<any>): Promise<any>{
         const reactions = {
             onAunauthenticated: async (request:XMLHttpRequest, response:AxiosResponse) => {
+                console.log('There we go')
                 const session = await Session.getCurrentSession();
                 if (session){
                     if (!request.responseURL.includes('api/logout')){
@@ -265,10 +266,8 @@ class RequestAPI{
                     console.error(error)
                     reject(error)
                 }
-                if (error.response && error.response.data && error.response.message){
-                    if (error.response.data.message == 'Unauthenticated.'){
-                        reactions.onAunauthenticated(error.request, error.response);
-                    }
+                if (error.response?.data?.message == 'Unauthenticated.'){
+                    reactions.onAunauthenticated(error.request, error.response);
                 }
                 reject(error)
             })

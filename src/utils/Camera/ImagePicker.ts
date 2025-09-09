@@ -5,7 +5,7 @@ import { Capacitor } from "@capacitor/core";
 import { FilePicker } from "@capawesome/capacitor-file-picker";
 import { toastController, alertController, actionSheetController } from "@ionic/vue";
 import imageCompression from "browser-image-compression";
-import { DocumentScanner } from "capacitor-document-scanner";
+import { DocumentScanner } from '@capacitor-mlkit/document-scanner';
 
 export class ImagePicker{
     public static async loadInvoiceDocument(options: {
@@ -45,7 +45,7 @@ export class ImagePicker{
                             cameraPermission = await Camera.checkPermissions();
                 
                             if (cameraPermission.camera == 'granted' || cameraPermission.camera == 'limited'){
-                                const { scannedImages } = await DocumentScanner.scanDocument() as unknown as {scannedImages: Array<string>};
+                                const { scannedImages } = await ImagePicker.scanDocument() as unknown as {scannedImages: Array<string>};
                                 if (scannedImages.length > 0) {
                                     resolve({
                                         path: scannedImages[0],
@@ -444,5 +444,20 @@ export class ImagePicker{
 
         const response = await openCamera() as unknown as {image: string, barcode: string};
         return response;
+    }
+
+
+    public static async scanDocument() : Promise<{scannedImages: Array<string>}> {
+        const result = await DocumentScanner.scanDocument({
+            galleryImportAllowed: true,
+            pageLimit: 5,
+            resultFormats: 'JPEG',
+            scannerMode: 'FULL',
+        });
+
+
+        return {
+            scannedImages: result.scannedImages
+        }
     }
 }

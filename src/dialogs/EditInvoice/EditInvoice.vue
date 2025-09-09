@@ -152,9 +152,10 @@ import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { Capacitor } from '@capacitor/core';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
-import { DocumentScanner } from 'capacitor-document-scanner';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import humanFormat from 'human-format';
+import { ImagePicker } from '@/utils/Camera/ImagePicker';
+
 
 const onDatePickerChange = (event: CustomEvent) => {
     const date = event.detail.value.split('T')[0];
@@ -289,7 +290,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             cameraPermission = await Camera.checkPermissions();
 
             if (cameraPermission.camera == 'granted' || cameraPermission.camera == 'limited'){
-                const { scannedImages } = await DocumentScanner.scanDocument() as unknown as {scannedImages: Array<string>};
+                const { scannedImages } = await ImagePicker.scanDocument() as unknown as {scannedImages: Array<string>};
                 if (scannedImages.length > 0) {
                     resolve({
                         path: scannedImages[0],

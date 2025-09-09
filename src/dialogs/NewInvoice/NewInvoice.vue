@@ -180,10 +180,10 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import imageCompression from 'browser-image-compression';
-import { DocumentScanner } from 'capacitor-document-scanner';
 import { DateTime } from "luxon";
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import humanFormat from 'human-format';
+import { ImagePicker } from '@/utils/Camera/ImagePicker';
 
 const datetimeAccordionGroup = ref<any>(null);
 
@@ -475,7 +475,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             cameraPermission = await Camera.checkPermissions();
 
             if (cameraPermission.camera == 'granted' || cameraPermission.camera == 'limited'){
-                const { scannedImages } = await DocumentScanner.scanDocument() as unknown as {scannedImages: Array<string>};
+                const { scannedImages } = await ImagePicker.scanDocument() as unknown as {scannedImages: Array<string>};
                 if (scannedImages.length > 0) {
                     resolve({
                         path: scannedImages[0],

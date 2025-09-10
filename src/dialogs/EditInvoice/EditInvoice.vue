@@ -156,7 +156,6 @@ import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import humanFormat from 'human-format';
 import { ImagePicker } from '@/utils/Camera/ImagePicker';
 
-
 const onDatePickerChange = (event: CustomEvent) => {
     const date = event.detail.value.split('T')[0];
     const formatted = DateTime.fromFormat(date, "yyyy-MM-dd").toFormat("dd/MM/yyyy").toString();
@@ -290,15 +289,13 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             cameraPermission = await Camera.checkPermissions();
 
             if (cameraPermission.camera == 'granted' || cameraPermission.camera == 'limited'){
-                const { scannedImages } = await ImagePicker.scanDocument() as unknown as {scannedImages: Array<string>};
-                if (scannedImages.length > 0) {
-                    resolve({
-                        path: scannedImages[0],
-                        webPath: Capacitor.convertFileSrc(scannedImages[0]),
-                        details: {
-                        }
-                    })
-                }
+                const result = await ImagePicker.scanDocument();
+                resolve({
+                    path: result.path,
+                    webPath: result.webPath,
+                    details: {
+                    }
+                })
             }
         })
         
@@ -427,7 +424,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                 isLoadingImageCompression.value = false;
             })
         })
-        BarcodeScanner.isSupported().then((isSupported) => {
+        /* BarcodeScanner.isSupported().then((isSupported) => {
             if (!isSupported){
                 return;
             }
@@ -442,7 +439,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             })
         }).catch((error) => {
             
-        })
+        }) */
     }
     const loadPdfFrom = async (pdf: {path: string, webPath: string}) => {
         isLoadingImageCompression.value = true;

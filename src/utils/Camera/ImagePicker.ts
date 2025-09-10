@@ -1,11 +1,11 @@
 import { PDFModifier } from "@/utils/PDFModifier/PDFModifier";
-import { BarcodeScanner, IsSupportedResult } from "@capacitor-mlkit/barcode-scanning";
 import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 import { Capacitor } from "@capacitor/core";
+import { Directory, Filesystem } from "@capacitor/filesystem";
 import { FilePicker } from "@capawesome/capacitor-file-picker";
-import { toastController, alertController, actionSheetController } from "@ionic/vue";
+import { actionSheetController, alertController, toastController } from "@ionic/vue";
 import imageCompression from "browser-image-compression";
-import { DocumentScanner } from '@capacitor-mlkit/document-scanner';
+import { MdocumentScanner, ResponseType } from 'mdocument-scanner';
 
 export class ImagePicker{
     public static async loadInvoiceDocument(options: {
@@ -45,16 +45,13 @@ export class ImagePicker{
                             cameraPermission = await Camera.checkPermissions();
                 
                             if (cameraPermission.camera == 'granted' || cameraPermission.camera == 'limited'){
-                                const { scannedImages } = await ImagePicker.scanDocument() as unknown as {scannedImages: Array<string>};
-                                if (scannedImages.length > 0) {
-                                    resolve({
-                                        path: scannedImages[0],
-                                        webPath: Capacitor.convertFileSrc(scannedImages[0]),
-                                        details: {
-                
-                                        }
-                                    })
-                                }
+                                const result = await ImagePicker.scanDocument();
+                                resolve({
+                                    path: result.path,
+                                    webPath: result.webPath,
+                                    details: {
+                                    }
+                                })
                             }
                         } catch (error) {
                             rejectMaster(error)
@@ -198,40 +195,6 @@ export class ImagePicker{
                         image: compressedFileBase64,
                         barcode: null
                     };
-    
-                    let isBarcodeSupported: boolean = false;
-
-
-                    try {
-                        isBarcodeSupported = (await BarcodeScanner.isSupported()).supported;
-                    } catch (error) {
-                        isBarcodeSupported = false;
-                    }
-
-    
-                    if (!isBarcodeSupported){
-                        return{
-                            image: compressedFileBase64,
-                            barcode: null
-                        };
-                    }else{
-                        const barcodeResponse = await BarcodeScanner.readBarcodesFromImage({
-                            path: image.path as unknown as string,
-                        });
-
-                        if (barcodeResponse.barcodes.length == 0){
-                            return {
-                                image: compressedFileBase64,
-                                barcode: null
-                            };;
-                        
-                        }
-                        const barcode = barcodeResponse.barcodes[0];
-                        return{
-                            image: compressedFileBase64,
-                            barcode: barcode.rawValue
-                        };
-                    }
                 }
             
                 if (forceFromGallery){
@@ -447,17 +410,34 @@ export class ImagePicker{
     }
 
 
-    public static async scanDocument() : Promise<{scannedImages: Array<string>}> {
-        const result = await DocumentScanner.scanDocument({
-            galleryImportAllowed: true,
-            pageLimit: 5,
-            resultFormats: 'JPEG',
-            scannerMode: 'FULL',
+    public static async scanDocument() : Promise<{path: string, webPath: string}> {
+        const response = await MdocumentScanner.scanDocument({
+            responseType: ResponseType.Base64
         });
+
+        let base64 = response.scannedFile as string;
+
+        if (atob(base64).startsWith('%PDF')){
+            function convertDataURIToBinary(base64:string) {
+                const raw = window.atob(base64);
+                const rawLength = raw.length;
+                const array = new Uint8Array(new ArrayBuffer(rawLength));
+                for(let i = 0; i < rawLength; i++) {
+                    array[i] = raw.charCodeAt(i);
+                }
+                return array;
+            }
+
+            const sourcePDF = {data: convertDataURIToBinary(base64)}
+            const pdf = await PDFModifier.loadPDF(sourcePDF);
+            const imageBase64 = await pdf.extractPagesIntoSingleImageAsBase64();
+            base64 = imageBase64.split(',')[1];
+        }
 
 
         return {
-            scannedImages: result.scannedImages
-        }
+            path: '',
+            webPath: 'data:image/jpeg;base64,' + base64
+        };
     }
 }

@@ -1,0 +1,64 @@
+name: Deploy Ionic
+on:
+  push:
+    branches:
+      - capacitor-7.x
+jobs:
+  native-live-update-deploy:
+    name: 📲 Native Live Update Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 💻 Get the latest code
+        uses: actions/checkout@v4
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 💻 Install Ionic CLI
+        run: npm install -g @ionic/cli
+      - name: 📦 Install Ionic Dependencies
+        run: npm install
+      - name: ⭐️ Setting project as "production"
+        run: npm run ensure-production
+      - name: 📲 Build Ionic Project (Native Live Update)
+        run: npm run bundle-live-update
+      - name: 🗳️ Get Bundle name
+        id: zip_file
+        run: |
+          zip_file=$(ls dist/*.zip | head -n 1)
+          echo "::set-output name=zip_file::$zip_file"
+      - name: 📤 Upload Bundle to distribution
+        env:
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+        run: |
+          curl --fail --location --request POST 'https://maranatha.top/api/app/native/bundles?secret_key=${{ env.APP_PRIVATE_KEY }}' \
+              --form "file=@${{ steps.zip_file.outputs.zip_file }}"
+  web-deploy:
+    name: 🌎 Web Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 💻 Get the latest code
+        uses: actions/checkout@v4
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 💻 Install Ionic CLI
+        run: npm install -g @ionic/cli
+      - name: 📦 Install Ionic Dependencies
+        run: npm install
+      - name: ⭐️ Setting project as "production"
+        run: npm run ensure-production
+      - name: 🔨🌎 Build Ionic Project (Web)
+        run: npm run bundle-web-update
+      - name: 🗳️ Get Bundle name
+        id: zip_file
+        run: |
+          zip_file=$(ls dist/*.zip | head -n 1)
+          echo "::set-output name=zip_file::$zip_file"
+      - name: 📤 Upload Bundle to distribution
+        env:
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+        run: |
+          curl --fail --location --request POST 'https://maranatha.top/api/app/web/bundles?secret_key=${{ env.APP_PRIVATE_KEY }}' \
+              --form "file=@${{ steps.zip_file.outputs.zip_file }}"

@@ -20,10 +20,17 @@ interface IRecordData{
 
 
 class ExcelGenerator{
-    public static generateExcelFrom(options: {filters: IRecordFilter[], data: IRecordData, title: string}){
+    public static generateExcelFrom(options: {filters: IRecordFilter[], data: IRecordData, title: string, password?: string|null}){
         // Create workbook and worksheet
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("Sheet 1");
+
+        if (options.password){
+            worksheet.protect(options.password, {
+                
+            });
+        }
+
         const maxColumns = options.data.headers.length;
         const getExcelAlpha = (index: number) => {
             //Get excel column name from index, if overflow Z, then AA, AB, AC, etc.:

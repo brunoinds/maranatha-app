@@ -21,6 +21,8 @@
     "test:e2e": "cypress run",
     "test:unit": "vitest",
     "lint": "eslint",
+    "publish:ios": "npm run cli cap publish ios",
+    "publish:android": "npm run cli cap publish android",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org prolux-inc --release maranathasender@$(node -p \"require('./app.config.json').versioning.version\") --project maranatha-invoices-native ./dist && sentry-cli sourcemaps upload --org prolux-inc --release maranathasender@$(node -p \"require('./app.config.json').versioning.version\") --dist $(node -p \"require('./app.config.json').versioning.version\").$(node -p \"require('./app.config.json').versioning.build\") --project maranatha-invoices-native ./dist"
   },
   "dependencies": {

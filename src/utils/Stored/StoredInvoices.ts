@@ -1,6 +1,7 @@
 import SyncingChanges from "@/dialogs/SyncingChanges/SyncingChanges.vue";
 import { EInvoiceType } from "@/interfaces/InvoiceInterfaces";
 import { Dialog } from "@/utils/Dialog/Dialog";
+import { Environment } from "@/utils/Environment/Environment";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { IReportUploadResponse, StoredReports } from "@/utils/Stored/StoredReports";
 import { TStorage } from "@/utils/Toolbox/TStorage";
@@ -107,8 +108,9 @@ class StoredInvoices{
             TStorage.load('StoredInvoices', {
                 invoices: []
             }).then((bucket) => {
-                if (invoice.id < 10000){
-                    invoice.id = Math.floor(Math.random() * 1000000);
+                if (invoice.id < parseInt(Environment.variable('LOCAL_UPLOAD_ID_MINIMAL_VALUE'))){
+                    const minValue = parseInt(Environment.variable('LOCAL_UPLOAD_ID_MINIMAL_VALUE'));
+                    invoice.id = Math.floor(Math.random() * 1000000) + minValue + 1;
                 }
                 bucket.data.invoices.push(invoice);
                 bucket.save().then(() => {
@@ -161,7 +163,7 @@ class StoredInvoices{
                 invoices: []
             }).then((bucket) => {
                 bucket.data.invoices = bucket.data.invoices.filter((invoice:IInvoiceResponse) => {
-                    return invoice.id < 10000;
+                    return invoice.id < parseInt(Environment.variable('LOCAL_UPLOAD_ID_MINIMAL_VALUE'));
                 })
                 bucket.save().then(() => {
                     resolve(true);
@@ -282,7 +284,7 @@ class StoredInvoices{
             let completed: number = 0;
 
             let invoicesToUpload = bucket.data.invoices.filter((invoice:IInvoiceResponse) => {
-                return invoice.id >= 10000;
+                return invoice.id >= parseInt(Environment.variable('LOCAL_UPLOAD_ID_MINIMAL_VALUE'));
             })
 
             StoredInvoices.uploadPendingInfo.value.invoices = invoicesToUpload.map((invoice:IInvoiceResponse) => {

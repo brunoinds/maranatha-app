@@ -327,6 +327,7 @@ import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue
 import Numeral from 'numeral';
 import AddRepositionPettyCash from '@/dialogs/AddRepositionPettyCash/AddRepositionPettyCash.vue';
 import _ from 'lodash';
+import { Environment } from '@/utils/Environment/Environment';
 
 const routeParams = useRoute();
 
@@ -478,7 +479,7 @@ const editReport = async () => {
     })
 }
 const deleteInvoice = async (invoice:IInvoice) => {
-    if (invoice.id >= 10000){
+    if (invoice.id >= parseInt(Environment.variable('LOCAL_UPLOAD_ID_MINIMAL_VALUE'))){
         //Delete from localDB;
         await StoredInvoices.removeLocalInvoice(invoice.id);
     }else{
@@ -523,7 +524,7 @@ const openInvoice = async (invoice:IInvoice) => {
         }
     ]
 
-    if ((invoice.id < 10000) && !isOfflineReport.value){
+    if ((invoice.id < parseInt(Environment.variable('LOCAL_UPLOAD_ID_MINIMAL_VALUE'))) && !isOfflineReport.value){
         //Prepend button to retry upload image:
         buttons = [            
             {
@@ -536,7 +537,7 @@ const openInvoice = async (invoice:IInvoice) => {
             ...buttons
         ]
     }
-    if ((isOfflineReport.value && invoice.id >= 10000) || !isOfflineReport.value){
+    if ((isOfflineReport.value && invoice.id >= parseInt(Environment.variable('LOCAL_UPLOAD_ID_MINIMAL_VALUE'))) || !isOfflineReport.value){
         //Prepend button to retry upload image:
         buttons = [
             ...buttons,

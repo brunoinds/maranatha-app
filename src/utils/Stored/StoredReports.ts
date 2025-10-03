@@ -1,4 +1,5 @@
 import { ECountryType, EMoneyType, EReportStatus, EReportType } from "@/interfaces/ReportInterfaces";
+import { Environment } from "@/utils/Environment/Environment";
 import { RequestAPI } from "@/utils/Requests/RequestAPI";
 import { Session } from "@/utils/Session/Session";
 import { TStorage } from "@/utils/Toolbox/TStorage";
@@ -77,8 +78,9 @@ class StoredReports{
             TStorage.load('StoredReports', {
                 reports: []
             }).then((bucket) => {
-                if (report.id < 10000){
-                    report.id = Math.floor(Math.random() * 1000000);
+                if (report.id < parseInt(Environment.variable('LOCAL_UPLOAD_ID_MINIMAL_VALUE'))){
+                    const minValue = parseInt(Environment.variable('LOCAL_UPLOAD_ID_MINIMAL_VALUE'));
+                    report.id = Math.floor(Math.random() * 1000000) + minValue + 1;
                 }
                 bucket.data.reports.push(report);
                 bucket.save().then(() => {
@@ -184,7 +186,7 @@ class StoredReports{
                 reports: []
             }).then((bucket) => {
                 const listReportsToUpdate = bucket.data.reports.filter((report:IReportResponse) => {
-                    if (report.id > 10000){
+                    if (report.id > parseInt(Environment.variable('LOCAL_UPLOAD_ID_MINIMAL_VALUE'))){
                         return true;
                     }else{
                         return false;

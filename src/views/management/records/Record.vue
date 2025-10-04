@@ -18,10 +18,17 @@
                     <ion-icon slot="end" :icon="arrowForwardCircleOutline"></ion-icon>
                     <ion-label>Generar Informe</ion-label>
                 </ion-button>
-                <ion-button color="success" @click="downloadExcel" fill="clear" size="default" expand="block" style="max-width: 200px; margin: 0 auto; width: 100%;">
-                    <ion-icon slot="end" :icon="cloudDownloadOutline"></ion-icon>
-                    Descargar Excel
-                </ion-button>
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <ion-button color="success" @click="downloadExcel" fill="clear" size="default" expand="block" style="max-width: 200px; margin: 0 auto; width: 100%;">
+                        <ion-icon slot="end" :icon="cloudDownloadOutline"></ion-icon>
+                        Descargar Excel
+                    </ion-button>
+                    <ion-button color="tertiary" @click="downloadPDF" fill="clear" size="default" expand="block" style="max-width: 200px; margin: 0 auto; width: 100%;">
+                        <ion-icon slot="end" :icon="cloudDownloadOutline"></ion-icon>
+                        Descargar PDF
+                    </ion-button>
+                </div>
+                
             </div>
         </header>
         <main>
@@ -50,7 +57,7 @@ import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import EditUser from '@/dialogs/EditUser/EditUser.vue';
 
-import { addOutline, albumsOutline, alertCircleOutline, arrowForwardCircleOutline, checkmarkCircleOutline, close, cloudDownloadOutline, logIn, refreshOutline } from 'ionicons/icons';
+import { addOutline, albumsOutline, alertCircleOutline, arrowForwardCircleOutline, checkmarkCircleOutline, close, cloudDownloadOutline, fileTrayOutline, logIn, refreshOutline } from 'ionicons/icons';
 import { IReport } from '@/interfaces/ReportInterfaces';
 import { useRouter } from 'vue-router';
 import FiltersArea from '@/views/management/records/components/FiltersArea.vue';
@@ -62,6 +69,7 @@ import {ExcelGenerator} from '@/utils/Records/ExcelGenerator';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { GenerateAttendancesByWorkersJobsExpenses } from '@/utils/ExcelExport/AttendancesByWorkersJobsExpenses';
+import { PdfGenerator } from '@/utils/Records/PdfGenerator';
 
 const isLoading = ref<boolean>(true);
 const router = useRouter();
@@ -150,6 +158,44 @@ const downloadExcel = async () => {
         const fileTitle = 'Informe ' + currentRecord.value.configuration?.title
         Toolbox.share(fileTitle + '.xlsx', result as unknown as string)
     })
+}
+
+const downloadPDF = async () => {
+    if (currentRecord.value.data.headers.length == 0){
+        await currentRecord.value.doSearch();
+    }
+    
+    PdfGenerator.generatePdfFrom({
+        data: {
+            headers: currentRecord.value.data.headers,
+            body: currentRecord.value.data.body,
+            query: currentRecord.value.data.query,
+            rules: currentRecord.value.data.rules || undefined,
+            footer: currentRecord.value.data.footer || undefined
+        },
+        filters: currentRecord.value.filters.map((filter) => {
+            let filterStatic = JSON.parse(JSON.stringify(filter.value));
+            if (filterStatic.id == 'warehouse_ids'){
+                filterStatic.options = filterStatic.options.map((item) => {
+                    return {
+                        ...item,
+                        value: item.name
+                    }
+                })
+                if (Array.isArray(filterStatic.value)){
+                    filterStatic.value = filterStatic.value.map((item) => {
+                        return filterStatic.options.find((option) => option.id == item).name
+                    })
+                }
+            }
+            return filterStatic;
+        }),
+        title: 'Informe ' + currentRecord.value.configuration?.title || 'Informe'
+    }).then((result) => {
+        const fileTitle = 'Informe ' + currentRecord.value.configuration?.title
+        Toolbox.share(fileTitle + '.pdf', result as unknown as string)
+    })
+    
 }
 
 

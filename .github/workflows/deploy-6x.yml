@@ -2,7 +2,7 @@ name: Deploy Ionic
 on:
   push:
     branches:
-      - capacitor-7.x
+      - none
 jobs:
   native-live-update-deploy:
     name: 📲 Native Live Update Deploy
@@ -31,7 +31,7 @@ jobs:
         env:
           APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
         run: |
-          curl --fail --location --request POST 'https://maranatha.top/api/app/native/bundles?secret_key=${{ env.APP_PRIVATE_KEY }}' \
+          curl --fail --location --request POST 'https://maranatha.imedicineapp.com/api/app/native/bundles?secret_key=${{ env.APP_PRIVATE_KEY }}' \
               --form "file=@${{ steps.zip_file.outputs.zip_file }}"
   web-deploy:
     name: 🌎 Web Deploy
@@ -60,5 +60,27 @@ jobs:
         env:
           APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
         run: |
-          curl --fail --location --request POST 'https://maranatha.top/api/app/web/bundles?secret_key=${{ env.APP_PRIVATE_KEY }}' \
+          curl --fail --location --request POST 'https://maranatha.imedicineapp.com/api/app/web/bundles?secret_key=${{ env.APP_PRIVATE_KEY }}' \
               --form "file=@${{ steps.zip_file.outputs.zip_file }}"
+  native-sourcemaps-deploy:
+    name: 🪲 Native Sourcemaps Deploy
+    runs-on: ubuntu-latest
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+    steps:
+      - name: 💻 Get the latest code
+        uses: actions/checkout@v4
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 💻 Install Ionic CLI
+        run: npm install -g @ionic/cli
+      - name: 📦 Install Ionic Dependencies
+        run: npm install
+      - name: ⭐️ Setting project as "production"
+        run: npm run ensure-production
+      - name: 📲 Build Ionic Project (Native Live Update)
+        run: npm run build-sourcemap
+      - name: 📤 Upload sourcemaps to Sentry
+        run: npm run sentry:sourcemaps

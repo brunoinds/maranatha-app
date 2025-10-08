@@ -59,7 +59,7 @@ const configurationsUI = computed(() => {
         if (props.location == 'AdminManagement') {
             return true;
         }else if (props.location == 'InventoryManagement') {
-            const idsAvailable = ['inventory-by-products-kardex', 'inventory-by-products-balance', 'inventory-by-products-stock', 'inventory-by-products-loans-kardex', 'inventory-by-products'];
+            const idsAvailable = ['inventory-by-products-kardex', 'inventory-by-products-balance', 'inventory-by-products-stock', 'inventory-by-products-loans-kardex', 'inventory-by-incomes-loanables', 'inventory-by-products'];
             return idsAvailable.includes(item.id);
         }else{
             return true;

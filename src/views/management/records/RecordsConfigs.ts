@@ -876,6 +876,36 @@ const RecordsConfigs = {
                 }
             },
             {
+                id: 'inventory-by-incomes-loanables',
+                title: 'Ingresos de Productos Prestables',
+                filters: [
+                    {
+                        id: 'warehouse_ids',
+                        name: 'Almacén',
+                        isRequired: false,
+                        type: 'dropdown',
+                        multiple: true,
+                        options: warehousesDropdownOptions
+                    },
+                    {
+                        id: 'date_range',
+                        name: 'Rango Fechas',
+                        isRequired: true,
+                        type: 'daterange',
+                        value: {
+                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
+                            end: DateTime.now().toFormat('yyyy-MM-dd')
+                        }
+                    },
+                ],
+                endpoint: 'inventory/by-incomes-loanables',
+                data: {
+                    body: {
+                        
+                    }
+                }
+            },
+            {
                 id: 'inventory-by-products-loans-kardex',
                 title: 'Kardex de Préstamos en Inventario',
                 filters: [

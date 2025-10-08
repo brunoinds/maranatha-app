@@ -975,6 +975,20 @@ const RecordsConfigs = {
                         options: warehousesDropdownOptions
                     },
                     {
+                        id: 'start_date',
+                        name: 'Fecha Inicio',
+                        isRequired: true,
+                        type: 'date',
+                        value: DateTime.now().startOf('month').toFormat('yyyy-MM-dd')
+                    },
+                    {
+                        id: 'end_date',
+                        name: 'Fecha Fin',
+                        isRequired: true,
+                        type: 'date',
+                        value: DateTime.now().toFormat('yyyy-MM-dd')
+                    },
+                    {
                         id: 'product_id',
                         name: 'Producto',
                         isRequired: false,

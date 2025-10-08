@@ -888,14 +888,18 @@ const RecordsConfigs = {
                         options: warehousesDropdownOptions
                     },
                     {
-                        id: 'date_range',
-                        name: 'Rango Fechas',
+                        id: 'start_date',
+                        name: 'Fecha Inicio',
                         isRequired: true,
-                        type: 'daterange',
-                        value: {
-                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
-                            end: DateTime.now().toFormat('yyyy-MM-dd')
-                        }
+                        type: 'date',
+                        value: DateTime.now().startOf('month').toFormat('yyyy-MM-dd')
+                    },
+                    {
+                        id: 'end_date',
+                        name: 'Fecha Fin',
+                        isRequired: true,
+                        type: 'date',
+                        value: DateTime.now().toFormat('yyyy-MM-dd')
                     },
                 ],
                 endpoint: 'inventory/by-incomes-loanables',

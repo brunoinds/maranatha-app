@@ -786,16 +786,6 @@ const RecordsConfigs = {
                 id: 'inventory-by-products-kardex',
                 title: 'Kardex de Productos en Inventario',
                 filters: [
-                    /* {
-                        id: 'date_range',
-                        name: 'Rango Fechas',
-                        isRequired: true,
-                        type: 'daterange',
-                        value: {
-                            start: DateTime.now().startOf('month').toFormat('yyyy-MM-dd'),
-                            end: DateTime.now().toFormat('yyyy-MM-dd')
-                        }
-                    }, */
                     {
                         id: 'start_date',
                         name: 'Fecha Inicio',
@@ -818,20 +808,7 @@ const RecordsConfigs = {
                         multiple: true,
                         options: warehousesDropdownOptions
                     },
-                    {
-                        id: 'job_code',
-                        name: 'Job',
-                        isRequired: false,
-                        type: 'dropdown',
-                        options: jobsDropdownOptions
-                    },
-                    {
-                        id: 'expense_code',
-                        name: 'Expense Code',
-                        isRequired: false,
-                        type: 'dropdown',
-                        options: expensesDropdownOptions
-                    },
+                    
                     {
                         id: 'product_id',
                         name: 'Producto',
@@ -1018,6 +995,25 @@ const RecordsConfigs = {
                         type: 'dropdown',
                         multiple: true,
                         options: productsSubCategoriesDropdownOptions
+                    },
+                    {
+                        id: 'ignore_void_pricing',
+                        name: 'Ignorar Precio Cero',
+                        isRequired: false,
+                        type: 'dropdown',
+                        options: [
+                            {
+                                id: 'true',
+                                name: 'Si',
+                                value: true
+                            },
+                            {
+                                id: 'false',
+                                name: 'No',
+                                value: false
+                            }
+                        ],
+                        value: false
                     }
                 ],
                 endpoint: 'inventory/by-products-balance',

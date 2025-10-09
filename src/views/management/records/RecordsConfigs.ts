@@ -842,9 +842,10 @@ const RecordsConfigs = {
                     {
                         id: 'money_type',
                         name: 'Moneda',
-                        isRequired: false,
+                        isRequired: true,
                         type: 'dropdown',
-                        options: moneyTypesDropdownOptions
+                        options: moneyTypesDropdownOptions,
+                        value: moneyTypesDropdownOptions
                     },
                     {
                         id: 'categories',

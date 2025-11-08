@@ -77,29 +77,27 @@
 </style>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonSegment, IonSegmentButton, IonTitle, IonRefresher, IonRefresherContent, IonContent,IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { RequestAPI } from '../../utils/Requests/RequestAPI';
-import { computed, onMounted, ref, watch } from 'vue';
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, sendOutline, closeCircleOutline, pencilOutline, home } from 'ionicons/icons';
-import { EReportStatus, IReport } from '../../interfaces/ReportInterfaces';
-import { useRouter, useRoute } from 'vue-router';
-import AllReports from '@/views/management/reports/AllReports.vue';
-import Accounts from '@/views/management/accounts/Accounts.vue';
-import Records from '@/views/management/records/Records.vue';
-import Wallets from '@/views/management/wallets/Wallets.vue';
-import Attendances from '@/views/management/attendances/Attendances.vue';
-import Workers from '@/views/management/workers/Workers.vue';
-import Settings from '@/views/management/settings/Settings.vue';
-import { Viewport } from '@/utils/Viewport/Viewport';
-import Graphs from '@/views/management/graphs/Graphs.vue';
-import Inventory from '@/views/management/inventory/Inventory.vue';
-import HomeGraphs from '@/views/management/graphs/HomeGraphs.vue';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { Viewport } from '@/utils/Viewport/Viewport';
+import Accounts from '@/views/management/accounts/Accounts.vue';
+import Attendances from '@/views/management/attendances/Attendances.vue';
+import Graphs from '@/views/management/graphs/Graphs.vue';
+import HomeGraphs from '@/views/management/graphs/HomeGraphs.vue';
+import Inventory from '@/views/management/inventory/Inventory.vue';
 import { useManagementHtml } from '@/views/management/management';
+import Records from '@/views/management/records/Records.vue';
+import AllReports from '@/views/management/reports/AllReports.vue';
+import Settings from '@/views/management/settings/Settings.vue';
+import Wallets from '@/views/management/wallets/Wallets.vue';
+import Workers from '@/views/management/workers/Workers.vue';
+import { IonContent, IonHeader, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/vue';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
 const router = useRouter();
 const route = useRoute();
 const page = ref<HTMLElement|null>(null);
-const segmentValue = ref('home');
+const segmentValue = ref('none');
 
 
 const handleRefresh = (event: CustomEvent) => {

@@ -159,32 +159,23 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonCheckbox, IonSegment,IonSelect, IonSelectOption, IonButton, IonSegmentButton, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { computed, ref, watch } from 'vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
-import AttendanceIcon from '&/assets/icons/attendance.svg';
+import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { IonAccordion, IonAccordionGroup, IonButton, IonChip, IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonList, IonProgressBar, IonSegment, IonSegmentButton, IonSelect, IonSelectOption } from '@ionic/vue';
+import { computed, ref, watch } from 'vue';
 
-import { addOutline, albumsOutline, alertCircleOutline, cashOutline, checkmarkCircleOutline,addCircleOutline, cogOutline,pencilOutline, sendOutline, closeCircleOutline  } from 'ionicons/icons';
-import { IAttendance } from '@/interfaces/AttendanceInterfaces';
-import { useRouter } from 'vue-router';
-import NewReport from '@/dialogs/NewReport/NewReport.vue';
-import { DateTime } from 'luxon';
-import {AppEvents} from '@/utils/AppEvents/AppEvents';
-import { Toolbox } from '@/utils/Toolbox/Toolbox';
-import NewAttendance from '@/dialogs/NewAttendance/NewAttendance.vue';
-import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
-import { userInfo } from 'os';
-import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
-import { Viewport } from '@/utils/Viewport/Viewport';
-import { onMounted } from 'vue';
-import { onUnmounted } from 'vue';
-import { IWorker, IWorkerPayment } from '@/interfaces/WorkerInterfaces';
 import CreateWorker from '@/dialogs/CreateWorker/CreateWorker.vue';
 import CreateWorkerPayment from '@/dialogs/CreateWorkerPayment/CreateWorkerPayment.vue';
 import CreateWorkersPayment from '@/dialogs/CreateWorkerPayment/CreateWorkersPayment.vue';
 import EditWorker from '@/dialogs/EditWorker/EditWorker.vue';
+import { IWorker, IWorkerPayment } from '@/interfaces/WorkerInterfaces';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import { Viewport } from '@/utils/Viewport/Viewport';
 import { useManagementHtml } from '@/views/management/management';
+import { addOutline, checkmarkCircleOutline, closeCircleOutline, pencilOutline } from 'ionicons/icons';
+import { DateTime } from 'luxon';
+import { onMounted, onUnmounted } from 'vue';
 
 
 const isLoading = ref<boolean>(true);

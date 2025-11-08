@@ -92,10 +92,7 @@ import Wallets from '@/views/management/wallets/Wallets.vue';
 import Workers from '@/views/management/workers/Workers.vue';
 import { IonContent, IonHeader, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 
-const router = useRouter();
-const route = useRoute();
 const page = ref<HTMLElement|null>(null);
 const segmentValue = ref('none');
 

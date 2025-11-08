@@ -337,34 +337,25 @@
     </article>
 </template>
 <script setup lang="ts">
-import { IonPage, IonHeader, IonGrid, IonRow, IonCol, IonNote, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonToolbar, IonTitle, IonSelect, IonSelectOption, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonChip, IonCol, IonGrid, IonIcon, IonLabel, IonNote, IonProgressBar, IonRow, IonSelect, IonSelectOption } from '@ionic/vue';
 import { computed, ref } from 'vue';
-import { Dialog } from '@/utils/Dialog/Dialog';
-import AttendanceIcon from '&/assets/icons/attendance.svg';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline,sendOutline, closeCircleOutline, arrowUpOutline, arrowUpCircleOutline, arrowDownCircleOutline  } from 'ionicons/icons';
-import { IAttendance } from '@/interfaces/AttendanceInterfaces';
-import { useRouter } from 'vue-router';
-import NewReport from '@/dialogs/NewReport/NewReport.vue';
-import { DateTime } from 'luxon';
-import {AppEvents} from '@/utils/AppEvents/AppEvents';
-import { Toolbox } from '@/utils/Toolbox/Toolbox';
-import NewAttendance from '@/dialogs/NewAttendance/NewAttendance.vue';
-import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
-import { userInfo } from 'os';
+import { IJob } from '@/interfaces/JobsAndExpensesInterfaces';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { AccountantPeriodComparison, AccountantPeriodComparisonIndicators } from '@/views/management/graphs/GraphsGenerator';
-import * as _ from "lodash";
 import { Chart, registerables } from 'chart.js';
+import { arrowDownCircleOutline, arrowUpCircleOutline } from 'ionicons/icons';
+import { DateTime } from 'luxon';
+import { onMounted, watch } from 'vue';
+import { BarChart, DoughnutChart, LineChart } from 'vue-chart-3';
+import { useRouter } from 'vue-router';
 Chart.register(...registerables);
-import { DoughnutChart, BarChart, LineChart } from 'vue-chart-3';
-import { watch } from 'vue';
-import { onMounted } from 'vue';
 
+import { Theme } from '@/utils/Theme/Theme';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import { onUnmounted } from 'vue';
-import { Theme } from '@/utils/Theme/Theme';
 
 
 const isLoading = ref<boolean>(true);

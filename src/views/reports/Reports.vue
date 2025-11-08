@@ -237,29 +237,24 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonRefresher, IonRefresherContent, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { RequestAPI } from '../../utils/Requests/RequestAPI';
+import ReportIcon from '&/assets/icons/report.svg';
+import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonRefresher, IonRefresherContent, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
-import ReportIcon from '&/assets/icons/report.svg';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline,sendOutline, closeCircleOutline, calendarOutline  } from 'ionicons/icons';
-import { EReportStatus, IReport } from '../../interfaces/ReportInterfaces';
-import { useRouter } from 'vue-router';
-import NewReport from '../../dialogs/NewReport/NewReport.vue';
-import { DateTime } from 'luxon';
-import {AppEvents} from '../../utils/AppEvents/AppEvents';
+import IonAccordionItem from '@/components/IonAccordionItem/IonAccordionItem.vue';
+import OnBoardingPanel from '@/components/OnBoardingPanel/OnBoardingPanel.vue';
+import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
 import { StoredReports } from '@/utils/Stored/StoredReports';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
-import NewAttendance from '../../dialogs/NewAttendance/NewAttendance.vue';
-import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
 import { Viewport } from '@/utils/Viewport/Viewport';
+import { addOutline, calendarOutline } from 'ionicons/icons';
+import { DateTime } from 'luxon';
 import { onMounted } from 'vue';
-import { FilePicker } from '@capawesome/capacitor-file-picker';
-import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
-import IonDateRange from '@/components/IonDateRange/IonDateRange.vue';
-import OnBoardingPanel from '@/components/OnBoardingPanel/OnBoardingPanel.vue';
-import IonAccordionItem from '@/components/IonAccordionItem/IonAccordionItem.vue';
+import { useRouter } from 'vue-router';
+import NewReport from '../../dialogs/NewReport/NewReport.vue';
+import { EReportStatus, IReport } from '../../interfaces/ReportInterfaces';
+import { AppEvents } from '../../utils/AppEvents/AppEvents';
 
 const reportsData = ref<Array<IReport>>([]);
 const isLoading = ref<boolean>(true);

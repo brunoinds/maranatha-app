@@ -51,25 +51,22 @@
 </styles>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonAccordion, IonAccordionGroup, IonContent, IonButton, IonImg, IonAvatar,IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { computed, onUnmounted, ref } from 'vue';
-import { Dialog } from '@/utils/Dialog/Dialog';
-import EditUser from '@/dialogs/EditUser/EditUser.vue';
+import { IonAccordion, IonAccordionGroup, IonButton, IonIcon, IonItem, IonLabel, IonProgressBar } from '@ionic/vue';
+import { onUnmounted, ref } from 'vue';
 
-import { addOutline, albumsOutline, alertCircleOutline, arrowForwardCircleOutline, checkmarkCircleOutline, close, cloudDownloadOutline, fileTrayOutline, logIn, refreshOutline } from 'ionicons/icons';
-import { IReport } from '@/interfaces/ReportInterfaces';
-import { useRouter } from 'vue-router';
-import FiltersArea from '@/views/management/records/components/FiltersArea.vue';
-import { DateTime } from 'luxon';
-import TableArea from '@/views/management/records/components/TableArea.vue';
-import { onMounted } from 'vue';
-import RecordsConfigs from '@/views/management/records/RecordsConfigs';
-import {ExcelGenerator} from '@/utils/Records/ExcelGenerator';
-import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { GenerateAttendancesByWorkersJobsExpenses } from '@/utils/ExcelExport/AttendancesByWorkersJobsExpenses';
+import { ExcelGenerator } from '@/utils/Records/ExcelGenerator';
 import { PdfGenerator } from '@/utils/Records/PdfGenerator';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import FiltersArea from '@/views/management/records/components/FiltersArea.vue';
+import TableArea from '@/views/management/records/components/TableArea.vue';
+import RecordsConfigs from '@/views/management/records/RecordsConfigs';
+import { arrowForwardCircleOutline, cloudDownloadOutline } from 'ionicons/icons';
+import { DateTime } from 'luxon';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 const isLoading = ref<boolean>(true);
 const router = useRouter();

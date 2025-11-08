@@ -28,11 +28,11 @@
 </template>
 
 <script setup lang="ts">
+import { IUser } from '@/interfaces/UserInterfaces';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton, IonButton, IonIcon, IonList, IonItem, IonLabel, IonProgressBar, alertController, actionSheetController } from '@ionic/vue';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController } from '@ionic/vue';
 import { addOutline } from 'ionicons/icons';
 import { ref } from 'vue';
-import { IUser } from '@/interfaces/UserInterfaces';
 
 
 const isLoading = ref(true);

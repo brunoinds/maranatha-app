@@ -296,38 +296,35 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar,IonCard, IonBadge, IonCardHeader, IonCardSubtitle, IonCardContent, IonCardTitle, IonTitle,IonChip, IonContent, IonIcon, IonListHeader, IonButton, IonList, IonItem, IonLabel, IonProgressBar, modalController, IonBackButton, IonButtons, actionSheetController, toastController, alertController } from '@ionic/vue';
-import { RequestAPI } from '../../utils/Requests/RequestAPI';
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
-import { add, addOutline, pencilOutline, send, trashBinOutline, cashOutline, cloudUploadOutline, lockClosed, ellipsisHorizontal, closeCircleOutline, closeOutline, arrowDown, lockOpen, alertCircleOutline, lockOpenSharp, checkmarkCircleOutline,sendOutline, thumbsUpOutline, checkmark, checkmarkDoneOutline, timeOutline, lockOpenOutline, documentTextOutline, eyeOffOutline, eyeOutline, chevronForwardCircleOutline, arrowForwardOutline } from 'ionicons/icons';
-import { EMoneyType, EReportStatus, IReport } from '../../interfaces/ReportInterfaces';
+import { IonBackButton, IonBadge, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { add, arrowDown, arrowForwardOutline, cashOutline, checkmarkCircleOutline, closeCircleOutline, documentTextOutline, ellipsisHorizontal, eyeOutline, send, thumbsUpOutline, timeOutline } from 'ionicons/icons';
+import { computed, nextTick, ref } from 'vue';
 import IonTitleSubtitle from '../../components/IonTitleSubtitle/IonTitleSubtitle.vue';
+import { EMoneyType, EReportStatus, IReport } from '../../interfaces/ReportInterfaces';
+import { RequestAPI } from '../../utils/Requests/RequestAPI';
 
-import { useRoute } from 'vue-router';
-import { IInvoice } from '@/interfaces/InvoiceInterfaces';
-import { DateTime } from 'luxon';
-import { PDFCreator } from '@/utils/PDFCreator/PDFCreator';
-import { Dialog } from '@/utils/Dialog/Dialog';
 import EditReport from '@/dialogs/EditReport/EditReport.vue';
+import { IInvoice } from '@/interfaces/InvoiceInterfaces';
 import router from '@/router';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import { PDFCreator } from '@/utils/PDFCreator/PDFCreator';
+import { DateTime } from 'luxon';
+import { useRoute } from 'vue-router';
 
-import NewInvoice from '@/dialogs/NewInvoice/NewInvoice.vue';
+import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
+import AddRepositionPettyCash from '@/dialogs/AddRepositionPettyCash/AddRepositionPettyCash.vue';
 import EditInvoice from '@/dialogs/EditInvoice/EditInvoice.vue';
+import NewInvoice from '@/dialogs/NewInvoice/NewInvoice.vue';
+import { Environment } from '@/utils/Environment/Environment';
 import { Session } from '@/utils/Session/Session';
-import {AppEvents} from '../../utils/AppEvents/AppEvents';
-import { TStorage } from '@/utils/Toolbox/TStorage';
-import { StoredReports } from '@/utils/Stored/StoredReports';
 import { IInvoiceResponseUploading, StoredInvoices } from '@/utils/Stored/StoredInvoices';
-import { Directory, Filesystem } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
+import { StoredReports } from '@/utils/Stored/StoredReports';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { Capacitor } from '@capacitor/core';
 import JSZip from 'jszip';
-import { Toolbox } from '@/utils/Toolbox/Toolbox';
-import ReportStatusChip from '@/components/ReportStatusChip/ReportStatusChip.vue';
-import Numeral from 'numeral';
-import AddRepositionPettyCash from '@/dialogs/AddRepositionPettyCash/AddRepositionPettyCash.vue';
 import _ from 'lodash';
-import { Environment } from '@/utils/Environment/Environment';
+import Numeral from 'numeral';
+import { AppEvents } from '../../utils/AppEvents/AppEvents';
 
 const routeParams = useRoute();
 

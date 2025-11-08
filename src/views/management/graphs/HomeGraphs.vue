@@ -239,32 +239,19 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonGrid, IonRow, IonCol, IonNote, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonToolbar, IonTitle, IonSelect, IonSelectOption, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonGrid, IonLabel, IonNote, IonProgressBar, IonRow } from '@ionic/vue';
 import { computed, onUnmounted, ref } from 'vue';
-import { Dialog } from '@/utils/Dialog/Dialog';
-import AttendanceIcon from '&/assets/icons/attendance.svg';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline,sendOutline, closeCircleOutline, arrowUpOutline, arrowUpCircleOutline, arrowDownCircleOutline  } from 'ionicons/icons';
-import { IAttendance } from '@/interfaces/AttendanceInterfaces';
-import { useRouter } from 'vue-router';
-import NewReport from '@/dialogs/NewReport/NewReport.vue';
-import { DateTime } from 'luxon';
-import {AppEvents} from '@/utils/AppEvents/AppEvents';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
-import NewAttendance from '@/dialogs/NewAttendance/NewAttendance.vue';
-import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
-import { userInfo } from 'os';
-import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
-import { AccountantCurrentYearState, AccountantCurrentYearIndicators } from '@/views/management/graphs/GraphsGenerator';
-import * as _ from "lodash";
+import { AccountantCurrentYearIndicators, AccountantCurrentYearState } from '@/views/management/graphs/GraphsGenerator';
 import { Chart, registerables } from 'chart.js';
-Chart.register(...registerables);
-import { DoughnutChart, BarChart, LineChart } from 'vue-chart-3';
-import { watch } from 'vue';
+import * as _ from "lodash";
 import { onMounted } from 'vue';
+import { BarChart } from 'vue-chart-3';
+import { useRouter } from 'vue-router';
+Chart.register(...registerables);
 
-import { Viewport } from '@/utils/Viewport/Viewport';
 import { EReportStatus } from '@/interfaces/ReportInterfaces';
 import { Theme } from '@/utils/Theme/Theme';
 

@@ -31,18 +31,17 @@
 
 <script setup lang="ts">
 
-import { IProjectJob } from '@/interfaces/ProjectsInterfaces';
-import { IonIcon, IonProgressBar } from '@ionic/vue';
-import { DateTime } from 'luxon';
-import { PropType, computed, onMounted, ref } from 'vue';
-import chroma from "chroma-js";
-import { IProjectConstructionPhase, IProjectConstructionTask } from '@/interfaces/ProjectsInterfaces';
-import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateProjectConstructionDailyReport from '@/dialogs/CreateProjectConstructionDailyReport/CreateProjectConstructionDailyReport.vue';
 import EditProjectConstructionDailyReport from '@/dialogs/EditProjectConstructionDailyReport/EditProjectConstructionDailyReport.vue';
-import { alarmOutline, checkmarkCircle, checkmarkCircleOutline, closeCircleOutline } from 'ionicons/icons';
 import EditProjectConstructionPhase from '@/dialogs/EditProjectConstructionPhase/EditProjectConstructionPhase.vue';
 import EditProjectConstructionTask from '@/dialogs/EditProjectConstructionTask/EditProjectConstructionTask.vue';
+import { IProjectConstructionPhase, IProjectConstructionTask, IProjectJob } from '@/interfaces/ProjectsInterfaces';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import { IonIcon, IonProgressBar } from '@ionic/vue';
+import chroma from "chroma-js";
+import { checkmarkCircle, closeCircleOutline } from 'ionicons/icons';
+import { DateTime } from 'luxon';
+import { PropType, computed, onMounted, ref } from 'vue';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({

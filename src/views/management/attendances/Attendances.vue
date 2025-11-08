@@ -48,28 +48,21 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { IonAccordion, IonAccordionGroup, IonIcon, IonItem, IonLabel, IonList, IonProgressBar } from '@ionic/vue';
 import { computed, ref } from 'vue';
-import { Dialog } from '@/utils/Dialog/Dialog';
-import AttendanceIcon from '&/assets/icons/attendance.svg';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline,sendOutline, closeCircleOutline, calendarOutline, personOutline  } from 'ionicons/icons';
+import IonAccordionItem from '@/components/IonAccordionItem/IonAccordionItem.vue';
 import { IAttendance } from '@/interfaces/AttendanceInterfaces';
-import { useRouter } from 'vue-router';
-import NewReport from '@/dialogs/NewReport/NewReport.vue';
-import { DateTime } from 'luxon';
-import {AppEvents} from '@/utils/AppEvents/AppEvents';
-import { Toolbox } from '@/utils/Toolbox/Toolbox';
-import NewAttendance from '@/dialogs/NewAttendance/NewAttendance.vue';
 import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
-import { userInfo } from 'os';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { onMounted } from 'vue';
-import { onUnmounted } from 'vue';
+import { calendarOutline, personOutline } from 'ionicons/icons';
 import _ from 'lodash';
-import IonAccordionItem from '@/components/IonAccordionItem/IonAccordionItem.vue';
+import { DateTime } from 'luxon';
+import { onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 const attendancesData = ref<Array<IAttendance>>([]);
 const isLoading = ref<boolean>(true);

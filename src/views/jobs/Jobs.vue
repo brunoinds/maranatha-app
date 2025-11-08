@@ -54,17 +54,15 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonSearchbar, IonButton, IonAccordionGroup, IonAccordion, IonContent, IonImg, IonAvatar, IonProgressBar,IonButtons, IonBackButton, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController, actionSheetController, toastController } from '@ionic/vue';
-import { RequestAPI } from '../../utils/Requests/RequestAPI';
+import { IonAccordion, IonAccordionGroup, IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSearchbar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
 import { computed, ref } from 'vue';
+import { RequestAPI } from '../../utils/Requests/RequestAPI';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn } from 'ionicons/icons';
-import { useRouter } from 'vue-router';
 import CreateJob from '@/dialogs/CreateJob/CreateJob.vue';
-import { Dialog } from '@/utils/Dialog/Dialog';
 import EditJob from '@/dialogs/EditJob/EditJob.vue';
-import { powerOutline } from 'ionicons/icons';
+import { Dialog } from '@/utils/Dialog/Dialog';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import { addOutline, powerOutline } from 'ionicons/icons';
 
 const jobsData = ref<Array<{
     id: number;

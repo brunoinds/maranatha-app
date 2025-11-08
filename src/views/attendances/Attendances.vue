@@ -53,11 +53,13 @@
 
 <script setup lang="ts">
 import AttendanceIcon from '&/assets/icons/attendance.svg';
-import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonImg, IonItem, IonListHeader, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
+import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Dialog } from '../../utils/Dialog/Dialog';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
 
+import IonAccordionItem from '@/components/IonAccordionItem/IonAccordionItem.vue';
+import OnBoardingPanel from '@/components/OnBoardingPanel/OnBoardingPanel.vue';
 import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { Viewport } from '@/utils/Viewport/Viewport';
@@ -67,8 +69,6 @@ import { useRouter } from 'vue-router';
 import NewAttendance from '../../dialogs/NewAttendance/NewAttendance.vue';
 import { IAttendance } from '../../interfaces/AttendanceInterfaces';
 import { AppEvents } from '../../utils/AppEvents/AppEvents';
-import OnBoardingPanel from '@/components/OnBoardingPanel/OnBoardingPanel.vue';
-import IonAccordionItem from '@/components/IonAccordionItem/IonAccordionItem.vue';
 
 const attendancesData = ref<Array<IAttendance>>([]);
 const isLoading = ref<boolean>(true);

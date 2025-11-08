@@ -626,12 +626,11 @@
 import OutcomeRequestStatusChip from '@/components/OutcomeRequestStatusChip/OutcomeRequestStatusChip.vue';
 import VerticalTimeline from '@/components/VerticalTimeline/VerticalTimeline.vue';
 import CreateInventoryWarehouseOutcome from '@/dialogs/CreateInventoryWarehouseOutcome/CreateInventoryWarehouseOutcome.vue';
-import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
 import EditInventoryWarehouseOutcome from '@/dialogs/EditInventoryWarehouseOutcome/EditInventoryWarehouseOutcome.vue';
 import EditInventoryWarehouseOutcomeRequest from '@/dialogs/EditInventoryWarehouseOutcomeRequest/EditInventoryWarehouseOutcomeRequest.vue';
 import InventoryOutcomeRequestReceiptProductsSelector from '@/dialogs/InventoryOutcomeRequestReceiptProductsSelector/InventoryOutcomeRequestReceiptProductsSelector.vue';
 import ShowListLoans from '@/dialogs/ShowListLoans/ShowListLoans.vue';
-import { EInventoryWarehouseOutcomeRequestStatus, IInventoryProductItem, IInventoryProductItemUncountable, IProduct, IProductWithWarehouseStock, IWarehouseOutcomeRequest, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
+import { EInventoryWarehouseOutcomeRequestStatus, IInventoryProductItem, IProduct, IProductWithWarehouseStock, IWarehouseOutcomeRequest, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
 import { IUser } from '@/interfaces/UserInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog } from '@/utils/Dialog/Dialog';
@@ -641,8 +640,8 @@ import { UsersStore } from '@/utils/Stored/UsersStore';
 import { Theme } from '@/utils/Theme/Theme';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { Capacitor } from '@capacitor/core';
-import { alertController, IonAvatar, IonBackButton, IonButton, IonButtons, IonSkeletonText, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar, toastController, actionSheetController } from '@ionic/vue';
-import { airplaneOutline, alertCircleOutline, basketOutline, chatbubbleEllipsesOutline, printOutline, checkmarkCircleOutline, closeCircleOutline, eyeOutline, pencilOutline, sendOutline, thumbsDownOutline, thumbsUpOutline, timeOutline, trashOutline, bagHandleOutline, imagesOutline, documentTextOutline } from 'ionicons/icons';
+import { actionSheetController, alertController, IonAvatar, IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonSkeletonText, IonTitle, IonToolbar, toastController } from '@ionic/vue';
+import { airplaneOutline, alertCircleOutline, bagHandleOutline, basketOutline, chatbubbleEllipsesOutline, checkmarkCircleOutline, closeCircleOutline, documentTextOutline, eyeOutline, imagesOutline, pencilOutline, printOutline, sendOutline, thumbsDownOutline, thumbsUpOutline, timeOutline, trashOutline } from 'ionicons/icons';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 

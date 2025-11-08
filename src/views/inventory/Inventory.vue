@@ -239,11 +239,6 @@
 </template>
 
 <script setup lang="ts">
-import Records from '@/views/management/records/Records.vue';
-import { IonAvatar, IonButton, IonContent, IonFab, IonListHeader, IonAccordion, IonAccordionGroup, IonFabButton, IonSearchbar, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/vue';
-import { computed, onUnmounted, ref } from 'vue';
-import { Dialog } from '../../utils/Dialog/Dialog';
-import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import OutcomeRequestStatusChip from '@/components/OutcomeRequestStatusChip/OutcomeRequestStatusChip.vue';
 import CreateInventoryProduct from '@/dialogs/CreateInventoryProduct/CreateInventoryProduct.vue';
 import CreateInventoryProductsPack from '@/dialogs/CreateInventoryProductsPack/CreateInventoryProductsPack.vue';
@@ -252,27 +247,30 @@ import CreateWarehouse from '@/dialogs/CreateWarehouse/CreateWarehouse.vue';
 import { IProduct, IProductsPack, IWarehouse, IWarehouseOutcomeRequest, IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
 import { Session } from '@/utils/Session/Session';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { addOutline, chatbubbleEllipsesOutline, logoDropbox, qrCodeOutline, storefrontOutline, openOutline, bagHandleOutline, gitCompareOutline, homeOutline } from 'ionicons/icons';
+import Records from '@/views/management/records/Records.vue';
+import { IonAccordion, IonAccordionGroup, IonAvatar, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSearchbar, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/vue';
+import { addOutline, bagHandleOutline, gitCompareOutline, homeOutline, logoDropbox, qrCodeOutline, storefrontOutline } from 'ionicons/icons';
 import TimeAgo from 'javascript-time-ago';
 import es from 'javascript-time-ago/locale/es';
-import { onMounted } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { AppEvents } from '../../utils/AppEvents/AppEvents';
+import { Dialog } from '../../utils/Dialog/Dialog';
+import { RequestAPI } from '../../utils/Requests/RequestAPI';
 
+import IonAccordionItem from '@/components/IonAccordionItem/IonAccordionItem.vue';
+import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/ProductItemLoanStatusChip.vue';
 import EditInventoryProduct from '@/dialogs/EditInventoryProduct/EditInventoryProduct.vue';
 import EditInventoryProductsPack from '@/dialogs/EditInventoryProductsPack/EditInventoryProductsPack.vue';
-import { InventoryStore } from '@/utils/Stored/InventoryStore';
-import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
-import {IonPeekPop, IonPeekPopContextMenuItem} from 'ion-peek-pop';
-import 'ion-peek-pop/styles.css';
-import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/ProductItemLoanStatusChip.vue';
 import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
-import { DynamicScroller, DynamicScrollerItem, RecycleScroller } from 'vue-virtual-scroller'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
 import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
+import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import 'ion-peek-pop/styles.css';
 import _ from 'lodash';
-import IonAccordionItem from '@/components/IonAccordionItem/IonAccordionItem.vue';
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE');

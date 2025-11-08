@@ -1,10 +1,7 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
-import { TStorage } from '@/utils/Toolbox/TStorage';
 import { Session } from '@/utils/Session/Session';
 
-import { Capacitor } from '@capacitor/core';
-import { useRouter } from 'vue-router';
 import { Environment } from '@/utils/Environment/Environment';
 
 class RequestAPI{

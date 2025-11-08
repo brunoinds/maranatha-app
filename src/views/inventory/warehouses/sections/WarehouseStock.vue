@@ -87,11 +87,11 @@ import { Dialog } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Theme } from '@/utils/Theme/Theme';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { IonAvatar, IonChip, IonFab, IonFabButton, IonIcon, IonImg, IonItem, IonLabel, IonList, IonProgressBar, IonSearchbar } from '@ionic/vue';
+import { IonAvatar, IonChip, IonFab, IonFabButton, IonIcon, IonImg, IonItem, IonLabel, IonProgressBar, IonSearchbar } from '@ionic/vue';
 import { addOutline } from 'ionicons/icons';
 import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
-import { DynamicScroller, DynamicScrollerItem, RecycleScroller } from 'vue-virtual-scroller'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({

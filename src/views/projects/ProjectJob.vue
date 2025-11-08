@@ -76,15 +76,13 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { AppEvents } from '../../utils/AppEvents/AppEvents';
 
-import { IProjectConstructionPhase, IProjectConstructionTask, IProjectJob } from '@/interfaces/ProjectsInterfaces';
+import { IProjectJob } from '@/interfaces/ProjectsInterfaces';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { DateTime } from 'luxon';
-import chroma from "chroma-js";
-import { briefcaseOutline, chatbubbleEllipsesOutline, checkmarkCircleOutline, closeCircleOutline } from 'ionicons/icons';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import ProjectCalendars from '@/views/projects/sections/ProjectCalendars.vue';
 import ProjectDailyReports from '@/views/projects/sections/ProjectDailyReports.vue';
 import ProjectPhasesAndTasks from '@/views/projects/sections/ProjectPhasesAndTasks.vue';
+import { briefcaseOutline, chatbubbleEllipsesOutline } from 'ionicons/icons';
 
 
 TimeAgo.addLocale(es);

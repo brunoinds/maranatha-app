@@ -29,16 +29,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonCheckbox, IonSegment, IonSelect, IonSelectOption, IonButton, IonSegmentButton, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { addOutline } from 'ionicons/icons';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { IWarehouse } from '@/interfaces/InventoryInterfaces';
-import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateWarehouse from '@/dialogs/CreateWarehouse/CreateWarehouse.vue';
+import { IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
-import { useRouter } from 'vue-router';
+import { Dialog } from '@/utils/Dialog/Dialog';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
+import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
+import { addOutline } from 'ionicons/icons';
+import { onMounted, onUnmounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const page = ref<HTMLElement|null>(null);

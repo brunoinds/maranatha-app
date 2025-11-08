@@ -14,9 +14,8 @@
 
 <script setup lang="ts">
 import { Session } from '@/utils/Session/Session';
-import { Capacitor } from '@capacitor/core';
-import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
-import { albumsOutline, checkmarkDoneOutline,cubeOutline, fileTrayFullOutline, personCircleOutline, speedometerOutline, walletOutline } from 'ionicons/icons';
+import { IonIcon, IonLabel, IonPage, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/vue';
+import { checkmarkDoneOutline, cubeOutline, fileTrayFullOutline, personCircleOutline, speedometerOutline, walletOutline } from 'ionicons/icons';
 import { computed, onMounted, ref } from 'vue';
 
 

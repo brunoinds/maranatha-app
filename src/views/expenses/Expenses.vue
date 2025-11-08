@@ -31,15 +31,15 @@
 </template>
 
 <script setup lang="ts">
-import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonSearchbar, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
-import { computed, ref } from 'vue';
-import { RequestAPI } from '../../utils/Requests/RequestAPI';
-import { addOutline } from 'ionicons/icons';
-import { useRouter } from 'vue-router';
-import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateExpense from '@/dialogs/CreateExpense/CreateExpense.vue';
 import EditExpense from '@/dialogs/EditExpense/EditExpense.vue';
+import { Dialog } from '@/utils/Dialog/Dialog';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSearchbar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { addOutline } from 'ionicons/icons';
+import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { RequestAPI } from '../../utils/Requests/RequestAPI';
 
 const expensesData = ref<Array<{
     id: number;

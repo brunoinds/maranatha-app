@@ -80,27 +80,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { IonPage, IonHeader, IonToolbar, IonTitle,IonButtons, IonBackButton, IonCheckbox, IonSegment, IonSelect, IonSelectOption, IonButton, IonSegmentButton, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { addOutline, storefrontOutline, ellipsisHorizontal, storefront, homeOutline } from 'ionicons/icons';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import EditWarehouse from '@/dialogs/EditWarehouse/EditWarehouse.vue';
 import { IWarehouse, IWarehouseIncome } from '@/interfaces/InventoryInterfaces';
-import { Dialog } from '@/utils/Dialog/Dialog';
-import CreateWarehouse from '@/dialogs/CreateWarehouse/CreateWarehouse.vue';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
-import { useRoute, useRouter } from 'vue-router';
-import CreateInventoryWarehouseIncome from '@/dialogs/CreateInventoryWarehouseIncome/CreateInventoryWarehouseIncome.vue';
-import CreateInventoryWarehouseOutcome from '@/dialogs/CreateInventoryWarehouseOutcome/CreateInventoryWarehouseOutcome.vue';
-import CreateInventoryWarehouseOutcomeRequest from '@/dialogs/CreateInventoryWarehouseOutcomeRequest/CreateInventoryWarehouseOutcomeRequest.vue';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { Session } from '@/utils/Session/Session';
 import { Viewport } from '@/utils/Viewport/Viewport';
 import WarehouseIncomes from '@/views/inventory/warehouses/sections/WarehouseIncomes.vue';
-import WarehouseOutcomes from '@/views/inventory/warehouses/sections/WarehouseOutcomes.vue';
-import WarehouseStock from '@/views/inventory/warehouses/sections/WarehouseStock.vue';
 import WarehouseOutcomeRequests from '@/views/inventory/warehouses/sections/WarehouseOutcomeRequests.vue';
-import EditWarehouse from '@/dialogs/EditWarehouse/EditWarehouse.vue';
-import Records from '@/views/management/records/Records.vue';
-import { Session } from '@/utils/Session/Session';
+import WarehouseOutcomes from '@/views/inventory/warehouses/sections/WarehouseOutcomes.vue';
 import WarehouseProductItemLoans from '@/views/inventory/warehouses/sections/WarehouseProductItemLoans.vue';
+import WarehouseStock from '@/views/inventory/warehouses/sections/WarehouseStock.vue';
+import Records from '@/views/management/records/Records.vue';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/vue';
+import { ellipsisHorizontal, homeOutline, storefrontOutline } from 'ionicons/icons';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 
 const route = useRoute();

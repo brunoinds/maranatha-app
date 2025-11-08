@@ -53,27 +53,23 @@
 
 <script setup lang="ts">
 
-import { IonList, IonItem, IonLabel, IonFab, IonFabButton, IonIcon, IonButton, IonProgressBar, IonSegment, IonSegmentButton } from '@ionic/vue';
-import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
-import { IWarehouse, IWarehouseOutcome, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { Toolbox } from '@/utils/Toolbox/Toolbox';
-import { addOutline, chatbubbleEllipsesOutline, qrCodeOutline } from 'ionicons/icons';
-import { Dialog } from '@/utils/Dialog/Dialog';
-import CreateInventoryWarehouseOutcome from '@/dialogs/CreateInventoryWarehouseOutcome/CreateInventoryWarehouseOutcome.vue';
-import EditInventoryWarehouseOutcome from '@/dialogs/EditInventoryWarehouseOutcome/EditInventoryWarehouseOutcome.vue';
+import OutcomeRequestStatusChip from '@/components/OutcomeRequestStatusChip/OutcomeRequestStatusChip.vue';
 import CreateInventoryWarehouseOutcomeRequest from '@/dialogs/CreateInventoryWarehouseOutcomeRequest/CreateInventoryWarehouseOutcomeRequest.vue';
-import { useRouter } from 'vue-router';
-import  OutcomeRequestStatusChip  from '@/components/OutcomeRequestStatusChip/OutcomeRequestStatusChip.vue';
+import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
+import { IWarehouse, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
+import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
+import { IUser } from '@/interfaces/UserInterfaces';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import { Viewport } from '@/utils/Viewport/Viewport';
+import { IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonList, IonProgressBar, IonSegment, IonSegmentButton } from '@ionic/vue';
+import { addOutline, qrCodeOutline } from 'ionicons/icons';
 import TimeAgo from 'javascript-time-ago';
 import es from 'javascript-time-ago/locale/es';
-import { IUser } from '@/interfaces/UserInterfaces';
-import { Session } from '@/utils/Session/Session';
-import { Viewport } from '@/utils/Viewport/Viewport';
-import { AppEvents } from '@/utils/AppEvents/AppEvents';
-import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
-import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
-import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE');

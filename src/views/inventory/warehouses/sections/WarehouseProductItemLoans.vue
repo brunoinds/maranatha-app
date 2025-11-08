@@ -143,11 +143,9 @@ import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog } from '@/utils/Dialog/Dialog';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
-import { Viewport } from '@/utils/Viewport/Viewport';
-import { IonAvatar, IonFab, IonFabButton, IonIcon, IonItem, IonSearchbar, IonLabel, IonProgressBar, IonAccordion, IonAccordionGroup, IonList, IonNote, IonSegment, IonSegmentButton } from '@ionic/vue';
+import { IonAvatar, IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonNote, IonProgressBar, IonSegment, IonSegmentButton } from '@ionic/vue';
 import { addOutline, personOutline } from 'ionicons/icons';
 import _ from 'lodash';
-import { DateTime } from 'luxon';
 import { PropType, computed, onMounted, onUnmounted, ref } from 'vue';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 

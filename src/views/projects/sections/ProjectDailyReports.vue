@@ -20,16 +20,13 @@
 
 <script setup lang="ts">
 
-import { IProjectJob } from '@/interfaces/ProjectsInterfaces';
-import { IonIcon, IonProgressBar, IonFab, IonFabButton } from '@ionic/vue';
-import { DateTime } from 'luxon';
-import { PropType, computed, onMounted, ref } from 'vue';
-import chroma from "chroma-js";
-import { IProjectConstructionPhase, IProjectConstructionTask } from '@/interfaces/ProjectsInterfaces';
-import { addOutline } from 'ionicons/icons';
 import CreateProjectConstructionDailyReport from '@/dialogs/CreateProjectConstructionDailyReport/CreateProjectConstructionDailyReport.vue';
-import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateProjectConstructionPhase from '@/dialogs/CreateProjectConstructionPhase/CreateProjectConstructionPhase.vue';
+import { IProjectJob } from '@/interfaces/ProjectsInterfaces';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import { IonFab, IonFabButton, IonIcon, IonProgressBar } from '@ionic/vue';
+import { addOutline } from 'ionicons/icons';
+import { PropType, computed, onMounted, ref } from 'vue';
 
 const isLoading = ref<boolean>(false);
 const props = defineProps({

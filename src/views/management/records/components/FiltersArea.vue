@@ -16,18 +16,13 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonSelect, IonInput, IonNote, IonPopover, IonDatetime, IonSelectOption, IonTitle, IonContent, IonImg, IonAvatar,IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { PropType, computed, ref, watch } from 'vue';
-import { Dialog } from '@/utils/Dialog/Dialog';
-import EditUser from '@/dialogs/EditUser/EditUser.vue';
+import { IonInput, IonItem, IonList, IonSelect, IonSelectOption } from '@ionic/vue';
+import { PropType, ref, watch } from 'vue';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn } from 'ionicons/icons';
-import { IReport } from '@/interfaces/ReportInterfaces';
-import { useRouter } from 'vue-router';
-import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
 import IonDateRangeItem from '@/components/IonDateRangeItem/IonDateRangeItem.vue';
 import IonDateRangeMonthItem from '@/components/IonDateRangeMonthItem/IonDateRangeMonthItem.vue';
+import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
+import { useRouter } from 'vue-router';
 
 const accountsData = ref<any>(null);
 const isLoading = ref<boolean>(true);

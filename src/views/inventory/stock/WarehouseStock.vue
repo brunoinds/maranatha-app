@@ -55,19 +55,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonSearchbar, IonBackButton, IonCheckbox, IonSegment, IonSelect, IonSelectOption, IonButton, IonSegmentButton, IonContent, IonAccordion, IonAccordionGroup, IonProgressBar, IonImg, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { addOutline, pencilOutline } from 'ionicons/icons';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { IProduct, IWarehouse, IWarehouseIncome, IProductWithWarehouseStock } from '@/interfaces/InventoryInterfaces';
-import { Dialog } from '@/utils/Dialog/Dialog';
-import CreateWarehouse from '@/dialogs/CreateWarehouse/CreateWarehouse.vue';
-import { AppEvents } from '@/utils/AppEvents/AppEvents';
-import { useRoute } from 'vue-router';
 import CreateInventoryWarehouseIncome from '@/dialogs/CreateInventoryWarehouseIncome/CreateInventoryWarehouseIncome.vue';
+import { IProductWithWarehouseStock } from '@/interfaces/InventoryInterfaces';
 import { EMoneyType } from '@/interfaces/ReportInterfaces';
-import TableArea from '@/views/management/records/components/TableArea.vue';
+import { AppEvents } from '@/utils/AppEvents/AppEvents';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Theme } from '@/utils/Theme/Theme';
+import { IonBackButton, IonButton, IonButtons, IonChip, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonImg, IonLabel, IonPage, IonProgressBar, IonSearchbar, IonTitle, IonToolbar } from '@ionic/vue';
+import { addOutline, pencilOutline } from 'ionicons/icons';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 
 

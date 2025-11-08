@@ -17,24 +17,18 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonSelect, IonSegment, IonSegmentButton, IonSelectOption, IonContent, IonImg, IonAvatar,IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { IonLabel, IonProgressBar, IonSegment, IonSegmentButton } from '@ionic/vue';
 import { computed, ref } from 'vue';
-import { Dialog } from '@/utils/Dialog/Dialog';
-import EditUser from '@/dialogs/EditUser/EditUser.vue';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn } from 'ionicons/icons';
-import { IReport } from '@/interfaces/ReportInterfaces';
 import Record from '@/views/management/records/Record.vue';
-import { useRouter } from 'vue-router';
-import { useRoute } from 'vue-router';
+import RecordsConfigs from '@/views/management/records/RecordsConfigs';
+import { onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 const accountsData = ref<any>(null);
 const isLoading = ref<boolean>(true);
 const router = useRouter();
 const page = ref<HTMLElement|null>(null);
 const route = useRoute();
-import RecordsConfigs from '@/views/management/records/RecordsConfigs';
-import { onMounted } from 'vue';
 
 const segmentValue = ref('jobs-by-costs');
 

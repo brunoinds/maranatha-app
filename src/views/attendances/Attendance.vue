@@ -88,19 +88,19 @@
 </template>
 
 <script setup lang="ts">
-import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonSkeletonText, IonTitle, IonToolbar, toastController } from '@ionic/vue';
-import { computed, ref } from 'vue';
-import { Dialog } from '../../utils/Dialog/Dialog';
-import { RequestAPI } from '../../utils/Requests/RequestAPI';
 import { ExcelGenerator } from '@/utils/Attendances/ExcelGenerator';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonSkeletonText, IonTitle, IonToolbar, toastController } from '@ionic/vue';
 import { checkmarkDone, cloudDownloadOutline, ellipsisHorizontal } from 'ionicons/icons';
 import { DateTime } from 'luxon';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import EditAttendance from '../../dialogs/EditAttendance/EditAttendance.vue';
 import { EAttendanceStatus, IAttendance } from '../../interfaces/AttendanceInterfaces';
 import { AppEvents } from '../../utils/AppEvents/AppEvents';
+import { Dialog } from '../../utils/Dialog/Dialog';
+import { RequestAPI } from '../../utils/Requests/RequestAPI';
 
 const attendanceId = ref<string|null>(null);
 const attendancesData = ref<IAttendance|null>(null);

@@ -13,12 +13,9 @@
 
 <script setup lang="ts">
 import EditInventoryWarehouseLoan from '@/dialogs/EditInventoryWarehouseLoan/EditInventoryWarehouseLoan.vue';
-import { IWarehouseProductItemLoan } from '@/interfaces/InventoryInterfaces';
-import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { IonButton, IonButtons, IonContent, IonAvatar, IonHeader, IonListHeader, IonLabel, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
-import { DateTime } from 'luxon';
-import { computed, onMounted, ref } from 'vue';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import { IonContent, IonHeader, IonPage, IonProgressBar, IonToolbar } from '@ionic/vue';
+import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 

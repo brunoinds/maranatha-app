@@ -15,20 +15,20 @@
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonHeader, IonPage, IonButton, IonTitle, IonToolbar } from '@ionic/vue';
+import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
 import TimeAgo from 'javascript-time-ago';
 import es from 'javascript-time-ago/locale/es';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { AppEvents } from '../../utils/AppEvents/AppEvents';
 
-import 'ion-peek-pop/styles.css';
-import { IProjectJob } from '@/interfaces/ProjectsInterfaces';
-import { ProjectsStore } from '@/utils/Stored/ProjecsStore';
-import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateProjectJob from '@/dialogs/CreateProjectJob/CreateProjectJob.vue';
 import CreateProjectStructure from '@/dialogs/CreateProjectStructure/CreateProjectStructure.vue';
 import EditProjectJob from '@/dialogs/EditProjectJob/EditProjectJob.vue';
+import { IProjectJob } from '@/interfaces/ProjectsInterfaces';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import { ProjectsStore } from '@/utils/Stored/ProjecsStore';
+import 'ion-peek-pop/styles.css';
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE');

@@ -63,22 +63,18 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController, actionSheetController } from '@ionic/vue';
-import { defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
-import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash, documentOutline } from 'ionicons/icons';
-import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
-import { vMaska } from "maska";
-import { DateTime } from 'luxon';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { Session } from '@/utils/Session/Session';
-import { IReportResponse, StoredReports } from '@/utils/Stored/StoredReports';
 import CurrencyInput from '@/components/CurrencyInput/CurrencyInput.vue';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import imageCompression from 'browser-image-compression';
-import { FilePicker } from '@capawesome/capacitor-file-picker';
-import { Capacitor } from '@capacitor/core';
-import { PDFModifier } from '@/utils/PDFModifier/PDFModifier';
 import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
+import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
+import { FilePicker } from '@capawesome/capacitor-file-picker';
+import { actionSheetController, alertController, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonImg, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonThumbnail, IonTitle, IonToolbar, toastController } from '@ionic/vue';
+import imageCompression from 'browser-image-compression';
+import { camera, documentOutline, trashBinOutline } from 'ionicons/icons';
+import { DateTime } from 'luxon';
+import { ref } from 'vue';
+import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 
 const isLoadingImageCompression = ref<boolean>(false);
 const isLoading = ref<boolean>(false);

@@ -32,19 +32,18 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonImg, IonList, IonInput, IonItem, IonButton, IonProgressBar, alertController } from '@ionic/vue';
-import { computed, onMounted, ref } from 'vue';
-import MaranathaLogo from '&/assets/images/maranatha-logo.svg';
 import MaranathaLogoDark from '&/assets/images/maranatha-logo-dark.svg';
+import MaranathaLogo from '&/assets/images/maranatha-logo.svg';
+import { IonButton, IonContent, IonHeader, IonImg, IonInput, IonItem, IonList, IonPage, IonProgressBar, alertController } from '@ionic/vue';
+import { computed, onMounted, ref } from 'vue';
 
-import { Session } from '@/utils/Session/Session';
-import { useRouter } from 'vue-router';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { Dialog } from '@/utils/Dialog/Dialog';
 import CreateUser from '@/dialogs/CreateUser/CreateUser.vue';
-import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
-import { Capacitor } from '@capacitor/core';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import { Session } from '@/utils/Session/Session';
 import { Theme } from '@/utils/Theme/Theme';
+import { Capacitor } from '@capacitor/core';
+import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
+import { useRouter } from 'vue-router';
 
 const page = ref<HTMLElement|null>(null);
 const holder = ref<HTMLElement|null>(null);

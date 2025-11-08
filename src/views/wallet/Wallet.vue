@@ -169,34 +169,34 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonGrid, IonCard, IonSegment, IonSegmentButton, IonListHeader, IonSkeletonText, IonButtons, IonBackButton, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonNote, IonRow, IonButton, IonCol, IonToolbar, IonTitle, IonContent, IonProgressBar, IonImg, IonIcon, IonList, IonItem, IonLabel, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonItem, IonLabel, IonList, IonListHeader, IonNote, IonPage, IonProgressBar, IonRow, IonSegment, IonSegmentButton, IonSkeletonText, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
 import { computed, onUnmounted, ref } from 'vue';
 
-import { addCircleOutline, alertCircle, cardOutline, cashOutline, chevronBackCircleOutline, chevronForwardCircleOutline, downloadOutline, gitCompareOutline, removeCircleOutline, shareOutline } from 'ionicons/icons';
-import { useRouter } from 'vue-router';
-import {AppEvents} from '../../utils/AppEvents/AppEvents';
-import CreditCardPositive from '&/assets/images/credit-card-positive.svg';
+import CreditCardAdmin from '&/assets/images/credit-card-admin.svg';
 import CreditCardNegative from '&/assets/images/credit-card-negative.svg';
 import CreditCardNeutral from '&/assets/images/credit-card-neutral.svg';
-import CreditCardAdmin from '&/assets/images/credit-card-admin.svg';
+import CreditCardPositive from '&/assets/images/credit-card-positive.svg';
+import { addCircleOutline, alertCircle, cardOutline, chevronBackCircleOutline, chevronForwardCircleOutline, downloadOutline, gitCompareOutline, shareOutline } from 'ionicons/icons';
+import { useRouter } from 'vue-router';
+import { AppEvents } from '../../utils/AppEvents/AppEvents';
 
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { Chart, registerables } from 'chart.js';
 import { DateTime } from 'luxon';
 import Numeral from 'numeral';
-import { Chart, registerables } from 'chart.js';
+import { BarChart, LineChart } from 'vue-chart-3';
 Chart.register(...registerables);
-import { BarChart, DoughnutChart, LineChart } from 'vue-chart-3';
 
-import { Dialog } from '@/utils/Dialog/Dialog';
 import AddCreditPettyCash from '@/dialogs/AddCreditPettyCash/AddCreditPettyCash.vue';
-import { Session } from '@/utils/Session/Session';
-import { Capacitor } from '@capacitor/core';
-import { Toolbox } from '@/utils/Toolbox/Toolbox';
-import { useRoute } from 'vue-router';
-import { onMounted } from 'vue';
-import { Theme } from '@/utils/Theme/Theme';
 import { IExpense, IJob } from '@/interfaces/JobsAndExpensesInterfaces';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import { Session } from '@/utils/Session/Session';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
+import { Theme } from '@/utils/Theme/Theme';
+import { Toolbox } from '@/utils/Toolbox/Toolbox';
+import { Capacitor } from '@capacitor/core';
+import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 const isLoading = ref<boolean>(true);
 const router = useRouter();
 const page = ref<HTMLElement|null>(null);

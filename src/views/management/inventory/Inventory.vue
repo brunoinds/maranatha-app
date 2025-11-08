@@ -105,11 +105,10 @@ import EditInventoryProductsPack from '@/dialogs/EditInventoryProductsPack/EditI
 import { IProduct, IProductsPack, IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
 import { Dialog } from '@/utils/Dialog/Dialog';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
 import { InventoryStore } from '@/utils/Stored/InventoryStore';
 import { Viewport } from '@/utils/Viewport/Viewport';
-import { IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonList, IonAvatar, IonSearchbar, IonSegment, IonSegmentButton, IonProgressBar } from '@ionic/vue';
+import { IonAvatar, IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonList, IonProgressBar, IonSearchbar, IonSegment, IonSegmentButton } from '@ionic/vue';
 import { addOutline, homeOutline, logoDropbox, storefrontOutline } from 'ionicons/icons';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';

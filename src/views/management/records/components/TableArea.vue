@@ -17,18 +17,11 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonSearchbar, IonContent, IonButton, IonImg, IonAvatar,IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { IonSearchbar } from '@ionic/vue';
 import { PropType, computed, ref } from 'vue';
-import { Dialog } from '@/utils/Dialog/Dialog';
-import EditUser from '@/dialogs/EditUser/EditUser.vue';
 
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn } from 'ionicons/icons';
-import { IReport } from '@/interfaces/ReportInterfaces';
-import { useRouter } from 'vue-router';
-import FiltersArea from '@/views/management/records/components/FiltersArea.vue';
-import { DateTime } from 'luxon';
 import { Theme } from '@/utils/Theme/Theme';
+import { useRouter } from 'vue-router';
 
 
 const accountsData = ref<any>(null);

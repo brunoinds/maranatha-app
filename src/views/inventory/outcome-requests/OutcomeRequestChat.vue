@@ -176,22 +176,21 @@ import ChatTailReceiver from '&/assets/icons/chat-tail-receiver.svg';
 import ChatTailSender from '&/assets/icons/chat-tail-sender.svg';
 import { IOutcomeChatMessage } from '@/interfaces/InventoryInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
-import { ImagePicker } from '@/utils/Camera/ImagePicker';
+import { Picker } from '@/utils/Picker/Picker';
+import { AudioRecorder } from '@/utils/Recorder/AudioRecorder';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { Session } from '@/utils/Session/Session';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { Capacitor } from '@capacitor/core';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Keyboard } from '@capacitor/keyboard';
-import { IonBackButton, IonSpinner, IonButton, IonButtons, IonContent, IonHeader,IonImg, IonIcon, IonItem, IonItemSliding, IonList, IonPage, IonProgressBar, IonTextarea, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
-import { addOutline, chevronDownCircleOutline,closeCircleOutline, sparklesOutline, documentOutline, arrowUndoCircleOutline, trashOutline, copyOutline, alarmOutline, alertCircleOutline, checkmarkDoneOutline, checkmarkOutline, sendOutline, image } from 'ionicons/icons';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonImg, IonItem, IonItemSliding, IonList, IonPage, IonProgressBar, IonSpinner, IonTextarea, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { kvsIndexedDB } from "@kvs/indexeddb";
+import { addOutline, alarmOutline, alertCircleOutline, arrowUndoCircleOutline, checkmarkDoneOutline, checkmarkOutline, chevronDownCircleOutline, closeCircleOutline, copyOutline, documentOutline, sendOutline, sparklesOutline, trashOutline } from 'ionicons/icons';
 import TimeAgo from 'javascript-time-ago';
 import es from 'javascript-time-ago/locale/es';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useRoute } from 'vue-router';
-import { Picker } from '@/utils/Picker/Picker';
-import { AudioRecorder } from '@/utils/Recorder/AudioRecorder';
-import { KVSIndexedDB, kvsIndexedDB } from "@kvs/indexeddb";
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo('es-PE')

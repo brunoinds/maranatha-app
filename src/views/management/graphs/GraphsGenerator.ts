@@ -1436,5 +1436,5 @@ class AccountantPeriodComparison{
     }
 }
 
-export {  AccountantCurrentYearState, AccountantPeriodComparison }
-export type { AccountantPeriodComparisonIndicators, AccountantCurrentYearIndicators }
+export { AccountantCurrentYearState, AccountantPeriodComparison }
+export type { AccountantCurrentYearIndicators, AccountantPeriodComparisonIndicators }

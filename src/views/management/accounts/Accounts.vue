@@ -17,17 +17,15 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonButton, IonContent, IonImg, IonAvatar,IonBackButton, IonProgressBar, IonListHeader, IonFab, IonChip, IonFabButton, IonIcon, IonList, IonItem, IonLabel, alertController } from '@ionic/vue';
-import { RequestAPI } from '@/utils/Requests/RequestAPI';
-import { computed, onMounted, ref } from 'vue';
-import { Dialog } from '@/utils/Dialog/Dialog';
 import EditUser from '@/dialogs/EditUser/EditUser.vue';
-import { Viewport } from '@/utils/Viewport/Viewport';
-import { addOutline, albumsOutline, alertCircleOutline, checkmarkCircleOutline, close, logIn } from 'ionicons/icons';
-import { IReport } from '@/interfaces/ReportInterfaces';
-import { useRouter } from 'vue-router';
-import { useManagementHtml } from '@/views/management/management';
 import KeyValueEditor from '@/dialogs/KeyValueEditor/KeyValueEditor.vue';
+import { Dialog } from '@/utils/Dialog/Dialog';
+import { RequestAPI } from '@/utils/Requests/RequestAPI';
+import { Viewport } from '@/utils/Viewport/Viewport';
+import { useManagementHtml } from '@/views/management/management';
+import { IonItem, IonLabel, IonList, IonProgressBar } from '@ionic/vue';
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 const accountsData = ref<any>(null);
 const isLoading = ref<boolean>(true);
 const router = useRouter();

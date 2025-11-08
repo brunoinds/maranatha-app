@@ -90,21 +90,19 @@
 </template>
 
 <script setup lang="ts">
-import { IonAvatar, IonContent, IonFooter, IonHeader, IonToggle, IonImg, IonIcon,IonButton, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
-import { computed, onUnmounted, ref } from 'vue';
-import { RequestAPI } from '../../utils/Requests/RequestAPI';
-import { Environment } from '@/utils/Environment/Environment';
-import { Notifications } from '@/utils/Notifications/Notifications';
-import { Session } from '@/utils/Session/Session';
-import { Viewport } from '@/utils/Viewport/Viewport';
-import { close, notificationsCircle, syncOutline, cloudDoneOutline, shieldCheckmarkOutline, moonOutline, informationCircleOutline } from 'ionicons/icons';
-import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { LiveUpdates } from '@/utils/LiveUpdates/LiveUpdates';
-import { Theme } from '@/utils/Theme/Theme';
 import IonContextMenu from '@/components/IonContextMenu/IonContextMenu.vue';
 import IonContextMenuItem from '@/components/IonContextMenu/IonContextMenuItem.vue';
-import IonPeekPop from '@/components/IonPeekPop/IonPeekPop.vue';
+import { Environment } from '@/utils/Environment/Environment';
+import { LiveUpdates } from '@/utils/LiveUpdates/LiveUpdates';
+import { Notifications } from '@/utils/Notifications/Notifications';
+import { Session } from '@/utils/Session/Session';
+import { Theme } from '@/utils/Theme/Theme';
+import { Viewport } from '@/utils/Viewport/Viewport';
+import { IonAvatar, IonButton, IonContent, IonFooter, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
+import { close, cloudDoneOutline, informationCircleOutline, notificationsCircle, shieldCheckmarkOutline, syncOutline } from 'ionicons/icons';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { RequestAPI } from '../../utils/Requests/RequestAPI';
 
 const aboutAppText = ref<string>(`  Code version: ${Environment.version()} \nNative version: ${Environment.storeVersioning().version} (${Environment.storeVersioning().build})`);
 const accountData = ref<any>(null);

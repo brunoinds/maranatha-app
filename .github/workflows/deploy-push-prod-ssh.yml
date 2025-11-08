@@ -1,0 +1,102 @@
+name: Deploy Ionic On Push to Production
+on:
+  push:
+    branches:
+      - main
+jobs:
+  web-deploy:
+    name: 🌎 Web Update Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 💻 Get the latest code
+        uses: actions/checkout@v4
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 💻 Install Ionic CLI
+        run: npm install -g @ionic/cli
+      - name: 📦 Install Ionic Dependencies
+        run: npm install
+      - name: ⭐️ Setting project as "production"
+        run: npm run ensure-production
+      - name: 📲🌎 Build Ionic Project (Web)
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: npm run bundle-web-update
+      - name: 🗳️ Get Bundle name
+        id: zip_file
+        run: |
+          zip_file=$(ls dist/*.zip | head -n 1)
+          zip_basename=$(basename "$zip_file")
+          echo "zip_file=$zip_file" >> $GITHUB_OUTPUT
+          echo "zip_basename=$zip_basename" >> $GITHUB_OUTPUT
+      - name: 📤 Upload Bundle via SSH
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 69.6.214.100
+          username: root
+          port: 22022
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          source: ${{ steps.zip_file.outputs.zip_file }}
+          target: /tmp/bundles/web/
+          strip_components: 1
+      - name: 🚀 Load Bundle on Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 69.6.214.100
+          username: root
+          port: 22022
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/wwimed/maranatha.top/current
+            php artisan app:load-bundle --type=Web --filepath="/tmp/bundles/web/${{ steps.zip_file.outputs.zip_basename }}"
+            rm -f "/tmp/bundles/web/${{ steps.zip_file.outputs.zip_basename }}"
+  native-deploy:
+    name: 📲 Native Live Update Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 💻 Get the latest code
+        uses: actions/checkout@v4
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 💻 Install Ionic CLI
+        run: npm install -g @ionic/cli
+      - name: 📦 Install Ionic Dependencies
+        run: npm install
+      - name: ⭐️ Setting project as "production"
+        run: npm run ensure-production
+      - name: 📲🌎 Build Ionic Project (Web and Native)
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: npm run bundle-live-update
+      - name: 🗳️ Get Bundle name
+        id: zip_file
+        run: |
+          zip_file=$(ls dist/*.zip | head -n 1)
+          zip_basename=$(basename "$zip_file")
+          echo "zip_file=$zip_file" >> $GITHUB_OUTPUT
+          echo "zip_basename=$zip_basename" >> $GITHUB_OUTPUT
+      - name: 📤 Upload Bundle via SSH
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 69.6.214.100
+          username: root
+          port: 22022
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          source: ${{ steps.zip_file.outputs.zip_file }}
+          target: /tmp/bundles/native/
+          strip_components: 1
+      - name: 🚀 Load Bundle on Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 69.6.214.100
+          username: root
+          port: 22022
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/wwimed/maranatha.top/current
+            php artisan app:load-bundle --type=Native --filepath="/tmp/bundles/native/${{ steps.zip_file.outputs.zip_basename }}"
+            rm -f "/tmp/bundles/native/${{ steps.zip_file.outputs.zip_basename }}"

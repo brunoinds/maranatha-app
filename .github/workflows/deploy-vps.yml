@@ -19,6 +19,7 @@ jobs:
       id-token: write
     strategy:
       max-parallel: 1
+      fail-fast: false
       matrix:
         include:
           - type: Web
@@ -77,5 +78,6 @@ jobs:
           docker cp "/tmp/upload-$TYPE.zip" "$C:/tmp/$NAME"
           rm -f "/tmp/upload-$TYPE.zip"
           docker exec "$C" php artisan app:load-bundle --type="$TYPE" --filepath="/tmp/$NAME"
-          docker exec "$C" rm -f "/tmp/$NAME"
+          # docker cp grava como root; o container roda como www-data
+          docker exec -u root "$C" rm -f "/tmp/$NAME"
           EOF

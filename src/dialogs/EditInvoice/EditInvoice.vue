@@ -639,12 +639,12 @@ const saveInvoice = async () => {
             pdf_base64: dynamicData.value.originalPdfBase64 == dynamicData.value.uploadedPdfBase64 ? null : dynamicData.value.uploadedPdfBase64
         } as unknown as IInvoice;
 
-        if ((invoiceDocument as any).pdf_base64 || invoiceDocument.pdf){
+        // O tipo vale pelo que está no diálogo agora, não pelo que a boleta tinha:
+        // trocar PDF por foto (ou o contrário) manda só o arquivo novo, e a API apaga o antigo
+        if (dynamicData.value.uploadedPdfBase64){
             invoiceDocument.image = null;
             (invoiceDocument as any).image_base64 = null;
-        }
-
-        if ((invoiceDocument as any).image_base64 || invoiceDocument.image){
+        }else if (dynamicData.value.uploadedImageBase64){
             invoiceDocument.pdf = null;
             (invoiceDocument as any).pdf_base64 = null;
         }

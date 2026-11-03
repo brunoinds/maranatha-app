@@ -1,0 +1,78 @@
+name: Deploy Ionic (VPS)
+
+on:
+  push:
+    branches:
+      - prolux-vps
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+
+jobs:
+  bundles:
+    name: 📲🌎 Web + Native bundles → VPS
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      max-parallel: 1
+      matrix:
+        include:
+          - type: Web
+            script: bundle-web-update
+          - type: Native
+            script: bundle-live-update
+    steps:
+      - name: 💻 Get the latest code
+        uses: actions/checkout@v4
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: 📦 Install Ionic Dependencies
+        run: npm ci
+      - name: ⭐️ Setting project as "production"
+        run: npm run ensure-production
+      - name: 🔨 Build (${{ matrix.type }})
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: npm run ${{ matrix.script }}
+      - name: 🗳️ Get Bundle name
+        id: zip_file
+        run: |
+          zip_file=$(ls dist/*.zip | head -n 1)
+          echo "zip_file=$zip_file" >> $GITHUB_OUTPUT
+          echo "zip_basename=$(basename "$zip_file")" >> $GITHUB_OUTPUT
+
+      - name: 🔐 Tailscale (tag:ci, só SSH na VPS)
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          audience: ${{ secrets.TS_AUDIENCE }}
+          tags: tag:ci
+      - name: 🔑 Chave SSH do usuário deploy
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.VPS_DEPLOY_SSH_KEY }}
+
+      - name: 🚀 Load Bundle no container web da API
+        env:
+          ZIP: ${{ steps.zip_file.outputs.zip_file }}
+          NAME: ${{ steps.zip_file.outputs.zip_basename }}
+          TYPE: ${{ matrix.type }}
+        run: |
+          scp -o StrictHostKeyChecking=accept-new "$ZIP" "deploy@prolux-vps:/tmp/$NAME"
+          ssh deploy@prolux-vps bash -s -- "$NAME" "$TYPE" <<'EOF'
+          set -euo pipefail
+          NAME="$1"; TYPE="$2"
+          C=$(docker ps --filter label=service=maranatha-api --filter label=role=web --format '{{.Names}}' | head -n 1)
+          test -n "$C"
+          docker cp "/tmp/$NAME" "$C:/tmp/$NAME"
+          rm -f "/tmp/$NAME"
+          docker exec "$C" php artisan app:load-bundle --type="$TYPE" --filepath="/tmp/$NAME"
+          docker exec "$C" rm -f "/tmp/$NAME"
+          EOF

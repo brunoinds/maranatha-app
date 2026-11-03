@@ -181,6 +181,7 @@ class Toolbox{
             const response = await fetch(url, options);
             if (!response.ok){
                 reject(response);
+                return;
             }
             const reader = response.body?.getReader() as ReadableStreamDefaultReader<Uint8Array>;
             let contentLength = response.headers.get('Content-Length') as string;

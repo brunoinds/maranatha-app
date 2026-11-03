@@ -850,8 +850,27 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                     
                 }
                 reader.readAsDataURL(blob);
-            }).catch((error) => {
+            }).catch(async (error) => {
                 clearInterval(intervalCheckProgress);
+                loadingProcess.value = null;
+                isLoading.value = false;
+
+                // A API diz qual boleta não entrou no PDF (422 com message)
+                let message = 'No se pudo generar el PDF del reporte. Inténtelo de nuevo.';
+                try {
+                    const body = await (error as Response).json();
+                    if (body?.message){
+                        message = body.message;
+                    }
+                } catch (parseError) {
+                }
+                alertController.create({
+                    header: 'Oops...',
+                    message: message,
+                    buttons: ['OK']
+                }).then((alert) => {
+                    alert.present();
+                })
             }).finally(() => {
                 clearInterval(intervalCheckProgress);
             })

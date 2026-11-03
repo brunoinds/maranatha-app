@@ -155,6 +155,7 @@ import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import humanFormat from 'human-format';
 import { ImagePicker } from '@/utils/Camera/ImagePicker';
+import { PDFCompatibility } from '@/utils/PDFCompatibility/PDFCompatibility';
 
 const onDatePickerChange = (event: CustomEvent) => {
     const date = event.detail.value.split('T')[0];
@@ -451,7 +452,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             reader.onloadend = () => resolve(reader.result);
             reader.onerror = reject;
             reader.readAsDataURL(blob);
-        }).then((base64PdfPre) => {
+        }).then(async (base64PdfPre) => {
             const base64Pdf = (base64PdfPre as string).split(";base64,")[1];
             const pdfSize = (base64Pdf.length * (3/4)) / 1000000;
 
@@ -464,6 +465,21 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                     alert.present();
                 })
                 isLoadingImageCompression.value = false;
+                return;
+            }
+
+            isLoadingImageCompression.value = true;
+            const compatibility = await PDFCompatibility.check(base64Pdf);
+            isLoadingImageCompression.value = false;
+            if (compatibility === 'Incompatible'){
+                dynamicData.value.currentPdfThumbnailBase64 = null;
+                alertController.create({
+                    header: "PDF no compatible",
+                    message: "Este PDF no podrá incluirse en el PDF del reporte. Suba una foto de la boleta o el PDF original descargado del emisor.",
+                    buttons: ["OK"]
+                }).then((alert) => {
+                    alert.present();
+                })
                 return;
             }
             dynamicData.value.uploadedPdfBase64 = base64Pdf;

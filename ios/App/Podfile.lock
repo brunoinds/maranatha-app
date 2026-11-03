@@ -1,95 +1,95 @@
 PODS:
-  - Alamofire (5.10.2)
-  - Capacitor (7.4.3):
+  - Capacitor (8.6.0):
     - CapacitorCordova
-  - CapacitorApp (7.1.0):
+  - CapacitorApp (8.1.2):
     - Capacitor
-  - CapacitorCamera (7.0.2):
+  - CapacitorCamera (8.2.6):
     - Capacitor
-  - CapacitorCommunityFileOpener (7.0.1):
+    - IONCameraLib (~> 2.0.0)
+  - CapacitorCommunityFileOpener (8.0.1):
     - Capacitor
-  - CapacitorCordova (7.4.3)
-  - CapacitorFilesystem (7.1.4):
+  - CapacitorCordova (8.6.0)
+  - CapacitorFilesystem (8.1.5):
     - Capacitor
-    - IONFilesystemLib (~> 1.0.1)
-  - CapacitorHaptics (7.0.2):
+    - IONFilesystemLib (= 2.0.1)
+  - CapacitorHaptics (8.0.2):
     - Capacitor
-  - CapacitorKeyboard (7.0.3):
+  - CapacitorKeyboard (8.0.6):
     - Capacitor
-  - CapacitorMlkitBarcodeScanning (7.3.0):
+  - CapacitorMlkitBarcodeScanning (8.2.2):
     - Capacitor
-    - GoogleMLKit/BarcodeScanning (= 7.0.0)
-  - CapacitorMlkitDocumentScanner (7.3.0):
+    - GoogleMLKit/BarcodeScanning (~> 8.0.0)
+  - CapacitorMlkitDocumentScanner (8.2.2):
     - Capacitor
-  - CapacitorPushNotifications (7.0.3):
+  - CapacitorPushNotifications (8.1.3):
     - Capacitor
-  - CapacitorShare (7.0.2):
+  - CapacitorShare (8.0.3):
     - Capacitor
-  - CapacitorSplashScreen (7.0.3):
+  - CapacitorSplashScreen (8.0.2):
     - Capacitor
-  - CapacitorStatusBar (7.0.3):
+  - CapacitorStatusBar (8.0.4):
     - Capacitor
-  - CapawesomeCapacitorFilePicker (7.2.0):
+  - CapawesomeCapacitorFilePicker (8.1.1):
     - Capacitor
-  - CapgoCapacitorUpdater (8.0.1):
-    - Alamofire
+  - CapgoCapacitorUpdater (8.54.0):
     - Capacitor
-    - SSZipArchive (= 2.4.3)
-    - Version
-  - CordovaPluginsStatic (7.4.3):
+  - CordovaPluginsStatic (8.6.0):
     - CapacitorCordova
-    - OneSignalXCFramework (= 5.2.14)
-  - GoogleDataTransport (10.1.0):
+    - OneSignalCordovaDependencies
+  - GoogleDataTransport (10.1.1):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
-  - GoogleMLKit/BarcodeScanning (7.0.0):
+  - GoogleMLKit/BarcodeScanning (8.0.0):
     - GoogleMLKit/MLKitCore
-    - MLKitBarcodeScanning (~> 6.0.0)
-  - GoogleMLKit/MLKitCore (7.0.0):
-    - MLKitCommon (~> 12.0.0)
+    - MLKitBarcodeScanning (~> 7.0.0)
+  - GoogleMLKit/MLKitCore (8.0.0):
+    - MLKitCommon (~> 13.0.0)
   - GoogleToolboxForMac/Defines (4.2.1)
   - GoogleToolboxForMac/Logger (4.2.1):
     - GoogleToolboxForMac/Defines (= 4.2.1)
   - "GoogleToolboxForMac/NSData+zlib (4.2.1)":
     - GoogleToolboxForMac/Defines (= 4.2.1)
-  - GoogleUtilities/Environment (8.1.0):
+  - GoogleUtilities/Environment (8.1.5):
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Logger (8.1.0):
+  - GoogleUtilities/Logger (8.1.5):
     - GoogleUtilities/Environment
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Privacy (8.1.0)
-  - GoogleUtilities/UserDefaults (8.1.0):
+  - GoogleUtilities/Privacy (8.1.5)
+  - GoogleUtilities/UserDefaults (8.1.5):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
   - GTMSessionFetcher/Core (3.5.0)
-  - IONFilesystemLib (1.0.1)
-  - MdocumentScanner (0.0.5):
+  - IONCameraLib (2.0.0)
+  - IONFilesystemLib (2.0.1)
+  - MdocumentScanner (0.0.7):
     - Capacitor
-  - MLImage (1.0.0-beta6)
-  - MLKitBarcodeScanning (6.0.0):
-    - MLKitCommon (~> 12.0)
-    - MLKitVision (~> 8.0)
-  - MLKitCommon (12.0.0):
+  - MLImage (1.0.0-beta7)
+  - MLKitBarcodeScanning (7.0.0):
+    - MLKitCommon (~> 13.0)
+    - MLKitVision (~> 9.0)
+  - MLKitCommon (13.0.0):
     - GoogleDataTransport (~> 10.0)
     - GoogleToolboxForMac/Logger (< 5.0, >= 4.2.1)
     - "GoogleToolboxForMac/NSData+zlib (< 5.0, >= 4.2.1)"
     - GoogleUtilities/Logger (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - GTMSessionFetcher/Core (< 4.0, >= 3.3.2)
-  - MLKitVision (8.0.0):
+  - MLKitVision (9.0.0):
     - GoogleToolboxForMac/Logger (< 5.0, >= 4.2.1)
     - "GoogleToolboxForMac/NSData+zlib (< 5.0, >= 4.2.1)"
     - GTMSessionFetcher/Core (< 4.0, >= 3.3.2)
-    - MLImage (= 1.0.0-beta6)
-    - MLKitCommon (~> 12.0)
+    - MLImage (= 1.0.0-beta7)
+    - MLKitCommon (~> 13.0)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
-  - OneSignalXCFramework (5.2.14):
-    - OneSignalXCFramework/OneSignalComplete (= 5.2.14)
-  - OneSignalXCFramework/OneSignal (5.2.14):
+  - OneSignalCordovaDependencies (5.6.2):
+    - OneSignalXCFramework (= 5.8.0)
+  - OneSignalXCFramework (5.8.0):
+    - OneSignalXCFramework/OneSignalComplete (= 5.8.0)
+  - OneSignalXCFramework/OneSignal (5.8.0):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalExtension
     - OneSignalXCFramework/OneSignalLiveActivities
@@ -97,49 +97,50 @@ PODS:
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalOutcomes
     - OneSignalXCFramework/OneSignalUser
-  - OneSignalXCFramework/OneSignalComplete (5.2.14):
+  - OneSignalXCFramework/OneSignalComplete (5.8.0):
     - OneSignalXCFramework/OneSignal
     - OneSignalXCFramework/OneSignalInAppMessages
     - OneSignalXCFramework/OneSignalLocation
-  - OneSignalXCFramework/OneSignalCore (5.2.14)
-  - OneSignalXCFramework/OneSignalExtension (5.2.14):
+  - OneSignalXCFramework/OneSignalCore (5.8.0)
+  - OneSignalXCFramework/OneSignalExtension (5.8.0):
     - OneSignalXCFramework/OneSignalCore
+    - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalOutcomes
-  - OneSignalXCFramework/OneSignalInAppMessages (5.2.14):
+  - OneSignalXCFramework/OneSignalInAppMessages (5.8.0):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalNotifications
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalOutcomes
     - OneSignalXCFramework/OneSignalUser
-  - OneSignalXCFramework/OneSignalLiveActivities (5.2.14):
+  - OneSignalXCFramework/OneSignalLiveActivities (5.8.0):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalUser
-  - OneSignalXCFramework/OneSignalLocation (5.2.14):
+  - OneSignalXCFramework/OneSignalLocation (5.8.0):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalNotifications
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalUser
-  - OneSignalXCFramework/OneSignalNotifications (5.2.14):
+  - OneSignalXCFramework/OneSignalNotifications (5.8.0):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalExtension
+    - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalOutcomes
-  - OneSignalXCFramework/OneSignalOSCore (5.2.14):
+  - OneSignalXCFramework/OneSignalOSCore (5.8.0):
     - OneSignalXCFramework/OneSignalCore
-  - OneSignalXCFramework/OneSignalOutcomes (5.2.14):
+  - OneSignalXCFramework/OneSignalOutcomes (5.8.0):
     - OneSignalXCFramework/OneSignalCore
-  - OneSignalXCFramework/OneSignalUser (5.2.14):
+    - OneSignalXCFramework/OneSignalOSCore
+  - OneSignalXCFramework/OneSignalUser (5.8.0):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalNotifications
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalOutcomes
-  - PromisesObjC (2.4.0)
+  - PromisesObjC (2.4.1)
   - Sentry/HybridSDK (8.53.2)
   - SentryCapacitor (2.2.0):
     - Capacitor
     - Sentry/HybridSDK (= 8.53.2)
-  - SSZipArchive (2.4.3)
-  - Version (0.8.0)
 
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
@@ -160,16 +161,17 @@ DEPENDENCIES:
   - "CapgoCapacitorUpdater (from `../../node_modules/@capgo/capacitor-updater`)"
   - CordovaPluginsStatic (from `../capacitor-cordova-ios-plugins`)
   - MdocumentScanner (from `../../node_modules/mdocument-scanner`)
+  - OneSignalCordovaDependencies (from `https://github.com/OneSignal/OneSignal-Cordova-SDK.git`, tag `5.6.2`)
   - "SentryCapacitor (from `../../node_modules/@sentry/capacitor`)"
 
 SPEC REPOS:
   trunk:
-    - Alamofire
     - GoogleDataTransport
     - GoogleMLKit
     - GoogleToolboxForMac
     - GoogleUtilities
     - GTMSessionFetcher
+    - IONCameraLib
     - IONFilesystemLib
     - MLImage
     - MLKitBarcodeScanning
@@ -179,8 +181,6 @@ SPEC REPOS:
     - OneSignalXCFramework
     - PromisesObjC
     - Sentry
-    - SSZipArchive
-    - Version
 
 EXTERNAL SOURCES:
   Capacitor:
@@ -219,47 +219,54 @@ EXTERNAL SOURCES:
     :path: "../capacitor-cordova-ios-plugins"
   MdocumentScanner:
     :path: "../../node_modules/mdocument-scanner"
+  OneSignalCordovaDependencies:
+    :git: https://github.com/OneSignal/OneSignal-Cordova-SDK.git
+    :tag: 5.6.2
   SentryCapacitor:
     :path: "../../node_modules/@sentry/capacitor"
 
+CHECKOUT OPTIONS:
+  OneSignalCordovaDependencies:
+    :git: https://github.com/OneSignal/OneSignal-Cordova-SDK.git
+    :tag: 5.6.2
+
 SPEC CHECKSUMS:
-  Alamofire: 7193b3b92c74a07f85569e1a6c4f4237291e7496
-  Capacitor: 28d6c01026a9a3f7156529498ec1f389a2a28dbc
-  CapacitorApp: 26587c2ce485d88ddb39adb21cac64f8e481afe3
-  CapacitorCamera: f9e54db0a18bb218a8dc360907d63aaefe9209ff
-  CapacitorCommunityFileOpener: 97362898506cf0a4194639f6fc05276af607191c
-  CapacitorCordova: 435121e81a2df4d0034f0fb11fcefab5104cfdb5
-  CapacitorFilesystem: f9bd850c41e048180e5dc0cbb90f2033ede9d2cc
-  CapacitorHaptics: b3fb2869e72c4466e18ce9ccbeb60a3d8723b3d4
-  CapacitorKeyboard: 62f36104f26d53d8b3a2a43f2a69fe714f1777d5
-  CapacitorMlkitBarcodeScanning: 05b2dfc7a70099f6d4594365c521534d79a17b1d
-  CapacitorMlkitDocumentScanner: dae0d1aca10c07a6073b6299cb9cc31ed95af96b
-  CapacitorPushNotifications: bdd621fbd562be34a41f4a7b1750efa000447d5a
-  CapacitorShare: be166411fa995ead2d39b104aa0aae56d8615c66
-  CapacitorSplashScreen: e388b8e0ed0e982a9d3a40417f478e7a018a8763
-  CapacitorStatusBar: 0659ddc7b1713764a05831463d215b177a15d054
-  CapawesomeCapacitorFilePicker: 0f4a913a00e39dd77213449f0d917e92f35a5ca9
-  CapgoCapacitorUpdater: 939bd8dc6280c218c91150332334bb41df285f65
-  CordovaPluginsStatic: e1d03a74c8a31ac3ac8e39ebeee5ce33f0e5e941
-  GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
-  GoogleMLKit: eff9e23ec1d90ea4157a1ee2e32a4f610c5b3318
+  Capacitor: 62cab4ab4ba04ea925576ddd1be188869e90d9ea
+  CapacitorApp: 7b7e43debe505bc61beedb83796aa1368c86078b
+  CapacitorCamera: 09e51f52c079eaf731a5528a1c3455c074ccc24c
+  CapacitorCommunityFileOpener: e8e4573db3f83a4d359a82b6d374865c364262bf
+  CapacitorCordova: 922f0a94dae286165215f0c7cf16fbde662d5ee4
+  CapacitorFilesystem: e3bc7123acb1554df1b7b099fa5847064b9e1bd4
+  CapacitorHaptics: 296f771ecd89c7a1bd92a7b6826a7d268e2e70f5
+  CapacitorKeyboard: f9e85e685082e9f63404de15db4a4291448b0912
+  CapacitorMlkitBarcodeScanning: 43ac9fce0c369f823f364e3cc0f8012024cf6f6a
+  CapacitorMlkitDocumentScanner: c7927c9cc25131ca29da975ff0b8f297076221fe
+  CapacitorPushNotifications: a31b62e18764ab855537dfcdade1e6ecf5aba29f
+  CapacitorShare: 5b5e53347556bee89ae6163ed20b5b3c25fe75f1
+  CapacitorSplashScreen: 7bf61c2001557ff9e195e601c6b87344480d3c65
+  CapacitorStatusBar: ff844df1f126da6c4fbc4028272425fa3a91e7e3
+  CapawesomeCapacitorFilePicker: 7ae3700f2fee0d0a3ab54dcd0e74de6d914d7195
+  CapgoCapacitorUpdater: 2a7fe6df8e530e48c406c17b0de3f12a5440b33e
+  CordovaPluginsStatic: 3a13527dc6e1e3d29990acea28a5df4b56fdef8b
+  GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
+  GoogleMLKit: ddd51d7dff36ff28defa69afedd9cdce684fd857
   GoogleToolboxForMac: d1a2cbf009c453f4d6ded37c105e2f67a32206d8
-  GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
+  GoogleUtilities: 7dc09b3fa9ecb5c2298b952313d14628b61b9da3
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
-  IONFilesystemLib: 89258b8e3e85465da93127d25d7ce37f977e8a6f
-  MdocumentScanner: f89769be9b90aa51835cb2fcf63fb8c4caa1437e
-  MLImage: 0ad1c5f50edd027672d8b26b0fee78a8b4a0fc56
-  MLKitBarcodeScanning: 0a3064da0a7f49ac24ceb3cb46a5bc67496facd2
-  MLKitCommon: 07c2c33ae5640e5380beaaa6e4b9c249a205542d
-  MLKitVision: 45e79d68845a2de77e2dd4d7f07947f0ed157b0e
+  IONCameraLib: 729cae576e1a952602ce750a9790b6dc7d7e2e95
+  IONFilesystemLib: 306469e4c563f61de82d7bca2bbfed9e64d1b2d2
+  MdocumentScanner: deef8d470fb2bdc5c93e7ccd5d2898b4827d22b1
+  MLImage: 2ab9c968e75f57911c16f4c9d9e8a8e9604a86a1
+  MLKitBarcodeScanning: 72c6437f13a900833b400136be53a8a5d86f42fa
+  MLKitCommon: 26b779f072a182c1603d4c88a101c350cac837b1
+  MLKitVision: fa8dea9012ac59497c79ddbe9ebf32051047ac4c
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
-  OneSignalXCFramework: 7112f3e89563e41ebc23fe807788f11985ac541c
-  PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
+  OneSignalCordovaDependencies: acefc15185f2d0e9cc57df790283348b0cd59522
+  OneSignalXCFramework: e916e0283c51b737524cab28f340eeb821b45826
+  PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   Sentry: 59993bffde4a1ac297ba6d268dc4bbce068d7c1b
   SentryCapacitor: 6fe947b9713d3a3b2c022aa7d1b399821b585d78
-  SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
-  Version: de5907f2c5d0f3cf21708db7801d1d5401139486
 
-PODFILE CHECKSUM: 81421fc0f930a80231bab689cde3b9ffbfc0a652
+PODFILE CHECKSUM: 89199a4bce2efc0718bbd47c26acfcbd4da7baf5
 
 COCOAPODS: 1.16.2

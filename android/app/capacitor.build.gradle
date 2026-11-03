@@ -25,8 +25,7 @@ dependencies {
     implementation project(':capgo-capacitor-updater')
     implementation project(':sentry-capacitor')
     implementation project(':mdocument-scanner')
-    implementation "com.onesignal:OneSignal:5.1.35"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.10"
+
 }
 apply from: "../../node_modules/onesignal-cordova-plugin/build-extras-onesignal.gradle"
 

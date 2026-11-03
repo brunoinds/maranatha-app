@@ -16,10 +16,13 @@
 import { Session } from '@/utils/Session/Session';
 import { IonIcon, IonLabel, IonPage, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/vue';
 import { checkmarkDoneOutline, cubeOutline, fileTrayFullOutline, personCircleOutline, speedometerOutline, walletOutline } from 'ionicons/icons';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 
 const isSessionInitialized = ref(false);
+const route = useRoute();
+const router = useRouter();
 
 const tabs = [
   {
@@ -44,7 +47,8 @@ const tabs = [
     name: "Reportes",
     icon: fileTrayFullOutline,
     route: "/my-reports",
-    permissions: ["all", "view-reports"],
+    // Toda conta vê os próprios reportes, inclusive a recém-criada que ainda não foi ativada
+    permissions: [],
   },
   {
     name: "Asistencias",
@@ -77,9 +81,27 @@ const tabsUI = computed(() => {
 });
 
 
+// Fora de uma aba visível (rota sem permissão), o ion-tab-bar ignora o toque nas abas: leva para a primeira visível
+const redirectToVisibleTab = () => {
+  const visibleTabs = tabsUI.value;
+  // O Ionic mantém esta página viva ao abrir rotas fora das abas (/reports/:id...): essas não se redirecionam
+  const isTabRoute = route.matched[0]?.path === '/';
+  if (visibleTabs.length === 0 || !isTabRoute) {
+    return;
+  }
+
+  const isOnVisibleTab = visibleTabs.some((tab) => route.path === tab.route || route.path.startsWith(tab.route + '/'));
+  if (!isOnVisibleTab) {
+    router.replace(visibleTabs[0].route);
+  }
+}
+
+watch(() => route.path, redirectToVisibleTab);
+
 onMounted(() => {
   Session.waitForLogin().then(() => {
     isSessionInitialized.value = true;
+    redirectToVisibleTab();
   });
 });
 

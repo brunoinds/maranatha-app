@@ -65,15 +65,17 @@ jobs:
           ZIP: ${{ steps.zip_file.outputs.zip_file }}
           NAME: ${{ steps.zip_file.outputs.zip_basename }}
           TYPE: ${{ matrix.type }}
+        # O nome do zip tem parênteses (versão e mínima nativa, lidas pelo app:load-bundle):
+        # sobe com nome neutro e o nome real vai escapado para o shell remoto
         run: |
-          scp -o StrictHostKeyChecking=accept-new "$ZIP" "deploy@prolux-vps:/tmp/$NAME"
-          ssh deploy@prolux-vps bash -s -- "$NAME" "$TYPE" <<'EOF'
+          scp -o StrictHostKeyChecking=accept-new "$ZIP" "deploy@prolux-vps:/tmp/upload-$TYPE.zip"
+          ssh deploy@prolux-vps "bash -s -- $(printf '%q' "$NAME") $TYPE" <<'EOF'
           set -euo pipefail
           NAME="$1"; TYPE="$2"
           C=$(docker ps --filter label=service=maranatha-api --filter label=role=web --format '{{.Names}}' | head -n 1)
           test -n "$C"
-          docker cp "/tmp/$NAME" "$C:/tmp/$NAME"
-          rm -f "/tmp/$NAME"
+          docker cp "/tmp/upload-$TYPE.zip" "$C:/tmp/$NAME"
+          rm -f "/tmp/upload-$TYPE.zip"
           docker exec "$C" php artisan app:load-bundle --type="$TYPE" --filepath="/tmp/$NAME"
           docker exec "$C" rm -f "/tmp/$NAME"
           EOF

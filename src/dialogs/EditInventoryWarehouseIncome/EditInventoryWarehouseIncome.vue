@@ -519,6 +519,11 @@ const actions = {
         })
     },
     removeProduct: (product: IProduct) => {
+        // Ingreso sem produto não pode ser salvo ("Al menos un producto es requerido"): o último produto sai apagando o ingreso
+        if (dynamicData.value.productsListWithQuantity.length === 1){
+            checkoutActions.deleteIncome();
+            return;
+        }
         dynamicData.value.productsListWithQuantity = dynamicData.value.productsListWithQuantity.filter((p) => p.product.id !== product.id);
         dynamicData.value.listReplacedProductsIds = dynamicData.value.listReplacedProductsIds.filter((p) => p.originalId !== product.id).filter((p) => p.newId !== product.id);
     },
@@ -580,7 +585,7 @@ const checkoutActions = {
             } catch (error) {
                 alertController.create({
                     header: 'Oops...',
-                    message: error.response.message,
+                    message: error?.response?.message ?? 'No se pudo guardar los cambios. Inténtelo de nuevo.',
                     buttons: ['OK']
                 }).then(async (alert) => {
                     await alert.present();
@@ -738,7 +743,7 @@ const checkoutActions = {
         } catch (error) {
             alertController.create({
                 header: 'Oops...',
-                message: error.response.message,
+                message: error?.response?.message ?? 'No se pudo guardar los cambios. Inténtelo de nuevo.',
                 buttons: ['OK']
             }).then(async (alert) => {
                 await alert.present();

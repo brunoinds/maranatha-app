@@ -9,7 +9,8 @@ interface DownloadableBundle{
     version: string,
     minimalVersion: string,
     size: number,
-    url: string
+    url: string,
+    checksum?: string
 }
 
 export class LiveUpdates{
@@ -97,18 +98,29 @@ export class LiveUpdates{
         LiveUpdates.externalLabels.value.availableUpdate = bundle;
         console.log(`🛜 Found new available update version: ${bundle.version}, the device has version ${Environment.version()}.`)
         LiveUpdates.externalLabels.value.state = 'Downloading';
-        LiveUpdates.downloadUpdate(bundle)
+        try {
+            await LiveUpdates.downloadUpdate(bundle);
+        } catch (error) {
+            // Sem isso a tela fica parada em "Descargando (0%)": libera para tentar de novo na próxima abertura
+            console.error(`🛜❌ Error while downloading update of version: ${bundle.version}`, error);
+            LiveUpdates.hasFetchedUpdates = false;
+            LiveUpdates.externalLabels.value.state = 'NoUpdateAvailable';
+            LiveUpdates.externalLabels.value.downloadPercentage = 0;
+        }
     }
 
     public static async downloadUpdate(bundle: DownloadableBundle)
     {
+        await CapacitorUpdater.removeAllListeners();
         CapacitorUpdater.addListener('download', (info: DownloadEvent) => {
             LiveUpdates.externalLabels.value.downloadPercentage = info.percent;
         });
 
+        // O updater do Capacitor 8 recusa o download sem o SHA-256 do zip, que a API manda junto do bundle
         const content = await CapacitorUpdater.download({
             version: bundle.version,
             url: bundle.url,
+            checksum: bundle.checksum,
         })
         
         LiveUpdates.downloadedUpdate = {

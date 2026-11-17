@@ -68,6 +68,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController, actionSheetController } from '@ionic/vue';
 import { defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash, documentOutline, receipt } from 'ionicons/icons';
@@ -128,9 +129,11 @@ const dynamicData = ref<{
 });
 
 const createDeposit = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -166,6 +169,7 @@ const createDeposit = async () => {
             props.emitter.fire('created', {
                 ...response.balance
             });
+            Haptics.success();
             toastController.create({
                 message: '✅ Depósito creado con éxito',
                 duration: 2000
@@ -174,6 +178,7 @@ const createDeposit = async () => {
             })
             props.emitter.fire('close');
         }).catch((error) => {
+            Haptics.error();
             alertController.create({
                 header: 'Oops...',
                 message: error.response.message,
@@ -185,6 +190,7 @@ const createDeposit = async () => {
             isLoading.value = false;
         });
     } catch (error:any) {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.toString(),
@@ -346,6 +352,7 @@ const loadReceiptImage = async () => {
         const pdfSize = (base64Pdf.length * (3/4)) / 1000000;
 
         if (pdfSize >= 4){
+            Haptics.warning();
             alertController.create({
                 header: "Oops...",
                 message: "El archivo PDF es muy pesado, por favor, suba un documento más ligero (límite de 4MB)",

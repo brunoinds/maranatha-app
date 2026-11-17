@@ -90,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import IonContextMenu from '@/components/IonContextMenu/IonContextMenu.vue';
 import IonContextMenuItem from '@/components/IonContextMenu/IonContextMenuItem.vue';
 import { Environment } from '@/utils/Environment/Environment';
@@ -149,6 +150,7 @@ const checkForNotificationAllow = async () => {
     return result;
 }
 const allowNotifications = async () => {
+    Haptics.light();
     await Notifications.softAskForPermission();
     checkForNotificationAllow();
 }
@@ -180,6 +182,7 @@ loadAccount();
 checkForNotificationAllow();
 
 const doDeleteMyAccount = async () => {
+    Haptics.warning();
     const alert = await alertController.create({
         header: 'Eliminar mi cuenta',
         message: '¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.',
@@ -195,7 +198,9 @@ const doDeleteMyAccount = async () => {
                 text: 'Eliminar',
                 role: 'destructive',
                 handler: async () => {
+                    Haptics.heavy();
                     if (isAdmin.value){
+                        Haptics.error();
                         const toast =  await toastController.create({
                             message: '❌ No puedes eliminar tu cuenta porque eres administrador',
                             duration: 2000
@@ -215,6 +220,7 @@ const doDeleteMyAccount = async () => {
                             await session.logout({
                                 force: true
                             });
+                            Haptics.success();
                             const toast =  await toastController.create({
                                 message: '✅ Cuenta eliminada con éxito',
                                 duration: 2000
@@ -223,6 +229,7 @@ const doDeleteMyAccount = async () => {
                             goToLogin();
                         }
                     } catch (error:any) {
+                        Haptics.error();
                         alertController.create({
                             header: 'Error',
                             message: 'No se pudo eliminar tu cuenta por el siguiente error: ' + error.message,
@@ -248,6 +255,7 @@ const accountOptions = async () => {
                 text: 'Eliminar mi cuenta',
                 role: 'destructive',
                 handler: () => {
+                    Haptics.heavy();
                     doDeleteMyAccount()
                 }
             },

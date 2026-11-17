@@ -169,6 +169,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonItem, IonLabel, IonList, IonListHeader, IonNote, IonPage, IonProgressBar, IonRow, IonSegment, IonSegmentButton, IonSkeletonText, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
 import { computed, onUnmounted, ref } from 'vue';
 
@@ -899,6 +900,7 @@ const loadUserBalanceYear = async () => {
 const showBalanceReceipt = async (balance: UserBalanceComputed['items'][0]) => {
     RequestAPI.get('/balances/' + balance.id + "/receipt").then((response) => {
         if (!response.has_receipt){
+            Haptics.warning();
             alertController.create({
                 header: 'Oops...',
                 message: 'No se encontró el voucher de depósito',
@@ -987,10 +989,12 @@ const openBalance = async (balance: UserBalanceComputed['items'][0]) => {
                 text: 'Eliminar depósito',
                 role: 'destructive',
                 handler: () => {
+                    Haptics.heavy();
                     isLoading.value = true;
                     RequestAPI.delete('/balances/' + balance.id).then((response) => {
                         loadUserBalanceYear();
                         AppEvents.emit('all:reload');
+                        Haptics.success();
                         toastController.create({
                             message: '✅ Depósito eliminado con éxito',
                             duration: 2000
@@ -998,6 +1002,7 @@ const openBalance = async (balance: UserBalanceComputed['items'][0]) => {
                             toast.present();
                         })
                     }).catch((error) => {
+                        Haptics.error();
                         alertController.create({
                             header: 'Oops...',
                             message: error.response.message,

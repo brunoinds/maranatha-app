@@ -230,6 +230,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
 import { QRCodeScanner } from '@/dialogs/QRCodeScanner/QRCodeScanner';
@@ -415,6 +416,7 @@ const cameraActions = {
         const response = QRCodeParser.parseBuyCode(qrCodeContent);
 
         if (!response.isValid || !response.content){
+            Haptics.error();
             toastController.create({
                 message: "❌ El código QR no es válido",
                 duration: 2000
@@ -437,6 +439,7 @@ const cameraActions = {
         }
     },
     openQRCodeScanner: async () => {
+        Haptics.light();
         QRCodeScanner.open().onScan().then((content) => {
             cameraActions.setBarcodeData(content);
         })
@@ -520,6 +523,7 @@ const actions = {
         })
     },
     removeProduct: (product: IProduct) => {
+        Haptics.light();
         // Ingreso sem produto não pode ser salvo ("Al menos un producto es requerido"): o último produto sai apagando o ingreso
         if (dynamicData.value.productsListWithQuantity.length === 1){
             checkoutActions.deleteIncome();
@@ -542,6 +546,7 @@ const actions = {
 
                     //Check and block if the product was already added:
                     if (dynamicData.value.productsListWithQuantity.find((p) => p.product.id == productSel.id)){
+                        Haptics.warning();
                         alertController.create({
                             header: "Oops...",
                             message: "El producto ya fue agregado",
@@ -577,6 +582,7 @@ const checkoutActions = {
                 props.emitter.fire('close');
                 isLoading.value = false;
 
+                Haptics.success();
                 const toast = await toastController.create({
                     message: '✅ Productos borrados exitosamente',
                     duration: 2000
@@ -584,6 +590,7 @@ const checkoutActions = {
                 await toast.present();
 
             } catch (error) {
+                Haptics.error();
                 alertController.create({
                     header: 'Oops...',
                     message: error?.response?.message ?? 'No se pudo guardar los cambios. Inténtelo de nuevo.',
@@ -597,6 +604,7 @@ const checkoutActions = {
         //Check if there is any product that has been sold:
         const productsSold = dynamicData.value.productsListWithQuantity.filter((p) => p.sellings.sold.count > 0);
         if (productsSold.length > 0){
+            Haptics.warning();
             const alert = alertController.create({
                 header: "Advertencia",
                 message: "Algunos productos de este ingreso ya hacen parte de salidas y pedidos existentes. Borrarlos modificará las salidas y pedidos ya finalizados. ¿Seguro que deseas continuar?",
@@ -609,6 +617,7 @@ const checkoutActions = {
                         text: "Borrar aún así",
                         role: "destructive",
                         handler: async () => {
+                            Haptics.heavy();
                             deleteIncome();
                         }
                     }
@@ -616,6 +625,7 @@ const checkoutActions = {
             })
             await alert.then((a) => a.present());
         }else{
+            Haptics.warning();
             const alert = alertController.create({
                 header: "¿Borrar productos?",
                 message: "Al borrar los productos, no podrás recuperarlos. ¿Seguro que deseas continuar?",
@@ -628,6 +638,7 @@ const checkoutActions = {
                         text: "Sí, borrar",
                         role: "destructive",
                         handler: async () => {
+                            Haptics.heavy();
                             deleteIncome();
                         }
                     }
@@ -637,6 +648,7 @@ const checkoutActions = {
         }
     },
     save: async () => {
+        Haptics.medium();
         const validationResponse = validateData();
 
 
@@ -705,6 +717,7 @@ const checkoutActions = {
 
 
         if (!(await validationResponse).isValid){
+            Haptics.warning();
             alertController.create({
                 header: "Oops...",
                 subHeader: "Hay errores en el formulario",
@@ -736,12 +749,14 @@ const checkoutActions = {
             props.emitter.fire('updated', {});
             props.emitter.fire('close');
 
+            Haptics.success();
             const toast = await toastController.create({
                 message: '✅ Ingreso guardado exitosamente',
                 duration: 2000
             })
             await toast.present();
         } catch (error) {
+            Haptics.error();
             alertController.create({
                 header: 'Oops...',
                 message: error?.response?.message ?? 'No se pudo guardar los cambios. Inténtelo de nuevo.',

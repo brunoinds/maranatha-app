@@ -24,6 +24,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IProduct, IProductsPack } from '@/interfaces/InventoryInterfaces';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonIcon, IonHeader, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue';
@@ -54,6 +55,7 @@ const loadProductsPacks = async () => {
 }
 
 const choose = (pack: IProductsPack) => {
+    Haptics.light();
     props.emitter.fire('selected', (() => {
         const items = pack.products.map((productItem) => {
             const product = productsData.value.find((product) => product.id == productItem.product_id) as unknown as IProduct;

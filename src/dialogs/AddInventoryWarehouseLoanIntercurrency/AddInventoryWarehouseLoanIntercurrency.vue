@@ -40,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { DialogEventEmitter } from '@/utils/Dialog/Dialog';
 import { Session } from '@/utils/Session/Session';
 import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonContent, IonDatetime, IonHeader, IonIcon, IonInput, IonItem, IonList, IonPage, IonProgressBar, IonTextarea, IonTitle, IonToolbar, alertController } from '@ionic/vue';
@@ -137,8 +138,10 @@ const onEvents = {
 
 const checkoutActions = {
     createNewIntercurrency: async () => {
+        Haptics.medium();
         const validationResponse = validateData();
         if (!(await validationResponse).isValid){
+            Haptics.warning();
             alertController.create({
                 header: "Oops...",
                 subHeader: "Hay errores en el formulario",

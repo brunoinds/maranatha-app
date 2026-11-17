@@ -7,6 +7,7 @@ import {
     LensFacing,
   } from '@capacitor-mlkit/barcode-scanning';
 import { Capacitor } from "@capacitor/core";
+import { Haptics } from "@/utils/Haptics/Haptics";
 
 
 
@@ -82,6 +83,7 @@ class QRCodeScanner{
                     'barcodeScanned',
                     async (result:any) => {
                         clearTimeout(autoRefuse);
+                        Haptics.medium();
                         await terminate(listener);
                         resolve(result.barcode.rawValue);
                     },

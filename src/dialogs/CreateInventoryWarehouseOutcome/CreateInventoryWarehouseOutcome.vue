@@ -45,7 +45,7 @@
                                     </ion-item>
 
                                     <ion-item v-if="product.product.is_loanable">
-                                        <ion-toggle v-model="product.doLoan" :enable-on-off-labels="true">Modo préstamo</ion-toggle>
+                                        <ion-toggle @ionChange="Haptics.light()" v-model="product.doLoan" :enable-on-off-labels="true">Modo préstamo</ion-toggle>
                                     </ion-item>
 
 
@@ -167,6 +167,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonToggle, IonAvatar, IonListHeader, IonContent, IonDatetime, IonHeader, IonIcon, IonImg, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { attachOutline, camera, qrCodeOutline, trashBinOutline, checkmarkCircleOutline, bagAddOutline, alertCircleOutline } from 'ionicons/icons';
 import { PropType, computed, onMounted, ref, watch } from 'vue';
@@ -364,6 +365,7 @@ const actions = {
         })
     },
     removeProduct: (product: IProduct) => {
+        Haptics.light();
         dynamicData.value.productsListWithQuantity = dynamicData.value.productsListWithQuantity.filter((p) => p.product.id !== product.id);
     },
     openJobSelector: () => {
@@ -443,8 +445,10 @@ const actions = {
 
 const checkoutActions = {
     createNewOutcome: async () => {
+        Haptics.medium();
         const validationResponse = validateData();
         if (!(await validationResponse).isValid){
+            Haptics.warning();
             alertController.create({
                 header: "Oops...",
                 subHeader: "Hay errores en el formulario",
@@ -509,12 +513,14 @@ const checkoutActions = {
             props.emitter.fire('created', {});
             props.emitter.fire('close');
 
+            Haptics.success();
             const toast = await toastController.create({
                 message: '✅ Productos despachados exitosamente',
                 duration: 2000
             })
             await toast.present();
         } catch (error) {
+            Haptics.error();
             alertController.create({
                 header: 'Oops...',
                 message: error.response.message,

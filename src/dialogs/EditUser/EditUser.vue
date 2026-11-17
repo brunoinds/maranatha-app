@@ -47,6 +47,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController } from '@ionic/vue';
 import { defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { briefcaseOutline,  trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
@@ -118,9 +119,11 @@ const onEvents = {
 
 
 const updateAccount = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -159,6 +162,7 @@ const updateAccount = async () => {
 
 
     RequestAPI.patch('/users/' + props.account.id, dataParsed).then((response) => {
+        Haptics.success();
         alertController.create({
             header: '¡Éxito!',
             message: 'Datos actualizados exitosamente',
@@ -174,6 +178,7 @@ const updateAccount = async () => {
             props.emitter.fire('close');
         });
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,
@@ -216,6 +221,7 @@ const validateCamps = () => {
 
 
 const deleteUser = async () => {
+    Haptics.warning();
     alertController.create({
         header: '¿Estás seguro?',
         message: '¿Estás seguro que deseas borrar este usuario y todas las boletas/facturas relacionadas a él? Esta acción no se puede deshacer.',
@@ -228,11 +234,13 @@ const deleteUser = async () => {
                 text: 'Borrar',
                 role: 'destructive',
                 handler: () => {
+                    Haptics.heavy();
                     isLoading.value = true;
                     RequestAPI.delete(`/users/${props.account.id}`).then((response) => {
                         props.emitter.fire('deleted', {
                             
                         });
+                        Haptics.success();
                         toastController.create({
                             message: '✅ Usuario borrado con éxito',
                             duration: 2000
@@ -242,6 +250,7 @@ const deleteUser = async () => {
                         props.emitter.fire('close');
                         AppEvents.emit('all:reload');
                     }).catch((error) => {
+                        Haptics.error();
                         alertController.create({
                             header: 'Oops...',
                             message: error.response.message,

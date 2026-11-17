@@ -66,6 +66,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController } from '@ionic/vue';
 import { defineComponent, nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
@@ -126,9 +127,11 @@ const loadJobsAndExpenses = async () => {
 
 
 const createNewReport = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -169,6 +172,7 @@ const createNewReport = async () => {
         props.emitter.fire('created', {
             ...report
         });
+        Haptics.success();
         toastController.create({
             message: '✅ Reporte creado con éxito',
             duration: 2000
@@ -177,6 +181,7 @@ const createNewReport = async () => {
         })
         props.emitter.fire('close');
     }).catch((e) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: e.getMessage(),

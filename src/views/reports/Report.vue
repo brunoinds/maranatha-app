@@ -296,6 +296,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonBackButton, IonBadge, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonProgressBar, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
 import { add, arrowDown, arrowForwardOutline, cashOutline, checkmarkCircleOutline, closeCircleOutline, documentTextOutline, ellipsisHorizontal, eyeOutline, send, thumbsUpOutline, timeOutline } from 'ionicons/icons';
 import { computed, nextTick, ref } from 'vue';
@@ -400,6 +401,7 @@ const report = computed(() => {
 });
 
 const addInvoice = async () => {
+    Haptics.light();
     const showAddInvoiceModal = () => {
         Dialog.show(NewInvoice, {
             props:{
@@ -430,6 +432,7 @@ const addInvoice = async () => {
         const isExtrapolatePdfSize = (sum > 22000000); // 22000000
         if (isExtrapolatePdfSize && !dynamicMarkers.value.showedExtrapolatePdfSize){
             dynamicMarkers.value.showedExtrapolatePdfSize = true;
+            Haptics.warning();
             alertController.create({
                 header: '¡Atención!',
                 message: 'El tamaño del PDF final probablemente excederá el límite de 25MB. ¿Deseas continuar subiendo otros documentos en este reporte?',
@@ -483,6 +486,7 @@ const deleteInvoice = async (invoice:IInvoice) => {
         await RequestAPI.delete(`/invoices/${invoice.id}`);
     }
     loadReportInvoices();
+    Haptics.success();
     toastController.create({
         message: '✅ ' + reportType.value + ' eliminada con éxito',
         duration: 2000
@@ -542,6 +546,7 @@ const openInvoice = async (invoice:IInvoice) => {
                 text: 'Eliminar ' + reportType.value,
                 role: 'destructive',
                 handler: () => {
+                    Haptics.heavy();
                     deleteInvoice(invoice)
                 }
             }
@@ -613,12 +618,14 @@ const duplicatedInvoices = computed(() => {
     }
 })
 const acceptReport = async () => {
+    Haptics.medium();
     isLoading.value = true;
 
     const response = await RequestAPI.patch(`/reports/${reportId.value}`, {
         status: EReportStatus.Approved
     })
     isLoading.value = false;
+    Haptics.success();
     toastController.create({
         message: '✅ Reporte aprobado con éxito!',
         duration: 2000
@@ -629,6 +636,7 @@ const acceptReport = async () => {
     AppEvents.emit('all:reload');
 }
 const rejectReport = async () => {
+    Haptics.warning();
     const prompt = await alertController.create({
         header: 'Rechazar reporte',
         inputs: [
@@ -646,12 +654,14 @@ const rejectReport = async () => {
             {
                 text: 'Rechazar',
                 handler: async (data) => {
+                    Haptics.heavy();
                     isLoading.value = true;
                     const pdfResponse = await RequestAPI.patch(`/reports/${reportId.value}`, {
                         status: 'Rejected',
                         rejection_reason: data.rejection_reason
                     })
                     isLoading.value = false;
+                    Haptics.success();
                     toastController.create({
                         message: '✅ Reporte rechazado con éxito',
                         duration: 2000
@@ -710,12 +720,14 @@ const createExportPDF = async () => {
     return base64String;
 }
 const undoSendReport = async () => {
+    Haptics.medium();
     isLoading.value = true;
 
     const pdfResponse = await RequestAPI.patch(`/reports/${reportId.value}`, {
         status: 'Draft'
     })
     isLoading.value = false;
+    Haptics.success();
     toastController.create({
         message: '✅ Reporte reaperturado con éxito',
         duration: 2000
@@ -726,6 +738,7 @@ const undoSendReport = async () => {
     AppEvents.emit('all:reload');
 }
 const sendReport = async () => {
+    Haptics.medium();
     toastController.create({
         message: '📤 Enviando...',
         duration: 2000
@@ -740,6 +753,7 @@ const sendReport = async () => {
     isLoading.value = false;
     loadingProcess.value = null;
 
+    Haptics.success();
     const alert = await alertController.create({
         header: '¡Éxito!',
         message: 'El reporte ha sido enviado con exito. El moderador lo revisará y lo aprobará en breve.',
@@ -755,6 +769,7 @@ const sendReport = async () => {
     AppEvents.emit('all:reload');
 }
 const depositRestitution = async () => {
+    Haptics.medium();
     Dialog.show(AddRepositionPettyCash, {
         onLoaded($this) {
             $this.on('created', (event:any) => {
@@ -864,6 +879,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
                     }
                 } catch (parseError) {
                 }
+                Haptics.error();
                 alertController.create({
                     header: 'Oops...',
                     message: message,
@@ -976,6 +992,7 @@ const downloadPdfAndExcelFiles = async (preffer = null) => {
         loadingProcess.value = null;
         isLoading.value = false;
 
+        Haptics.success();
         toastController.create({
             message: '✅ Reporte generado con éxito!',
             duration: 1500
@@ -1054,6 +1071,7 @@ const downloadBalanceReceipt = async () => {
 
     if (!restitutionBalance){
         isLoading.value = false;
+        Haptics.warning();
         alertController.create({
             header: 'No hay comprobante de depósito',
             message: '',

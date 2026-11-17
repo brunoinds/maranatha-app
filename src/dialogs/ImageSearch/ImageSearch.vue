@@ -21,6 +21,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonImg, IonPage, IonProgressBar, IonSearchbar, IonTitle, IonToolbar } from '@ionic/vue';
 import { onMounted, ref } from 'vue';
@@ -65,6 +66,7 @@ const searchImage = async () => {
 }
 
 const chooseImage = async (image: string) => {
+    Haptics.light();
     props.emitter.fire('close');
     props.emitter.fire('choose-src', image);
 

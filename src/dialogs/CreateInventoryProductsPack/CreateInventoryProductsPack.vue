@@ -81,6 +81,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import InventoryProductSelector from '@/dialogs/InventoryProductSelector/InventoryProductSelector.vue';
 import { IProduct } from '@/interfaces/InventoryInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
@@ -167,14 +168,17 @@ const actions = {
         })
     },
     removeProduct: (product: IProduct) => {
+        Haptics.light();
         dynamicData.value.products = dynamicData.value.products.filter((productData) => productData.product.id != product.id);
     }
 }
 
 const checkoutActions = {
     createNewProductsPack: async () => {
+        Haptics.medium();
         const validationResponse = validateData();
         if (!(await validationResponse).isValid){
+            Haptics.warning();
             alertController.create({
                 header: "Oops...",
                 subHeader: "Hay errores en el formulario",
@@ -203,12 +207,14 @@ const checkoutActions = {
             props.emitter.fire('created', {});
             props.emitter.fire('close');
 
+            Haptics.success();
             const toast = await toastController.create({
                 message: '✅ Pack de productos creado con éxito',
                 duration: 2000
             })
             await toast.present();
         } catch (error) {
+            Haptics.error();
             alertController.create({
                 header: 'Oops...',
                 message: error.response.message,

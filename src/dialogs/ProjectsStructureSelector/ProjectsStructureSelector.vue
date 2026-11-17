@@ -27,6 +27,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IProjectStructure, ProjectEnumsDescriptor } from '@/interfaces/ProjectsInterfaces';
 import { ProjectsStore } from '@/utils/Stored/ProjecsStore';
 import { IonButton, IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSearchbar, IonTitle, IonToolbar } from '@ionic/vue';
@@ -69,6 +70,7 @@ const loadStructures = async () => {
 
 
 const selectStructure = (structure: IProjectStructure) => {
+    Haptics.light();
     props.emitter.fire('selected', structure);
     props.emitter.fire('close');
 }

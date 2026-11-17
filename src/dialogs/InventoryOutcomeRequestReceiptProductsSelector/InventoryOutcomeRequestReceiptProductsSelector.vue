@@ -49,6 +49,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IProduct, IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonListHeader, IonIcon, IonInput, IonItem,IonAvatar, IonLabel, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
@@ -93,6 +94,7 @@ const allProductsQuantity = computed(() => {
 })
 
 const confirmReceipt = async () => {
+    Haptics.medium();
     if (allProductsQuantity.value.sent === allProductsQuantity.value.received) {
         confirmReceiptAll();
     } else {
@@ -101,6 +103,7 @@ const confirmReceipt = async () => {
 }
 
 const confirmReceiptAll = async () => {
+    Haptics.success();
     const alert = await alertController.create({
         header: 'Todos productos recibidos',
         message: '¿Has recibido todos los productos que han sido enviados?',
@@ -127,6 +130,7 @@ const confirmReceiptAll = async () => {
 }
 
 const notReceiveAll = async () => {
+    Haptics.warning();
     const alert = await alertController.create({
         header: 'Diferencia en productos recibidos',
         message: 'Ud. será enviado al chat con el almacén para coordinar la entrega de los productos faltantes o en exceso. ¿Seguro que no haz recibido todos los productos correctamente?',
@@ -139,6 +143,7 @@ const notReceiveAll = async () => {
                 text: 'Sí, no he recibido',
                 role: 'destructive',
                 handler: () => {
+                    Haptics.medium();
                     props.emitter.fire('not-received-all', dynamicData.value.products.map(product => {
                         return {
                             product: product.product,

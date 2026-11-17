@@ -32,6 +32,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import MaranathaLogoDark from '&/assets/images/maranatha-logo-dark.svg';
 import MaranathaLogo from '&/assets/images/maranatha-logo.svg';
 import { IonButton, IonContent, IonHeader, IonImg, IonInput, IonItem, IonList, IonPage, IonProgressBar, alertController } from '@ionic/vue';
@@ -66,11 +67,13 @@ const currentDeviceTheme = computed(() => {
 
 const isLoading = ref(false);
 const doLogin = () => {
+    Haptics.medium();
     isLoading.value = true;
     Session.login(loginData.value.username, loginData.value.password).then((response) => {
         router.push('/my-reports');
     }).catch((error) => {
         if (error.message == "Invalid credentials"){
+            Haptics.error();
             alertController.create({
                 header: 'Oops...',
                 message: 'Usuario o contraseña incorrectos',
@@ -79,6 +82,7 @@ const doLogin = () => {
                 alert.present();
             });
         }else{
+            Haptics.error();
             alertController.create({
                 header: 'Oops...',
                 message: error.message,

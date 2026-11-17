@@ -623,6 +623,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import OutcomeRequestStatusChip from '@/components/OutcomeRequestStatusChip/OutcomeRequestStatusChip.vue';
 import VerticalTimeline from '@/components/VerticalTimeline/VerticalTimeline.vue';
 import CreateInventoryWarehouseOutcome from '@/dialogs/CreateInventoryWarehouseOutcome/CreateInventoryWarehouseOutcome.vue';
@@ -1329,6 +1330,11 @@ const loadLoanedProductsItems = async () => {
 }
 
 const changeRequestStatus = async (status: EInventoryWarehouseOutcomeRequestStatus) => {
+    if (status == EInventoryWarehouseOutcomeRequestStatus.Rejected){
+        Haptics.heavy();
+    }else{
+        Haptics.medium();
+    }
     const performRequest = async () => {
         isLoading.value = true;
         isLoadingAreas.value.outcomeRequest = true;
@@ -1340,6 +1346,7 @@ const changeRequestStatus = async (status: EInventoryWarehouseOutcomeRequestStat
         isLoading.value = false;
         isLoadingAreas.value.outcomeRequest = false;
         AppEvents.emit('inventory:reload');
+        Haptics.success();
     }
     if (status == EInventoryWarehouseOutcomeRequestStatus.Approved){
         const currentSession = await Session.getCurrentSession();
@@ -1353,6 +1360,7 @@ const changeRequestStatus = async (status: EInventoryWarehouseOutcomeRequestStat
         }
 
         if (outcomeRequestData.value?.user_id == currentSession.id()){
+            Haptics.warning();
             const alert = await alertController.create({
                 header: 'Oops..',
                 message: 'Ud. no puede aprobar un pedido dónde Ud. es el solicitante. Por favor, solicita para que otro jefe de almacén lo apruebe.',
@@ -1458,6 +1466,7 @@ const openLoanProduct = async (loans: IWarehouseProductItemLoan[]) => {
     })
 } 
 const createDispatch = async () => {
+    Haptics.medium();
     Dialog.show(CreateInventoryWarehouseOutcome, {
         props: {
             warehouseId: outcomeRequestData.value?.inventory_warehouse_id,
@@ -1488,6 +1497,7 @@ const createDispatch = async () => {
 }
 const undoDispatch = async () => {
     //Create alertController dialog explaining the undo action:
+    Haptics.warning();
     const alert = await alertController.create({
         header: 'Deshacer separación de productos',
         message: '¿Está seguro que desea deshacer la separación de los productos? Los productos volverán a estar disponibles en el almacén.',
@@ -1499,6 +1509,7 @@ const undoDispatch = async () => {
             {
                 text: 'Deshacer separación',
                 handler: async () => {
+                    Haptics.heavy();
                     isLoading.value = true;
                     isLoadingAreas.value.outcomeRequest = true;
                     const response = await RequestAPI.put('/inventory/warehouse-outcome-requests/' + outcomeRequestId, {
@@ -1543,6 +1554,7 @@ const openWarehouseOutcome = async () => {
 
 
 const deleteOutcomeRequest = async () => {
+    Haptics.warning();
     const alert = await alertController.create({
         header: 'Borrar pedido',
         message: '¿Está seguro que desea borrar el pedido? Esta acción no se puede deshacer.',
@@ -1554,6 +1566,7 @@ const deleteOutcomeRequest = async () => {
             {
                 text: 'Borrar pedido',
                 handler: async () => {
+                    Haptics.heavy();
                     isLoading.value = true;
                     isLoadingAreas.value.outcomeRequest = true;
                     const response = await RequestAPI.delete('/inventory/warehouse-outcome-requests/' + outcomeRequestData.value?.id);
@@ -1648,6 +1661,7 @@ const downloadReceivedProductsPDF = async () => {
         });
     }
     const shareDocument = (file:any, extention:string = ".zip") => {
+        Haptics.success();
         toastController.create({
             message: '✅ Documento generado con éxito!',
             duration: 1500
@@ -1730,6 +1744,7 @@ const downloadDispatchedProductsPDF = async () => {
         });
     }
     const shareDocument = (file:any, extention:string = ".zip") => {
+        Haptics.success();
         toastController.create({
             message: '✅ Documento generado con éxito!',
             duration: 1500
@@ -1811,6 +1826,7 @@ const downloadRequestedProductsPDF = async () => {
         });
     }
     const shareDocument = (file:any, extention:string = ".zip") => {
+        Haptics.success();
         toastController.create({
             message: '✅ Documento generado con éxito!',
             duration: 1500

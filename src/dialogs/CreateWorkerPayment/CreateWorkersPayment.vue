@@ -90,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonLabel, IonListHeader, IonInput,IonIcon, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -194,9 +195,11 @@ const onCurrencyChange = () => {
     }, 100);
 }
 const createPayment = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -249,6 +252,7 @@ const createPayment = async () => {
             props.emitter.fire('created', {});
             props.emitter.fire('close');
 
+            Haptics.success();
             toastController.create({
                 message: '✅ Pago registrado exitosamente',
                 duration: 2000
@@ -256,6 +260,7 @@ const createPayment = async () => {
                 await toast.present();
             });
         }).catch((error) => {
+            Haptics.error();
             alertController.create({
                 header: 'Oops...',
                 message: error.response.message,

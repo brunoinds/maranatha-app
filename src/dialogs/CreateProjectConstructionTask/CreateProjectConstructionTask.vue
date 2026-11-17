@@ -61,12 +61,12 @@
                             <ion-item>
                                 <ion-label position="stacked">Fecha de início</ion-label>
                                 <IonDatetimeItem v-if="form.started_at != null" design="text" presentation="date" v-model="form.started_at" :disabled="isLoading" :value="form.started_at"></IonDatetimeItem>
-                                <ion-toggle style="margin: auto;" slot="end" :enable-on-off-labels="true" @ionChange="(e) => {e.detail.checked == false ? form.started_at = null : form.started_at = DateTime.now().toISO()}" :value="form.started_at != null" :disabled="isLoading"></ion-toggle>
+                                <ion-toggle style="margin: auto;" slot="end" :enable-on-off-labels="true" @ionChange="(e) => {Haptics.light(); e.detail.checked == false ? form.started_at = null : form.started_at = DateTime.now().toISO()}" :value="form.started_at != null" :disabled="isLoading"></ion-toggle>
                             </ion-item>
                             <ion-item>
                                 <ion-label position="stacked">Fecha de término</ion-label>
                                 <IonDatetimeItem v-if="form.ended_at != null" design="text" presentation="date" v-model="form.ended_at" :disabled="isLoading" :value="form.ended_at"></IonDatetimeItem>
-                                <ion-toggle style="margin: auto;" slot="end" :enable-on-off-labels="true" @ionChange="(e) => {e.detail.checked == false ? form.ended_at = null : form.ended_at = DateTime.now().toISO()}" :value="form.ended_at != null" :disabled="isLoading"></ion-toggle>
+                                <ion-toggle style="margin: auto;" slot="end" :enable-on-off-labels="true" @ionChange="(e) => {Haptics.light(); e.detail.checked == false ? form.ended_at = null : form.ended_at = DateTime.now().toISO()}" :value="form.ended_at != null" :disabled="isLoading"></ion-toggle>
                             </ion-item>
                         </ion-list>
                     </section>
@@ -77,6 +77,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
 import { EProjectConstructionTaskStatus, INewProjectConstructionTask, IProjectConstructionPhase, IProjectJob, ProjectEnumsDescriptor } from '@/interfaces/ProjectsInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
@@ -158,9 +159,11 @@ const validateCamps = () => {
     }
 }
 const create = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -187,6 +190,7 @@ const create = async () => {
         
         AppEvents.emit('projects:reload');
 
+        Haptics.success();
         toastController.create({
             message: '✅ Tarea creada exitosamente',
             duration: 2000
@@ -194,6 +198,7 @@ const create = async () => {
             await toast.present();
         });
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,

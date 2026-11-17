@@ -158,6 +158,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { actionSheetController, alertController, IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonContent, IonDatetime, IonHeader, IonIcon, IonImg, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonText, IonTitle, IonToolbar, toastController } from '@ionic/vue';
 import { addOutline, arrowForwardCircleOutline, attachOutline, camera, checkmarkCircleOutline, documentOutline, qrCodeOutline, removeCircleOutline, trashBinOutline } from 'ionicons/icons';
 import { computed, onMounted, ref } from 'vue';
@@ -360,6 +361,7 @@ const setBarcodeData = (qrCodeContent:string) => {
     const response = QRCodeParser.parseBuyCode(qrCodeContent);
 
     if (!response.isValid || !response.content){
+        Haptics.error();
         toastController.create({
             message: "❌ El código QR no es válido",
             duration: 2000
@@ -444,6 +446,7 @@ const setBarcodeData = (qrCodeContent:string) => {
     }*/
 }
 const openQRCodeScanner = async () => {
+    Haptics.light();
     QRCodeScanner.open().onScan().then((content) => {
         setBarcodeData(content);
     })
@@ -455,6 +458,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             if (cameraPermission.camera == 'prompt' || cameraPermission.camera == 'prompt-with-rationale'){
                 const cameraPermissionRequest = await Camera.requestPermissions();
                 if (cameraPermissionRequest.camera == 'denied'){
+                    Haptics.error();
                     toastController.create({
                         message: "❌ El acceso a la cámara está bloqueado por su teléfono",
                         duration: 2000
@@ -464,6 +468,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
                     return;
                 }
             }else if (cameraPermission.camera == 'denied'){
+                Haptics.error();
                 toastController.create({
                     message: "❌ El acceso a la cámara está bloqueado por su teléfono",
                     duration: 2000
@@ -569,6 +574,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
         console.log("Original Image size: ", (file.size / 1000000) + "MB");
 
         if (file.size == 0){
+            Haptics.warning();
             alertController.create({
                 header: "Oops...",
                 message: "Este PDF contiene muchas páginas, no se pudo convertirlo en imagen. Por favor, elige un PDF más pequeño.",
@@ -595,6 +601,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
 
                 console.log("Compressed Image size: ", imageSize);
                 if (imageSize >= 4){
+                    Haptics.warning();
                     alertController.create({
                         header: "Oops...",
                         message: "La imagen es muy pesada, por favor, suba una imagen más ligera (límite de 4MB)",
@@ -644,6 +651,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             const pdfSize = (base64Pdf.length * (3/4)) / 1000000;
 
             if (pdfSize >= 4){
+                Haptics.warning();
                 alertController.create({
                     header: "Oops...",
                     message: "El archivo PDF es muy pesado, por favor, suba un documento más ligero (límite de 4MB)",
@@ -660,6 +668,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             isLoadingImageCompression.value = false;
             if (compatibility === 'Incompatible'){
                 dynamicData.value.currentPdfThumbnailBase64 = null;
+                Haptics.warning();
                 alertController.create({
                     header: "PDF no compatible",
                     message: "Este PDF no podrá incluirse en el PDF del reporte. Suba una foto de la boleta o el PDF original descargado del emisor.",
@@ -674,6 +683,7 @@ const openCamera = async (forceFromGallery: boolean = false) => {
             accordionGroup.value.$el.value = "second";
         }).catch((error) => {
             isLoadingImageCompression.value = false;
+            Haptics.error();
             alertController.create({
                 header: "Oops...",
                 message: "No se pudo cargar el PDF",
@@ -845,8 +855,10 @@ const validateData = async () => {
     }
 }
 const createNewInvoice = async () => {
+    Haptics.medium();
     const validationResponse = validateData();
     if (!(await validationResponse).isValid){
+        Haptics.warning();
         alertController.create({
             header: "Oops...",
             subHeader: "Hay errores en el formulario",
@@ -876,6 +888,7 @@ const createNewInvoice = async () => {
 
             if (props.reportInvoices.length + listInvoicesToCreate.length > 28){
                 //Abort and show message:
+                Haptics.warning();
                 alertController.create({
                     header: "Oops...",
                     subHeader: "No se puede crear más de 28 documentos en un reporte",
@@ -897,6 +910,7 @@ const createNewInvoice = async () => {
                     const invoiceCreated = await StoredInvoices.addInvoice(listInvoicesToCreate[i]);
                 }
 
+                Haptics.success();
                 toastController.create({
                     message: "✅ La " + invoiceType.value + " se ha creado con éxito",
                     duration: 2000
@@ -907,6 +921,7 @@ const createNewInvoice = async () => {
                 props.emitter.fire("created");
                 props.emitter.fire("close");
             } catch (error) {
+                Haptics.error();
                 alertController.create({
                     header: "Error",
                     message: "No se pudo crear el documento",
@@ -932,6 +947,7 @@ const createNewInvoice = async () => {
                 const invoiceCreated = await StoredInvoices.addInvoice(invoiceDocument);
                 const newInvoiceId = invoiceCreated.id;
 
+                Haptics.success();
                 toastController.create({
                     message: "✅ La " + invoiceType.value + " se ha creado con éxito",
                     duration: 2000
@@ -942,6 +958,7 @@ const createNewInvoice = async () => {
                 props.emitter.fire("created");
                 props.emitter.fire("close");
             } catch (error) {
+                Haptics.error();
                 alertController.create({
                     header: "Error",
                     message: "No se pudo crear el documento",

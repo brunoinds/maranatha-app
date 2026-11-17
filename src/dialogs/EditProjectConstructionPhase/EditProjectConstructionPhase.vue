@@ -66,12 +66,12 @@
                             <ion-item>
                                 <ion-label position="stacked">Fecha de início</ion-label>
                                 <IonDatetimeItem v-if="form.started_at != null" design="text" presentation="date" v-model="form.started_at" :disabled="isLoading" :value="form.started_at"></IonDatetimeItem>
-                                <ion-toggle style="margin: auto;" slot="end" :enable-on-off-labels="true" @ionChange="(e) => {e.detail.checked == false ? form.started_at = null : form.started_at = DateTime.now().toISO()}" :value="form.started_at != null" :disabled="isLoading"></ion-toggle>
+                                <ion-toggle style="margin: auto;" slot="end" :enable-on-off-labels="true" @ionChange="(e) => {Haptics.light(); e.detail.checked == false ? form.started_at = null : form.started_at = DateTime.now().toISO()}" :value="form.started_at != null" :disabled="isLoading"></ion-toggle>
                             </ion-item>
                             <ion-item>
                                 <ion-label position="stacked">Fecha de término</ion-label>
                                 <IonDatetimeItem v-if="form.ended_at != null" design="text" presentation="date" v-model="form.ended_at" :disabled="isLoading" :value="form.ended_at"></IonDatetimeItem>
-                                <ion-toggle style="margin: auto;" slot="end" :enable-on-off-labels="true" @ionChange="(e) => {e.detail.checked == false ? form.ended_at = null : form.ended_at = DateTime.now().toISO()}" :value="form.ended_at != null" :disabled="isLoading"></ion-toggle>
+                                <ion-toggle style="margin: auto;" slot="end" :enable-on-off-labels="true" @ionChange="(e) => {Haptics.light(); e.detail.checked == false ? form.ended_at = null : form.ended_at = DateTime.now().toISO()}" :value="form.ended_at != null" :disabled="isLoading"></ion-toggle>
                             </ion-item>
                         </ion-list>
                     </section>
@@ -149,6 +149,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
@@ -300,9 +301,11 @@ const validateCamps = () => {
     }
 }
 const create = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -333,6 +336,7 @@ const create = async () => {
         
         AppEvents.emit('projects:reload');
 
+        Haptics.success();
         toastController.create({
             message: '✅ Etapa guardada exitosamente',
             duration: 2000
@@ -340,6 +344,7 @@ const create = async () => {
             await toast.present();
         });
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,
@@ -355,6 +360,7 @@ const downloadAttachmentId = async (attachmentId:string) => {
     Toolbox.open('archivo-adjunto.png', await RequestAPI.getPublicStorageInBase64('/projects/' + attachmentId));
 }
 const deletePhase = async () => {
+    Haptics.warning();
     const alert = await alertController.create({
         header: '¿Estás seguro?',
         message: '¿Estás seguro que deseas borrar esta etapa de construcción? Todas las tareas y reportes asociados a esta etapa serán borrados también.',
@@ -367,6 +373,7 @@ const deletePhase = async () => {
                 text: 'Borrar etapa',
                 role: 'destructive',
                 handler: async () => {
+                    Haptics.heavy();
                     isLoading.value = true;
                     RequestAPI.delete('/projects/construction-phases/' + props.projectConstructionPhase.id).then((response) => {
                         props.emitter.fire('deleted', {});
@@ -374,6 +381,7 @@ const deletePhase = async () => {
                         
                         AppEvents.emit('projects:reload');
         
+                        Haptics.success();
                         toastController.create({
                             message: '✅ Etapa borrada exitosamente',
                             duration: 2000
@@ -381,6 +389,7 @@ const deletePhase = async () => {
                             await toast.present();
                         });
                     }).catch((error) => {
+                        Haptics.error();
                         alertController.create({
                             header: 'Oops...',
                             message: error.response.message,

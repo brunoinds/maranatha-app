@@ -175,6 +175,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import ChatTailReceiver from '&/assets/icons/chat-tail-receiver.svg';
 import ChatTailSender from '&/assets/icons/chat-tail-sender.svg';
 import { IProjectJobChatMessage } from '@/interfaces/ProjectsInterfaces';
@@ -187,7 +188,6 @@ import { Session } from '@/utils/Session/Session';
 import { UsersStore } from '@/utils/Stored/UsersStore';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
 import { Capacitor } from '@capacitor/core';
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Keyboard } from '@capacitor/keyboard';
 import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonImg, IonItem, IonItemSliding, IonList, IonPage, IonProgressBar, IonSpinner, IonTextarea, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
 import { kvsIndexedDB } from "@kvs/indexeddb";
@@ -477,9 +477,7 @@ const goToBottom = () => {
     setTimeout(() => {
         contentElement.value?.$el.scrollToBottom(400);
         setTimeout(() => {
-            Haptics.impact({
-                style: ImpactStyle.Light
-            });
+            Haptics.light();
         }, 350);
     }, 100);
     newMessagesNotViewedByScroll.value = 0;
@@ -489,9 +487,7 @@ const goToMessage = (messageId: string) => {
     setTimeout(() => {
         dynamicData.value.highlightMessage = chatMessagesData.value.find((message) => message.id === messageId) as unknown as IProjectJobChatMessage;
 
-        Haptics.impact({
-            style: ImpactStyle.Light
-        });
+        Haptics.light();
         setTimeout(() => {
             dynamicData.value.highlightMessage = null;
         }, 350);
@@ -602,9 +598,7 @@ const sendMessage = async () => {
 
     textAreaElement.value?.$el.querySelector('textarea')?.focus();
 
-    Haptics.impact({
-        style: ImpactStyle.Medium
-    });
+    Haptics.medium();
 
     pauseTimer = false;
 
@@ -635,6 +629,7 @@ const sendMessage = async () => {
                 progress.error = {
                     description: errorDescription || '',
                     retry: () => {
+                        Haptics.error();
                         alertController.create({
                             header: 'Error al enviar',
                             message: errorDescription + ' ¿Deseas reintentar el envío del mensaje?',
@@ -647,6 +642,7 @@ const sendMessage = async () => {
                                     text: 'Reintentar',
                                     role: 'destructive',
                                     handler: () => {
+                                        Haptics.medium();
                                         dynamicData.value.uploadingProgress = dynamicData.value.uploadingProgress.map((progress) => {
                                             if (progress.message.id === message.id) {
                                                 progress.error = null;
@@ -836,9 +832,7 @@ const retrieveAttachmentData = async (attachmentId: string) => {
 }
 const copyMessage = (message: IProjectJobChatMessage) => {
     navigator.clipboard.writeText(message.text as string);
-    Haptics.impact({
-        style: ImpactStyle.Medium
-    });
+    Haptics.medium();
     toastController.create({
         message: '📋 Mensaje copiado!',
         duration: 2000,

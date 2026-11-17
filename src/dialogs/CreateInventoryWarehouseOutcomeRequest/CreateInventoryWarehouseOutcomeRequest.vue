@@ -105,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import InventoryProductSelector from '@/dialogs/InventoryProductSelector/InventoryProductSelector.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
@@ -243,6 +244,7 @@ const actions = {
         })
     },
     removeProduct: (product: IProduct) => {
+        Haptics.light();
         dynamicData.value.productsListWithQuantity = dynamicData.value.productsListWithQuantity.filter((p) => p.product.id !== product.id);
     },
     openJobSelector: () => {
@@ -306,8 +308,10 @@ const actions = {
 
 const checkoutActions = {
     createNewOutcomeRequest: async () => {
+        Haptics.medium();
         const validationResponse = validateData();
         if (!(await validationResponse).isValid){
+            Haptics.warning();
             alertController.create({
                 header: "Oops...",
                 subHeader: "Hay errores en el formulario",
@@ -336,12 +340,14 @@ const checkoutActions = {
             props.emitter.fire('created', {});
             props.emitter.fire('close');
 
+            Haptics.success();
             const toast = await toastController.create({
                 message: '✅ Productos solicitados exitosamente',
                 duration: 2000
             })
             await toast.present();
         } catch (error) {
+            Haptics.error();
             alertController.create({
                 header: 'Oops...',
                 message: error.message,

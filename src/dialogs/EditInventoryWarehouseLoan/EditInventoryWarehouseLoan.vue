@@ -187,6 +187,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/ProductItemLoanStatusChip.vue';
 import ProductItemStatusChip from '@/components/ProductItemStatusChip/ProductItemStatusChip.vue';
 import AddInventoryWarehouseLoanIntercurrency from '@/dialogs/AddInventoryWarehouseLoanIntercurrency/AddInventoryWarehouseLoanIntercurrency.vue';
@@ -319,6 +320,7 @@ const actions = {
         })
     },
     deleteMoviment: async (movimentId: string) => {
+        Haptics.warning();
         const alert = alertController.create({
             header: "¿Estás seguro?",
             message: "¿Estás seguro de eliminar este movimiento?",
@@ -331,6 +333,7 @@ const actions = {
                     text: "Eliminar",
                     role: "destructive",
                     handler: () => {
+                        Haptics.heavy();
                         dynamicData.value.movements = dynamicData.value.movements.filter((mov: any) => mov.id != movimentId);
                         actions.saveLoan();
                     }
@@ -342,6 +345,7 @@ const actions = {
         })
     },
     deleteIntercurrence: async (intercurrenceId: string) => {
+        Haptics.warning();
         const alert = alertController.create({
             header: "¿Estás seguro?",
             message: "¿Estás seguro de eliminar esta intercurrencia?",
@@ -354,6 +358,7 @@ const actions = {
                     text: "Eliminar",
                     role: "destructive",
                     handler: () => {
+                        Haptics.heavy();
                         dynamicData.value.intercurrences = dynamicData.value.intercurrences.filter((inter: any) => inter.id != intercurrenceId);
                         actions.saveLoan();
                     }
@@ -365,6 +370,7 @@ const actions = {
         })
     },
     changeStatus: async (status: EInventoryWarehouseProductItemLoanStatus) => {
+        Haptics.medium();
         const form = {
             ...loan.value,
             status: status

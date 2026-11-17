@@ -152,6 +152,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import { EProjectStructureBuildingType, IDefaultConstructionPhase, INewProjectStructure, ProjectColorsDescriptor, ProjectEnumsDescriptor } from '@/interfaces/ProjectsInterfaces';
@@ -294,9 +295,11 @@ const validateCamps = () => {
     }
 }
 const create = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -335,6 +338,7 @@ const create = async () => {
         
         AppEvents.emit('projects:reload');
 
+        Haptics.success();
         toastController.create({
             message: '✅ Estrucutra creada exitosamente',
             duration: 2000
@@ -342,6 +346,7 @@ const create = async () => {
             await toast.present();
         });
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,

@@ -31,6 +31,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import CreateExpense from '@/dialogs/CreateExpense/CreateExpense.vue';
 import EditExpense from '@/dialogs/EditExpense/EditExpense.vue';
 import { Dialog } from '@/utils/Dialog/Dialog';
@@ -97,6 +98,7 @@ const deleteExpense = async (job:any) => {
     try {
         await RequestAPI.delete(`/expenses/${job.id}`);
         loadExpenses();
+        Haptics.success();
         toastController.create({
             message: '✅ Expense eliminado con éxito',
             duration: 2000
@@ -104,6 +106,7 @@ const deleteExpense = async (job:any) => {
             toast.present();
         })
     } catch (error) {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,
@@ -129,6 +132,7 @@ const clickExpense = async(expense:any) => {
                 text: 'Eliminar',
                 role: 'destructive',
                 handler: () => {
+                    Haptics.heavy();
                     deleteExpense(expense)
                 }
             },

@@ -49,6 +49,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import IonDatetimeItem from '@/components/IonDatetimeItem/IonDatetimeItem.vue';
 import IonItemChooseDialog from '@/components/IonItemChooseDialog/IonItemChooseDialog.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
@@ -116,9 +117,11 @@ const eventTypesOptionsUI = computed(() => {
 
 
 const createJob = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -149,6 +152,7 @@ const createJob = async () => {
 
         AppEvents.emit('projects:reload');
 
+        Haptics.success();
         toastController.create({
             message: '✅ Proyecto creado exitosamente',
             duration: 2000
@@ -156,6 +160,7 @@ const createJob = async () => {
             await toast.present();
         });
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,

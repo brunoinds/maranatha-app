@@ -203,6 +203,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonContent, IonListHeader, IonAvatar, IonDatetime, IonHeader, IonIcon, IonImg, IonInput, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { attachOutline, camera, qrCodeOutline, trashBinOutline, checkmarkCircleOutline, bagAddOutline } from 'ionicons/icons';
 import { computed, onMounted, ref } from 'vue';
@@ -357,6 +358,7 @@ const cameraActions = {
         const response = QRCodeParser.parseBuyCode(qrCodeContent);
 
         if (!response.isValid || !response.content){
+            Haptics.error();
             toastController.create({
                 message: "❌ El código QR no es válido",
                 duration: 2000
@@ -379,6 +381,7 @@ const cameraActions = {
         }
     },
     openQRCodeScanner: async () => {
+        Haptics.light();
         QRCodeScanner.open().onScan().then((content) => {
             cameraActions.setBarcodeData(content);
         })
@@ -450,6 +453,7 @@ const actions = {
         })
     },
     removeProduct: (product: IProduct) => {
+        Haptics.light();
         dynamicData.value.productsList = dynamicData.value.productsList.filter((p) => p.id !== product.id);
         dynamicData.value.productsListWithQuantity = dynamicData.value.productsListWithQuantity.filter((p) => p.product.id !== product.id);
     },
@@ -515,8 +519,10 @@ const actions = {
 
 const checkoutActions = {
     createNewIncome: async () => {
+        Haptics.medium();
         const validationResponse = validateData();
         if (!(await validationResponse).isValid){
+            Haptics.warning();
             alertController.create({
                 header: "Oops...",
                 subHeader: "Hay errores en el formulario",
@@ -548,12 +554,14 @@ const checkoutActions = {
             props.emitter.fire('created', {});
             props.emitter.fire('close');
 
+            Haptics.success();
             const toast = await toastController.create({
                 message: '✅ Productos ingresados exitosamente',
                 duration: 2000
             })
             await toast.present();
         } catch (error) {
+            Haptics.error();
             alertController.create({
                 header: 'Oops...',
                 message: error.response.message,

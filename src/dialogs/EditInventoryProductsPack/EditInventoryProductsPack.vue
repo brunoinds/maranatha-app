@@ -79,6 +79,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import InventoryProductSelector from '@/dialogs/InventoryProductSelector/InventoryProductSelector.vue';
 import { INewProductsPack, IProduct, IProductsPack } from '@/interfaces/InventoryInterfaces';
 import { Dialog, DialogEventEmitter } from '@/utils/Dialog/Dialog';
@@ -171,14 +172,17 @@ const actions = {
         })
     },
     removeProduct: (product: IProduct) => {
+        Haptics.light();
         dynamicData.value.products = dynamicData.value.products.filter((productData) => productData.product.id != product.id);
     }
 }
 
 const checkoutActions = {
     save: async () => {
+        Haptics.medium();
         const validationResponse = validateData();
         if (!(await validationResponse).isValid){
+            Haptics.warning();
             alertController.create({
                 header: "Oops...",
                 subHeader: "Hay errores en el formulario",
@@ -207,12 +211,14 @@ const checkoutActions = {
             props.emitter.fire('updated', {});
             props.emitter.fire('close');
 
+            Haptics.success();
             const toast = await toastController.create({
                 message: '✅ Pack de productos guardado con éxito',
                 duration: 2000
             })
             await toast.present();
         } catch (error) {
+            Haptics.error();
             alertController.create({
                 header: 'Oops...',
                 message: error.response.message,
@@ -225,6 +231,7 @@ const checkoutActions = {
     },
     delete: async () => {
         //Add alertController to confirm delete
+        Haptics.warning();
         const alert = await alertController.create({
             header: 'Eliminar Pack de Productos',
             message: '¿Estás seguro de que deseas eliminar este pack de productos?',
@@ -237,6 +244,7 @@ const checkoutActions = {
                     text: 'Eliminar pack',
                     role: 'destructive',
                     handler: () => {
+                        Haptics.heavy();
                         deletePack();
                     }
                 }
@@ -255,12 +263,14 @@ const checkoutActions = {
                 props.emitter.fire('deleted', {});
                 props.emitter.fire('close');
 
+                Haptics.success();
                 const toast = await toastController.create({
                     message: '✅ Pack de productos eliminado con éxito',
                     duration: 2000
                 })
                 await toast.present();
             } catch (error) {
+                Haptics.error();
                 alertController.create({
                     header: 'Oops...',
                     message: error.response.message,

@@ -68,6 +68,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController } from '@ionic/vue';
 import { defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
@@ -129,6 +130,7 @@ const loadJobsAndExpenses = async () => {
 }
 
 const deleteReport = async () => {
+    Haptics.warning();
     alertController.create({
         header: '¿Estás seguro?',
         message: '¿Estás seguro que deseas borrar este reporte y todas las boletas/facturas relacionadas a él? Esta acción no se puede deshacer.',
@@ -141,11 +143,13 @@ const deleteReport = async () => {
                 text: 'Borrar',
                 role: 'destructive',
                 handler: () => {
+                    Haptics.heavy();
                     isLoading.value = true;
                     RequestAPI.delete(`/reports/${props.reportId}`).then((response) => {
                         props.emitter.fire('deleted', {
                             ...response.report
                         });
+                        Haptics.success();
                         toastController.create({
                             message: '✅ Reporte borrado con éxito',
                             duration: 2000
@@ -155,6 +159,7 @@ const deleteReport = async () => {
                         props.emitter.fire('close');
                         AppEvents.emit('all:reload');
                     }).catch((error) => {
+                        Haptics.error();
                         alertController.create({
                             header: 'Oops...',
                             message: error.response.message,
@@ -173,8 +178,10 @@ const deleteReport = async () => {
     })
 }
 const saveReport = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -201,6 +208,7 @@ const saveReport = async () => {
         props.emitter.fire('updated', {
             ...response.report
         });
+        Haptics.success();
         toastController.create({
             message: '✅ Reporte guardado con éxito',
             duration: 2000
@@ -209,6 +217,7 @@ const saveReport = async () => {
         })
         props.emitter.fire('close');
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,
@@ -272,6 +281,7 @@ const loadReport = () => {
         }
 
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,

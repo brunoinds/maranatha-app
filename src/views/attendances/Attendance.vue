@@ -72,7 +72,7 @@
                                 <tr v-for="worker in workersAttendances.items" :key="worker.dni">
                                     <td>{{ worker.name }}</td>
                                     <td v-for="day in worker.days" :key="day.date">
-                                        <ion-checkbox @ionChange="(e) => updatePresentCheck(e, day.id)" :checked="day.status == 'Present'"></ion-checkbox>
+                                        <ion-checkbox @ionChange="(e) => {Haptics.light(); updatePresentCheck(e, day.id)}" :checked="day.status == 'Present'"></ion-checkbox>
                                     </td>
                                 </tr>
                             </tbody>
@@ -88,6 +88,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { ExcelGenerator } from '@/utils/Attendances/ExcelGenerator';
 import { JobsAndExpenses } from '@/utils/Stored/JobsAndExpenses';
 import { Toolbox } from '@/utils/Toolbox/Toolbox';
@@ -274,6 +275,7 @@ const updatePresentCheck = (e:any, dayId:number) => {
     }, 2000);
 }
 const saveWorkersAttendances = async () => {
+    Haptics.medium();
     isLoading.value = true;
     const dataSend = {
         workers: dynamicData.value.daysChecking.map((worker) => {
@@ -291,6 +293,7 @@ const saveWorkersAttendances = async () => {
     const response = await RequestAPI.put('/attendances/' + attendanceId.value + '/workers-attendances', dataSend);
     isLoading.value = false;
     hasPendingChangesToSave.value = false;
+    Haptics.success();
     toastController.create({
         message: '✅ Asistencias guardadas y registradas con éxito!',
         duration: 2000

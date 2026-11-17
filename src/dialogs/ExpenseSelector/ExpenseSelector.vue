@@ -28,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonPage, IonHeader, IonImg, IonToolbar, IonSearchbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController } from '@ionic/vue';
 import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { briefcaseOutline, checkmarkOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
@@ -63,6 +64,7 @@ const props = defineProps({
 const expensesDatas = ref<Array<IExpense>>([]);
 
 const selectExpense = (job: IExpense) => {
+    Haptics.light();
     props.emitter.fire('selected', job);
     props.emitter.fire('close');
 }

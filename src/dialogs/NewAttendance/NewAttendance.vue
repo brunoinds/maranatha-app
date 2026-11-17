@@ -61,7 +61,7 @@
                         <ion-label>EQUIPO {{ team.team }}</ion-label>
                     </ion-item-divider>
                     <ion-item v-for="worker in team.workers" :key="worker.dni">
-                        <ion-checkbox justify="space-between" v-model="worker.isSelected">{{worker.name}}</ion-checkbox>
+                        <ion-checkbox @ionChange="Haptics.light()" justify="space-between" v-model="worker.isSelected">{{worker.name}}</ion-checkbox>
                     </ion-item>
                 </ion-item-group>
 
@@ -73,6 +73,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonPage, IonHeader, IonImg, IonSkeletonText, IonItemGroup, IonCheckbox, IonItemDivider, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController } from '@ionic/vue';
 import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
@@ -135,9 +136,11 @@ const selectedWorkers = computed<Array<{dni: string, name: string, isSelected: b
 });
 
 const createNewAttendance = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -162,6 +165,7 @@ const createNewAttendance = async () => {
         props.emitter.fire('created', {
             ...response.attendance
         });
+        Haptics.success();
         toastController.create({
             message: '✅ Asistencia creada con éxito!',
             duration: 2000
@@ -170,6 +174,7 @@ const createNewAttendance = async () => {
         })
         props.emitter.fire('close');
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,

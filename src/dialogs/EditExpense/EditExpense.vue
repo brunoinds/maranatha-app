@@ -33,6 +33,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonSelect, IonSelectOption, IonInput,IonIcon, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { ref } from 'vue';
@@ -69,9 +70,11 @@ const dynamicData = ref<{
 
 
 const saveExpense = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -97,6 +100,7 @@ const saveExpense = async () => {
         props.emitter.fire('created', {});
         props.emitter.fire('close');
 
+        Haptics.success();
         toastController.create({
             message: '✅ Expense guardado exitosamente',
             duration: 2000
@@ -104,6 +108,7 @@ const saveExpense = async () => {
             await toast.present();
         });
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,

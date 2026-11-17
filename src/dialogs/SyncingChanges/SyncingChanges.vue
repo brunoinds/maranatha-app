@@ -87,6 +87,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import SyncIcon from '&/assets/icons/sync.svg';
 import ErrorIcon from '&/assets/icons/error.svg';
 
@@ -143,6 +144,7 @@ const shareErrorCode = async (invoice: IInvoiceResponseUploading) => {
     Toolbox.share('invoice-' + invoice.id + '-upload-error.json', errorDataBase64);
 }
 const removeInvoice = async (id: number) => {
+    Haptics.warning();
     alertController.create({
         header: 'Eliminar documento',
         message: '¿Estás seguro de que deseas eliminar este documento? Esta acción no se puede deshacer.',
@@ -155,6 +157,7 @@ const removeInvoice = async (id: number) => {
                 text: 'Eliminar',
                 role: 'destructive',
                 handler: () => {
+                    Haptics.heavy();
                     removeInvoiceFromQueue(id);
                 }
             }
@@ -162,12 +165,14 @@ const removeInvoice = async (id: number) => {
     }).then(alert => alert.present());
 }
 const retrySyncAll = async () => {
+    Haptics.medium();
     props.emitter.fire('close');
     await StoredInvoices.uploadPending();
     AppEvents.emit('all:reload');
 }
 
 const removeAll = async () => {
+    Haptics.warning();
     alertController.create({
         header: '¿Borrar todo?',
         message: 'Todas las boletas/facturas que están con estado pendiente de sincronización serán eliminadas. Esta acción no se puede deshacer. ¿Estás seguro de que deseas continuar?',
@@ -176,6 +181,7 @@ const removeAll = async () => {
                 text: 'Sí, borrar',
                 role: 'destructive',
                 handler: () => {
+                    Haptics.heavy();
                     removeAllFromQueue();
                 }
             },

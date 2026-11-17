@@ -35,7 +35,7 @@
                 <ion-item>
                     <ion-input label="¿Está activo?" label-placement="stacked" :readonly="true" :value="dynamicData.stateBoolean ? 'Activo' : 'Inactivo'" :disabled="isLoading"></ion-input>
 
-                    <ion-toggle slot="end" :enable-on-off-labels="true" v-model="dynamicData.stateBoolean" :disabled="isLoading"></ion-toggle>
+                    <ion-toggle @ionChange="Haptics.light()" slot="end" :enable-on-off-labels="true" v-model="dynamicData.stateBoolean" :disabled="isLoading"></ion-toggle>
                 </ion-item>
             </ion-list>
             
@@ -44,6 +44,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonSelect, IonSelectOption, IonInput,IonToggle, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { onMounted, ref } from 'vue';
@@ -116,9 +117,11 @@ const loadJob = async () => {
 }
 
 const saveJob = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -146,6 +149,7 @@ const saveJob = async () => {
         props.emitter.fire('created', {});
         props.emitter.fire('close');
 
+        Haptics.success();
         toastController.create({
             message: '✅ Job guardado exitosamente',
             duration: 2000
@@ -155,6 +159,7 @@ const saveJob = async () => {
 
         JobsAndExpenses.refresh();
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,

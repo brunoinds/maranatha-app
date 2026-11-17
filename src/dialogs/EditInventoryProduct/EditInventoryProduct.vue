@@ -53,7 +53,7 @@
                 </ion-item>
                 <ion-item>
                     <ion-input label="¿Es prestable?" label-placement="stacked" :readonly="true" :value="dynamicData.is_loanable  ? 'Sí' : 'No'" :disabled="isLoading"></ion-input>
-                    <ion-toggle slot="end" :enable-on-off-labels="true" v-model="dynamicData.is_loanable" :disabled="isLoading || getUnitNature(dynamicData.unit) == 'Float'"></ion-toggle>
+                    <ion-toggle @ionChange="Haptics.light()" slot="end" :enable-on-off-labels="true" v-model="dynamicData.is_loanable" :disabled="isLoading || getUnitNature(dynamicData.unit) == 'Float'"></ion-toggle>
                 </ion-item>
                 <ion-item>
                     <ion-select label="Almacenes" label-placement="stacked" interface="action-sheet" v-model="dynamicData.inventory_warehouses_ids" :multiple="true" :disabled="isLoading">
@@ -80,6 +80,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import ImageSearch from '@/dialogs/ImageSearch/ImageSearch.vue';
 import { EInventoryProductStatus, EInventoryProductUnitType, getUnitNature, IProduct, IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
@@ -214,9 +215,11 @@ const onBlurName = async () => {
     }
 }
 const save = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -251,6 +254,7 @@ const save = async () => {
             props.emitter.fire('updated', {});
             props.emitter.fire('close');
 
+            Haptics.success();
             toastController.create({
                 message: '✅ Producto creado exitosamente',
                 duration: 2000
@@ -258,6 +262,7 @@ const save = async () => {
                 await toast.present();
             });
         }).catch((error) => {
+            Haptics.error();
             alertController.create({
                 header: 'Oops...',
                 message: error.response.message,
@@ -272,6 +277,7 @@ const save = async () => {
 
     if (getUnitNature(dynamicData.value.unit) != getUnitNature(props.product.unit)){
         if ((getUnitNature(dynamicData.value.unit) == 'Float')){
+            Haptics.warning();
             const alert = await alertController.create({
                 header: '¡Atención!',
                 message: 'Al cambiar la unidad de este producto a una unidad de tipo decimal, el producto no podrá ser prestado. Todos los préstamos registrados de este producto, así como sus entradas y salidas serán borradas permanentemente. ¿Estás seguro de continuar?',
@@ -284,6 +290,7 @@ const save = async () => {
                         text: 'Continuar',
                         role: 'destructive',
                         handler: () => {
+                            Haptics.heavy();
                             doOperation();
                         }
                     }
@@ -292,6 +299,7 @@ const save = async () => {
 
             await alert.present();
         }else if (getUnitNature(dynamicData.value.unit) == 'Integer'){
+            Haptics.warning();
             const alert = await alertController.create({
                 header: '¡Atención!',
                 message: 'Al cambiar la unidad de este producto a una unidad de tipo entero, todas las entradas y salidas de este producto serán borradas permanentemente. ¿Estás seguro de continuar?',
@@ -304,6 +312,7 @@ const save = async () => {
                         text: 'Continuar',
                         role: 'destructive',
                         handler: () => {
+                            Haptics.heavy();
                             doOperation();
                         }
                     }
@@ -319,6 +328,7 @@ const save = async () => {
 }
 
 const deleteProduct = async () => {
+    Haptics.warning();
     alertController.create({
         header: '⚠️ Operación de Alto Riesgo ⚠️',
         message: 'Al borrar este producto, todas las operaciones relacionadas a este producto serán afectadas. ¿Estás seguro de borrar este producto?',
@@ -331,12 +341,14 @@ const deleteProduct = async () => {
                 text: 'Borrar',
                 role: 'destructive',
                 handler: async () => {
+                    Haptics.heavy();
                     isLoading.value = true;
                     RequestAPI.delete('/inventory/products/' + props.product.id).then(async (response) => {
                         await InventoryStore.refreshProducts();
                         props.emitter.fire('deleted', {});
                         props.emitter.fire('close');
 
+                        Haptics.success();
                         toastController.create({
                             message: '✅ Producto borrado exitosamente',
                             duration: 2000
@@ -344,6 +356,7 @@ const deleteProduct = async () => {
                             await toast.present();
                         });
                     }).catch((error) => {
+                        Haptics.error();
                         alertController.create({
                             header: 'Oops...',
                             message: error.response.message,

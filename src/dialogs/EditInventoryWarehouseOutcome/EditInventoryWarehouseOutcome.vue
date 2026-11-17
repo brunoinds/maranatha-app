@@ -135,6 +135,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import ExpenseSelector from '@/dialogs/ExpenseSelector/ExpenseSelector.vue';
 import JobSelector from '@/dialogs/JobSelector/JobSelector.vue';
 import UsersSelector from '@/dialogs/UsersSelector/UsersSelector.vue';
@@ -350,6 +351,7 @@ const actions = {
             });
         }
         const shareDocument = (file:any, extention:string = ".zip") => {
+            Haptics.success();
             toastController.create({
                 message: '✅ Documento generado con éxito!',
                 duration: 1500
@@ -385,6 +387,7 @@ const checkoutActions = {
                 props.emitter.fire('close');
                 isLoading.value = false;
 
+                Haptics.success();
                 const toast = await toastController.create({
                     message: '✅ Los productos han regresado al stock',
                     duration: 2000
@@ -392,6 +395,7 @@ const checkoutActions = {
                 await toast.present();
 
             } catch (error) {
+                Haptics.error();
                 alertController.create({
                     header: 'Oops...',
                     message: error.response.message,
@@ -402,6 +406,7 @@ const checkoutActions = {
             }
         }
 
+        Haptics.warning();
         const alert = alertController.create({
             header: "¿Borrar despacho de productos?",
             message: "Los productos regresarán al stock, ¿estás seguro que deseas borrar este despacho?",
@@ -414,6 +419,7 @@ const checkoutActions = {
                     text: "Sí, borrar",
                     role: "destructive",
                     handler: async () => {
+                        Haptics.heavy();
                         deleteOutcome();
                     }
                 }
@@ -422,8 +428,10 @@ const checkoutActions = {
         await alert.then((a) => a.present());
     },
     save: async () => {
+        Haptics.medium();
         const validationResponse = validateData();
         if (!(await validationResponse).isValid){
+            Haptics.warning();
             alertController.create({
                 header: "Oops...",
                 subHeader: "Hay errores en el formulario",
@@ -447,12 +455,14 @@ const checkoutActions = {
             props.emitter.fire('updated', {});
             props.emitter.fire('close');
 
+            Haptics.success();
             const toast = await toastController.create({
                 message: '✅ Despacho guardado exitosamente',
                 duration: 2000
             })
             await toast.present();
         } catch (error) {
+            Haptics.error();
             alertController.create({
                 header: 'Oops...',
                 message: error.response.message,

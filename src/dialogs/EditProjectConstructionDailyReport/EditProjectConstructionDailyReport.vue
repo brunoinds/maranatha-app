@@ -111,6 +111,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { INewProjectConstructionTaskDailyReport, IProjectConstructionPhase, IProjectConstructionTask, IProjectConstructionTaskDailyReport, IProjectJob, IProjectStructure } from '@/interfaces/ProjectsInterfaces';
 import { IUser } from '@/interfaces/UserInterfaces';
 import { AppEvents } from '@/utils/AppEvents/AppEvents';
@@ -200,9 +201,11 @@ const form = ref<IProjectConstructionTaskDailyReport>({
 });
 
 const saveReport = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -231,6 +234,7 @@ const saveReport = async () => {
         props.emitter.fire('close');
 
         AppEvents.emit('projects:reload');
+        Haptics.success();
         toastController.create({
             message: '✅ Reporte creado exitosamente',
             duration: 2000
@@ -238,6 +242,7 @@ const saveReport = async () => {
             await toast.present();
         });
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,

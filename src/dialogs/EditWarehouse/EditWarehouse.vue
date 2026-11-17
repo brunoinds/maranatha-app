@@ -58,6 +58,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IWarehouse } from '@/interfaces/InventoryInterfaces';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonList, IonPage, IonProgressBar, IonSelect, IonSelectOption, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
@@ -124,9 +125,11 @@ const usersUI = computed(() => {
 
 
 const saveWarehouse = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -151,6 +154,7 @@ const saveWarehouse = async () => {
         await InventoryStore.refreshWarehouses();
         props.emitter.fire('updated', {});
         props.emitter.fire('close');
+        Haptics.success();
         toastController.create({
             message: '✅ Almacén guardado exitosamente',
             duration: 2000
@@ -158,6 +162,7 @@ const saveWarehouse = async () => {
             await toast.present();
         });
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,
@@ -170,6 +175,7 @@ const saveWarehouse = async () => {
     });
 }
 const deleteWarehouse = async () => {
+    Haptics.warning();
     alertController.create({
         header: '¿Estás seguro?',
         message: 'Todos los productos del stock, entradas, salidas y pedidos serán borrados. Esta acción no se puede deshacer. ¿Estás seguro de que deseas borrar este almacén?',
@@ -182,11 +188,13 @@ const deleteWarehouse = async () => {
                 text: 'Sí, borrar',
                 role: 'destructive',
                 handler: async () => {
+                    Haptics.heavy();
                     isLoading.value = true;
                     RequestAPI.delete('/inventory/warehouses/' + props.warehouse.id).then(async (response) => {
                         await InventoryStore.refreshWarehouses();
                         props.emitter.fire('deleted', {});
                         props.emitter.fire('close');
+                        Haptics.success();
                         toastController.create({
                             message: '✅ Almacén borrado exitosamente',
                             duration: 2000
@@ -194,6 +202,7 @@ const deleteWarehouse = async () => {
                             await toast.present();
                         });
                     }).catch((error) => {
+                        Haptics.error();
                         alertController.create({
                             header: 'Oops...',
                             message: error.response.message,

@@ -54,6 +54,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonAccordion, IonAccordionGroup, IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonProgressBar, IonSearchbar, IonTitle, IonToolbar, actionSheetController, alertController, toastController } from '@ionic/vue';
 import { computed, ref } from 'vue';
 import { RequestAPI } from '../../utils/Requests/RequestAPI';
@@ -121,6 +122,7 @@ const deleteJob = async (job:any) => {
     try {
         await RequestAPI.delete(`/jobs/${job.id}`);
         loadJobs();
+        Haptics.success();
         toastController.create({
             message: '✅ Job eliminado con éxito',
             duration: 2000
@@ -128,6 +130,7 @@ const deleteJob = async (job:any) => {
             toast.present();
         })
     } catch (error: any) {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,
@@ -151,6 +154,7 @@ const clickJob = async(job:any) => {
                 text: 'Eliminar',
                 role: 'destructive',
                 handler: () => {
+                    Haptics.heavy();
                     deleteJob(job)
                 }
             },

@@ -90,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonChip, IonAvatar, IonSearchbar, IonLabel, IonInput,IonIcon, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { computed, onMounted, ref } from 'vue';
@@ -216,6 +217,7 @@ const chooseFromProductsPack = () => {
 
 
 const finishSelection = () => {
+    Haptics.light();
     if (props.allowMultipleSelection){
         if (dynamicData.value.selectedProductsQuantity.length > 0){
             props.emitter.fire('selected-with-quantity', dynamicData.value.selectedProductsQuantity);
@@ -229,6 +231,7 @@ const finishSelection = () => {
 }
 
 const selectProduct = (product: IProduct) => {
+    Haptics.light();
     if (dynamicData.value.selectedProducts.includes(product)){
         dynamicData.value.selectedProducts = dynamicData.value.selectedProducts.filter((selectedProduct) => selectedProduct.id !== product.id);
     } else {

@@ -63,7 +63,7 @@
                         <ion-label>EQUIPO {{ team.team }}</ion-label>
                     </ion-item-divider>
                     <ion-item v-for="worker in team.workers" :key="worker.dni">
-                        <ion-checkbox justify="space-between" v-model="worker.isSelected">{{worker.name}}</ion-checkbox>
+                        <ion-checkbox @ionChange="Haptics.light()" justify="space-between" v-model="worker.isSelected">{{worker.name}}</ion-checkbox>
                     </ion-item>
                 </ion-item-group>
 
@@ -95,6 +95,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonPage, IonHeader, IonImg, IonSkeletonText, IonItemGroup, IonCheckbox, IonItemDivider, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController, actionSheetController } from '@ionic/vue';
 import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { briefcaseOutline, trashBinOutline, returnUpForwardOutline, camera, cameraOutline,  qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
@@ -166,9 +167,11 @@ const selectedWorkers = computed<Array<{dni: string, name: string, isSelected: b
 });
 
 const saveAttendance = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -193,6 +196,7 @@ const saveAttendance = async () => {
         props.emitter.fire('updated', {
             ...response.attendance
         });
+        Haptics.success();
         toastController.create({
             message: '✅ Asistencia actualizada con éxito!',
             duration: 2000
@@ -201,6 +205,7 @@ const saveAttendance = async () => {
         })
         props.emitter.fire('close');
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,
@@ -217,6 +222,7 @@ const transferOwnership = async () => {
     const users = (await RequestAPI.get('/users'));
 
     const doTransfer = (user: any) => {
+        Haptics.warning();
         alertController.create({
             header: `¿Transferir propiedad de la asistencia?`,
             message: `¿Estás seguro que deseas transferir la propiedad de la asistencia a ${user.name}?`,
@@ -229,9 +235,11 @@ const transferOwnership = async () => {
                     text: 'Transferir',
                     role: 'destructive',
                     handler: () => {
+                        Haptics.medium();
                         RequestAPI.put('/attendances/' + props.attendance.id + '/transfer-ownership', {
                             user_id: user.id
                         }).then((response) => {
+                            Haptics.success();
                             toastController.create({
                                 message: '✅ Propiedad transferida con éxito!',
                                 duration: 2000
@@ -240,6 +248,7 @@ const transferOwnership = async () => {
                             })
                             props.emitter.fire('close');
                         }).catch((error) => {
+                            Haptics.error();
                             alertController.create({
                                 header: 'Oops...',
                                 message: error.response.message,
@@ -379,6 +388,7 @@ const deleteAttendance = async () => {
         props.emitter.fire('deleted', {
             ...response.attendance
         });
+        Haptics.success();
         toastController.create({
             message: '✅ Asistencia eliminada con éxito!',
             duration: 2000
@@ -387,6 +397,7 @@ const deleteAttendance = async () => {
         })
         props.emitter.fire('close');
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,

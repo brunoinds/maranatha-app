@@ -47,7 +47,7 @@
                 </ion-item>
                 <ion-item>
                     <ion-input label="¿Es prestable?" label-placement="stacked" :readonly="true" :value="dynamicData.is_loanable ? 'Sí' : 'No'" :disabled="isLoading"></ion-input>
-                    <ion-toggle slot="end" :enable-on-off-labels="true" v-model="dynamicData.is_loanable" :disabled="isLoading  || getUnitNature(dynamicData.unit) == 'Float'"></ion-toggle>
+                    <ion-toggle @ionChange="Haptics.light()" slot="end" :enable-on-off-labels="true" v-model="dynamicData.is_loanable" :disabled="isLoading  || getUnitNature(dynamicData.unit) == 'Float'"></ion-toggle>
                 </ion-item>
                 <ion-item>
                     <ion-select label="Almacenes" label-placement="stacked" interface="action-sheet" v-model="dynamicData.inventory_warehouses_ids" :multiple="true" :disabled="isLoading">
@@ -73,6 +73,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonToggle, IonInput,IonIcon, IonAvatar, IonLabel, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { computed, onMounted, ref } from 'vue';
@@ -192,9 +193,11 @@ const onBlurName = async () => {
     }
 }
 const createProduct = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -229,6 +232,7 @@ const createProduct = async () => {
         props.emitter.fire('created', {});
         props.emitter.fire('close');
 
+        Haptics.success();
         toastController.create({
             message: '✅ Producto creado exitosamente',
             duration: 2000
@@ -236,6 +240,7 @@ const createProduct = async () => {
             await toast.present();
         });
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,

@@ -79,6 +79,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import OutcomeRequestStatusChip from '@/components/OutcomeRequestStatusChip/OutcomeRequestStatusChip.vue';
 import InventoryProductSelector from '@/dialogs/InventoryProductSelector/InventoryProductSelector.vue';
 import { EInventoryWarehouseOutcomeRequestStatus, IProduct, IWarehouseOutcomeRequest } from '@/interfaces/InventoryInterfaces';
@@ -181,6 +182,7 @@ const actions = {
 
 const checkoutActions = {
     createNewIncome: async () => {
+        Haptics.medium();
         const outcomeRequest = outcomesData.value.find((outcome) => outcome.id == dynamicData.value.selectedOutcomeRequestId) as IWarehouseOutcomeRequest;
 
         const alert = alertController.create({
@@ -214,12 +216,14 @@ const checkoutActions = {
             props.emitter.fire('created', {});
             props.emitter.fire('close');
 
+            Haptics.success();
             const toast = await toastController.create({
                 message: '✅ Productos ingresados exitosamente',
                 duration: 2000
             })
             await toast.present();
         } catch (error) {
+            Haptics.error();
             alertController.create({
                 header: 'Oops...',
                 message: error.response.message,

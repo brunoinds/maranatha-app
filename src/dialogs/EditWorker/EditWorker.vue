@@ -42,7 +42,7 @@
 
                 <ion-item>
                     <ion-input label="¿Está activo?" label-placement="stacked" :readonly="true" :value="dynamicData.isActive ? 'Activo' : 'Inactivo'" :disabled="isLoading"></ion-input>
-                    <ion-toggle slot="end" :enable-on-off-labels="true" v-model="dynamicData.isActive" :disabled="isLoading"></ion-toggle>
+                    <ion-toggle @ionChange="Haptics.light()" slot="end" :enable-on-off-labels="true" v-model="dynamicData.isActive" :disabled="isLoading"></ion-toggle>
                 </ion-item>
             </ion-list>
 
@@ -67,6 +67,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonInput,IonIcon, IonToggle, IonSelect, IonSelectOption, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { computed, onMounted, ref } from 'vue';
@@ -121,9 +122,11 @@ const dynamicData = ref<{
 
 
 const saveWorker = async () => {
+    Haptics.medium();
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -152,6 +155,7 @@ const saveWorker = async () => {
         props.emitter.fire('updated', {});
         props.emitter.fire('close');
 
+        Haptics.success();
         toastController.create({
             message: '✅ Cambios guardados exitosamente',
             duration: 2000
@@ -159,6 +163,7 @@ const saveWorker = async () => {
             await toast.present();
         });
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,
@@ -171,6 +176,7 @@ const saveWorker = async () => {
     });
 }
 const deleteWorker = async () => {
+    Haptics.warning();
     alertController.create({
         header: '¿Estás seguro?',
         message: '¿Estás seguro de que deseas eliminar este trabajador? Todas las asistencias y pagos relacionados a este trabajador serán eliminados. Esta acción no se puede deshacer.',
@@ -183,11 +189,13 @@ const deleteWorker = async () => {
                 text: 'Eliminar',
                 role: 'destructive',
                 handler: async () => {
+                    Haptics.heavy();
                     isLoading.value = true;
                     RequestAPI.delete('/workers/' + props.worker.id).then((response) => {
                         props.emitter.fire('deleted', {});
                         props.emitter.fire('close');
 
+                        Haptics.success();
                         toastController.create({
                             message: '✅ Trabajador eliminado exitosamente',
                             duration: 2000
@@ -195,6 +203,7 @@ const deleteWorker = async () => {
                             await toast.present();
                         });
                     }).catch((error) => {
+                        Haptics.error();
                         alertController.create({
                             header: 'Oops...',
                             message: error.response.message,

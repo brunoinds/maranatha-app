@@ -105,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import ProductItemLoanStatusChip from '@/components/ProductItemLoanStatusChip/ProductItemLoanStatusChip.vue';
 import ProductItemStatusChip from '@/components/ProductItemStatusChip/ProductItemStatusChip.vue';
 import EditInventoryWarehouseIncome from '@/dialogs/EditInventoryWarehouseIncome/EditInventoryWarehouseIncome.vue';
@@ -188,6 +189,7 @@ const save = async () => {
     const validationResponse = validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -210,6 +212,7 @@ const save = async () => {
     RequestAPI.put('/inventory/products/items/' + props.productItemId, dataParsed).then(async (response) => {
         await InventoryStore.refreshProducts();
         AppEvents.emit('inventory:reload');
+        Haptics.success();
         toastController.create({
             message: '✅ Producto actualizado exitosamente',
             duration: 2000
@@ -217,6 +220,7 @@ const save = async () => {
             await toast.present();
         });
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,
@@ -283,6 +287,7 @@ const showOutcome = () => {
 }
 
 const setInStock = async () => {
+    Haptics.medium();
     isLoading.value = true;
     dynamicData.value.status = EInventoryProductItemStatus.InStock;
     productItemData.value.status = EInventoryProductItemStatus.InStock;
@@ -290,6 +295,7 @@ const setInStock = async () => {
     isLoading.value = false;
 }
 const setInRepair = async () => {
+    Haptics.medium();
     isLoading.value = true;
     dynamicData.value.status = EInventoryProductItemStatus.InRepair;
     productItemData.value.status = EInventoryProductItemStatus.InRepair;
@@ -298,6 +304,7 @@ const setInRepair = async () => {
 }
 
 const setWriteOff = async () => {
+    Haptics.medium();
     isLoading.value = true;
     dynamicData.value.status = EInventoryProductItemStatus.WriteOff;
     productItemData.value.status = EInventoryProductItemStatus.WriteOff;

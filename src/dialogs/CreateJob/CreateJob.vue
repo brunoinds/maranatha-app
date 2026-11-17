@@ -43,6 +43,7 @@
 </template>
 
 <script setup lang="ts">
+import { Haptics } from '@/utils/Haptics/Haptics';
 import { RequestAPI } from '@/utils/Requests/RequestAPI';
 import { IonButton, IonButtons, IonContent, IonHeader, IonSelect, IonSelectOption, IonInput,IonIcon, IonItem, IonList, IonPage, IonProgressBar, IonTitle, IonToolbar, alertController, toastController } from '@ionic/vue';
 import { ref } from 'vue';
@@ -74,9 +75,11 @@ const dynamicData = ref<{
 });
 
 const createJob = async () => {
+    Haptics.medium();
     const validationResponse = await validateCamps();
 
     if (!validationResponse.isValid){
+        Haptics.warning();
         alertController.create({
             header: 'Oops...',
             message: validationResponse.errors[0] as string,
@@ -103,6 +106,7 @@ const createJob = async () => {
         props.emitter.fire('created', {});
         props.emitter.fire('close');
 
+        Haptics.success();
         toastController.create({
             message: '✅ Job creado exitosamente',
             duration: 2000
@@ -111,6 +115,7 @@ const createJob = async () => {
         });
         JobsAndExpenses.refresh();
     }).catch((error) => {
+        Haptics.error();
         alertController.create({
             header: 'Oops...',
             message: error.response.message,

@@ -95,7 +95,7 @@
                                     </ion-input>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-input @ionInput="checkTicketOnInput" label="RUC:" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  :inputmode="(report?.country == 'PY') ? 'text' : 'decimal'"></ion-input>
+                                    <ion-input @ionInput="checkTicketOnInput" :label="(report?.country == 'CO') ? 'NIT:' : 'RUC:'" label-placement="stacked" placeholder="XXXXXXXXXXX" v-model="invoice.commerce_number"  :inputmode="(report?.country == 'PY' || report?.country == 'CO') ? 'text' : 'decimal'"></ion-input>
                                 </ion-item>
                                 <ion-item v-if="(report?.country == 'PY')">
                                     <ion-input label="Proveedor:" label-placement="stacked" placeholder="Ingresa el nombre del proveedor" v-model="invoice.provider"></ion-input>
@@ -810,7 +810,7 @@ const validateData = async () => {
     if (!invoice.value.commerce_number || invoice.value.commerce_number.trim().length == 0){
         formErrors.push({
             field: "commerce_number",
-            message: "El RUC es requerido"
+            message: "El " + ((props.report.country == 'CO') ? 'NIT' : 'RUC') + " es requerido"
         })
     }
     if (!invoice.value.job_code){

@@ -37,6 +37,7 @@
                         <ion-select-option value="USD">Dólares ($)</ion-select-option>
                         <ion-select-option value="BRL">Reales (R$)</ion-select-option>
                         <ion-select-option value="PYG">Guaranies (₲)</ion-select-option>
+                        <ion-select-option value="COP">Pesos colombianos (COL$)</ion-select-option>
                     </ion-select>
                 </ion-item>
                 <ion-item>

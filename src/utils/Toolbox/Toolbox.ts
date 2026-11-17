@@ -23,6 +23,8 @@ class Toolbox{
                 return "R$";
             case EMoneyType.PYG:
                 return "Gs.";
+            case EMoneyType.COP:
+                return "COL$";
         }
     }
     public static moneyName(moneyType: EMoneyType): string{
@@ -35,6 +37,8 @@ class Toolbox{
                 return "Reales";
             case EMoneyType.PYG:
                 return "Guaraníes";
+            case EMoneyType.COP:
+                return "Pesos colombianos";
         }
     }
     public static moneyNameEnglish(moneyType: EMoneyType): string{
@@ -47,6 +51,8 @@ class Toolbox{
                 return "Brazilian Reales";
             case EMoneyType.PYG:
                 return "Paraguayan Guaraníes";
+            case EMoneyType.COP:
+                return "Colombian Pesos";
         }
     }
 
@@ -73,6 +79,7 @@ class Toolbox{
             PE: "🇵🇪",
             BR: "🇧🇷",
             PY: "🇵🇾",
+            CO: "🇨🇴",
             US: "🇺🇸"
         }
 

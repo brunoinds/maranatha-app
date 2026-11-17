@@ -13,12 +13,14 @@ enum EMoneyType{
     USD = 'USD',
     PEN = 'PEN',
     BRL = 'BRL',
-    PYG = 'PYG'
+    PYG = 'PYG',
+    COP = 'COP'
 }
 export enum ECountryType{
     PE = 'PE',
     BR = 'BR',
     PY = 'PY',
+    CO = 'CO',
     US = 'US'
 }
 interface IReport{

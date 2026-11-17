@@ -20,6 +20,7 @@
                         <ion-select-option value="PE">Perú 🇵🇪</ion-select-option>
                         <ion-select-option value="BR">Brasil 🇧🇷</ion-select-option>
                         <ion-select-option value="PY">Paraguay 🇵🇾</ion-select-option>
+                        <ion-select-option value="CO">Colombia 🇨🇴</ion-select-option>
                         <ion-select-option value="US">EE. UU. 🇺🇸</ion-select-option>
                     </ion-select>
                 </ion-item>

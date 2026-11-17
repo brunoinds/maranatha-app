@@ -27,6 +27,7 @@
                         <ion-select-option value="USD">Dólares ($)</ion-select-option>
                         <ion-select-option value="BRL">Reales (R$)</ion-select-option>
                         <ion-select-option value="PYG">Guaranies (₲)</ion-select-option>
+                        <ion-select-option value="COP">Pesos colombianos (COL$)</ion-select-option>
                     </ion-select>
                 </ion-item>
 
@@ -35,6 +36,7 @@
                         <ion-select-option value="PE">Perú 🇵🇪</ion-select-option>
                         <ion-select-option value="BR">Brasil 🇧🇷</ion-select-option>
                         <ion-select-option value="PY">Paraguay 🇵🇾</ion-select-option>
+                        <ion-select-option value="CO">Colombia 🇨🇴</ion-select-option>
                         <ion-select-option value="US">EE. UU. 🇺🇸</ion-select-option>
                     </ion-select>
                 </ion-item>

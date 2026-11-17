@@ -4,7 +4,7 @@
         "build": 57
     },
     "liveUpdates": {
-        "minimalNativeVersion": "1.4.2"
+        "minimalNativeVersion": "1.4.0"
     },
     "environment": "dev"
 }

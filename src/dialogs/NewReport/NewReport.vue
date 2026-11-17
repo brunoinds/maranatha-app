@@ -32,7 +32,7 @@
                 </ion-item>
 
                 <ion-item>
-                    <ion-select label="País" label-placement="stacked" interface="action-sheet" v-model="dynamicData.country" :disabled="isLoading">
+                    <ion-select label="País" label-placement="stacked" interface="action-sheet" v-model="dynamicData.country" :disabled="isLoading" @ionChange="onCountryChange">
                         <ion-select-option value="PE">Perú 🇵🇪</ion-select-option>
                         <ion-select-option value="BR">Brasil 🇧🇷</ion-select-option>
                         <ion-select-option value="PY">Paraguay 🇵🇾</ion-select-option>
@@ -44,7 +44,7 @@
 
                 <ion-item>
                     <ion-select label="Zona:" label-placement="stacked" interface="action-sheet" v-model="dynamicData.zone" :disabled="isLoading">
-                        <ion-select-option v-for="zone in  _.uniq(jobsAndExpenses.jobs.map(job => job.zone))">{{ zone }}</ion-select-option>
+                        <ion-select-option v-for="zone in zonesForCountry" :key="zone" :value="zone">{{ zone }}</ion-select-option>
                     </ion-select>
                 </ion-item>
 
@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController } from '@ionic/vue';
-import { defineComponent, nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { computed, defineComponent, nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { vMaska } from "maska";
@@ -121,8 +121,23 @@ const loadJobsAndExpenses = async () => {
     jobsAndExpenses.value.expenses = expenses;
 
     nextTick(() => {
-        dynamicData.value.zone = jobsAndExpenses.value.jobs[0].zone;
+        dynamicData.value.zone = zonesForCountry.value[0] ?? '';
     });
+}
+
+// Zonas de los jobs activos del país elegido (los jobs sin país aparecen en todos)
+const zonesForCountry = computed<string[]>(() => {
+    const country = (dynamicData.value.country ?? '').toString().toLowerCase();
+    return _.uniq(jobsAndExpenses.value.jobs
+        .filter((job) => !job.country || job.country.toLowerCase() == country)
+        .map((job) => job.zone)
+        .filter((zone) => !!zone));
+});
+
+const onCountryChange = () => {
+    if (!zonesForCountry.value.includes(dynamicData.value.zone)){
+        dynamicData.value.zone = zonesForCountry.value[0] ?? '';
+    }
 }
 
 

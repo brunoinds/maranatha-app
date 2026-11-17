@@ -34,7 +34,7 @@
                     </ion-select>
                 </ion-item>
                 <ion-item>
-                    <ion-select label="País" label-placement="stacked" interface="action-sheet" v-model="dynamicData.country" :disabled="isLoading">
+                    <ion-select label="País" label-placement="stacked" interface="action-sheet" v-model="dynamicData.country" :disabled="isLoading" @ionChange="onCountryChange">
                         <ion-select-option value="PE">Perú 🇵🇪</ion-select-option>
                         <ion-select-option value="BR">Brasil 🇧🇷</ion-select-option>
                         <ion-select-option value="PY">Paraguay 🇵🇾</ion-select-option>
@@ -44,7 +44,7 @@
                 </ion-item>
                 <ion-item>
                     <ion-select label="Zona:" label-placement="stacked" interface="action-sheet" v-model="dynamicData.zone" :disabled="isLoading">
-                        <ion-select-option v-for="zone in  _.uniq(jobsAndExpenses.jobs.map(job => job.zone))">{{ zone }}</ion-select-option>
+                        <ion-select-option v-for="zone in zonesForCountry" :key="zone" :value="zone">{{ zone }}</ion-select-option>
                     </ion-select>
                 </ion-item>
 
@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import { Haptics } from '@/utils/Haptics/Haptics';
 import { IonPage, IonHeader, IonImg, IonToolbar, IonTitle, IonButtons, IonThumbnail, IonContent,  IonListHeader, IonIcon, IonInput, IonSelect, IonSelectOption, IonModal, IonDatetime, IonDatetimeButton, IonButton, IonList, IonItem, IonLabel, IonProgressBar, toastController, alertController } from '@ionic/vue';
-import { defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
+import { computed, defineComponent, nextTick, onMounted, reactive, ref } from 'vue';
 import { briefcaseOutline, trashBinOutline, camera, cameraOutline, qrCodeOutline, ticketOutline, checkmarkCircleOutline, arrowForwardCircleOutline, cash } from 'ionicons/icons';
 import { DialogEventEmitter } from "../../utils/Dialog/Dialog";
 import { vMaska } from "maska";
@@ -127,6 +127,28 @@ const loadJobsAndExpenses = async () => {
 
     const expenses = await JobsAndExpenses.getExpenses() as unknown as Array<IExpense>;
     jobsAndExpenses.value.expenses = expenses;
+}
+
+// Zona guardada en el reporte: se mantiene en la lista aunque su job ya no esté activo
+const savedZone = ref<string|null>(null);
+
+// Zonas de los jobs activos del país elegido (los jobs sin país aparecen en todos)
+const zonesForCountry = computed<string[]>(() => {
+    const country = (dynamicData.value.country ?? '').toString().toLowerCase();
+    const zones = _.uniq(jobsAndExpenses.value.jobs
+        .filter((job) => !job.country || job.country.toLowerCase() == country)
+        .map((job) => job.zone)
+        .filter((zone) => !!zone));
+    if (savedZone.value && dynamicData.value.zone == savedZone.value && !zones.includes(savedZone.value)){
+        zones.unshift(savedZone.value);
+    }
+    return zones;
+});
+
+const onCountryChange = () => {
+    if (!zonesForCountry.value.includes(dynamicData.value.zone)){
+        dynamicData.value.zone = zonesForCountry.value[0] ?? '';
+    }
 }
 
 const deleteReport = async () => {
@@ -279,6 +301,7 @@ const loadReport = () => {
             user_id: response.user_id,
             zone: response.zone
         }
+        savedZone.value = response.zone;
 
     }).catch((error) => {
         Haptics.error();
